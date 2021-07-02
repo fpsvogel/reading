@@ -2,7 +2,7 @@
 
 require_relative "util"
 
-module Readstat
+module Reading
   # NotInitializedError indicates that an object has not been initialized before
   # its attempted use.
   class NotInitializedError < StandardError; end

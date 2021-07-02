@@ -21,7 +21,7 @@ module Blank
   end
 end
 
-module Readstat
+module Reading
   Colors = Pastel.new
 
   # HashToAttr allows a hash to be made into private attributes of an object.

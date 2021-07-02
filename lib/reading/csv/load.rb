@@ -10,11 +10,11 @@ module Reading
     # Load is a function that parses CSV lines into item data.
     class Load
       using HashToAttr
-      attr_private :config_load, :config_item, :cur_line
+      attr_private :config_csv, :config_item, :cur_line
 
-      def initialize(config_load, config_item)
-        config_load.to_attr_private(self)
-        @config_load       = config_load
+      def initialize(config_csv, config_item)
+        config_csv.to_attr_private(self)
+        @config_csv       = config_csv
         @config_item       = config_item
         @cur_line          = nil
       end
@@ -28,8 +28,8 @@ module Reading
         feed.each_line do |line|
           @cur_line = line.strip
           next if header? || comment? || blank_line?
-          items += ParseCSVLine.new(config_load, config_item)
-                               .call(cur_line, &data_postprocess_block)
+          items += ParseLine.new(config_csv, config_item)
+                            .call(cur_line, &data_postprocess_block)
         rescue InvalidLineError, ValidationError => e
           err_block&.call(e)
           next
@@ -41,7 +41,7 @@ module Reading
         raise FileError.new(path, label: "The library must be a file, not a directory!")
       ensure
         feed&.close if close_feed && feed.respond_to?(:close)
-        initialize(config_load, config_item) # reset to pre-call state
+        initialize(config_csv, config_item) # reset to pre-call state
       end
 
       private
@@ -65,8 +65,8 @@ module Reading
         attr_private :line, :formats_regex, :config_item
         attr_reader  :items
 
-        def initialize(config_load, config_item)
-          config_load.merge(config_item.slice(:formats)).to_attr_private(self)
+        def initialize(config_csv, config_item)
+          config_csv.merge(config_item.slice(:formats)).to_attr_private(self)
           @formats_regex = formats.values.join("|")
           @config_item = config_item
         end
@@ -76,6 +76,7 @@ module Reading
           @line = line
           items = split_multi_names(columns[:name]).map.with_index do |name, i|
             data = parse_item_data(columns, name, config_item.fetch(:template))
+            data = with_symbol_keys(data)
             if block_given?
               data_postprocess_block.call(data, line, i)
             else
@@ -88,9 +89,15 @@ module Reading
 
         private
 
+        def with_symbol_keys(item_data)
+          with_symbols = item_data.transform_keys(&:to_sym)
+          with_symbols[:format] = with_symbols[:format]&.to_sym
+          with_symbols
+        end
+
         def columns
           return @columns unless @columns.nil?
-          @columns = csv_columns
+          @columns = column_names
                       .zip(line.split(column_separator))
                       .to_h
           raise InvalidLineError.new(line) if any_important_columns_empty?(@columns)
@@ -130,14 +137,14 @@ module Reading
 
         def author(_=nil, name)
           name.sub(/^#{formats_regex}/, "")
-              .match(/.+(?=#{name_separator})/)
+              .match(/.+(?=#{author_separator})/)
               &.to_s
               &.strip
         end
 
         def title(_=nil, name)
           name.sub(/^#{formats_regex}/, "")
-              .sub(/.+#{name_separator}/, "")
+              .sub(/.+#{author_separator}/, "")
               .presence \
               || raise(InvalidLineError.new(line))
         end
@@ -164,8 +171,8 @@ module Reading
           isbn = "(#{isbn_or_asin_regex.source})"
           url_name = "([^#{separator}]+)"
           url = "(https?://[^\\s#{separator}]+)"
-          url_prename = "#{url_name}#{name_separator}#{url}"
-          url_postname = "#{url}#{name_separator}#{url_name}"
+          url_prename = "#{url_name}#{source_name_separator}#{url}"
+          url_postname = "#{url}#{source_name_separator}#{url_name}"
           @sources_regex = /#{isbn}|#{url_prename}|#{url_postname}|#{url}/
         end
 
@@ -178,7 +185,7 @@ module Reading
                     .gsub(isbns_and_urls_regex, separator)
                     .split(separator)
                     .reject { |name| name.strip.empty? }
-          (urls + names).presence
+          (urls << names).presence
         end
 
         def sources_separator
@@ -283,23 +290,30 @@ module Reading
 
         def public_notes(columns, _=nil)
           columns[:public_notes]
-            &.gsub(notes_newline, "\n")
+            &.presence
             &.chomp
-            &.sub(/#{notes_newline.chop}\z/, "")
+            &.sub(/#{notes_newline.rstrip}\z/, "")
+            &.split(notes_newline)
         end
 
         def blurb(columns, _=nil)
           columns[:blurb]
-            &.gsub(notes_newline, "\n")
+            &.presence
+            # &.gsub(notes_newline, "\n")
             &.chomp
-            &.sub(/#{notes_newline.chop}\z/, "")
+            # &.sub(/#{notes_newline.chop}\z/, "")
         end
 
         def private_notes(columns, _=nil)
           columns[:private_notes]
-            &.gsub(notes_newline, "\n")
+            &.presence
             &.chomp
-            &.sub(/#{notes_newline.chop}\z/, "")
+            &.sub(/#{notes_newline.rstrip}\z/, "")
+            &.split(notes_newline)
+        end
+
+        def history(columns, _=nil)
+          columns[:history]
         end
       end
     end
