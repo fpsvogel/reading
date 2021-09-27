@@ -36,14 +36,19 @@ module Reading
           end
           author = ParseAuthor.new(config).call(match[:author_title])
           title = ParseTitle.new(config).call(match[:author_title])
-          default = config.fetch(:item).fetch(:template)
           default.deeper_merge(
             author: author || default[:author],
             title: title,
-            variants:  [{ format: format(match[:format_emoji]) || default[:variants].first[:format],
-                          sources: sources(match[:sources]) || default[:variants].first[:sources] }],
+            variants:  [{ format: format(match[:format_emoji]) ||
+                            default.fetch(:variants).first.fetch(:format),
+                          sources: sources(match[:sources]) ||
+                            default.fetch(:variants).first.fetch(:sources) }],
             genres: [genre] || default[:genres]
           )
+        end
+
+        def default
+          @default ||= config.fetch(:item).fetch(:template)
         end
 
         def format(format_emoji)
@@ -56,7 +61,20 @@ module Reading
                       .map { |source| source.sub(/\s*,\s*/, "") }
                       .map(&:strip)
                       .reject(&:empty?)
-                      .map { |source| [source] }
+                      .map do |source|
+                        if valid_url?(source)
+                          source.chop! if source.chars.last == "/"
+                          { name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
+                            url: source }
+                        else
+                          { name: source,
+                            url: default.fetch(:variants).first.fetch(:sources).first[:url] }
+                        end
+                      end
+        end
+
+        def valid_url?(str)
+          str&.match?(/http[^\s,]+/)
         end
       end
     end

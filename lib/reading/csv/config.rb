@@ -11,7 +11,8 @@ module Reading
       {
         handle_error:             -> (error) { puts error },
         max_length:               (IO.console.winsize[1] if IO.respond_to?(:console)) ||
-                                    100
+                                    100,
+        catch_all_errors:         false # set this to false during development.
       },
     item:
       {
@@ -24,13 +25,24 @@ module Reading
                                   course:     "🏫",
                                   article:    "📰",
                                   website:    "🌐" },
+        sources:
+         {
+           names_from_urls:     { "youtube.com" => "YouTube",
+                                  "youtu.be" => "YouTube",
+                                  "books.google.com" => "Google Books",
+                                  "archive.org" => "Internet Archive",
+                                  "lexpublib.org" => "Lexington Public Library",
+                                  "tv.apple.com" => "Apple TV" },
+          default_name_for_url: "site"
+         },
         template:               { rating: nil,
                                   author: nil,
                                   title: nil,
                                   series: [{ name: nil,
                                              volume: nil }],
                                   variants:    [{ format: nil,
-                                                  sources: [], # e.g. [["Little Library"], ["iandoescher.com", "author"]]
+                                                  sources: [{ name: nil,
+                                                              url: nil }],
                                                   isbn: nil,
                                                   length: nil,
                                                   extra_info: [] }],

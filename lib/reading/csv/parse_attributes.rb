@@ -43,7 +43,6 @@ module Reading
 
         class ParseSeries < ParseAttribute
           def call(name, _columns = nil)
-            default = config.fetch(:item).fetch(:template).fetch(:series).first
             separated = name.split(config.fetch(:csv).fetch(:long_separator))
                             .map(&:strip)
                             .map(&:presence)
@@ -58,6 +57,10 @@ module Reading
               end
             end
             .compact.presence || [default.dup]
+          end
+
+          def default
+            @default ||= config.fetch(:item).fetch(:template).fetch(:series).first
           end
         end
 

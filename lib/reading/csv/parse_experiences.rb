@@ -11,7 +11,6 @@ module Reading
 
         class ParseExperiences < ParseAttribute
           def call(_name = nil, columns)
-            default = config.fetch(:item).fetch(:template).fetch(:experiences).first
             started, finished = dates_split(columns)
             if config.fetch(:csv).fetch(:reverse_dates)
               started, finished = started.reverse, finished.reverse
@@ -27,6 +26,10 @@ module Reading
                 variant_id: variant_id(entry)                 || default[:variant_id] }
             end
             .presence || [default.merge(progress: progress(columns[:name]) || default[:progress])]
+          end
+
+          def default
+            @default ||= config.fetch(:item).fetch(:template).fetch(:experiences).first
           end
 
           def dates_split(columns)

@@ -33,7 +33,11 @@ module Reading
           # initial/middle columns in ParseRegularLine#set_columns, and raise
           # appropriate errors if possible.
           unless e.is_a? InvalidItemError
-            e = InvalidItemError.new("A line could not be parsed. Check this line")
+            if config.fetch(:error).fetch(:catch_all_errors)
+              e = InvalidItemError.new("A line could not be parsed. Check this line")
+            else
+              raise e
+            end
           end
           e.handle(source: line, &config.fetch(:error).fetch(:handle_error))
           []

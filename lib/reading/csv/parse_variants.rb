@@ -11,7 +11,6 @@ module Reading
 
         class ParseVariants < ParseAttribute
           def call(name, columns)
-            default = config.fetch(:item).fetch(:template).fetch(:variants).first
             format_in_name = format(name)
             length_in_length = length(columns[:length])
             extra_info_in_name = extra_info(name).presence
@@ -34,6 +33,10 @@ module Reading
             .presence || [default.dup]
           end
 
+          def default
+            @default ||= config.fetch(:item).fetch(:template).fetch(:variants).first
+          end
+
           def format(str)
             emoji = str.match(/^#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/).to_s
             config.fetch(:item).fetch(:formats).key(emoji)
@@ -47,9 +50,33 @@ module Reading
             isbns[0]&.to_s
           end
 
+          def length(str, in_variant: false)
+            return nil if str.nil?
+            len = str.strip
+            time_length = len.match(config.fetch(:csv).fetch(:regex).fetch(:time_length))&.captures&.first
+            return time_length unless time_length.nil?
+            pages_length_regex =
+              if in_variant
+                config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant)
+              else
+                config.fetch(:csv).fetch(:regex).fetch(:pages_length)
+              end
+            len.match(pages_length_regex)&.captures&.first&.to_i
+          end
+
+          def extra_info(str)
+            separated = str.split(config.fetch(:csv).fetch(:long_separator))
+            separated.delete_at(0) # everything before the extra info.
+            separated.reject do |str|
+              str.start_with?("#{config.fetch(:csv).fetch(:series_prefix)} ") ||
+                str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))
+            end
+          end
+
           def sources(str)
-            (sources_urls(str) + sources_names(str)
-              .map { |name| [name]}).reject(&:empty?).presence
+            (sources_urls(str) + sources_names(str).map { |name| [name]})
+              .map { |source_array| source_array_to_hash(source_array) }
+              .compact.presence
           end
 
           def sources_urls(str)
@@ -79,27 +106,37 @@ module Reading
                .sub(config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant), ", \\1, ")
           end
 
-          def length(str, in_variant: false)
-            return nil if str.nil?
-            len = str.strip
-            time_length = len.match(config.fetch(:csv).fetch(:regex).fetch(:time_length))&.captures&.first
-            return time_length unless time_length.nil?
-            pages_length_regex =
-              if in_variant
-                config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant)
-              else
-                config.fetch(:csv).fetch(:regex).fetch(:pages_length)
+          def source_array_to_hash(array)
+            return nil if array.nil? || array.empty?
+            array = [array[0].strip, array[1]&.strip]
+            if valid_url?(array[0])
+              if valid_url?(array[1])
+                raise InvalidItemError, "Each Source must have only one one URL."
               end
-            len.match(pages_length_regex)&.captures&.first&.to_i
+              array = array.reverse
+            elsif !valid_url?(array[1]) && !array[1].nil?
+              raise InvalidItemError, "Invalid URL, or each Source must have only one one name."
+            end
+            url = array[1]
+            url.chop! if url&.chars&.last == "/"
+            name = array[0] || auto_name_from_url(url)
+            { name: name || default.fetch(:sources).first[:name],
+              url: url   || default.fetch(:sources).first[:url] }
           end
 
-          def extra_info(str)
-            separated = str.split(config.fetch(:csv).fetch(:long_separator))
-            separated.delete_at(0) # everything before the extra info.
-            separated.reject do |str|
-              str.start_with?("#{config.fetch(:csv).fetch(:series_prefix)} ") ||
-                str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))
-            end
+          def valid_url?(str)
+            str&.match?(/http[^\s,]+/)
+          end
+
+          def auto_name_from_url(url)
+            return nil if url.nil?
+            config.fetch(:item).fetch(:sources).fetch(:names_from_urls)
+                  .each do |url_part, auto_name|
+                    if url.include?(url_part)
+                      return auto_name
+                    end
+                  end
+            config.fetch(:item).fetch(:sources).fetch(:default_name_for_url)
           end
         end
       end

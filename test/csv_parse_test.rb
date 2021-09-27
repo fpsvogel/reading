@@ -133,13 +133,13 @@ class CsvParseTest < TestBase
   url_source:
     "Goatsong|https://www.edlin.org/holt",
   url_source_with_name:
-    "Goatsong|about the author - https://www.edlin.org/holt",
+    "Goatsong|about Tom Holt - https://www.edlin.org/holt",
   url_source_with_name_after:
-    "Goatsong|https://www.edlin.org/holt - about the author",
+    "Goatsong|https://www.edlin.org/holt - about Tom Holt",
   sources:
     "Goatsong|Little Library https://www.edlin.org/holt Lexpub",
   sources_commas:
-    "Goatsong|Little Library, https://www.edlin.org/holt - about the author, Lexpub",
+    "Goatsong|Little Library, https://www.edlin.org/holt - about Tom Holt, Lexpub",
   source_with_isbn:
     "Goatsong|Little Library 0312038380",
   source_with_isbn_reversed:
@@ -147,7 +147,7 @@ class CsvParseTest < TestBase
   sources_with_isbn:
     "Goatsong|Little Library 0312038380 https://www.edlin.org/holt",
   sources_with_isbn_commas:
-    "Goatsong|Little Library, 0312038380, https://www.edlin.org/holt - about the author, Lexpub",
+    "Goatsong|Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub",
   simple_variants:
     "Goatsong|Little Library -- Lexpub",
   extra_info_can_be_included_if_format_is_specified:
@@ -157,7 +157,7 @@ class CsvParseTest < TestBase
   length_after_sources_isbn_and_before_extra_info:
     "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990 🔊Lexpub 7:03",
   multiple_sources_allowed_in_variant:
-    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt - about the author, Lexpub, 247 -- unabridged -- 1990 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub, 247 -- unabridged -- 1990 🔊Lexpub 7:03",
   }
 
   @files[:dates_started] =
@@ -236,7 +236,7 @@ class CsvParseTest < TestBase
   EOM
   @files[:examples][:compact_planned] = <<~EOM.freeze
     \\------ PLANNED
-    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library, @Hoopla, 🔊Two Gentlemen of Lebowski @Lexpub
+    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library, @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE: 📕Randall Munroe - How To: Absurd Scientific Advice for Common Real-World Problems @Lexpub, 🔊On the Origin of Species, 🔊Weird Earth @Hoopla
   EOM
 
@@ -293,7 +293,7 @@ class CsvParseTest < TestBase
   @items[:enabled_columns] << [a_length, b_length, c]
 
   a_sources = a.deeper_merge(variants: [{ isbn: "B00ICN066A",
-                           sources: [["Vail Library"]] }])
+                              sources: [{ name: "Vail Library", url: nil }] }])
   b_sources = b.deeper_merge(variants: [{ isbn: "0312038380" }])
   @items[:enabled_columns] << [a_sources, b_sources, c]
 
@@ -388,22 +388,22 @@ class CsvParseTest < TestBase
   a = a_basic.deeper_merge(variants: [{ isbn: "B00GVG01HE" }])
   @items[:sources][:ASIN] = [a]
 
-  library = ["Little Library"]
+  library = { name: "Little Library", url: nil }
   a = a_basic.deeper_merge(variants: [{ sources: [library] }])
   @items[:sources][:source] = [a]
 
-  site = ["https://www.edlin.org/holt"]
+  site = { name: config[:item][:sources][:default_name_for_url],
+           url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site] }])
   @items[:sources][:url_source] = [a]
 
-  site_named = ["https://www.edlin.org/holt", "about the author"]
-  a = a_basic.deeper_merge(variants: [{ sources: [site_named.reverse] }])
+  site_named = { name: "about Tom Holt", url: "https://www.edlin.org/holt" }
+  a = a_basic.deeper_merge(variants: [{ sources: [site_named] }])
   @items[:sources][:url_source_with_name] = [a]
 
-  a = a_basic.deeper_merge(variants: [{ sources: [site_named] }])
   @items[:sources][:url_source_with_name_after] = [a]
 
-  lexpub = ["Lexpub"]
+  lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
   a = a_basic.deeper_merge(variants: [{ sources: three_sources }])
   @items[:sources][:sources] = [a]
@@ -551,7 +551,7 @@ class CsvParseTest < TestBase
   sapiens = item_data(
     title: "Sapiens: A Brief History of Humankind",
     variants:    [{ format: :audiobook,
-                    sources: [["Vail Library"]],
+                    sources: [{ name: "Vail Library", url: nil }],
                     isbn: "B00ICN066A",
                     length: "15:17" }],
     experiences: [{ date_added: "2021/06/11",
@@ -600,7 +600,7 @@ class CsvParseTest < TestBase
     rating: 2,
     title: "Total Cat Mojo",
     variants:    [{ format: :audiobook,
-                    sources: [["gift from neighbor Edith"]],
+                    sources: [{ name: "gift from neighbor Edith", url: nil }],
                     isbn: "B01NCYY3BV",
                     length: "10:13" }],
     experiences: [{ date_started:  "2020/03/21",
@@ -633,12 +633,12 @@ class CsvParseTest < TestBase
     author: "Randall Munroe",
     title: "What If?: Serious Scientific Answers to Absurd Hypothetical Questions",
     variants:    [{ format: :audiobook,
-                    sources: [%w[Lexpub]],
+                    sources: [{ name: "Lexpub", url: nil }],
                     isbn: "B00LV2F1ZA",
                     length: "6:36",
                     extra_info: ["unabridged", "published 2016"] },
                   { format: :ebook,
-                    sources: [%w[Amazon]],
+                    sources: [{ name: "Amazon", url: nil }],
                     isbn: "B00IYUYF4A",
                     length: 320,
                     extra_info: ["published 2014"] }],
@@ -672,7 +672,7 @@ class CsvParseTest < TestBase
     author: "Randall Munroe",
     title: "How To: Absurd Scientific Advice for Common Real-World Problems",
     variants:    [{ format: :print,
-                    sources: [%w[Lexpub]],
+                    sources: [{ name: "Lexpub", url: nil }],
                     isbn: "B07NCQTJV3",
                     length: 320 }],
     experiences: [{ date_added: "2021/06/27" }],
@@ -689,20 +689,22 @@ class CsvParseTest < TestBase
   true_grit = item_data(
     title: "True Grit",
     variants:  [{ format: :audiobook,
-                  sources: [["Little Library"], ["Hoopla"]] }],
+                  sources: [{ name: "Little Library", url: nil },
+                            { name: "Hoopla", url: nil }] }],
     genres: ["historical fiction"]
   )
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
-                  sources: [%w[Lexpub]] }],
+                  sources: [{ name: config[:item][:sources][:default_name_for_url],
+                              url: "https://www.runleiarun.com/lebowski" }] }],
     genres: ["historical fiction"]
   )
   how_to = item_data(
     author: "Randall Munroe",
     title: "How To: Absurd Scientific Advice for Common Real-World Problems",
     variants:  [{ format: :print,
-                  sources: [%w[Lexpub]] }],
+                  sources: [{ name: "Lexpub", url: nil }] }],
     genres: %w[science]
   )
   darwin = item_data(
@@ -713,7 +715,7 @@ class CsvParseTest < TestBase
   weird_earth = item_data(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
-                  sources: [%w[Hoopla]] }],
+                  sources: [{ name: "Hoopla", url: nil }] }],
     genres: %w[science]
   )
   @items[:examples][:compact_planned] = [nero, true_grit, lebowski, how_to, darwin, weird_earth]
@@ -758,51 +760,51 @@ class CsvParseTest < TestBase
   end
 
   def test_columns_can_be_disabled
-    # skip
+#    skip
     column_sets = files[:enabled_columns].keys
     column_sets.each_with_index do |set_name, i|
       columns = set_name.to_s.split(", ").map(&:to_sym)
       set_columns(*columns)
       exp = items[:enabled_columns][i]
       act = parse("enabled_columns_#{set_name}.csv")
-      binding.pry unless exp == act
+      # binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_number_custom_columns
-    # skip
+#    skip
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_columns: { surprise_factor: :number, family_friendliness: :number })
     exp = items[:custom_columns][:number]
     act = parse("custom_columns_number.csv")
-    binding.pry unless exp == act
+    # binding.pry unless exp == act
     assert_equal exp, act
   end
 
   def test_text_custom_columns
-    # skip
+#    skip
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_columns: { mood: :text, color: :text })
     exp = items[:custom_columns][:text]
     act = parse("custom_columns_text.csv")
-    binding.pry unless exp == act
+    # binding.pry unless exp == act
     assert_equal exp, act
   end
 
   def test_name_column_features
-    # skip
+#    skip
     set_columns(:name)
     files[:name].each do |feat, _file_str|
       exp = items[:name][feat]
       act = parse("name_#{feat}.csv")
-      binding.pry unless exp == act
+      # binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_sources_column_features
-    # skip
+#    skip
     set_columns(:sources)
     files[:sources].each do |feat, _file_str|
       exp = items[:sources][feat]
@@ -813,7 +815,7 @@ class CsvParseTest < TestBase
   end
 
   def test_dates_started_column_features
-    # skip
+#    skip
     set_columns(:dates_started)
     files[:dates_started].each do |feat, _file_str|
       exp = items[:dates_started][feat]
@@ -824,7 +826,7 @@ class CsvParseTest < TestBase
   end
 
   def test_genres_column_features
-    # skip
+#    skip
     set_columns(:genres)
     files[:genres].each do |feat, _file_str|
       exp = items[:genres][feat]
@@ -835,7 +837,7 @@ class CsvParseTest < TestBase
   end
 
   def test_examples
-    # skip
+#    skip
     set_columns(:all)
     files[:examples].each do |group, _file_str|
       exp = items[:examples][group]
