@@ -1,29 +1,36 @@
 # frozen_string_literal: true
 
-require_relative "lib/reading/csv/load/version"
+require_relative "lib/reading/csv/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "reading-csv-load"
-  spec.version       = Reading::CSV::Load::VERSION
+  spec.name          = "reading-csv"
+  spec.version       = Reading::Csv::VERSION
   spec.authors       = ["Felipe Vogel"]
   spec.email         = ["fps.vogel@gmail.com"]
 
-  spec.summary       = "reading-csv-load parses a CSV reading list."
-  spec.homepage      = "https://github.com/fpsvogel/reading-csv-load"
+  spec.summary       = "reading-csv parses a CSV reading list."
+  spec.homepage      = "https://github.com/fpsvogel/reading-csv"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
   spec.add_runtime_dependency "attr_extras", "~> 6.0"
   spec.add_runtime_dependency "date", "~> 3.0"
   spec.add_runtime_dependency "pastel", "~> 0.8"
+  spec.add_runtime_dependency "activesupport", "~> 6.0"
+
+  spec.add_development_dependency "pry", "~> 0.14"
+  spec.add_development_dependency "pry-byebug", "~> 3.0"
+  spec.add_development_dependency "dead_end", "~> 1.0"
+  spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_development_dependency "minitest-reporters", "~> 1.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/fpsvogel/reading-csv-load"
-  spec.metadata["changelog_uri"] = "https://github.com/fpsvogel/reading-csv-load/blob/master/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://github.com/fpsvogel/reading-csv"
+  spec.metadata["changelog_uri"] = "https://github.com/fpsvogel/reading-csv/blob/master/CHANGELOG.md"
 
-  # spec.files = ["lib/reading/csv/load.rb",
+  # spec.files = ["lib/reading/csv/parse.rb",
   #               "lib/reading/csv/errors.rb",
   #               "lib/reading/csv/util.rb"
   #               "README.md", "LICENSE.txt"]
