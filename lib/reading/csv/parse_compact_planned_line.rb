@@ -21,7 +21,7 @@ module Reading
         def before_parse
           list_start = line.match(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
           @genre = list_start[:genre]
-          @genre = genre.downcase if genre == genre.upcase
+          @genre = genre.downcase
           @line_without_genre = line.sub(list_start.to_s, "")
         end
 
@@ -29,6 +29,8 @@ module Reading
           line_without_genre
         end
 
+        # TODO name still never has two consecutive format emojis. so, must
+        # process the raw split string before this, if e.g. "🔊📕Some Book" is to be possible.
         def item_data(name)
           match = name.match(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_item))
           unless match
@@ -36,19 +38,26 @@ module Reading
           end
           author = ParseAuthor.new(config).call(match[:author_title])
           title = ParseTitle.new(config).call(match[:author_title])
-          default.deeper_merge(
-            author: author || default[:author],
-            title: title,
-            variants:  [{ format: format(match[:format_emoji]) ||
-                            default.fetch(:variants).first.fetch(:format),
-                          sources: sources(match[:sources]) ||
-                            default.fetch(:variants).first.fetch(:sources) }],
-            genres: [genre] || default[:genres]
-          )
+          item = default.deeper_merge(
+              author: author || template[:author],
+              title: title,
+              genres: [genre] || template[:genres]
+            )
+          variant = { format: nil,
+                      sources: sources(match[:sources]) || [],
+                      isbn: template.fetch(:variants).first.fetch(:isbn),
+                      length: template.fetch(:variants).first.fetch(:length),
+                      extra_info: template.fetch(:variants).first.fetch(:extra_info) }
+          match[:format_emojis].scan(
+            /#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/
+          ).each do |format_emoji|
+            item = item.deeper_merge(variants: [variant.merge(format: format(format_emoji))])
+          end
+          item
         end
 
-        def default
-          @default ||= config.fetch(:item).fetch(:template)
+        def template
+          @template ||= config.fetch(:item).fetch(:template)
         end
 
         def format(format_emoji)
@@ -68,9 +77,10 @@ module Reading
                             url: source }
                         else
                           { name: source,
-                            url: default.fetch(:variants).first.fetch(:sources).first[:url] }
+                            url: template.fetch(:variants).first.fetch(:sources).first[:url] }
                         end
                       end
+                      # .reject { |name, url| name.nil? && url.nil? }
         end
 
         def valid_url?(str)

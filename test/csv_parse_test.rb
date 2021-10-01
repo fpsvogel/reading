@@ -10,7 +10,7 @@ class CsvParseTest < TestBase
   using Reading::Util::DeeperMerge
 
   @config = Reading.config
-  @config[:error][:handle_error] = lambda do |error|
+  @config[:errors][:handle_error] = lambda do |error|
     @error_log << error
     puts error
   end
@@ -136,6 +136,8 @@ class CsvParseTest < TestBase
     "Goatsong|about Tom Holt - https://www.edlin.org/holt",
   url_source_with_name_after:
     "Goatsong|https://www.edlin.org/holt - about Tom Holt",
+  url_source_with_auto_name:
+    "Goatsong|https://archive.org/details/walledorchard0000holt",
   sources:
     "Goatsong|Little Library https://www.edlin.org/holt Lexpub",
   sources_commas:
@@ -253,6 +255,29 @@ class CsvParseTest < TestBase
       end
     end
   end
+
+  # removes any blank hashes in arrays, i.e. any that are the same as in the
+  # template in config. data in items must already be complete, i.e. merged with
+  # the item template in config.
+  def tidy(items)
+    items.map do |data|
+      without_blank_hashes(data)
+    end
+  end
+
+  def without_blank_hashes(item_data)
+    template = config.fetch(:item).fetch(:template)
+    %i[series variants experiences].each do |attribute|
+      item_data[attribute] =
+        item_data[attribute].reject { |value| value == template[attribute].first }
+    end
+    item_data[:variants].each do |variant|
+      variant[:sources] =
+        variant[:sources].reject { |value| value == template[:variants].first[:sources].first }
+    end
+    item_data
+  end
+
 
   def with_reread(data, started, finished, **other_attributes)
     data.dup.then do |dup|
@@ -402,6 +427,11 @@ class CsvParseTest < TestBase
   @items[:sources][:url_source_with_name] = [a]
 
   @items[:sources][:url_source_with_name_after] = [a]
+
+  site_auto_named = { name: "Internet Archive",
+                      url: "https://archive.org/details/walledorchard0000holt" }
+  a = a_basic.deeper_merge(variants: [{ sources: [site_auto_named] }])
+  @items[:sources][:url_source_with_auto_name] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
@@ -760,89 +790,89 @@ class CsvParseTest < TestBase
   end
 
   def test_columns_can_be_disabled
-#    skip
+  #  skip
     column_sets = files[:enabled_columns].keys
     column_sets.each_with_index do |set_name, i|
       columns = set_name.to_s.split(", ").map(&:to_sym)
       set_columns(*columns)
-      exp = items[:enabled_columns][i]
+      exp = tidy(items[:enabled_columns][i])
       act = parse("enabled_columns_#{set_name}.csv")
-      # binding.pry unless exp == act
+      binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_number_custom_columns
-#    skip
+  #  skip
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_columns: { surprise_factor: :number, family_friendliness: :number })
-    exp = items[:custom_columns][:number]
+    exp = tidy(items[:custom_columns][:number])
     act = parse("custom_columns_number.csv")
-    # binding.pry unless exp == act
+    binding.pry unless exp == act
     assert_equal exp, act
   end
 
   def test_text_custom_columns
-#    skip
+  #  skip
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_columns: { mood: :text, color: :text })
-    exp = items[:custom_columns][:text]
+    exp = tidy(items[:custom_columns][:text])
     act = parse("custom_columns_text.csv")
-    # binding.pry unless exp == act
+    binding.pry unless exp == act
     assert_equal exp, act
   end
 
   def test_name_column_features
-#    skip
+  #  skip
     set_columns(:name)
     files[:name].each do |feat, _file_str|
-      exp = items[:name][feat]
+      exp = tidy(items[:name][feat])
       act = parse("name_#{feat}.csv")
-      # binding.pry unless exp == act
+      binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_sources_column_features
-#    skip
+  #  skip
     set_columns(:sources)
     files[:sources].each do |feat, _file_str|
-      exp = items[:sources][feat]
+      exp = tidy(items[:sources][feat])
       act = parse("sources_#{feat}.csv")
-      # binding.pry unless exp == act
+      binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_dates_started_column_features
-#    skip
+  #  skip
     set_columns(:dates_started)
     files[:dates_started].each do |feat, _file_str|
-      exp = items[:dates_started][feat]
+      exp = tidy(items[:dates_started][feat])
       act = parse("dates_started_#{feat}.csv")
-      # binding.pry unless exp == act
+      binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_genres_column_features
-#    skip
+  #  skip
     set_columns(:genres)
     files[:genres].each do |feat, _file_str|
-      exp = items[:genres][feat]
+      exp = tidy(items[:genres][feat])
       act = parse("genres_#{feat}.csv")
-      # binding.pry unless exp == act
+      binding.pry unless exp == act
       assert_equal exp, act
     end
   end
 
   def test_examples
-#    skip
+  #  skip
     set_columns(:all)
     files[:examples].each do |group, _file_str|
-      exp = items[:examples][group]
+      exp = tidy(items[:examples][group])
       act = parse("examples_#{group}.csv")
-      # binding.pry unless exp == act
+      binding.pry unless exp == act
       assert_equal exp, act
     end
   end

@@ -7,12 +7,13 @@ module Reading
 
   @config =
   {
-    error:
+    errors:
       {
         handle_error:             -> (error) { puts error },
         max_length:               (IO.console.winsize[1] if IO.respond_to?(:console)) ||
                                     100,
-        catch_all_errors:         false # set this to false during development.
+        catch_all_errors:         true, # set this to false during development.
+        style_mode:               :terminal # or :html
       },
     item:
       {
@@ -106,8 +107,8 @@ module Reading
       config[:csv][:regex] =
         {
           comment_escaped: comment_character,
-          compact_planned_line_start: /\A\s*#{comment_character}(?<genre>[^:,]+):\s*(?=#{formats})/,
-          compact_planned_item: /(?<format_emoji>#{formats})(?<author_title>[^@]+)(?<sources>@.+)?\z/,
+          compact_planned_line_start: /\A\s*#{comment_character}(?<genre>[^a-z:,\|]+):\s*(?=#{formats})/,
+          compact_planned_item: /\A(?<format_emojis>(?:#{formats})+)(?<author_title>[^@]+)(?<sources>@.+)?\z/,
           formats: formats,
           formats_split: /\s*(?=#{formats})/,
           series_volume: /,\s*#(\d+)\z/,

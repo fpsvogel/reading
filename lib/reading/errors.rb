@@ -9,34 +9,35 @@ module Reading
 
   class AppError < StandardError
     def initialize(msg = nil, label: "Error")
-      super(color.call(label + colon_before?(msg)) +
-            (msg || ""))
+      super(label + colon_before?(msg) + (msg || ""))
     end
 
     # source is e.g. the CSV line where an invalid Item comes from.
-    def handle(source: nil, &handle_error)
+    def handle(source: nil, config:)
+      handle = config.fetch(:errors).fetch(:handle_error)
       if source.nil?
-        yield self
+        handle.call(self)
       else
-        yield with_source(source)
+        handle.call(styled_with_source(source, config: config))
       end
     end
 
     protected
 
     def color
-      Colors.bright_red.bold.detach
+      :red
     end
 
     def colon_before?(msg)
       msg.nil? ? "" : ": "
     end
 
-    def with_source(source)
+    def styled_with_source(source, config:)
       truncated_source = truncate(source,
-                                  Reading.config[:error][:max_length],
+                                  config.fetch(:errors).fetch(:max_length),
                                   padding: message.length)
-      self.class.new(truncated_source, label: message)
+      self.class.new(truncated_source,
+                      label: styled(message, config))
     end
 
     def truncate(str, max, padding: 0, min: 30)
@@ -44,11 +45,20 @@ module Reading
       end_index = min if end_index < min
       str.length + padding > max ? "#{str[0...end_index]}..." : str
     end
+
+    def styled(str, config)
+      case config.fetch(:errors).fetch(:style_mode)
+      when :terminal
+        Colors.send("bright_#{color}").bold(str)
+      when :html
+        "<rl-error class=\"#{color}\">#{str}</rl-error>"
+      end
+    end
   end
 
   module Warning
     def color
-      Colors.bright_yellow.detach
+      :yellow
     end
   end
 

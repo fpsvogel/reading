@@ -17,8 +17,8 @@ module Reading
             return nil unless columns[:rating]
             rating = columns[:rating].strip
             return nil if rating.empty?
-            Integer(rating, exception: false) \
-              || Float(rating, exception: false)
+            Integer(rating, exception: false) ||
+              Float(rating, exception: false)
           end
         end
 
@@ -56,11 +56,11 @@ module Reading
                   volume: volume&.captures&.first&.to_i                      || default[:volume] }
               end
             end
-            .compact.presence || [default.dup]
+            .compact.presence || []
           end
 
           def default
-            @default ||= config.fetch(:item).fetch(:template).fetch(:series).first
+            config.fetch(:item).fetch(:template).fetch(:series).first
           end
         end
 

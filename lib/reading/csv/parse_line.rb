@@ -8,19 +8,37 @@ module Reading
     class Parse
       # ParseLine is a base class that holds common behaviors.
       class ParseLine
-        attr_private :line, :config
+        attr_private :line, :config, :default
 
         def initialize(merged_config)
           @line = nil
           @config ||= merged_config
+          setup_default
           after_initialize
+        end
+
+        def setup_default
+          @default =
+            config.fetch(:item).fetch(:template)
+                  .map do |attribute, value|
+                    if value.is_a?(Array) && value.first.is_a?(Hash)
+                      [attribute, []]
+                    else
+                      [attribute, value]
+                    end
+                  end.to_h
         end
 
         def call(line, &postprocess)
           @line = line
           before_parse
-          items = split_by_format_emojis.map.with_index do |name|
+          titles = []
+          items = split_by_format_emojis.map do |name|
             data = item_data(name)
+            if titles.include?(name)
+              raise InvalidItemError, "A title must not appear more than once in the list"
+            end
+            titles << data[:title]
             if block_given?
               postprocess.call(data)
             else
@@ -33,13 +51,13 @@ module Reading
           # initial/middle columns in ParseRegularLine#set_columns, and raise
           # appropriate errors if possible.
           unless e.is_a? InvalidItemError
-            if config.fetch(:error).fetch(:catch_all_errors)
+            if config.fetch(:errors).fetch(:catch_all_errors)
               e = InvalidItemError.new("A line could not be parsed. Check this line")
             else
               raise e
             end
           end
-          e.handle(source: line, &config.fetch(:error).fetch(:handle_error))
+          e.handle(source: line, config: config)
           []
         ensure
           # reset to pre-call state.
@@ -55,7 +73,7 @@ module Reading
               names.first.sub!(config.fetch(:csv).fetch(:regex).fetch(:dnf), "")
               names.first.sub!(config.fetch(:csv).fetch(:regex).fetch(:progress), "")
             end
-            .map { |name| name.strip.sub(/[,;]\z/, "") }
+            .map { |name| name.strip.sub(/\s*[,;]\z/, "") }
             .partition { |name| name.match?(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/) }
             .reject(&:empty?)
             .first

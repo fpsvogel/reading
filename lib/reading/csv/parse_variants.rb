@@ -21,20 +21,29 @@ module Reading
                           config.fetch(:csv).fetch(:long_separator)
                         end
             sources_str.split(separator).map do |variant_with_extra_info|
-              variant = variant_with_extra_info.split(config.fetch(:csv).fetch(:long_separator)).first
-              { format: format(variant) || format_in_name    || default[:format],
-                sources: sources(variant)                    || default[:sources],
-                isbn: isbn(variant)                          || default[:isbn],
-                length: length(variant, in_variant: true) ||
-                                            length_in_length || default[:length],
-                extra_info: extra_info(variant_with_extra_info).presence ||
-                                          extra_info_in_name || default[:extra_info] }
-            end
-            .presence || [default.dup]
+              variant_str = variant_with_extra_info.split(config.fetch(:csv).fetch(:long_separator)).first
+              variant =
+                { format: format(variant_str) || format_in_name || template[:format],
+                  sources: sources(variant_str)                 || [],
+                  isbn: isbn(variant_str)                       || template[:isbn],
+                  length: length(variant_str,
+                          in_variant: true) || length_in_length || template[:length],
+                  extra_info: extra_info(variant_with_extra_info).presence ||
+                                            extra_info_in_name || template[:extra_info] }
+              if variant != template_with_empty_sources
+                variant
+              else
+                nil
+              end
+            end.compact.presence || []
           end
 
-          def default
-            @default ||= config.fetch(:item).fetch(:template).fetch(:variants).first
+          def template
+            @template ||= config.fetch(:item).fetch(:template).fetch(:variants).first
+          end
+
+          def template_with_empty_sources
+            @template_with_empty_sources ||= template.merge(sources: [])
           end
 
           def format(str)
@@ -120,8 +129,8 @@ module Reading
             url = array[1]
             url.chop! if url&.chars&.last == "/"
             name = array[0] || auto_name_from_url(url)
-            { name: name || default.fetch(:sources).first[:name],
-              url: url   || default.fetch(:sources).first[:url] }
+            { name: name || template.fetch(:sources).first[:name],
+              url: url   || template.fetch(:sources).first[:url] }
           end
 
           def valid_url?(str)

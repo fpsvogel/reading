@@ -34,13 +34,14 @@ module Reading
                 path: nil,
                 close_feed: true,
                 selective: true,
+                skip_compact_planned: false,
                 &postprocess)
         if feed.nil? && path.nil? && config.fetch(:csv).fetch(:path).nil?
           raise ArgumentError, "No file given to load."
         end
         feed ||= File.open(path || config.fetch(:csv).fetch(:path))
         items = []
-        parse = ParseRegularLine.new(config)
+        parse_regular = ParseRegularLine.new(config)
         parse_compact_planned = ParseCompactPlannedLine.new(config)
         feed.each_line do |line|
           line.force_encoding(Encoding::UTF_8)
@@ -49,8 +50,9 @@ module Reading
           when :blank, :comment
             next
           when :regular
-            items += parse.call(cur_line, &postprocess)
+            items += parse_regular.call(cur_line, &postprocess)
           when :compact_planned_line
+            next if skip_compact_planned
             items += parse_compact_planned.call(cur_line, &postprocess)
           end
           break if selective &&

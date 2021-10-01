@@ -15,25 +15,34 @@ module Reading
             if config.fetch(:csv).fetch(:reverse_dates)
               started, finished = started.reverse, finished.reverse
             end
-            started.map.with_index do |entry, i|
-              { date_added: date_added(entry)                 || default[:date_added],
-                date_started:  date_started(entry)            || default[:date_started],
-                date_finished: date_finished(finished, i)     || default[:date_finished],
+            using_dates = started.map.with_index do |entry, i|
+              { date_added: date_added(entry)                 || template[:date_added],
+                date_started:  date_started(entry)            || template[:date_started],
+                date_finished: date_finished(finished, i)     || template[:date_finished],
                 progress: progress(entry) ||
                   progress(columns[:name],
-                     ignore_if_no_dnf: i < started.count - 1) || default[:progress],
-                group: group(entry)                           || default[:group],
-                variant_id: variant_id(entry)                 || default[:variant_id] }
+                     ignore_if_no_dnf: i < started.count - 1) || template[:progress],
+                group: group(entry)                           || template[:group],
+                variant_id: variant_id(entry)                 || template[:variant_id] }
+            end.presence
+            if using_dates
+              return using_dates
+            else
+              if prog = progress(columns[:name])
+                return [template.merge(progress: prog)]
+              else
+                return []
+              end
             end
-            .presence || [default.merge(progress: progress(columns[:name]) || default[:progress])]
           end
 
-          def default
-            @default ||= config.fetch(:item).fetch(:template).fetch(:experiences).first
+          def template
+            @template ||= config.fetch(:item).fetch(:template).fetch(:experiences).first
           end
 
           def dates_split(columns)
-            dates_finished = columns[:dates_finished]&.split(config.fetch(:csv).fetch(:separator)) || []
+            dates_finished = columns[:dates_finished]&.presence
+                              &.split(config.fetch(:csv).fetch(:separator)) || []
             # don't use #has_key? because simply checking for nil covers the
             # case where dates_started is the last column and omitted.
             started_column_exists = columns[:dates_started]&.presence

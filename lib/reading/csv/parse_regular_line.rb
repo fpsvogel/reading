@@ -87,9 +87,9 @@ module Reading
         def item_data(name)
           config.fetch(:item).fetch(:template)
                 .merge(config.fetch(:csv).fetch(:custom_columns).keys.map { |k| [k, nil] }.to_h)
-                .map do |attribute, default|
+                .map do |attribute, _template_default|
                   parsed = parse_attributes.fetch(attribute).call(name, columns)
-                  [attribute, parsed || default]
+                  [attribute, parsed || default[attribute]]
                 end
                 .to_h
         end
