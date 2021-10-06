@@ -536,7 +536,7 @@ class CsvParseTest < TestBase
 
   @items[:dates_started][:dnf_with_progress] = [a_halfway]
 
-  exp_v2 = { experiences: [{ variant_id: 1 }] }
+  exp_v2 = { experiences: [{ variant_index: 1 }] }
   a_variant = a_started.deeper_merge(exp_v2)
   @items[:dates_started][:variant] = [a_variant]
 
@@ -544,7 +544,7 @@ class CsvParseTest < TestBase
   @items[:dates_started][:variant_with_just_date_added] = [a]
 
   exp_v3 = { experiences: [{},
-                           { variant_id: 2 }] }
+                           { variant_index: 2 }] }
   a = item_data(**a.deeper_merge(exp_second_started).deeper_merge(exp_v3))
   @items[:dates_started][:variant_can_be_anywhere] = [a]
 
@@ -557,9 +557,9 @@ class CsvParseTest < TestBase
   @items[:dates_started][:other_text_before_or_after_dates_is_ignored] = [a_added_started]
 
   a = a_many.deeper_merge(experiences: [{ progress: 0.5,
-                                        variant_id: 1 },
+                                        variant_index: 1 },
                                       { progress: "2:30" },
-                                      { variant_id: 2 }])
+                                      { variant_index: 2 }])
   @items[:dates_started][:all_features] = [a]
 
 
@@ -651,7 +651,7 @@ class CsvParseTest < TestBase
     experiences: [{ date_started:  "2021/08/02",
                     date_finished: "2021/08/02",
                     progress: 0,
-                    variant_id: 0 }],
+                    variant_index: 0 }],
     visibility: 1,
     genres: %w[politics podcast],
     public_notes: ["Not very deep. Disappointing."]
@@ -674,14 +674,14 @@ class CsvParseTest < TestBase
                     extra_info: ["published 2014"] }],
     experiences: [{ date_started:  "2021/08/01",
                     date_finished: "2021/08/15",
-                    variant_id: 0 },
+                    variant_index: 0 },
                   { date_started:  "2021/08/16",
                     date_finished: "2021/08/28",
                     group: "with Sam",
-                    variant_id: 1 },
+                    variant_index: 1 },
                   { date_started:  "2021/09/01",
                     date_finished: "2021/09/10",
-                    variant_id: 0 }],
+                    variant_index: 0 }],
     visibility: 3,
     genres: %w[science],
     public_notes: ["Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet."],

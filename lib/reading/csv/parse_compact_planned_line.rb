@@ -29,8 +29,19 @@ module Reading
           line_without_genre
         end
 
-        # TODO name still never has two consecutive format emojis. so, must
-        # process the raw split string before this, if e.g. "🔊📕Some Book" is to be possible.
+        def split_by_format_emojis
+          super
+          # basic_split = super
+          # TODO further process the raw split string. see comments below.
+        end
+
+        # TODO allow multiple formats, in either of these two ways:
+        # …, 📕🔊Some Title, …
+        # …, 📕Some Title @lexpub, 🔊@hoopla, …
+        # the limitation is that currently name can't have more than one format
+        # emoji because the line is split at format emojis emojis. so, I must
+        # further process the raw split string in the overriden
+        # split_by_format_emojis above.
         def item_data(name)
           match = name.match(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_item))
           unless match

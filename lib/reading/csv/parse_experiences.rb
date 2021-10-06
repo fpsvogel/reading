@@ -23,7 +23,7 @@ module Reading
                   progress(columns[:name],
                      ignore_if_no_dnf: i < started.count - 1) || template[:progress],
                 group: group(entry)                           || template[:group],
-                variant_id: variant_id(entry)                 || template[:variant_id] }
+                variant_index: variant_index(entry)                 || template[:variant_index] }
             end.presence
             if using_dates
               return using_dates
@@ -90,8 +90,8 @@ module Reading
             entry.match(config.fetch(:csv).fetch(:regex).fetch(:group_experience))&.captures&.first
           end
 
-          def variant_id(date_entry)
-            match = date_entry.match(config.fetch(:csv).fetch(:regex).fetch(:variant_id))
+          def variant_index(date_entry)
+            match = date_entry.match(config.fetch(:csv).fetch(:regex).fetch(:variant_index))
             (match&.captures&.first&.to_i || 1) - 1
           end
         end

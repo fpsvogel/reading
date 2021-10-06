@@ -15,6 +15,7 @@ module Reading
       def initialize(custom_config = {})
         unless config
           @config = Reading.config.deeper_merge(custom_config)
+          # if custom formats are given, use only the custom formats.
           if custom_config[:item] && custom_config[:item][:formats]
             config[:item][:formats] = custom_config[:item][:formats]
           end
@@ -55,8 +56,15 @@ module Reading
             next if skip_compact_planned
             items += parse_compact_planned.call(cur_line, &postprocess)
           end
-          break if selective &&
-                  !config.fetch(:csv).fetch(:selective_continue).call(items.last)
+          if selective
+            continue = config.fetch(:csv).fetch(:selective_continue).call(items.last)
+            case continue
+            when false
+              break
+            when :skip
+              items.pop
+            end
+          end
         end
         items
       rescue Errno::ENOENT

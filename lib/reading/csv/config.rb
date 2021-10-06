@@ -10,8 +10,7 @@ module Reading
     errors:
       {
         handle_error:             -> (error) { puts error },
-        max_length:               (IO.console.winsize[1] if IO.respond_to?(:console)) ||
-                                    100,
+        max_length:               100, # or require "io/console", then IO.console.winsize[1]
         catch_all_errors:         true, # set this to false during development.
         style_mode:               :terminal # or :html
       },
@@ -52,8 +51,8 @@ module Reading
                                                   date_finished: nil,
                                                   progress: nil,
                                                   group: nil,
-                                                  variant_id: 0 }],
-                                  visibility: 3,
+                                                  variant_index: 0 }],
+                                  visibility: 3, # TODO use a constant here.
                                   genres: [],
                                   public_notes: [],
                                   blurb: nil,
@@ -119,7 +118,7 @@ module Reading
           dnf: /(?<=>|\A)\s*(#{dnf_string})/,
           progress: /(?<=#{dnf_string}|>|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
           group_experience: /#{config.fetch(:csv).fetch(:group_emoji)}\s*(.*)\s*\z/,
-          variant_id: /\s+v(\d+)/,
+          variant_index: /\s+v(\d+)/,
           date_finished: date_regex,
           time_length: time_length,
           pages_length: pages_length,
