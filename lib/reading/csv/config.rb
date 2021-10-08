@@ -23,7 +23,7 @@ module Reading
                                   audio:      "🎤",
                                   video:      "🎞️",
                                   course:     "🏫",
-                                  article:    "📰",
+                                  piece:      "✏️",
                                   website:    "🌐" },
         sources:
          {
@@ -90,41 +90,40 @@ module Reading
       }
   }
 
+  def self.add_regex_config(custom_config)
+    return custom_config[:csv][:regex] unless custom_config[:csv][:regex].nil?
+    comment_character = Regexp.escape(custom_config.fetch(:csv).fetch(:comment_character))
+    formats = /#{custom_config.fetch(:item).fetch(:formats).values.join("|")}/
+    dnf_string = Regexp.escape(custom_config.fetch(:csv).fetch(:dnf_string))
+    date_sep = Regexp.escape(custom_config.fetch(:csv).fetch(:date_separator))
+    date_regex = /(\d{4}#{date_sep}\d?\d#{date_sep}\d?\d)/ # TODO hardcode the date separator?
+    time_length = /(\d+:\d\d)/
+    pages_length = /p?(\d+)p?/
+    custom_config[:csv][:regex] =
+      {
+        comment_escaped: comment_character,
+        compact_planned_line_start: /\A\s*#{comment_character}(?<genre>[^a-z:,\|]+):\s*(?=#{formats})/,
+        compact_planned_item: /\A(?<format_emojis>(?:#{formats})+)(?<author_title>[^@]+)(?<sources>@.+)?\z/,
+        formats: formats,
+        formats_split: /\s*(?=#{formats})/,
+        series_volume: /,\s*#(\d+)\z/,
+        isbn: isbn_regex,
+        sources: sources_regex,
+        date_added: /#{date_regex}.*>/,
+        date_started: /#{date_regex}[^>]*\z/,
+        dnf: /(?<=>|\A)\s*(#{dnf_string})/,
+        progress: /(?<=#{dnf_string}|>|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
+        group_experience: /#{config.fetch(:csv).fetch(:group_emoji)}\s*(.*)\s*\z/,
+        variant_index: /\s+v(\d+)/,
+        date_finished: date_regex,
+        time_length: time_length,
+        pages_length: pages_length,
+        pages_length_in_variant: /(?:\A|\s+|p)(\d{1,9})(?:p|\s+|\z)/ # to exclude ISBN-10 and ISBN-13
+      }
+  end
+
   class << self
     private
-
-    def add_regex_config
-      return config[:csv][:regex] unless config[:csv][:regex].nil?
-      comment_character = Regexp.escape(config.fetch(:csv).fetch(:comment_character))
-
-      formats = /#{config.fetch(:item).fetch(:formats).values.join("|")}/
-      dnf_string = Regexp.escape(config.fetch(:csv).fetch(:dnf_string))
-      date_sep = Regexp.escape(config.fetch(:csv).fetch(:date_separator))
-      date_regex = /(\d{4}#{date_sep}\d?\d#{date_sep}\d?\d)/ # TODO hardcode the date separator?
-      time_length = /(\d+:\d\d)/
-      pages_length = /p?(\d+)p?/
-      config[:csv][:regex] =
-        {
-          comment_escaped: comment_character,
-          compact_planned_line_start: /\A\s*#{comment_character}(?<genre>[^a-z:,\|]+):\s*(?=#{formats})/,
-          compact_planned_item: /\A(?<format_emojis>(?:#{formats})+)(?<author_title>[^@]+)(?<sources>@.+)?\z/,
-          formats: formats,
-          formats_split: /\s*(?=#{formats})/,
-          series_volume: /,\s*#(\d+)\z/,
-          isbn: isbn_regex,
-          sources: sources_regex,
-          date_added: /#{date_regex}.*>/,
-          date_started: /#{date_regex}[^>]*\z/,
-          dnf: /(?<=>|\A)\s*(#{dnf_string})/,
-          progress: /(?<=#{dnf_string}|>|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
-          group_experience: /#{config.fetch(:csv).fetch(:group_emoji)}\s*(.*)\s*\z/,
-          variant_index: /\s+v(\d+)/,
-          date_finished: date_regex,
-          time_length: time_length,
-          pages_length: pages_length,
-          pages_length_in_variant: /(?:\A|\s+|p)(\d{1,9})(?:p|\s+|\z)/ # to exclude ISBN-10 and ISBN-13
-        }
-    end
 
     def isbn_regex
       return @isbn_regex unless @isbn_regex.nil?
@@ -144,6 +143,4 @@ module Reading
       @sources_regex = /#{isbn}|#{url_prename}|#{url_postname}|#{url}/
     end
   end
-
-  add_regex_config
 end

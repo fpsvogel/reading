@@ -20,6 +20,7 @@ module Reading
             config[:item][:formats] = custom_config[:item][:formats]
           end
           config.fetch(:csv).fetch(:columns)[:name] = true # Name column can't be disabled.
+          Reading.add_regex_config(config)
         end
         @cur_line = nil
       end

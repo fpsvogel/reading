@@ -1,3 +1,8 @@
+## [0.2.4] - 2021-10-08
+
+- Renamed the `article` default format to `piece`, and changed its emoji.
+- Fixed a bug where custom formats were not being incorporated into the regex config.
+
 ## [0.2.2] - 2021-10-06
 
 - Added the ability to omit the last parsed item from the list when `:skip` is returned from `selective_continue`.
