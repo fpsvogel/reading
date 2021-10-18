@@ -1,3 +1,7 @@
+## [0.2.5] - 2021-10-08
+
+- ActiveSupport 7 allowed.
+
 ## [0.2.4] - 2021-10-08
 
 - Renamed the `article` default format to `piece`, and changed its emoji.

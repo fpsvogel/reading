@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "attr_extras", "~> 6.0"
   spec.add_runtime_dependency "date", "~> 3.0"
   spec.add_runtime_dependency "pastel", "~> 0.8"
-  spec.add_runtime_dependency "activesupport", "~> 6.0"
+  spec.add_runtime_dependency "activesupport", ">= 6.0"
 
   spec.add_development_dependency "pry", "~> 0.14"
   spec.add_development_dependency "pry-byebug", "~> 3.0"
