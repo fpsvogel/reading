@@ -1,15 +1,27 @@
 # Reading::Csv
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/reading/csv`. To experiment with that code, run `bin/console` for an interactive prompt.
+Reading::Csv parses a CSV reading list into an array of Ruby hashes containing the data of the books and other items listed in the CSV file. [The Plain Reading app](https://plainreading.herokuapp.com) serves as a web interface for Reading::Csv.
 
-TODO: Delete this and the text above, and describe your gem
+## Usage
+
+The most basic usage is to parse a CSV reading list with the default configuration. See Documentation below to learn all about the expected format of the CSV file.
+
+```ruby
+items_hashes = Reading::Csv::Parse.new.call(file_path)
+```
+
+More advanced usage can be found in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading-csv/blob/main/test/csv_parse_test.rb) or in [the List model](https://github.com/fpsvogel/plainreading/blob/main/app/models/list.rb) in Plain Reading, a Rails app that uses Reading::Csv.
+
+## Documentation
+
+[The Plain Reading Guide](https://plainreading.herokuapp.com/guide) is a good introduction to Reading::Csv as it is the parser behind Plain Reading. If you prefer looking at tests, see [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading-csv/blob/main/test/csv_parse_test.rb).
 
 ## Installation
 
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'reading-csv'
+gem "reading-csv"
 ```
 
 And then execute:
@@ -20,19 +32,9 @@ Or install it yourself as:
 
     $ gem install reading-csv
 
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/reading-csv.
+Bug reports and pull requests are welcome on GitHub at https://github.com/fpsvogel/reading-csv.
 
 ## License
 
