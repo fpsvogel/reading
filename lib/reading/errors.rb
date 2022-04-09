@@ -1,8 +1,8 @@
-# frozen_string_literal: true
-
-require_relative "util"
+require "pastel"
 
 module Reading
+  Colors = Pastel.new
+
   # NotInitializedError indicates that an object has not been initialized before
   # its attempted use.
   class NotInitializedError < StandardError; end

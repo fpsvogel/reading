@@ -1,10 +1,9 @@
-# frozen_string_literal: true
-
 require_relative "test_helper"
 require_relative "test_base"
 
 require "reading/csv/config"
 require "reading/csv/parse"
+require "reading/deeper_merge"
 
 class CsvParseTest < TestBase
   using Reading::Util::DeeperMerge
@@ -797,7 +796,7 @@ class CsvParseTest < TestBase
       set_columns(*columns)
       exp = tidy(items[:enabled_columns][i])
       act = parse("enabled_columns_#{set_name}.csv")
-      # binding.pry unless exp == act
+      # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse with these columns enabled: #{set_name}"
     end
@@ -809,7 +808,7 @@ class CsvParseTest < TestBase
                 custom_columns: { surprise_factor: :number, family_friendliness: :number })
     exp = tidy(items[:custom_columns][:number])
     act = parse("custom_columns_number.csv")
-    # binding.pry unless exp == act
+    # debugger unless exp == act
     assert_equal exp, act
   end
 
@@ -819,7 +818,7 @@ class CsvParseTest < TestBase
                 custom_columns: { mood: :text, color: :text })
     exp = tidy(items[:custom_columns][:text])
     act = parse("custom_columns_text.csv")
-    # binding.pry unless exp == act
+    # debugger unless exp == act
     assert_equal exp, act
   end
 
@@ -829,7 +828,7 @@ class CsvParseTest < TestBase
     files[:name].each do |feat, _file_str|
       exp = tidy(items[:name][feat])
       act = parse("name_#{feat}.csv")
-      # binding.pry unless exp == act
+      # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this Name column feature: #{feat}"
     end
@@ -841,7 +840,7 @@ class CsvParseTest < TestBase
     files[:sources].each do |feat, _file_str|
       exp = tidy(items[:sources][feat])
       act = parse("sources_#{feat}.csv")
-      # binding.pry unless exp == act
+      # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this Sources column feature: #{feat}"
     end
@@ -853,7 +852,7 @@ class CsvParseTest < TestBase
     files[:dates_started].each do |feat, _file_str|
       exp = tidy(items[:dates_started][feat])
       act = parse("dates_started_#{feat}.csv")
-      binding.pry unless exp == act
+      # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this Dates Started column feature: #{feat}"
     end
@@ -865,7 +864,7 @@ class CsvParseTest < TestBase
     files[:genres].each do |feat, _file_str|
       exp = tidy(items[:genres][feat])
       act = parse("genres_#{feat}.csv")
-      # binding.pry unless exp == act
+      # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this Genres column feature: #{feat}"
     end
@@ -877,7 +876,7 @@ class CsvParseTest < TestBase
     files[:examples].each do |group, _file_str|
       exp = tidy(items[:examples][group])
       act = parse("examples_#{group}.csv")
-      # binding.pry unless exp == act
+      # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this group of examples: #{group}"
     end

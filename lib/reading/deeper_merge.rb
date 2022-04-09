@@ -1,32 +1,5 @@
-# frozen_string_literal: true
-
-require "attr_extras"
-require "pastel"
-require "date"
-require "active_support/core_ext/object/blank"
-
 module Reading
-  Colors = Pastel.new
-
   module Util
-    # DISABLED because it causes Rails to hang. using ActiveSupport instead.
-    # # from active_support/core_ext/object/blank
-    # module Blank
-    #   refine Object do
-    #     def blank?
-    #       respond_to?(:empty?) ? !!empty? : !self
-    #     end
-
-    #     def present?
-    #       !blank?
-    #     end
-
-    #     def presence
-    #       self if present?
-    #     end
-    #   end
-    # end
-
     # modified from active_support/core_ext/hash/deeper_merge
     module DeeperMerge
       refine Hash do
@@ -64,6 +37,25 @@ module Reading
       end
     end
 
+    # DEPRECATED because it causes Rails to hang. using ActiveSupport instead.
+    # # from active_support/core_ext/object/blank
+    # module Blank
+    #   refine Object do
+    #     def blank?
+    #       respond_to?(:empty?) ? !!empty? : !self
+    #     end
+
+    #     def present?
+    #       !blank?
+    #     end
+
+    #     def presence
+    #       self if present?
+    #     end
+    #   end
+    # end
+
+    # DEPRECATED because it leads to obscure code.
     # # HashToAttr allows a hash to be made into private attributes of an object.
     # module HashToAttr
     #   refine Hash do
@@ -78,6 +70,7 @@ module Reading
     #   end
     # end
 
+    # DEPRECATED because no longer necessary.
     # # MapExtractFirst provides an operation in which:
     # # 1. an array is mapped according to the given block.
     # # 2. the first non-nil element is picked from the mapped array.

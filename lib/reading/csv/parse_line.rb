@@ -1,6 +1,4 @@
-# frozen_string_literal: true
-
-require_relative "../util"
+require "attr_extras"
 require_relative "../errors"
 
 module Reading

@@ -1,4 +1,4 @@
-# frozen_string_literal: true
+require "attr_extras"
 
 module Reading
   module Csv

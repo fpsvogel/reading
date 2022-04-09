@@ -1,6 +1,5 @@
-# frozen_string_literal: true
-
-require_relative "../util"
+require "attr_extras"
+require_relative "../deeper_merge"
 require_relative "../errors"
 require_relative "parse_line"
 require_relative "parse_attribute"

@@ -1,6 +1,5 @@
-# frozen_string_literal: true
-
-require_relative "../util"
+require "active_support/core_ext/object/blank"
+require "attr_extras"
 require_relative "../errors"
 require_relative "parse_line"
 require_relative "parse_attributes"

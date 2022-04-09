@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require_relative "lib/reading/csv/version"
 
 Gem::Specification.new do |spec|
@@ -18,9 +16,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "pastel", "~> 0.8"
   spec.add_runtime_dependency "activesupport", ">= 6.0"
 
-  spec.add_development_dependency "pry", "~> 0.14"
-  spec.add_development_dependency "pry-byebug", "~> 3.0"
-  spec.add_development_dependency "dead_end", "~> 1.0"
+  spec.add_development_dependency "debug", ">= 1.0.0"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "minitest-reporters", "~> 1.0"
 
