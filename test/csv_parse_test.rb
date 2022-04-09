@@ -3,7 +3,7 @@ require_relative "test_base"
 
 require "reading/csv/config"
 require "reading/csv/parse"
-require "reading/deeper_merge"
+require "reading/util/deeper_merge"
 
 class CsvParseTest < TestBase
   using Reading::Util::DeeperMerge

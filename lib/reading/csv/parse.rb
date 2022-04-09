@@ -1,5 +1,5 @@
 require "attr_extras"
-require_relative "../deeper_merge"
+require_relative "../util/deeper_merge"
 require_relative "config"
 require_relative "parse_regular_line"
 require_relative "parse_compact_planned_line"
