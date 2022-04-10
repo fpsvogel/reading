@@ -14,9 +14,14 @@ class CsvParseTest < TestBase
     puts error
   end
 
-  # the hash keys inside :enabled_columns each are composed of a list of columns
-  # to be enabled for each assertion in the columns test.
   @files = {}
+
+  ### TEST DATA
+
+  ## TEST DATA, PART 1: COLUMNS
+  # In the columns tests, the CSVs in the heredocs below are each parsed with
+  # only the columns enabled that are listed in the hash key. This tests basic
+  # functionality of each column, and a few possible combinations of columns.
   @files[:enabled_columns] = {}
   @files[:enabled_columns][:"name"] = <<~EOM.freeze
     \\Author - Title
@@ -66,6 +71,8 @@ class CsvParseTest < TestBase
 
 
 
+  ## TEST DATA, PART 2: CUSTOM COLUMNS
+  # The type of the custom column is indicated by the hash key.
   @files[:custom_columns] = {}
   @files[:custom_columns][:number] = <<~EOM.freeze
     \\Rating|Name|Sources|Dates started|Dates finished|Length|Surprise factor|Family friendliness
@@ -82,9 +89,11 @@ class CsvParseTest < TestBase
 
 
 
-  # for the rest of the hashes in @files, their key specifies which single
-  # column is to be enabled. that makes a config unnecessary such as this:
-  # @column_configs[:name] = NO_COLUMNS # Name column is enabled automatically.
+  ## TEST DATA, PART 3: SINGLE COLUMN FEATURES
+  # In each the features tests, a single column is enabled (specified in the
+  # hash key) and a bunch of possible content for that column is tested. These
+  # are the columns that are more flexible and can have lots of information
+  # crammed into them.
   @files[:name] =
   {
   author:
@@ -119,6 +128,8 @@ class CsvParseTest < TestBase
     "DNF 50% 📕Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
   }
 
+  # The name column is enabled by default, so the strings for other single
+  # columns are preceded by the name column.
   @files[:sources] =
   {
   isbn10:
@@ -215,7 +226,10 @@ class CsvParseTest < TestBase
     "Goatsong|novel, to-starred, history",
   }
 
-  # realistic examples from the reading.csv template in Plain Reading.
+
+
+  ## TEST DATA, PART 4: EXAMPLES
+  # Realistic examples from the reading.csv template in Plain Reading.
   @files[:examples] = {}
   @files[:examples][:in_progress] = <<~EOM.freeze
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
@@ -241,8 +255,29 @@ class CsvParseTest < TestBase
     \\SCIENCE: 📕Randall Munroe - How To: Absurd Scientific Advice for Common Real-World Problems @Lexpub, 🔊On the Origin of Species, 🔊Weird Earth @Hoopla
   EOM
 
+  # Create files before all tests.
+  @files.each do |group_name, hash|
+    hash.each do |name, string|
+      IO.write("#{group_name}_#{name}.csv", string)
+    end
+  end
+
+  # Then delete them afterward.
+  Minitest.after_run do
+    @files.each do |group_name, hash|
+      hash.each do |name, string|
+        File.delete("#{group_name}_#{name}.csv")
+      end
+    end
+  end
+
+
+
+  ### EXPECTED DATA
+  # The results of parsing the above CSVs are expected to equal this data.
+
   def self.item_data(**partial_data)
-    # this merge is not the same as Reading::Util::DeeperMerge. this one uses an
+    # This merge is not the same as Reading::Util::DeeperMerge. This one uses an
     # array value's first hash as the template for all corresponding partial
     # data, for example in :variants and :experiences in the item template.
     config[:item][:template].merge(partial_data) do |key, old_value, new_value|
@@ -252,40 +287,6 @@ class CsvParseTest < TestBase
       else
         new_value
       end
-    end
-  end
-
-  # removes any blank hashes in arrays, i.e. any that are the same as in the
-  # template in config. data in items must already be complete, i.e. merged with
-  # the item template in config.
-  def tidy(items)
-    items.map do |data|
-      without_blank_hashes(data)
-    end
-  end
-
-  def without_blank_hashes(item_data)
-    template = config.fetch(:item).fetch(:template)
-    %i[series variants experiences].each do |attribute|
-      item_data[attribute] =
-        item_data[attribute].reject { |value| value == template[attribute].first }
-    end
-    item_data[:variants].each do |variant|
-      variant[:sources] =
-        variant[:sources].reject { |value| value == template[:variants].first[:sources].first }
-    end
-    item_data
-  end
-
-
-  def with_reread(data, started, finished, **other_attributes)
-    data.dup.then do |dup|
-      new_experience = dup[:experiences].first.merge(date_started: started, date_finished: finished)
-      other_attributes.each do |attribute, value|
-        new_experience[attribute] = value
-      end
-      dup[:experiences] += [new_experience]
-      dup
     end
   end
 
@@ -751,21 +752,7 @@ class CsvParseTest < TestBase
 
 
 
-  # create files before all tests.
-  @files.each do |group_name, hash|
-    hash.each do |name, string|
-      IO.write("#{group_name}_#{name}.csv", string)
-    end
-  end
-
-  # then delete them afterward.
-  Minitest.after_run do
-    @files.each do |group_name, hash|
-      hash.each do |name, string|
-        File.delete("#{group_name}_#{name}.csv")
-      end
-    end
-  end
+  ### UTILITY METHODS
 
   NO_COLUMNS = config.fetch(:csv).fetch(:columns).keys.map { |col| [col, false] }.to_h
 
@@ -782,11 +769,48 @@ class CsvParseTest < TestBase
     @parse = Reading::Csv::Parse.new(this_config)
   end
 
+  # Removes any blank hashes in arrays, i.e. any that are the same as in the
+  # template in config. Data in items must already be complete, i.e. merged with
+  # the item template in config.
+  def tidy(items)
+    items.map do |data|
+      without_blank_hashes(data)
+    end
+  end
+
+  def without_blank_hashes(item_data)
+    template = config.fetch(:item).fetch(:template)
+    %i[series variants experiences].each do |attribute|
+      item_data[attribute] =
+        item_data[attribute].reject { |value| value == template[attribute].first }
+    end
+    item_data[:variants].each do |variant|
+      variant[:sources] =
+        variant[:sources].reject { |value| value == template[:variants].first[:sources].first }
+    end
+    item_data
+  end
+
+  def with_reread(data, started, finished, **other_attributes)
+    data.dup.then do |dup|
+      new_experience = dup[:experiences].first.merge(date_started: started, date_finished: finished)
+      other_attributes.each do |attribute, value|
+        new_experience[attribute] = value
+      end
+      dup[:experiences] += [new_experience]
+      dup
+    end
+  end
+
   def parse(path)
     @parse.call(path: path)
   rescue Errno::ENOENT
     raise Reading::FileError.new(path, label: "File not found!")
   end
+
+
+
+  ### THE ACTUAL TESTS
 
   def test_columns_can_be_disabled
   #  skip
