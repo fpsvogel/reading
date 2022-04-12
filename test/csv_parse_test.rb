@@ -18,7 +18,7 @@ class CsvParseTest < TestBase
 
   ### TEST DATA
 
-  ## TEST DATA, PART 1: COLUMNS
+  ## TEST DATA: ENABLING COLUMNS
   # In the columns tests, the CSVs in the heredocs below are each parsed with
   # only the columns enabled that are listed in the hash key. This tests basic
   # functionality of each column, and a few possible combinations of columns.
@@ -71,7 +71,7 @@ class CsvParseTest < TestBase
 
 
 
-  ## TEST DATA, PART 2: CUSTOM COLUMNS
+  ## TEST DATA: CUSTOM COLUMNS
   # The type of the custom column is indicated by the hash key.
   @files[:custom_columns] = {}
   @files[:custom_columns][:number] = <<~EOM.freeze
@@ -89,12 +89,12 @@ class CsvParseTest < TestBase
 
 
 
-  ## TEST DATA, PART 3: SINGLE COLUMN FEATURES
+  ## TEST DATA: FEATURES OF SINGLE COLUMNS
   # In each the features tests, a single column is enabled (specified in the
   # hash key) and a bunch of possible content for that column is tested. These
   # are the columns that are more flexible and can have lots of information
   # crammed into them.
-  @files[:name] =
+  @files[:features_name] =
   {
   author:
     "Tom Holt - Goatsong",
@@ -130,7 +130,7 @@ class CsvParseTest < TestBase
 
   # The name column is enabled by default, so the strings for other single
   # columns are preceded by the name column.
-  @files[:sources] =
+  @files[:features_sources] =
   {
   isbn10:
     "Goatsong|0312038380",
@@ -172,7 +172,7 @@ class CsvParseTest < TestBase
     "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub, 247 -- unabridged -- 1990 🔊Lexpub 7:03",
   }
 
-  @files[:dates_started] =
+  @files[:features_dates_started] =
   {
   date_started:
     "Sapiens|2020/09/01",
@@ -214,7 +214,7 @@ class CsvParseTest < TestBase
     "Sapiens|found on Chirp on 2019/08/20 and recommended by Jo > DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15, 2021/09/20 > v3",
   }
 
-  @files[:genres] =
+  @files[:features_genres] =
   {
   genres:
     "Goatsong|novel, history",
@@ -228,7 +228,7 @@ class CsvParseTest < TestBase
 
 
 
-  ## TEST DATA, PART 4: EXAMPLES
+  ## TEST DATA: EXAMPLES
   # Realistic examples from the reading.csv template in Plain Reading.
   @files[:examples] = {}
   @files[:examples][:in_progress] = <<~EOM.freeze
@@ -347,172 +347,172 @@ class CsvParseTest < TestBase
 
 
 
-  @items[:name] = {}
+  @items[:features_name] = {}
   a_basic = item_data(author: "Tom Holt", title: "Goatsong")
-  @items[:name][:author] = [a_basic]
+  @items[:features_name][:author] = [a_basic]
 
   a = a_basic.deeper_merge(series: [{ name: "The Walled Orchard" }])
-  @items[:name][:series] = [a]
+  @items[:features_name][:series] = [a]
 
   a = a.deeper_merge(series: [{ volume: 1 }])
   series_with_volume = a.slice(:series)
-  @items[:name][:series_with_volume] = [a]
+  @items[:features_name][:series_with_volume] = [a]
 
   extra_info = %w[unabridged 1990]
   variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
   a = a_basic.deeper_merge(variants_with_extra_info)
-  @items[:name][:extra_info] = [a]
+  @items[:features_name][:extra_info] = [a]
 
   a = a.merge(series_with_volume)
-  @items[:name][:extra_info_and_series] = [a]
+  @items[:features_name][:extra_info_and_series] = [a]
 
   a_with_format = a_basic.deeper_merge(variants: [{ format: :print }])
-  @items[:name][:format] = [a_with_format]
+  @items[:features_name][:format] = [a_with_format]
 
   b = item_data(title: "Sapiens", variants: [{ format: :audiobook }])
-  @items[:name][:multi_items] = [a_with_format, b]
+  @items[:features_name][:multi_items] = [a_with_format, b]
 
   half_progress = { experiences: [{ progress: 0.5 }] }
   a = item_data(title: "Goatsong", **half_progress)
-  @items[:name][:progress] = [a]
+  @items[:features_name][:progress] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 220 }])
-  @items[:name][:progress_pages] = [a]
+  @items[:features_name][:progress_pages] = [a]
 
-  @items[:name][:progress_pages_without_p] = [a]
+  @items[:features_name][:progress_pages_without_p] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: "2:30" }])
-  @items[:name][:progress_time] = [a]
+  @items[:features_name][:progress_time] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 0 }])
-  @items[:name][:dnf] = [a]
+  @items[:features_name][:dnf] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 0.5 }])
-  @items[:name][:dnf_with_progress] = [a]
+  @items[:features_name][:dnf_with_progress] = [a]
 
   a = a_with_format.deeper_merge(experiences: [{ progress: 0 }])
   b = b.deeper_merge(experiences: [{ progress: 0 }])
-  @items[:name][:dnf_with_multi_items] = [a, b]
+  @items[:features_name][:dnf_with_multi_items] = [a, b]
 
   a = a.merge(series_with_volume).deeper_merge(variants_with_extra_info).deeper_merge(half_progress)
   b = b.deeper_merge(half_progress)
-  @items[:name][:all_features] = [a, b]
+  @items[:features_name][:all_features] = [a, b]
 
 
 
-  @items[:sources] = {}
+  @items[:features_sources] = {}
   title = "Goatsong"
   a_basic = item_data(title: title)
   isbn = "0312038380"
   a = a_basic.deeper_merge(variants: [{ isbn: isbn }])
-  @items[:sources][:isbn10] = [a]
+  @items[:features_sources][:isbn10] = [a]
 
   a = a_basic.deeper_merge(variants: [{ isbn: "978-0312038380" }])
-  @items[:sources][:isbn13] = [a]
+  @items[:features_sources][:isbn13] = [a]
 
   a = a_basic.deeper_merge(variants: [{ isbn: "B00GVG01HE" }])
-  @items[:sources][:ASIN] = [a]
+  @items[:features_sources][:ASIN] = [a]
 
   library = { name: "Little Library", url: nil }
   a = a_basic.deeper_merge(variants: [{ sources: [library] }])
-  @items[:sources][:source] = [a]
+  @items[:features_sources][:source] = [a]
 
   site = { name: config[:item][:sources][:default_name_for_url],
            url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site] }])
-  @items[:sources][:url_source] = [a]
+  @items[:features_sources][:url_source] = [a]
 
   site_named = { name: "about Tom Holt", url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site_named] }])
-  @items[:sources][:url_source_with_name] = [a]
+  @items[:features_sources][:url_source_with_name] = [a]
 
-  @items[:sources][:url_source_with_name_after] = [a]
+  @items[:features_sources][:url_source_with_name_after] = [a]
 
   site_auto_named = { name: "Internet Archive",
                       url: "https://archive.org/details/walledorchard0000holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site_auto_named] }])
-  @items[:sources][:url_source_with_auto_name] = [a]
+  @items[:features_sources][:url_source_with_auto_name] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
   a = a_basic.deeper_merge(variants: [{ sources: three_sources }])
-  @items[:sources][:sources] = [a]
+  @items[:features_sources][:sources] = [a]
 
   three_sources_with_name = [site_named, library, lexpub]
   a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name }])
-  @items[:sources][:sources_commas] = [a]
+  @items[:features_sources][:sources_commas] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: [library],
                                       isbn: isbn }])
-  @items[:sources][:source_with_isbn] = [a]
+  @items[:features_sources][:source_with_isbn] = [a]
 
-  @items[:sources][:source_with_isbn_reversed] = [a]
+  @items[:features_sources][:source_with_isbn_reversed] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: [site, library],
                                       isbn: isbn }])
-  @items[:sources][:sources_with_isbn] = [a]
+  @items[:features_sources][:sources_with_isbn] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name,
                                       isbn: isbn }])
-  @items[:sources][:sources_with_isbn_commas] = [a]
+  @items[:features_sources][:sources_with_isbn_commas] = [a]
 
   a = item_data(title: title,
                 variants: [{ sources: [library] },
                            { sources: [lexpub] }])
-  @items[:sources][:simple_variants] = [a]
+  @items[:features_sources][:simple_variants] = [a]
 
   a = item_data(title: title,
                 variants: [{ format: :print,
                              sources: [library],
                              extra_info: extra_info }])
-  @items[:sources][:extra_info_can_be_included_if_format_is_specified] = [a]
+  @items[:features_sources][:extra_info_can_be_included_if_format_is_specified] = [a]
 
   a = item_data(title: title,
                 variants: [a[:variants].first,
                               { format: :audiobook,
                                 sources: [lexpub] }])
-  @items[:sources][:formats_can_delimit_variants] = [a]
+  @items[:features_sources][:formats_can_delimit_variants] = [a]
 
   a = item_data(title: title,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
                            a[:variants].last.merge(length: "7:03")])
-  @items[:sources][:length_after_sources_isbn_and_before_extra_info] = [a]
+  @items[:features_sources][:length_after_sources_isbn_and_before_extra_info] = [a]
 
   a = item_data(title: title,
                 variants: [a[:variants].first.merge(sources: three_sources_with_name),
                            a[:variants].last])
-  @items[:sources][:multiple_sources_allowed_in_variant] = [a]
+  @items[:features_sources][:multiple_sources_allowed_in_variant] = [a]
 
 
 
-  @items[:dates_started] = {}
+  @items[:features_dates_started] = {}
   a_basic = item_data(title: "Sapiens")
   exp_started = { experiences: [{ date_started: "2020/09/01" }] }
   a_started = a_basic.deeper_merge(exp_started)
-  @items[:dates_started][:date_started] = [a_started]
+  @items[:features_dates_started][:date_started] = [a_started]
 
   exp_added = { experiences: [{ date_added: "2019/08/20" }] }
   a = a_basic.deeper_merge(exp_added)
-  @items[:dates_started][:date_added] = [a]
+  @items[:features_dates_started][:date_added] = [a]
 
   a_added_started = a_basic.deeper_merge(exp_added.deeper_merge(exp_started))
-  @items[:dates_started][:date_added_and_started] = [a_added_started]
+  @items[:features_dates_started][:date_added_and_started] = [a_added_started]
 
   exp_second_started = { experiences: [{},
                                        { date_started: "2021/07/15" }] }
   a = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started))
-  @items[:dates_started][:dates_started] = [a]
+  @items[:features_dates_started][:dates_started] = [a]
 
   exp_third_added = { experiences: [{},
                                     {},
                                     { date_added: "2021/09/20" }] }
   a_many = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started)
                               .deeper_merge(exp_added).deeper_merge(exp_third_added))
-  @items[:dates_started][:dates_added_and_started] = [a_many]
+  @items[:features_dates_started][:dates_added_and_started] = [a_many]
 
   exp_progress = ->(amount) { { experiences: [{ progress: amount }] } }
   a_halfway = a_started.deeper_merge(exp_progress.call(0.5))
-  @items[:dates_started][:progress] = [a_halfway]
+  @items[:features_dates_started][:progress] = [a_halfway]
 
   exp_second_added = { experiences: [{},
                                      { date_added: "2021/01/01" }] }
@@ -521,59 +521,59 @@ class CsvParseTest < TestBase
   a = item_data(**a_basic.deeper_merge(exp_added).deeper_merge(exp_second_added)
                           .deeper_merge(exp_started).deeper_merge(exp_second_started)
                           .deeper_merge(exp_two_progresses))
-  @items[:dates_started][:progress_must_be_at_the_beginning_or_immediately_after_date_started_separator] = [a]
+  @items[:features_dates_started][:progress_must_be_at_the_beginning_or_immediately_after_date_started_separator] = [a]
 
   a = a_started.deeper_merge(exp_progress.call(220))
-  @items[:dates_started][:progress_pages] = [a]
+  @items[:features_dates_started][:progress_pages] = [a]
 
-  @items[:dates_started][:progress_pages_without_p] = [a]
+  @items[:features_dates_started][:progress_pages_without_p] = [a]
 
   a = a_started.deeper_merge(exp_progress.call("2:30"))
-  @items[:dates_started][:progress_time] = [a]
+  @items[:features_dates_started][:progress_time] = [a]
 
   a = a_started.deeper_merge(exp_progress.call(0))
-  @items[:dates_started][:dnf] = [a]
+  @items[:features_dates_started][:dnf] = [a]
 
-  @items[:dates_started][:dnf_with_progress] = [a_halfway]
+  @items[:features_dates_started][:dnf_with_progress] = [a_halfway]
 
   exp_v2 = { experiences: [{ variant_index: 1 }] }
   a_variant = a_started.deeper_merge(exp_v2)
-  @items[:dates_started][:variant] = [a_variant]
+  @items[:features_dates_started][:variant] = [a_variant]
 
   a = a_basic.deeper_merge(exp_added.deeper_merge(exp_v2))
-  @items[:dates_started][:variant_with_just_date_added] = [a]
+  @items[:features_dates_started][:variant_with_just_date_added] = [a]
 
   exp_v3 = { experiences: [{},
                            { variant_index: 2 }] }
   a = item_data(**a.deeper_merge(exp_second_started).deeper_merge(exp_v3))
-  @items[:dates_started][:variant_can_be_anywhere] = [a]
+  @items[:features_dates_started][:variant_can_be_anywhere] = [a]
 
   a = a_variant.deeper_merge(experiences: [{ group: "county book club" }])
-  @items[:dates_started][:group_can_be_indicated_at_the_very_end] = [a]
+  @items[:features_dates_started][:group_can_be_indicated_at_the_very_end] = [a]
 
   a = a_variant.deeper_merge(experiences: [{ group: "" }])
-  @items[:dates_started][:group_can_be_without_text] = [a]
+  @items[:features_dates_started][:group_can_be_without_text] = [a]
 
-  @items[:dates_started][:other_text_before_or_after_dates_is_ignored] = [a_added_started]
+  @items[:features_dates_started][:other_text_before_or_after_dates_is_ignored] = [a_added_started]
 
   a = a_many.deeper_merge(experiences: [{ progress: 0.5,
                                         variant_index: 1 },
                                       { progress: "2:30" },
                                       { variant_index: 2 }])
-  @items[:dates_started][:all_features] = [a]
+  @items[:features_dates_started][:all_features] = [a]
 
 
 
-  @items[:genres] = {}
+  @items[:features_genres] = {}
   a_basic = item_data(title: "Goatsong", genres: %w[novel history])
-  @items[:genres][:genres] = [a_basic]
+  @items[:features_genres][:genres] = [a_basic]
 
   a = a_basic.merge(visibility: 1)
-  @items[:genres][:visibility] = [a]
+  @items[:features_genres][:visibility] = [a]
 
-  @items[:genres][:visibility_anywhere] = [a]
+  @items[:features_genres][:visibility_anywhere] = [a]
 
-  @items[:genres][:visibility_alt] = [a]
+  @items[:features_genres][:visibility_alt] = [a]
 
 
 
@@ -812,11 +812,11 @@ class CsvParseTest < TestBase
 
   ### THE ACTUAL TESTS
 
-  def test_columns_can_be_disabled
-  #  skip
-    column_sets = files[:enabled_columns].keys
-    column_sets.each_with_index do |set_name, i|
-      columns = set_name.to_s.split(", ").map(&:to_sym)
+  ## TESTS: ENABLING COLUMNS
+  column_sets = files[:enabled_columns].keys
+  column_sets.each_with_index do |set_name, i|
+    columns = set_name.to_s.split(", ").map(&:to_sym)
+    define_method "test_enabled_columns_#{columns.join("_")}" do
       set_columns(*columns)
       exp = tidy(items[:enabled_columns][i])
       act = parse("enabled_columns_#{set_name}.csv")
@@ -826,8 +826,8 @@ class CsvParseTest < TestBase
     end
   end
 
+  ## TESTS: CUSTOM COLUMNS
   def test_number_custom_columns
-  #  skip
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_columns: { surprise_factor: :number, family_friendliness: :number })
     exp = tidy(items[:custom_columns][:number])
@@ -837,7 +837,6 @@ class CsvParseTest < TestBase
   end
 
   def test_text_custom_columns
-  #  skip
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_columns: { mood: :text, color: :text })
     exp = tidy(items[:custom_columns][:text])
@@ -846,63 +845,31 @@ class CsvParseTest < TestBase
     assert_equal exp, act
   end
 
-  def test_name_column_features
-  #  skip
-    set_columns(:name)
-    files[:name].each do |feat, _file_str|
-      exp = tidy(items[:name][feat])
-      act = parse("name_#{feat}.csv")
-      # debugger unless exp == act
-      assert_equal exp, act,
-        "Failed to parse this Name column feature: #{feat}"
+  ## TESTS: FEATURES OF SINGLE COLUMNS
+  files.keys.select { |key| key.start_with?("features_") }.each do |group_name|
+    files[group_name].each do |feat, _file_str|
+      column = group_name[group_name.to_s.index("_") + 1..-1].to_sym
+      column_humanized = column.to_s.tr("_", " ").capitalize
+      define_method "test_#{column}_feature_#{feat}" do
+        set_columns(column)
+        exp = tidy(items[group_name][feat])
+        act = parse("#{group_name}_#{feat}.csv")
+        # debugger unless exp == act
+        assert_equal exp, act,
+          "Failed to parse this #{column_humanized} column feature: #{feat}"
+      end
     end
   end
 
-  def test_sources_column_features
-  #  skip
-    set_columns(:sources)
-    files[:sources].each do |feat, _file_str|
-      exp = tidy(items[:sources][feat])
-      act = parse("sources_#{feat}.csv")
+  ## TESTS: EXAMPLES
+  files[:examples].each do |set_name, _file_str|
+    define_method "test_example_#{set_name}" do
+      set_columns(:all)
+      exp = tidy(items[:examples][set_name])
+      act = parse("examples_#{set_name}.csv")
       # debugger unless exp == act
       assert_equal exp, act,
-        "Failed to parse this Sources column feature: #{feat}"
-    end
-  end
-
-  def test_dates_started_column_features
-  #  skip
-    set_columns(:dates_started)
-    files[:dates_started].each do |feat, _file_str|
-      exp = tidy(items[:dates_started][feat])
-      act = parse("dates_started_#{feat}.csv")
-      # debugger unless exp == act
-      assert_equal exp, act,
-        "Failed to parse this Dates Started column feature: #{feat}"
-    end
-  end
-
-  def test_genres_column_features
-  #  skip
-    set_columns(:genres)
-    files[:genres].each do |feat, _file_str|
-      exp = tidy(items[:genres][feat])
-      act = parse("genres_#{feat}.csv")
-      # debugger unless exp == act
-      assert_equal exp, act,
-        "Failed to parse this Genres column feature: #{feat}"
-    end
-  end
-
-  def test_examples
-  #  skip
-    set_columns(:all)
-    files[:examples].each do |group, _file_str|
-      exp = tidy(items[:examples][group])
-      act = parse("examples_#{group}.csv")
-      # debugger unless exp == act
-      assert_equal exp, act,
-        "Failed to parse this group of examples: #{group}"
+        "Failed to parse this set of examples: #{set_name}"
     end
   end
 end
