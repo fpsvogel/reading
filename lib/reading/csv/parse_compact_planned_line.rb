@@ -7,7 +7,6 @@ require_relative "parse_attribute"
 module Reading
   module Csv
     class Parse
-      # using Util::Blank
       using Util::DeeperMerge
 
       # ParseCompactPlannedLine is a function that parses a line of compactly

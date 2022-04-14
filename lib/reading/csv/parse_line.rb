@@ -58,7 +58,7 @@ module Reading
           e.handle(source: line, config: config)
           []
         ensure
-          # reset to pre-call state.
+          # Reset to pre-call state.
           initialize(config)
         end
 

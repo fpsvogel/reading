@@ -1,6 +1,6 @@
 module Reading
   module Util
-    # modified from active_support/core_ext/hash/deeper_merge
+    # Modified from active_support/core_ext/hash/deep_merge
     module DeeperMerge
       refine Hash do
         def deeper_merge(other_hash, &block)
@@ -15,11 +15,12 @@ module Reading
             elsif this_val.is_a?(Array) && other_val.is_a?(Array) &&
                   this_val.all? { |el| el.is_a?(Hash) } &&
                   other_val.all? { |el| el.is_a?(Hash) }
-              zip = if other_val.length >= this_val.length
-                      other_val.zip(this_val)
-                    else
-                      this_val.zip(other_val).map(&:reverse)
-                    end
+              zip =
+                if other_val.length >= this_val.length
+                  other_val.zip(this_val)
+                else
+                  this_val.zip(other_val).map(&:reverse)
+                end
               zip.map do |other_el, this_el|
                 if this_el.nil?
                   other_el
@@ -37,8 +38,8 @@ module Reading
       end
     end
 
-    # DEPRECATED because it causes Rails to hang. using ActiveSupport instead.
-    # # from active_support/core_ext/object/blank
+    # DEPRECATED because it causes Rails to hang. Using ActiveSupport instead.
+    # # From active_support/core_ext/object/blank
     # module Blank
     #   refine Object do
     #     def blank?

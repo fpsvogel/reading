@@ -5,8 +5,6 @@ module Reading
   module Csv
     class Parse
       class ParseLine
-        # using Util::Blank
-
         class ParseExperiences < ParseAttribute
           def call(_name = nil, columns)
             started, finished = dates_split(columns)
@@ -41,7 +39,7 @@ module Reading
           def dates_split(columns)
             dates_finished = columns[:dates_finished]&.presence
                               &.split(config.fetch(:csv).fetch(:separator)) || []
-            # don't use #has_key? because simply checking for nil covers the
+            # Don't use #has_key? because simply checking for nil covers the
             # case where dates_started is the last column and omitted.
             started_column_exists = columns[:dates_started]&.presence
             dates_started =

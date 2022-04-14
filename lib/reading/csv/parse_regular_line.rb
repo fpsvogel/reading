@@ -7,8 +7,6 @@ require_relative "parse_attributes"
 module Reading
   module Csv
     class Parse
-      # using Util::Blank
-
       # ParseRegularLine is a function that parses a normal row in a CSV reading
       # log into an array of item data (hashes).
       class ParseRegularLine < ParseLine

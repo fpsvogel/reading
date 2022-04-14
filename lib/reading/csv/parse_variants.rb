@@ -5,8 +5,6 @@ module Reading
   module Csv
     class Parse
       class ParseLine
-        # using Util::Blank
-
         class ParseVariants < ParseAttribute
           def call(name, columns)
             format_in_name = format(name)
@@ -73,7 +71,7 @@ module Reading
 
           def extra_info(str)
             separated = str.split(config.fetch(:csv).fetch(:long_separator))
-            separated.delete_at(0) # everything before the extra info.
+            separated.delete_at(0) # everything before the extra info
             separated.reject do |str|
               str.start_with?("#{config.fetch(:csv).fetch(:series_prefix)} ") ||
                 str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))

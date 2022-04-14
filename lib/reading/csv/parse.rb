@@ -15,7 +15,7 @@ module Reading
       def initialize(custom_config = {})
         unless config
           @config = Reading.config.deeper_merge(custom_config)
-          # if custom formats are given, use only the custom formats.
+          # If custom formats are given, use only the custom formats.
           if custom_config[:item] && custom_config[:item][:formats]
             config[:item][:formats] = custom_config[:item][:formats]
           end
@@ -25,9 +25,9 @@ module Reading
         @cur_line = nil
       end
 
-      # - returns a hash of item data in the same order as they arrive from feed.
+      # - Returns a hash of item data in the same order as they arrive from feed.
       # - feed is anything with #each_line.
-      # - if a block is given, parsing is stopped when it returns false.
+      # - If a block is given, parsing is stopped when it returns false.
       # - postprocess can be used to convert the data hashes into Items. this
       #   way Item can access the CSV source line, which is useful since Item
       #   does additional validation on the data, and in case of any errors it
@@ -74,7 +74,7 @@ module Reading
         raise FileError.new(path, label: "The reading list must be a file, not a directory!")
       ensure
         feed&.close if close_feed && feed.respond_to?(:close)
-        # reset to pre-call state.
+        # Reset to pre-call state.
         initialize
       end
 

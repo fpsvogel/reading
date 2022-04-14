@@ -8,8 +8,6 @@ module Reading
   module Csv
     class Parse
       class ParseLine
-        # using Util::Blank
-
         class ParseRating < ParseAttribute
           def call(_name = nil, columns)
             return nil unless columns[:rating]
@@ -45,7 +43,7 @@ module Reading
                             .map(&:strip)
                             .map(&:presence)
                             .compact
-            separated.delete_at(0) # everything before the series/extra info.
+            separated.delete_at(0) # everything before the series/extra info
             separated.map do |str|
               volume = str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))
               prefix = "#{config.fetch(:csv).fetch(:series_prefix)} "
@@ -62,7 +60,7 @@ module Reading
           end
         end
 
-        # not an item attribute; only shares common behavior across the below
+        # Not an item attribute; only shares common behavior across the below
         # attribute parsers.
         class ParseFromGenreColumn < ParseAttribute
           @@all_genres = nil

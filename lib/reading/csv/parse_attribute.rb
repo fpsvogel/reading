@@ -4,7 +4,6 @@ module Reading
   module Csv
     class Parse
       class ParseLine
-
         class ParseAttribute
           attr_private_initialize :config
         end
