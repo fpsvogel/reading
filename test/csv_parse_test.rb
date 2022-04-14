@@ -443,17 +443,17 @@ class CsvParseTest < TestBase
   @items[:features_sources][:sources_commas] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: [library],
-                                      isbn: isbn }])
+                                        isbn: isbn }])
   @items[:features_sources][:source_with_isbn] = [a]
 
   @items[:features_sources][:source_with_isbn_reversed] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: [site, library],
-                                      isbn: isbn }])
+                                        isbn: isbn }])
   @items[:features_sources][:sources_with_isbn] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name,
-                                      isbn: isbn }])
+                                        isbn: isbn }])
   @items[:features_sources][:sources_with_isbn_commas] = [a]
 
   a = item_data(title: title,
@@ -557,9 +557,9 @@ class CsvParseTest < TestBase
   @items[:features_dates_started][:other_text_before_or_after_dates_is_ignored] = [a_added_started]
 
   a = a_many.deeper_merge(experiences: [{ progress: 0.5,
-                                        variant_index: 1 },
-                                      { progress: "2:30" },
-                                      { variant_index: 2 }])
+                                          variant_index: 1 },
+                                        { progress: "2:30" },
+                                        { variant_index: 2 }])
   @items[:features_dates_started][:all_features] = [a]
 
 

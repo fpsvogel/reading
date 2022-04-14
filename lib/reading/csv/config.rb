@@ -5,87 +5,84 @@ module Reading
 
   @config =
   {
-    errors:
-      {
-        handle_error:             -> (error) { puts error },
-        max_length:               100, # or require "io/console", then IO.console.winsize[1]
-        catch_all_errors:         true, # set this to false during development.
-        style_mode:               :terminal # or :html
+    errors: {
+      handle_error:             -> (error) { puts error },
+      max_length:               100, # or require "io/console", then IO.console.winsize[1]
+      catch_all_errors:         true, # set this to false during development.
+      style_mode:               :terminal # or :html
+    },
+    item: {
+      formats:                { print:      "📕",
+                                ebook:      "⚡",
+                                audiobook:  "🔊",
+                                pdf:        "📄",
+                                audio:      "🎤",
+                                video:      "🎞️",
+                                course:     "🏫",
+                                piece:      "✏️",
+                                website:    "🌐" },
+      sources: {
+        names_from_urls:      { "youtube.com" => "YouTube",
+                                "youtu.be" => "YouTube",
+                                "books.google.com" => "Google Books",
+                                "archive.org" => "Internet Archive",
+                                "thegreatcourses.com" => "The Great Courses",
+                                "librivox.org" => "LibriVox",
+                                "tv.apple.com" => "Apple TV" },
+        default_name_for_url: "site"
       },
-    item:
-      {
-        formats:                { print:      "📕",
-                                  ebook:      "⚡",
-                                  audiobook:  "🔊",
-                                  pdf:        "📄",
-                                  audio:      "🎤",
-                                  video:      "🎞️",
-                                  course:     "🏫",
-                                  piece:      "✏️",
-                                  website:    "🌐" },
-        sources:
-         {
-           names_from_urls:     { "youtube.com" => "YouTube",
-                                  "youtu.be" => "YouTube",
-                                  "books.google.com" => "Google Books",
-                                  "archive.org" => "Internet Archive",
-                                  "lexpublib.org" => "Lexington Public Library",
-                                  "tv.apple.com" => "Apple TV" },
-          default_name_for_url: "site"
-         },
-        template:               { rating: nil,
-                                  author: nil,
-                                  title: nil,
-                                  series: [{ name: nil,
-                                             volume: nil }],
-                                  variants:    [{ format: nil,
-                                                  sources: [{ name: nil,
-                                                              url: nil }],
-                                                  isbn: nil,
-                                                  length: nil,
-                                                  extra_info: [] }],
-                                  experiences: [{ date_added: nil,
-                                                  date_started:  nil,
-                                                  date_finished: nil,
-                                                  progress: nil,
-                                                  group: nil,
-                                                  variant_index: 0 }],
-                                  visibility: 3, # TODO use a constant here.
-                                  genres: [],
-                                  public_notes: [],
-                                  blurb: nil,
-                                  private_notes: [],
-                                  history: [] },
-      },
-    csv:
-      {
-        path:                     nil, # set if you want to load a local file.
-        # for selective sync; the default (this) is to continue in all cases.
-        selective_continue:       -> (last_parsed_data) { true },
-        columns:                { rating:         true,
-                                  name:           true, # always enabled
-                                  sources:        true,
-                                  dates_started:  true,
-                                  dates_finished: true,
-                                  genres:         true,
-                                  length:         true,
-                                  public_notes:   true,
-                                  blurb:          true,
-                                  private_notes:  true,
-                                  history:        true },
-        custom_columns:         {},
-        comment_character:        "\\",
-        column_separator:         "|",
-        separator:                ",",
-        short_separator:          " - ",
-        long_separator:           " -- ",
-        date_separator:           "/",
-        dnf_string:               "DNF",
-        series_prefix:            "in",
-        group_emoji:              "🤝🏼",
-        compact_planned_source_prefix: "@",
-        reverse_dates:            false
-      }
+      template:               { rating: nil,
+                                author: nil,
+                                title: nil,
+                                series:      [{ name: nil,
+                                                volume: nil }],
+                                variants:    [{ format: nil,
+                                                sources: [{ name: nil,
+                                                            url: nil }],
+                                                isbn: nil,
+                                                length: nil,
+                                                extra_info: [] }],
+                                experiences: [{ date_added: nil,
+                                                date_started:  nil,
+                                                date_finished: nil,
+                                                progress: nil,
+                                                group: nil,
+                                                variant_index: 0 }],
+                                visibility: 3, # TODO use a constant here.
+                                genres: [],
+                                public_notes: [],
+                                blurb: nil,
+                                private_notes: [],
+                                history: [] },
+    },
+    csv: {
+      path:                     nil, # set if you want to load a local file.
+      # for selective sync; the default (this) is to continue in all cases.
+      selective_continue:       -> (last_parsed_data) { true },
+      columns:                { rating:         true,
+                                name:           true, # always enabled
+                                sources:        true,
+                                dates_started:  true,
+                                dates_finished: true,
+                                genres:         true,
+                                length:         true,
+                                public_notes:   true,
+                                blurb:          true,
+                                private_notes:  true,
+                                history:        true },
+      custom_columns:           {},
+      comment_character:        "\\",
+      column_separator:         "|",
+      separator:                ",",
+      short_separator:          " - ",
+      long_separator:           " -- ",
+      date_separator:           "/",
+      dnf_string:               "DNF",
+      series_prefix:            "in",
+      group_emoji:              "🤝🏼",
+      compact_planned_source_prefix: "@",
+      reverse_dates:            false
+    }
   }
 
   def self.add_regex_config(custom_config)
