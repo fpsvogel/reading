@@ -3,10 +3,6 @@ require "pastel"
 module Reading
   Colors = Pastel.new
 
-  # NotInitializedError indicates that an object has not been initialized before
-  # its attempted use.
-  class NotInitializedError < StandardError; end
-
   class AppError < StandardError
     def initialize(msg = nil, label: "Error")
       super(label + colon_before?(msg) + (msg || ""))
@@ -62,71 +58,12 @@ module Reading
     end
   end
 
-  # MISC. ERRORS # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-  class ConfigError < AppError; end
-
-  class InputError < AppError; end
-
-  class OutputError < AppError; end
-
   # FILE # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   class FileError < AppError; end
 
-  # InvalidLineError indicates that a line cannot be parsed.
-  class InvalidLineError < FileError; end # TODO # RM
-
-  # VALIDATION # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
   # InvalidItemError indicates that data for a new Item is invalid.
   class InvalidItemError < AppError; end
-
-  # InvalidDateError indicates that a date is unparsable, or a set of dates does
-  # not make logical sense.
-  class InvalidDateError < InvalidItemError
-    def initialize(line = nil, label: nil)
-      super(line, label: label || "Invalid line (invalid dates):")
-    end
-  end
-
-  # BlankAttribute is for the errors and warnings below, which indicate that a attribute
-  # is blank in data for a new Item.
-  module BlankAttribute
-    attr_reader :attributes
-    def initialize(line_or_attribute = nil, label: nil)
-      line, label = from(line_or_attribute, label)
-      super(line, label: label)
-    end
-
-    private
-
-    def from(line_or_attribute, label)
-      if line_or_attribute.is_a?(Array)
-        label = "Missing #{line_or_attribute.join(", ")}:"
-      else
-        line = line_or_attribute
-      end
-      [line, label]
-    end
-  end
-
-  class BlankAttributeError < InvalidItemError
-    include BlankAttribute
-  end
-
-  class BlankAttributeWarning < InvalidItemError
-    include BlankAttribute
-    include Warning
-  end
-
-  # ITEM # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-  # ConsolidatedItemError indicates that an item is expected to have been split
-  # by Experience (rereads) but is still consolidated, with multiple Experiences.
-  class ConsolidatedItemError < AppError
-    def message
-      "Cannot get singular Experience data from a consolidated Item (having multiple Experiences)"
-    end
-  end
 end
