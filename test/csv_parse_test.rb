@@ -773,9 +773,9 @@ class CsvParseTest < TestBase
   # template in config. Data in items must already be complete, i.e. merged with
   # the item template in config.
   def tidy(items)
-    items.map do |data|
+    items.map { |data|
       without_blank_hashes(data)
-    end
+    }
   end
 
   def without_blank_hashes(item_data)
@@ -792,14 +792,14 @@ class CsvParseTest < TestBase
   end
 
   def with_reread(data, started, finished, **other_attributes)
-    data.dup.then do |dup|
+    data.dup.then { |dup|
       new_experience = dup[:experiences].first.merge(date_started: started, date_finished: finished)
       other_attributes.each do |attribute, value|
         new_experience[attribute] = value
       end
       dup[:experiences] += [new_experience]
       dup
-    end
+    }
   end
 
   def parse(path)

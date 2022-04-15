@@ -29,50 +29,53 @@ module Reading
         end
 
         def setup_parse_attributes
-          @parse_attributes ||= config.fetch(:item).fetch(:template).map do |attribute, _default|
+          @parse_attributes ||= config.fetch(:item).fetch(:template).map { |attribute, _default|
             parser_class_name = "Parse#{attribute.to_s.split("_").map(&:capitalize).join}"
             [attribute, self.class.const_get(parser_class_name).new(config)]
-          end.to_h
+          }.to_h
         end
 
         def setup_custom_parse_attributes
           config.fetch(:csv).fetch(:custom_columns).each do |attribute, type|
             class_name = "Parse#{attribute.to_s.downcase.split("_").map(&:capitalize).join}"
-            next if self.class.const_defined?(class_name)
-            custom_class =
-              Class.new ParseAttribute do
-                @name = attribute
-                @type = type
+            # The class for the custom attribute may already have been defined.
+            next if parse_attributes.has_key?(attribute.to_sym)
 
-                def self.name
-                  @name
-                end
+            custom_class = Class.new ParseAttribute do
+              @name = attribute
+              @type = type
 
-                def self.type
-                  @type
-                end
+              def self.name
+                @name
+              end
 
-                def call(item_name, columns)
-                  value = columns[self.class.name.to_sym]&.strip&.presence
-                  if self.class.type == :number
-                    Float(value, exception: false)
-                  else
-                    value
-                  end
+              def self.type
+                @type
+              end
+
+              def call(item_name, columns)
+                value = columns[self.class.name.to_sym]&.strip&.presence
+                if self.class.type == :number
+                  Float(value, exception: false)
+                else
+                  value
                 end
               end
+            end
+
             self.class.const_set(class_name, custom_class)
             parse_attributes[attribute.to_sym] = custom_class.new(config)
           end
         end
 
         def set_columns
-          @columns =  config.fetch(:csv).fetch(:columns)
-                            .select { |_name, enabled| enabled }
-                            .keys
-                            .concat(config.fetch(:csv).fetch(:custom_columns).keys)
-                            .zip(line.split(config.fetch(:csv).fetch(:column_separator)))
-                            .to_h
+          @columns = config
+            .fetch(:csv).fetch(:columns)
+            .select { |_name, enabled| enabled }
+            .keys
+            .concat(config.fetch(:csv).fetch(:custom_columns).keys)
+            .zip(line.split(config.fetch(:csv).fetch(:column_separator)))
+            .to_h
         end
 
         def ensure_name_column_present
@@ -82,13 +85,13 @@ module Reading
         end
 
         def item_data(name)
-          config.fetch(:item).fetch(:template)
-                .merge(config.fetch(:csv).fetch(:custom_columns).keys.map { |k| [k, nil] }.to_h)
-                .map do |attribute, _template_default|
-                  parsed = parse_attributes.fetch(attribute).call(name, columns)
-                  [attribute, parsed || default[attribute]]
-                end
-                .to_h
+          config
+            .fetch(:item).fetch(:template)
+            .merge(config.fetch(:csv).fetch(:custom_columns).keys.map { |k| [k, nil] }.to_h)
+            .map { |attribute, _template_default|
+              parsed = parse_attributes.fetch(attribute).call(name, columns)
+              [attribute, parsed || default[attribute]]
+            }.to_h
         end
       end
     end

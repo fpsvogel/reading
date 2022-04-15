@@ -6,21 +6,26 @@ module Reading
     class Parse
       class ParseLine
         class ParseExperiences < ParseAttribute
+
           def call(_name = nil, columns)
             started, finished = dates_split(columns)
             if config.fetch(:csv).fetch(:reverse_dates)
               started, finished = started.reverse, finished.reverse
             end
-            using_dates = started.map.with_index do |entry, i|
-              { date_added: date_added(entry)                 || template[:date_added],
+
+            using_dates = started.map.with_index { |entry, i|
+              {
+                date_added: date_added(entry)                 || template[:date_added],
                 date_started:  date_started(entry)            || template[:date_started],
                 date_finished: date_finished(finished, i)     || template[:date_finished],
                 progress: progress(entry) ||
                   progress(columns[:name],
                      ignore_if_no_dnf: i < started.count - 1) || template[:progress],
                 group: group(entry)                           || template[:group],
-                variant_index: variant_index(entry)                 || template[:variant_index] }
-            end.presence
+                variant_index: variant_index(entry)           || template[:variant_index]
+              }
+            }.presence
+
             if using_dates
               return using_dates
             else
@@ -66,6 +71,7 @@ module Reading
 
           def progress(str, ignore_if_no_dnf: false)
             dnf = str.match(config.fetch(:csv).fetch(:regex).fetch(:dnf))&.captures&.first
+
             if dnf || !ignore_if_no_dnf
               captures = str.match(config.fetch(:csv).fetch(:regex).fetch(:progress))&.captures
               if captures
@@ -78,6 +84,7 @@ module Reading
                 end
               end
             end
+
             return 0 if dnf
             nil
           end

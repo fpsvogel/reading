@@ -16,34 +16,39 @@ module Reading
         end
 
         def setup_default
-          @default =
-            config.fetch(:item).fetch(:template)
-                  .map do |attribute, value|
-                    if value.is_a?(Array) && value.first.is_a?(Hash)
-                      [attribute, []]
-                    else
-                      [attribute, value]
-                    end
-                  end.to_h
+          @default = config
+            .fetch(:item)
+            .fetch(:template)
+            .map { |attribute, value|
+              if value.is_a?(Array) && value.first.is_a?(Hash)
+                [attribute, []]
+              else
+                [attribute, value]
+              end
+            }.to_h
         end
 
         def call(line, &postprocess)
           @line = line
           before_parse
           titles = []
-          items = split_by_format_emojis.map do |name|
+
+          items = split_by_format_emojis.map { |name|
             data = item_data(name)
-            if titles.include?(name)
+            if titles.include?(data[:title])
               raise InvalidItemError, "A title must not appear more than once in the list"
             end
             titles << data[:title]
+
             if block_given?
               postprocess.call(data)
             else
               data
             end
-          end.compact
+          }.compact
+
           items
+
         rescue InvalidItemError, StandardError => e
           # TODO instead of rescuing StandardError here, test missing
           # initial/middle columns in ParseRegularLine#set_columns, and raise
@@ -55,6 +60,7 @@ module Reading
               raise e
             end
           end
+
           e.handle(source: line, config: config)
           []
         ensure
@@ -67,19 +73,21 @@ module Reading
         def split_by_format_emojis
           multi_items_to_be_split_by_format_emojis
             .split(config.fetch(:csv).fetch(:regex).fetch(:formats_split))
-            .tap do |names|
+            .tap { |names|
               names.first.sub!(config.fetch(:csv).fetch(:regex).fetch(:dnf), "")
               names.first.sub!(config.fetch(:csv).fetch(:regex).fetch(:progress), "")
-            end
+            }
             .map { |name| name.strip.sub(/\s*[,;]\z/, "") }
             .partition { |name| name.match?(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/) }
             .reject(&:empty?)
             .first
         end
 
+        # Hook, can be overridden.
         def after_initialize
         end
 
+        # Hook, can be overridden.
         def before_parse
         end
 

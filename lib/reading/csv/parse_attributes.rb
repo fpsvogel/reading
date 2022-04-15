@@ -20,38 +20,41 @@ module Reading
 
         class ParseAuthor < ParseAttribute
           def call(name, _columns = nil)
-            name.sub(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
-                .match(/.+(?=#{config.fetch(:csv).fetch(:short_separator)})/)
-                &.to_s
-                &.strip
+            name
+              .sub(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
+              .match(/.+(?=#{config.fetch(:csv).fetch(:short_separator)})/)
+              &.to_s
+              &.strip
           end
         end
 
         class ParseTitle < ParseAttribute
           def call(name, _columns = nil)
-            name.sub(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
-                .sub(/.+#{config.fetch(:csv).fetch(:short_separator)}/, "")
-                .sub(/#{config.fetch(:csv).fetch(:long_separator)}.+\z/, "")
-                .strip
-                .presence
+            name
+              .sub(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
+              .sub(/.+#{config.fetch(:csv).fetch(:short_separator)}/, "")
+              .sub(/#{config.fetch(:csv).fetch(:long_separator)}.+\z/, "")
+              .strip
+              .presence
           end
         end
 
         class ParseSeries < ParseAttribute
           def call(name, _columns = nil)
-            separated = name.split(config.fetch(:csv).fetch(:long_separator))
-                            .map(&:strip)
-                            .map(&:presence)
-                            .compact
+            separated = name
+              .split(config.fetch(:csv).fetch(:long_separator))
+              .map(&:strip)
+              .map(&:presence)
+              .compact
             separated.delete_at(0) # everything before the series/extra info
-            separated.map do |str|
+            separated.map { |str|
               volume = str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))
               prefix = "#{config.fetch(:csv).fetch(:series_prefix)} "
               if volume || str.start_with?(prefix)
                 { name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
                   volume: volume&.captures&.first&.to_i                      || default[:volume] }
               end
-            end
+            }
             .compact.presence || []
           end
 
@@ -66,12 +69,11 @@ module Reading
           @@all_genres = nil
 
           def all_genres(columns)
-            @@all_genres ||=
-              columns[:genres]
-                .split(config.fetch(:csv).fetch(:separator))
-                .map(&:strip)
-                .map(&:presence)
-                .compact.presence
+            @@all_genres ||= columns[:genres]
+              .split(config.fetch(:csv).fetch(:separator))
+              .map(&:strip)
+              .map(&:presence)
+              .compact.presence
           end
         end
 
@@ -113,13 +115,13 @@ module Reading
         class ParseGenres < ParseFromGenreColumn
           def call(_name = nil, columns)
             return nil unless columns[:genres]
-            genres = @@all_genres # visibility has already been taken out by ParseVisibility.
+            genres = @@all_genres # Visibility has already been taken out by ParseVisibility.
             @@all_genres = nil
             genres
           end
         end
 
-        # not an item attribute; only shares common behavior across the below
+        # Not an item attribute; only shares common behavior across the below
         # attribute parsers.
         class ParseNotesAttribute < ParseAttribute
           def split_notes(column_name, columns)

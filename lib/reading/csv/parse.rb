@@ -32,19 +32,23 @@ module Reading
       #   way Item can access the CSV source line, which is useful since Item
       #   does additional validation on the data, and in case of any errors it
       #   can pass along the source line to an error message.
-      def call(feed = nil,
-                path: nil,
-                close_feed: true,
-                selective: true,
-                skip_compact_planned: false,
-                &postprocess)
+      def call(
+        feed = nil,
+        path: nil,
+        close_feed: true,
+        selective: true,
+        skip_compact_planned: false,
+        &postprocess
+      )
         if feed.nil? && path.nil? && config.fetch(:csv).fetch(:path).nil?
           raise ArgumentError, "No file given to load."
         end
+
         feed ||= File.open(path || config.fetch(:csv).fetch(:path))
         items = []
         parse_regular = ParseRegularLine.new(config)
         parse_compact_planned = ParseCompactPlannedLine.new(config)
+
         feed.each_line do |line|
           line.force_encoding(Encoding::UTF_8)
           @cur_line = line.strip
@@ -57,6 +61,7 @@ module Reading
             next if skip_compact_planned
             items += parse_compact_planned.call(cur_line, &postprocess)
           end
+
           if selective
             continue = config.fetch(:csv).fetch(:selective_continue).call(items.last)
             case continue
@@ -67,7 +72,9 @@ module Reading
             end
           end
         end
+
         items
+
       rescue Errno::ENOENT
         raise FileError.new(path, label: "File not found!")
       rescue Errno::EISDIR
@@ -82,6 +89,7 @@ module Reading
 
       def line_type
         return :blank if cur_line.empty?
+
         if starts_with_comment_character?
           return :compact_planned_line if compact_planned_line?
           return :comment

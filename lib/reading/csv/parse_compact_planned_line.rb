@@ -18,8 +18,7 @@ module Reading
 
         def before_parse
           list_start = line.match(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
-          @genre = list_start[:genre]
-          @genre = genre.downcase
+          @genre = list_start[:genre].downcase
           @line_without_genre = line.sub(list_start.to_s, "")
         end
 
@@ -48,20 +47,23 @@ module Reading
           author = ParseAuthor.new(config).call(match[:author_title])
           title = ParseTitle.new(config).call(match[:author_title])
           item = default.deeper_merge(
-              author: author || template[:author],
-              title: title,
-              genres: [genre] || template[:genres]
-            )
-          variant = { format: nil,
-                      sources: sources(match[:sources]) || [],
-                      isbn: template.fetch(:variants).first.fetch(:isbn),
-                      length: template.fetch(:variants).first.fetch(:length),
-                      extra_info: template.fetch(:variants).first.fetch(:extra_info) }
+            author: author || template[:author],
+            title: title,
+            genres: [genre] || template[:genres]
+          )
+          variant = {
+            format: nil,
+            sources: sources(match[:sources]) || [],
+            isbn: template.fetch(:variants).first.fetch(:isbn),
+            length: template.fetch(:variants).first.fetch(:length),
+            extra_info: template.fetch(:variants).first.fetch(:extra_info)
+          }
           match[:format_emojis].scan(
             /#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/
           ).each do |format_emoji|
             item = item.deeper_merge(variants: [variant.merge(format: format(format_emoji))])
           end
+
           item
         end
 
@@ -75,21 +77,23 @@ module Reading
 
         def sources(sources_str)
           return nil if sources_str.nil?
-          sources_str.split(config.fetch(:csv).fetch(:compact_planned_source_prefix))
-                      .map { |source| source.sub(/\s*,\s*/, "") }
-                      .map(&:strip)
-                      .reject(&:empty?)
-                      .map do |source|
-                        if valid_url?(source)
-                          source.chop! if source.chars.last == "/"
-                          { name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
-                            url: source }
-                        else
-                          { name: source,
-                            url: template.fetch(:variants).first.fetch(:sources).first[:url] }
-                        end
-                      end
-                      # .reject { |name, url| name.nil? && url.nil? }
+
+          sources_str
+            .split(config.fetch(:csv).fetch(:compact_planned_source_prefix))
+            .map { |source| source.sub(/\s*,\s*/, "") }
+            .map(&:strip)
+            .reject(&:empty?)
+            .map { |source|
+              if valid_url?(source)
+                source.chop! if source.chars.last == "/"
+                { name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
+                  url: source }
+              else
+                { name: source,
+                  url: template.fetch(:variants).first.fetch(:sources).first[:url] }
+              end
+            }
+            # .reject { |name, url| name.nil? && url.nil? }
         end
 
         def valid_url?(str)

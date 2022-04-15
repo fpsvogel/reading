@@ -21,13 +21,13 @@ module Reading
                 else
                   this_val.zip(other_val).map(&:reverse)
                 end
-              zip.map do |other_el, this_el|
+              zip.map { |other_el, this_el|
                 if this_el.nil?
                   other_el
                 else
                   this_el.deeper_merge(other_el || {})
                 end
-              end
+              }
             elsif block_given?
               block.call(key, this_val, other_val)
             else
