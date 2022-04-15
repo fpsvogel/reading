@@ -1,5 +1,5 @@
 require "attr_extras"
-require_relative "../errors"
+require_relative "../../errors"
 
 module Reading
   module Csv

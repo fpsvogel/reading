@@ -1,8 +1,7 @@
 require "attr_extras"
-require_relative "../util/deeper_merge"
-require_relative "../errors"
+require_relative "../../util/deeper_merge"
+require_relative "../../errors"
 require_relative "parse_line"
-require_relative "parse_attribute"
 
 module Reading
   module Csv
