@@ -70,7 +70,7 @@ module Reading
                                 blurb:          true,
                                 private_notes:  true,
                                 history:        true },
-      custom_columns:           {},
+      custom_columns: {},
       comment_character:        "\\",
       column_separator:         "|",
       separator:                ",",

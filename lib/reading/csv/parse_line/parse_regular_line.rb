@@ -52,7 +52,7 @@ module Reading
 
               def call(item_name, columns)
                 value = columns[self.class.name.to_sym]&.strip&.presence
-                if self.class.type == :number
+                if self.class.type == :numeric
                   Float(value, exception: false)
                 else
                   value

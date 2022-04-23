@@ -74,7 +74,7 @@ class CsvParseTest < TestBase
   ## TEST DATA: CUSTOM COLUMNS
   # The type of the custom column is indicated by the hash key.
   @files[:custom_columns] = {}
-  @files[:custom_columns][:number] = <<~EOM.freeze
+  @files[:custom_columns][:numeric] = <<~EOM.freeze
     \\Rating|Name|Sources|Dates started|Dates finished|Length|Surprise factor|Family friendliness
     |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|6|3.9
     5|Goatsong|0312038380|2020/5/1|2020/5/30|247|9
@@ -329,13 +329,13 @@ class CsvParseTest < TestBase
 
 
   @items[:custom_columns] = {}
-  a_custom_number = a.merge(surprise_factor: 6,
+  a_custom_numeric = a.merge(surprise_factor: 6,
                             family_friendliness: 3.9)
-  b_custom_number = b.merge(surprise_factor: 9,
+  b_custom_numeric = b.merge(surprise_factor: 9,
                             family_friendliness: nil)
-  c_custom_number = c.merge(surprise_factor: nil,
+  c_custom_numeric = c.merge(surprise_factor: nil,
                             family_friendliness: nil)
-  @items[:custom_columns][:number] = [a_custom_number, b_custom_number, c_custom_number]
+  @items[:custom_columns][:numeric] = [a_custom_numeric, b_custom_numeric, c_custom_numeric]
 
   a_custom_text = a.merge(mood: "apprehensive",
                           color: "blue")
@@ -827,11 +827,11 @@ class CsvParseTest < TestBase
   end
 
   ## TESTS: CUSTOM COLUMNS
-  def test_number_custom_columns
+  def test_numeric_custom_columns
     set_columns(*%i[rating name sources dates_started dates_finished length],
-                custom_columns: { surprise_factor: :number, family_friendliness: :number })
-    exp = tidy(items[:custom_columns][:number])
-    act = parse("custom_columns_number.csv")
+                custom_columns: { surprise_factor: :numeric, family_friendliness: :numeric })
+    exp = tidy(items[:custom_columns][:numeric])
+    act = parse("custom_columns_numeric.csv")
     # debugger unless exp == act
     assert_equal exp, act
   end
