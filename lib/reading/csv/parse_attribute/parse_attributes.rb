@@ -21,8 +21,8 @@ module Reading
         class ParseAuthor < ParseAttribute
           def call(name, _columns = nil)
             name
-              .sub(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
-              .match(/.+(?=#{config.fetch(:csv).fetch(:short_separator)})/)
+              .sub(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
+              .match(/.+(?=#{@config.fetch(:csv).fetch(:short_separator)})/)
               &.to_s
               &.strip
           end
@@ -31,9 +31,9 @@ module Reading
         class ParseTitle < ParseAttribute
           def call(name, _columns = nil)
             name
-              .sub(/\A#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
-              .sub(/.+#{config.fetch(:csv).fetch(:short_separator)}/, "")
-              .sub(/#{config.fetch(:csv).fetch(:long_separator)}.+\z/, "")
+              .sub(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
+              .sub(/.+#{@config.fetch(:csv).fetch(:short_separator)}/, "")
+              .sub(/#{@config.fetch(:csv).fetch(:long_separator)}.+\z/, "")
               .strip
               .presence
           end
@@ -42,14 +42,14 @@ module Reading
         class ParseSeries < ParseAttribute
           def call(name, _columns = nil)
             separated = name
-              .split(config.fetch(:csv).fetch(:long_separator))
+              .split(@config.fetch(:csv).fetch(:long_separator))
               .map(&:strip)
               .map(&:presence)
               .compact
             separated.delete_at(0) # everything before the series/extra info
             separated.map { |str|
-              volume = str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))
-              prefix = "#{config.fetch(:csv).fetch(:series_prefix)} "
+              volume = str.match(@config.fetch(:csv).fetch(:regex).fetch(:series_volume))
+              prefix = "#{@config.fetch(:csv).fetch(:series_prefix)} "
               if volume || str.start_with?(prefix)
                 { name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
                   volume: volume&.captures&.first&.to_i                      || default[:volume] }
@@ -59,7 +59,7 @@ module Reading
           end
 
           def default
-            config.fetch(:item).fetch(:template).fetch(:series).first
+            @config.fetch(:item).fetch(:template).fetch(:series).first
           end
         end
 
@@ -70,7 +70,7 @@ module Reading
 
           def all_genres(columns)
             @@all_genres ||= columns[:genres]
-              .split(config.fetch(:csv).fetch(:separator))
+              .split(@config.fetch(:csv).fetch(:separator))
               .map(&:strip)
               .map(&:presence)
               .compact.presence
@@ -93,7 +93,7 @@ module Reading
 
           def call(_name = nil, columns)
             return nil unless columns[:genres]
-            visibility = config.fetch(:item).fetch(:template).fetch(:visibility)
+            visibility = @config.fetch(:item).fetch(:template).fetch(:visibility)
             all_genres(columns).each do |entry|
               if specified_visibility = visibility_string_to_number(entry)
                 visibility = specified_visibility
@@ -129,8 +129,8 @@ module Reading
             columns[column_name]
               .presence
               &.chomp
-              &.sub(/#{config.fetch(:csv).fetch(:long_separator).rstrip}\s*\z/, "")
-              &.split(config.fetch(:csv).fetch(:long_separator))
+              &.sub(/#{@config.fetch(:csv).fetch(:long_separator).rstrip}\s*\z/, "")
+              &.split(@config.fetch(:csv).fetch(:long_separator))
           end
         end
 

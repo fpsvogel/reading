@@ -1,4 +1,3 @@
-require "attr_extras"
 require_relative "../util/deeper_merge"
 require_relative "config"
 require_relative "parse_line/parse_regular_line"
@@ -11,20 +10,18 @@ module Reading
     # Parse is a function that parses CSV lines into item data (an array of hashes).
     # For the structure of these hashes, see @config[:item] in config.rb
     class Parse
-      attr_private :config
-
       def initialize(custom_config = {})
-        unless config
+        unless @config
           @config = Reading.config.deeper_merge(custom_config)
           # If custom formats are given, use only the custom formats.
           # Brackets are used for custom_config (not #fetch as with @config elsewhere)
           # because custom_config may not include this data, whereas @config
           # includes the entire config structure as defined in config.rb.
           if custom_config[:item] && custom_config[:item][:formats]
-            config[:item][:formats] = custom_config[:item][:formats]
+            @config[:item][:formats] = custom_config[:item][:formats]
           end
-          config.fetch(:csv).fetch(:columns)[:name] = true # Name column can't be disabled.
-          Reading.add_regex_config(config)
+          @config.fetch(:csv).fetch(:columns)[:name] = true # Name column can't be disabled.
+          Reading.add_regex_config(@config)
         end
       end
 
@@ -46,13 +43,13 @@ module Reading
         skip_compact_planned: false,
         &postprocess
       )
-        if feed.nil? && path.nil? && config.fetch(:csv).fetch(:path).nil?
+        if feed.nil? && path.nil? && @config.fetch(:csv).fetch(:path).nil?
           raise ArgumentError, "No file given to load."
         end
 
-        feed ||= File.open(path || config.fetch(:csv).fetch(:path))
-        parse_regular = ParseRegularLine.new(config)
-        parse_compact_planned = ParseCompactPlannedLine.new(config)
+        feed ||= File.open(path || @config.fetch(:csv).fetch(:path))
+        parse_regular = ParseRegularLine.new(@config)
+        parse_compact_planned = ParseCompactPlannedLine.new(@config)
         items = []
 
         feed.each_line do |line|
@@ -70,7 +67,7 @@ module Reading
           end
 
           if selective
-            continue = config.fetch(:csv).fetch(:selective_continue).call(items.last)
+            continue = @config.fetch(:csv).fetch(:selective_continue).call(items.last)
             case continue
             when false
               break
@@ -105,12 +102,12 @@ module Reading
       end
 
       def starts_with_comment_character?(line)
-        line.start_with?(config.fetch(:csv).fetch(:comment_character)) ||
-          line.match?(/\A\s+#{config.fetch(:csv).fetch(:regex).fetch(:comment_escaped)}/)
+        line.start_with?(@config.fetch(:csv).fetch(:comment_character)) ||
+          line.match?(/\A\s+#{@config.fetch(:csv).fetch(:regex).fetch(:comment_escaped)}/)
       end
 
       def compact_planned_line?(line)
-        line.match?(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
+        line.match?(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
       end
     end
   end

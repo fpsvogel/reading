@@ -11,8 +11,6 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
-  spec.add_runtime_dependency "attr_extras", "~> 6.0"
-  spec.add_runtime_dependency "date", "~> 3.0"
   spec.add_runtime_dependency "pastel", "~> 0.8"
   spec.add_runtime_dependency "activesupport", ">= 6.0"
 

@@ -13,15 +13,15 @@ module Reading
             extra_info_in_name = extra_info(name).presence
             sources_str = columns[:sources]&.presence || " "
             separator =
-              if sources_str.match(config.fetch(:csv).fetch(:regex).fetch(:formats))
-                config.fetch(:csv).fetch(:regex).fetch(:formats_split)
+              if sources_str.match(@config.fetch(:csv).fetch(:regex).fetch(:formats))
+                @config.fetch(:csv).fetch(:regex).fetch(:formats_split)
               else
-                config.fetch(:csv).fetch(:long_separator)
+                @config.fetch(:csv).fetch(:long_separator)
               end
 
             sources_str.split(separator).map { |variant_with_extra_info|
               variant_str = variant_with_extra_info
-                .split(config.fetch(:csv).fetch(:long_separator)).first
+                .split(@config.fetch(:csv).fetch(:long_separator)).first
 
               variant =
                 {
@@ -43,7 +43,7 @@ module Reading
           end
 
           def template
-            @template ||= config.fetch(:item).fetch(:template).fetch(:variants).first
+            @template ||= @config.fetch(:item).fetch(:template).fetch(:variants).first
           end
 
           def template_with_empty_sources
@@ -51,12 +51,12 @@ module Reading
           end
 
           def format(str)
-            emoji = str.match(/^#{config.fetch(:csv).fetch(:regex).fetch(:formats)}/).to_s
-            config.fetch(:item).fetch(:formats).key(emoji)
+            emoji = str.match(/^#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/).to_s
+            @config.fetch(:item).fetch(:formats).key(emoji)
           end
 
           def isbn(str)
-            isbns = str.scan(config.fetch(:csv).fetch(:regex).fetch(:isbn))
+            isbns = str.scan(@config.fetch(:csv).fetch(:regex).fetch(:isbn))
             if isbns.count > 1
               raise InvalidItemError, "Only one ISBN/ASIN is allowed per item variant"
             end
@@ -68,25 +68,25 @@ module Reading
 
             len = str.strip
             time_length = len
-              .match(config.fetch(:csv).fetch(:regex).fetch(:time_length))&.captures&.first
+              .match(@config.fetch(:csv).fetch(:regex).fetch(:time_length))&.captures&.first
             return time_length unless time_length.nil?
 
             pages_length_regex =
               if in_variant
-                config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant)
+                @config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant)
               else
-                config.fetch(:csv).fetch(:regex).fetch(:pages_length)
+                @config.fetch(:csv).fetch(:regex).fetch(:pages_length)
               end
 
             len.match(pages_length_regex)&.captures&.first&.to_i
           end
 
           def extra_info(str)
-            separated = str.split(config.fetch(:csv).fetch(:long_separator))
+            separated = str.split(@config.fetch(:csv).fetch(:long_separator))
             separated.delete_at(0) # everything before the extra info
             separated.reject { |str|
-              str.start_with?("#{config.fetch(:csv).fetch(:series_prefix)} ") ||
-                str.match(config.fetch(:csv).fetch(:regex).fetch(:series_volume))
+              str.start_with?("#{@config.fetch(:csv).fetch(:series_prefix)} ") ||
+                str.match(@config.fetch(:csv).fetch(:regex).fetch(:series_volume))
             }
           end
 
@@ -98,29 +98,29 @@ module Reading
 
           def sources_urls(str)
             str
-              .scan(config.fetch(:csv).fetch(:regex).fetch(:sources))
+              .scan(@config.fetch(:csv).fetch(:regex).fetch(:sources))
               .map(&:compact)
               .reject { |source|
-                source.first.match?(config.fetch(:csv).fetch(:regex).fetch(:isbn))
+                source.first.match?(@config.fetch(:csv).fetch(:regex).fetch(:isbn))
               }
           end
 
           def sources_names(str)
             sources_with_commas_around_length(str)
-              .gsub(config.fetch(:csv).fetch(:regex).fetch(:sources), config.fetch(:csv).fetch(:separator))
-              .split(config.fetch(:csv).fetch(:separator))
+              .gsub(@config.fetch(:csv).fetch(:regex).fetch(:sources), @config.fetch(:csv).fetch(:separator))
+              .split(@config.fetch(:csv).fetch(:separator))
               .reject { |name|
-                name.match?(config.fetch(:csv).fetch(:regex).fetch(:time_length)) ||
-                  name.match?(config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant))
+                name.match?(@config.fetch(:csv).fetch(:regex).fetch(:time_length)) ||
+                  name.match?(@config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant))
               }
-              .map { |name| name.sub(/\A\s*#{config.fetch(:csv).fetch(:regex).fetch(:formats)}\s*/, "") }
+              .map { |name| name.sub(/\A\s*#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}\s*/, "") }
               .map(&:strip)
               .reject(&:empty?)
           end
 
           def sources_with_commas_around_length(str)
-            str.sub(config.fetch(:csv).fetch(:regex).fetch(:time_length), ", \\1, ")
-               .sub(config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant), ", \\1, ")
+            str.sub(@config.fetch(:csv).fetch(:regex).fetch(:time_length), ", \\1, ")
+               .sub(@config.fetch(:csv).fetch(:regex).fetch(:pages_length_in_variant), ", \\1, ")
           end
 
           def source_array_to_hash(array)
@@ -151,7 +151,7 @@ module Reading
           def auto_name_from_url(url)
             return nil if url.nil?
 
-            config
+            @config
               .fetch(:item).fetch(:sources).fetch(:names_from_urls)
               .each do |url_part, auto_name|
                 if url.include?(url_part)
@@ -159,7 +159,7 @@ module Reading
                 end
               end
 
-            config.fetch(:item).fetch(:sources).fetch(:default_name_for_url)
+            @config.fetch(:item).fetch(:sources).fetch(:default_name_for_url)
           end
         end
       end

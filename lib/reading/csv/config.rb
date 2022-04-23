@@ -8,7 +8,7 @@ module Reading
     errors: {
       handle_error:             -> (error) { puts error },
       max_length:               100, # or require "io/console", then IO.console.winsize[1]
-      catch_all_errors:         true, # set this to false during development.
+      catch_all_errors:         false, # set this to false during development.
       style_mode:               :terminal # or :html
     },
     item: {
