@@ -9,25 +9,31 @@ module Reading
     using Util::DeeperMerge
 
     # Parse is a function that parses CSV lines into item data (an array of hashes).
+    # For the structure of these hashes, see @config[:item] in config.rb
     class Parse
-      attr_private :config, :cur_line
+      attr_private :config
 
       def initialize(custom_config = {})
         unless config
           @config = Reading.config.deeper_merge(custom_config)
           # If custom formats are given, use only the custom formats.
+          # Brackets are used for custom_config (not #fetch as with @config elsewhere)
+          # because custom_config may not include this data, whereas @config
+          # includes the entire config structure as defined in config.rb.
           if custom_config[:item] && custom_config[:item][:formats]
             config[:item][:formats] = custom_config[:item][:formats]
           end
           config.fetch(:csv).fetch(:columns)[:name] = true # Name column can't be disabled.
           Reading.add_regex_config(config)
         end
-        @cur_line = nil
       end
 
       # - Returns a hash of item data in the same order as they arrive from feed.
       # - feed is anything with #each_line.
-      # - If a block is given, parsing is stopped when it returns false.
+      # - close_feed determines whether the feed is closed before returning.
+      # - If selective is true, parsing is stopped or an item skipped depending
+      #   on the return value of the selective_continue proc in config.
+      # - skip_compact_planned determines whether compact planned items are parsed.
       # - postprocess can be used to convert the data hashes into Items. this
       #   way Item can access the CSV source line, which is useful since Item
       #   does additional validation on the data, and in case of any errors it
@@ -45,14 +51,15 @@ module Reading
         end
 
         feed ||= File.open(path || config.fetch(:csv).fetch(:path))
-        items = []
         parse_regular = ParseRegularLine.new(config)
         parse_compact_planned = ParseCompactPlannedLine.new(config)
+        items = []
 
         feed.each_line do |line|
           line.force_encoding(Encoding::UTF_8)
-          @cur_line = line.strip
-          case line_type
+          cur_line = line.strip
+
+          case line_type(cur_line)
           when :blank, :comment
             next
           when :regular
@@ -87,23 +94,23 @@ module Reading
 
       private
 
-      def line_type
-        return :blank if cur_line.empty?
+      def line_type(line)
+        return :blank if line.empty?
 
-        if starts_with_comment_character?
-          return :compact_planned_line if compact_planned_line?
+        if starts_with_comment_character?(line)
+          return :compact_planned_line if compact_planned_line?(line)
           return :comment
         end
         :regular
       end
 
-      def starts_with_comment_character?
-        cur_line.start_with?(config.fetch(:csv).fetch(:comment_character)) ||
-          cur_line.match?(/\A\s+#{config.fetch(:csv).fetch(:regex).fetch(:comment_escaped)}/)
+      def starts_with_comment_character?(line)
+        line.start_with?(config.fetch(:csv).fetch(:comment_character)) ||
+          line.match?(/\A\s+#{config.fetch(:csv).fetch(:regex).fetch(:comment_escaped)}/)
       end
 
-      def compact_planned_line?
-        cur_line.match?(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
+      def compact_planned_line?(line)
+        line.match?(config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
       end
     end
   end
