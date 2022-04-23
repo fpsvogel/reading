@@ -42,14 +42,14 @@ module Reading
           end
           author = ParseAuthor.new(@config).call(match[:author_title])
           title = ParseTitle.new(@config).call(match[:author_title])
-          item = @default.deeper_merge(
+          item = template.deeper_merge(
             author: author || template[:author],
             title: title,
             genres: [@genre] || template[:genres]
           )
           variant = {
             format: nil,
-            sources: sources(match[:sources]) || [],
+            sources: sources(match[:sources]) || template.fetch(:variants).first.fetch(:sources),
             isbn: template.fetch(:variants).first.fetch(:isbn),
             length: template.fetch(:variants).first.fetch(:length),
             extra_info: template.fetch(:variants).first.fetch(:extra_info)

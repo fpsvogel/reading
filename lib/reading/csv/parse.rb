@@ -56,6 +56,10 @@ module Reading
           line.force_encoding(Encoding::UTF_8)
           cur_line = line.strip
 
+          # This could be refactored into LineType classes (BlankLine, CommentLine, etc.)
+          # each with a #line_match? method and an associated action for a match,
+          # but this abstraction wouldn't be justified because I doubt there'll
+          # be any additional line types in the future, besides the four types here.
           case line_type(cur_line)
           when :blank, :comment
             next

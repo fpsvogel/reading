@@ -55,7 +55,7 @@ module Reading
                   volume: volume&.captures&.first&.to_i                      || default[:volume] }
               end
             }
-            .compact.presence || []
+            .compact.presence
           end
 
           def default

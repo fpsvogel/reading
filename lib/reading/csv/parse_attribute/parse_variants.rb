@@ -26,7 +26,7 @@ module Reading
               variant =
                 {
                   format: format(variant_str) || format_in_name || template[:format],
-                  sources: sources(variant_str)                 || [],
+                  sources: sources(variant_str)                 || template[:sources],
                   isbn: isbn(variant_str)                       || template[:isbn],
                   length: length(variant_str,
                           in_variant: true) || length_in_length || template[:length],
@@ -34,20 +34,16 @@ module Reading
                                             extra_info_in_name || template[:extra_info]
                 }
 
-              if variant != template_with_empty_sources
+              if variant != template
                 variant
               else
                 nil
               end
-            }.compact.presence || []
+            }.compact.presence
           end
 
           def template
             @template ||= @config.fetch(:item).fetch(:template).fetch(:variants).first
-          end
-
-          def template_with_empty_sources
-            @template_with_empty_sources ||= template.merge(sources: [])
           end
 
           def format(str)

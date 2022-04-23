@@ -8,21 +8,7 @@ module Reading
         def initialize(merged_config)
           @line = nil # For why line needs to be an instance var, see subclasses.
           @config ||= merged_config
-          setup_default
           after_initialize
-        end
-
-        def setup_default
-          @default = @config
-            .fetch(:item)
-            .fetch(:template)
-            .map { |attribute, value|
-              if value.is_a?(Array) && value.first.is_a?(Hash)
-                [attribute, []]
-              else
-                [attribute, value]
-              end
-            }.to_h
         end
 
         def call(line, &postprocess)
@@ -31,7 +17,7 @@ module Reading
           titles = []
 
           items = split_by_format_emojis.map { |name|
-            data = item_data(name)
+            data = item_data(name).then { |data| without_blank_hashes(data) }
             if titles.include?(data[:title])
               raise InvalidItemError, "A title must not appear more than once in the list"
             end
@@ -78,6 +64,33 @@ module Reading
             .partition { |name| name.match?(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/) }
             .reject(&:empty?)
             .first
+        end
+
+        # Removes blank arrays of hashes from the given item hash, e.g. series,
+        # variants, variants[:sources], and experiences in the template in config.rb.
+        # If no parsed data has been added to the template values for these,
+        # they are considered blank, and are replaced with an empty array to
+        # clarify their blankness.
+        def without_blank_hashes(data_hash, template: @config.fetch(:item).fetch(:template))
+          data_hash.map { |key, val|
+            if is_array_of_hashes?(val)
+              if is_blank_like_template?(val, template.fetch(key))
+                [key, []]
+              else
+                [key, val.map { without_blank_hashes(_1, template: template.fetch(key).first) }]
+              end
+            else
+              [key, val]
+            end
+          }.to_h
+        end
+
+        def is_array_of_hashes?(val)
+          val.is_a?(Array) && val.first.is_a?(Hash)
+        end
+
+        def is_blank_like_template?(val, template_val)
+          val.length == 1 && val == template_val
         end
 
         # Hook, can be overridden.

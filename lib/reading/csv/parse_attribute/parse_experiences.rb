@@ -32,7 +32,7 @@ module Reading
               if prog = progress(columns[:name])
                 return [template.merge(progress: prog)]
               else
-                return []
+                return nil
               end
             end
           end
