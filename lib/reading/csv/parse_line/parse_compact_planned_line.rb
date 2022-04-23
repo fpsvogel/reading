@@ -12,10 +12,10 @@ module Reading
       class ParseCompactPlannedLine < ParseLine
         private
 
-        def before_parse
-          list_start = @line.match(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
+        def before_parse(line)
+          list_start = line.match(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
           @genre = list_start[:genre].downcase
-          @line_without_genre = @line.sub(list_start.to_s, "")
+          @line_without_genre = line.sub(list_start.to_s, "")
         end
 
         def multi_items_to_be_split_by_format_emojis

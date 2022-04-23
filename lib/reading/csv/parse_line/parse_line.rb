@@ -6,14 +6,12 @@ module Reading
       # ParseLine is a base class that holds common behaviors.
       class ParseLine
         def initialize(merged_config)
-          @line = nil # For why line needs to be an instance var, see subclasses.
           @config ||= merged_config
           after_initialize
         end
 
         def call(line, &postprocess)
-          @line = line
-          before_parse
+          before_parse(line)
           titles = []
 
           items = split_by_format_emojis.map { |name|
@@ -44,7 +42,7 @@ module Reading
             end
           end
 
-          e.handle(source: @line, config: @config)
+          e.handle(source: line, config: @config)
           []
         ensure
           # Reset to pre-call state.
@@ -98,7 +96,7 @@ module Reading
         end
 
         # Hook, can be overridden.
-        def before_parse
+        def before_parse(line)
         end
 
         def multi_items_to_be_split_by_format_emojis

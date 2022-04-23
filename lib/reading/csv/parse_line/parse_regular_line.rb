@@ -16,8 +16,8 @@ module Reading
           setup_custom_parse_attributes
         end
 
-        def before_parse
-          set_columns
+        def before_parse(line)
+          set_columns(line)
           ensure_name_column_present
         end
 
@@ -65,13 +65,13 @@ module Reading
           end
         end
 
-        def set_columns
+        def set_columns(line)
           @columns = @config
             .fetch(:csv).fetch(:columns)
             .select { |_name, enabled| enabled }
             .keys
             .concat(@config.fetch(:csv).fetch(:custom_columns).keys)
-            .zip(@line.split(@config.fetch(:csv).fetch(:column_separator)))
+            .zip(line.split(@config.fetch(:csv).fetch(:column_separator)))
             .to_h
         end
 
