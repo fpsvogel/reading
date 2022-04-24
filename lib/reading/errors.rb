@@ -14,7 +14,7 @@ module Reading
       if source.nil?
         handle.call(self)
       else
-        handle.call(styled_with_source(source, config: config))
+        handle.call(styled_with_source(source, config:))
       end
     end
 

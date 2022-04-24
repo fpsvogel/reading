@@ -402,7 +402,7 @@ class CsvParseTest < TestBase
 
   @items[:features_sources] = {}
   title = "Goatsong"
-  a_basic = item_data(title: title)
+  a_basic = item_data(title:)
   isbn = "0312038380"
   a = a_basic.deeper_merge(variants: [{ isbn: isbn }])
   @items[:features_sources][:isbn10] = [a]
@@ -456,29 +456,29 @@ class CsvParseTest < TestBase
                                         isbn: isbn }])
   @items[:features_sources][:sources_with_isbn_commas] = [a]
 
-  a = item_data(title: title,
+  a = item_data(title:,
                 variants: [{ sources: [library] },
                            { sources: [lexpub] }])
   @items[:features_sources][:simple_variants] = [a]
 
-  a = item_data(title: title,
+  a = item_data(title:,
                 variants: [{ format: :print,
                              sources: [library],
                              extra_info: extra_info }])
   @items[:features_sources][:extra_info_can_be_included_if_format_is_specified] = [a]
 
-  a = item_data(title: title,
+  a = item_data(title:,
                 variants: [a[:variants].first,
                               { format: :audiobook,
                                 sources: [lexpub] }])
   @items[:features_sources][:formats_can_delimit_variants] = [a]
 
-  a = item_data(title: title,
+  a = item_data(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
                            a[:variants].last.merge(length: "7:03")])
   @items[:features_sources][:length_after_sources_isbn_and_before_extra_info] = [a]
 
-  a = item_data(title: title,
+  a = item_data(title:,
                 variants: [a[:variants].first.merge(sources: three_sources_with_name),
                            a[:variants].last])
   @items[:features_sources][:multiple_sources_allowed_in_variant] = [a]
@@ -796,9 +796,9 @@ class CsvParseTest < TestBase
     item_data
   end
 
-  def with_reread(data, started, finished, **other_attributes)
+  def with_reread(data, date_started, date_finished, **other_attributes)
     data.dup.then { |dup|
-      new_experience = dup[:experiences].first.merge(date_started: started, date_finished: finished)
+      new_experience = dup[:experiences].first.merge(date_started:, date_finished:)
       other_attributes.each do |attribute, value|
         new_experience[attribute] = value
       end
@@ -808,7 +808,7 @@ class CsvParseTest < TestBase
   end
 
   def parse(path)
-    @parse.call(path: path)
+    @parse.call(path:)
   rescue Errno::ENOENT
     raise Reading::FileError.new(path, label: "File not found!")
   end
