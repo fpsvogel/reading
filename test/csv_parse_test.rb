@@ -81,8 +81,8 @@ class CsvParseTest < TestBase
     |How To
   EOM
   @files[:custom_columns][:text] = <<~EOM.freeze
-    \\Rating|Name|Sources|Dates started|Dates finished|Length|Mood|Color
-    |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|apprehensive|blue
+    \\Rating|Name|Sources|Dates started|Dates finished|Length|Mood|Will reread?
+    |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|apprehensive|yes
     5|Goatsong|0312038380|2020/5/1|2020/5/30|247|tragicomic
     |How To
   EOM
@@ -332,17 +332,17 @@ class CsvParseTest < TestBase
   a_custom_numeric = a.merge(surprise_factor: 6,
                             family_friendliness: 3.9)
   b_custom_numeric = b.merge(surprise_factor: 9,
-                            family_friendliness: nil)
+                            family_friendliness: 5)
   c_custom_numeric = c.merge(surprise_factor: nil,
-                            family_friendliness: nil)
+                            family_friendliness: 5)
   @items[:custom_columns][:numeric] = [a_custom_numeric, b_custom_numeric, c_custom_numeric]
 
   a_custom_text = a.merge(mood: "apprehensive",
-                          color: "blue")
+                          will_reread: "yes")
   b_custom_text = b.merge(mood: "tragicomic",
-                          color: nil)
+                          will_reread: "no")
   c_custom_text = c.merge(mood: nil,
-                          color: nil)
+                          will_reread: "no")
   @items[:custom_columns][:text] = [a_custom_text, b_custom_text, c_custom_text]
 
 
@@ -756,16 +756,21 @@ class CsvParseTest < TestBase
 
   NO_COLUMNS = config.fetch(:csv).fetch(:columns).keys.map { |col| [col, false] }.to_h
 
-  def set_columns(*columns, custom_columns: nil)
+  def set_columns(*columns, custom_numeric_columns: nil, custom_text_columns: nil)
     if columns.empty? || columns.first == :all
       this_config = config
     else
       this_columns = { columns: NO_COLUMNS.merge(columns.map { |col| [col, true] }.to_h) }
       this_config = config.merge(csv: config.fetch(:csv).merge(this_columns))
     end
-    unless custom_columns.nil?
-      this_config = this_config.deeper_merge(csv: { custom_columns: custom_columns })
+
+    unless custom_numeric_columns.nil?
+      this_config = this_config.deeper_merge(csv: { custom_numeric_columns: })
     end
+    unless custom_text_columns.nil?
+      this_config = this_config.deeper_merge(csv: { custom_text_columns: })
+    end
+
     @parse = Reading::Csv::Parse.new(this_config)
   end
 
@@ -827,18 +832,18 @@ class CsvParseTest < TestBase
   end
 
   ## TESTS: CUSTOM COLUMNS
-  def test_numeric_custom_columns
+  def test_custom_numeric_columns
     set_columns(*%i[rating name sources dates_started dates_finished length],
-                custom_columns: { surprise_factor: :numeric, family_friendliness: :numeric })
+                custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
     exp = tidy(items[:custom_columns][:numeric])
     act = parse("custom_columns_numeric.csv")
     # debugger unless exp == act
     assert_equal exp, act
   end
 
-  def test_text_custom_columns
+  def test_custom_text_columns
     set_columns(*%i[rating name sources dates_started dates_finished length],
-                custom_columns: { mood: :text, color: :text })
+                custom_text_columns: { mood: nil, will_reread: "no" })
     exp = tidy(items[:custom_columns][:text])
     act = parse("custom_columns_text.csv")
     # debugger unless exp == act

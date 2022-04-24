@@ -70,7 +70,9 @@ module Reading
                                 blurb:          true,
                                 private_notes:  true,
                                 history:        true },
-      custom_columns: {},
+      # Custom columns are listed in a hash with default values, like simple columns in item[:template] above.
+      custom_numeric_columns:   {}, # e.g. { family_friendliness: 5, surprise_factor: nil }
+      custom_text_columns:      {}, # e.g. { mood: nil, rec_by: nil, will_reread: "no" }
       comment_character:        "\\",
       column_separator:         "|",
       separator:                ",",

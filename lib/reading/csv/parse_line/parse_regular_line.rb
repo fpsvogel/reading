@@ -33,31 +33,26 @@ module Reading
         end
 
         def setup_custom_parse_attributes
-          @config.fetch(:csv).fetch(:custom_columns).each do |attribute, type|
+          setup_custom_parse_attribute_of_type(:numeric) do |value|
+            Float(value, exception: false)
+          end
+
+          setup_custom_parse_attribute_of_type(:text) do |value|
+            value
+          end
+        end
+
+        def setup_custom_parse_attribute_of_type(type, &process_value)
+          @config.fetch(:csv).fetch(:"custom_#{type}_columns").each do |attribute, _default_value|
             class_name = "Parse#{attribute.to_s.downcase.split("_").map(&:capitalize).join}"
             # The class for the custom attribute may already have been defined.
             next if @parse_attributes.has_key?(attribute.to_sym)
 
-            custom_class = Class.new ParseAttribute do
-              @name = attribute
-              @type = type
+            custom_class = Class.new ParseAttribute
 
-              def self.name
-                @name
-              end
-
-              def self.type
-                @type
-              end
-
-              def call(item_name, columns)
-                value = columns[self.class.name.to_sym]&.strip&.presence
-                if self.class.type == :numeric
-                  Float(value, exception: false)
-                else
-                  value
-                end
-              end
+            custom_class.define_method :call do |item_name, columns|
+              value = columns[attribute.to_sym]&.strip&.presence
+              process_value.call(value)
             end
 
             self.class.const_set(class_name, custom_class)
@@ -70,7 +65,8 @@ module Reading
             .fetch(:csv).fetch(:columns)
             .select { |_name, enabled| enabled }
             .keys
-            .concat(@config.fetch(:csv).fetch(:custom_columns).keys)
+            .concat(@config.fetch(:csv).fetch(:custom_numeric_columns).keys)
+            .concat(@config.fetch(:csv).fetch(:custom_text_columns).keys)
             .zip(line.split(@config.fetch(:csv).fetch(:column_separator)))
             .to_h
         end
@@ -84,7 +80,8 @@ module Reading
         def item_data(name)
           @config
             .fetch(:item).fetch(:template)
-            .merge(@config.fetch(:csv).fetch(:custom_columns).keys.map { |k| [k, nil] }.to_h)
+            .merge(@config.fetch(:csv).fetch(:custom_numeric_columns))
+            .merge(@config.fetch(:csv).fetch(:custom_text_columns))
             .map { |attribute, template_default|
               parsed = @parse_attributes.fetch(attribute).call(name, @columns)
               [attribute, parsed || template_default]
