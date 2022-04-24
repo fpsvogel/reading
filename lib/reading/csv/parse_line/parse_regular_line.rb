@@ -13,7 +13,6 @@ module Reading
 
         def after_initialize
           setup_parse_attributes
-          setup_custom_parse_attributes
         end
 
         def before_parse(line)
@@ -30,24 +29,23 @@ module Reading
             parser_class_name = "Parse#{attribute.to_s.split("_").map(&:capitalize).join}"
             [attribute, self.class.const_get(parser_class_name).new(@config)]
           }.to_h
+          .merge(custom_parse_attributes)
         end
 
-        def setup_custom_parse_attributes
-          setup_custom_parse_attribute_of_type(:numeric) do |value|
+        def custom_parse_attributes
+          numeric = custom_parse_attributes_of_type(:numeric) do |value|
             Float(value, exception: false)
           end
 
-          setup_custom_parse_attribute_of_type(:text) do |value|
+          text = custom_parse_attributes_of_type(:text) do |value|
             value
           end
+
+          (numeric + text).to_h
         end
 
-        def setup_custom_parse_attribute_of_type(type, &process_value)
-          @config.fetch(:csv).fetch(:"custom_#{type}_columns").each do |attribute, _default_value|
-            class_name = "Parse#{attribute.to_s.downcase.split("_").map(&:capitalize).join}"
-            # The class for the custom attribute may already have been defined.
-            next if @parse_attributes.has_key?(attribute.to_sym)
-
+        def custom_parse_attributes_of_type(type, &process_value)
+          @config.fetch(:csv).fetch(:"custom_#{type}_columns").map { |attribute, _default_value|
             custom_class = Class.new ParseAttribute
 
             custom_class.define_method :call do |item_name, columns|
@@ -55,9 +53,8 @@ module Reading
               process_value.call(value)
             end
 
-            self.class.const_set(class_name, custom_class)
-            @parse_attributes[attribute.to_sym] = custom_class.new(@config)
-          end
+            [attribute.to_sym, custom_class.new(@config)]
+          }
         end
 
         def set_columns(line)
@@ -82,9 +79,10 @@ module Reading
             .fetch(:item).fetch(:template)
             .merge(@config.fetch(:csv).fetch(:custom_numeric_columns))
             .merge(@config.fetch(:csv).fetch(:custom_text_columns))
-            .map { |attribute, template_default|
+            .map { |attribute, default_value|
               parsed = @parse_attributes.fetch(attribute).call(name, @columns)
-              [attribute, parsed || template_default]
+
+              [attribute, parsed || default_value]
             }.to_h
         end
       end

@@ -56,8 +56,8 @@ module Reading
                                 history: [] },
     },
     csv: {
-      path:                     nil, # set if you want to load a local file.
-      # for selective sync; the default (this) is to continue in all cases.
+      path:                     nil, # Set if you want to load a local file.
+      # For selective sync; the default (this) is to continue in all cases.
       selective_continue:       -> (last_parsed_data) { true },
       columns:                { rating:         true,
                                 name:           true, # always enabled

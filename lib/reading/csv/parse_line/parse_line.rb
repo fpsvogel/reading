@@ -3,7 +3,7 @@ require_relative "../../errors"
 module Reading
   module Csv
     class Parse
-      # ParseLine is a base class that holds common behaviors.
+      # ParseLine is a base class that contains behaviors common to Parse___ classes.
       class ParseLine
         def initialize(merged_config)
           @config ||= merged_config
@@ -66,9 +66,9 @@ module Reading
 
         # Removes blank arrays of hashes from the given item hash, e.g. series,
         # variants, variants[:sources], and experiences in the template in config.rb.
-        # If no parsed data has been added to the template values for these,
-        # they are considered blank, and are replaced with an empty array to
-        # clarify their blankness.
+        # If no parsed data has been added to the template values for these, they
+        # are considered blank, and are replaced with an empty array so that their
+        # emptiness is more apparent, e.g. data[:experiences].empty? will return true.
         def without_blank_hashes(data_hash, template: @config.fetch(:item).fetch(:template))
           data_hash.map { |key, val|
             if is_array_of_hashes?(val)
