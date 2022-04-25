@@ -15,14 +15,14 @@ module Reading
 
             using_dates = started.map.with_index { |entry, i|
               {
-                date_added: date_added(entry)                 || template[:date_added],
-                date_started:  date_started(entry)            || template[:date_started],
-                date_finished: date_finished(finished, i)     || template[:date_finished],
+                date_added: date_added(entry)                 || template.fetch(:date_added),
+                date_started:  date_started(entry)            || template.fetch(:date_started),
+                date_finished: date_finished(finished, i)     || template.fetch(:date_finished),
                 progress: progress(entry) ||
                   progress(columns[:name],
-                     ignore_if_no_dnf: i < started.count - 1) || template[:progress],
-                group: group(entry)                           || template[:group],
-                variant_index: variant_index(entry)           || template[:variant_index]
+                     ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
+                group: group(entry)                           || template.fetch(:group),
+                variant_index: variant_index(entry)           || template.fetch(:variant_index)
               }
             }.presence
 

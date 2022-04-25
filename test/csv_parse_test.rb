@@ -9,7 +9,7 @@ class CsvParseTest < TestBase
   using Reading::Util::DeeperMerge
 
   @config = Reading.config
-  @config[:errors][:handle_error] = lambda do |error|
+  @config.fetch(:errors)[:handle_error] = lambda do |error|
     @error_log << error
     puts error
   end
@@ -280,7 +280,7 @@ class CsvParseTest < TestBase
     # This merge is not the same as Reading::Util::DeeperMerge. This one uses an
     # array value's first hash as the template for all corresponding partial
     # data, for example in :variants and :experiences in the item template.
-    config[:item][:template].merge(partial_data) do |key, old_value, new_value|
+    config.fetch(:item).fetch(:template).merge(partial_data) do |key, old_value, new_value|
       if old_value.is_a?(Array) && old_value.first.is_a?(Hash)
         template = old_value.first
         new_value.map { |v| template.merge(v) }
@@ -417,7 +417,7 @@ class CsvParseTest < TestBase
   a = a_basic.deeper_merge(variants: [{ sources: [library] }])
   @items[:features_sources][:source] = [a]
 
-  site = { name: config[:item][:sources][:default_name_for_url],
+  site = { name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
            url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site] }])
   @items[:features_sources][:url_source] = [a]
@@ -726,7 +726,7 @@ class CsvParseTest < TestBase
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: config[:item][:sources][:default_name_for_url],
+                  sources: [{ name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
     genres: ["historical fiction"]
   )
@@ -791,7 +791,7 @@ class CsvParseTest < TestBase
     end
     item_data[:variants].each do |variant|
       variant[:sources] =
-        variant[:sources].reject { |value| value == template[:variants].first[:sources].first }
+        variant[:sources].reject { |value| value == template.fetch(:variants).first.fetch(:sources).first }
     end
     item_data
   end

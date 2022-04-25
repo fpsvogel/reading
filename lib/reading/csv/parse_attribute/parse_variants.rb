@@ -25,13 +25,13 @@ module Reading
 
               variant =
                 {
-                  format: format(variant_str) || format_in_name || template[:format],
-                  sources: sources(variant_str)                 || template[:sources],
-                  isbn: isbn(variant_str)                       || template[:isbn],
+                  format: format(variant_str) || format_in_name || template.fetch(:format),
+                  sources: sources(variant_str)                 || template.fetch(:sources),
+                  isbn: isbn(variant_str)                       || template.fetch(:isbn),
                   length: length(variant_str,
-                          in_variant: true) || length_in_length || template[:length],
+                          in_variant: true) || length_in_length || template.fetch(:length),
                   extra_info: extra_info(variant_with_extra_info).presence ||
-                                            extra_info_in_name || template[:extra_info]
+                                            extra_info_in_name || template.fetch(:extra_info)
                 }
 
               if variant != template
@@ -136,8 +136,8 @@ module Reading
             url.chop! if url&.chars&.last == "/"
             name = array[0] || auto_name_from_url(url)
 
-            { name: name || template.fetch(:sources).first[:name],
-              url: url   || template.fetch(:sources).first[:url] }
+            { name: name || template.fetch(:sources).first.fetch(:name),
+              url: url   || template.fetch(:sources).first.fetch(:url) }
           end
 
           def valid_url?(str)

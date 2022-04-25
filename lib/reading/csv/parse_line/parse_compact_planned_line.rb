@@ -43,9 +43,9 @@ module Reading
           author = ParseAuthor.new(@config).call(match[:author_title])
           title = ParseTitle.new(@config).call(match[:author_title])
           item = template.deeper_merge(
-            author: author || template[:author],
+            author: author || template.fetch(:author),
             title: title,
-            genres: [@genre] || template[:genres]
+            genres: [@genre] || template.fetch(:genres)
           )
           variant = {
             format: nil,
@@ -86,7 +86,7 @@ module Reading
                   url: source }
               else
                 { name: source,
-                  url: template.fetch(:variants).first.fetch(:sources).first[:url] }
+                  url: template.fetch(:variants).first.fetch(:sources).first.fetch(:url) }
               end
             }
             # .reject { |name, url| name.nil? && url.nil? }
