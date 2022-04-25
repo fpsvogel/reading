@@ -58,7 +58,7 @@ module Reading
               names.first.sub!(@config.fetch(:csv).fetch(:regex).fetch(:dnf), "")
               names.first.sub!(@config.fetch(:csv).fetch(:regex).fetch(:progress), "")
             }
-            .map { |name| name.strip.sub(/\s*[,;]\z/, "") }
+            .map { |name| name.strip.sub(/\s*,\z/, "") }
             .partition { |name| name.match?(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/) }
             .reject(&:empty?)
             .first

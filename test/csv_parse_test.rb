@@ -247,12 +247,12 @@ class CsvParseTest < TestBase
   @files[:examples][:planned] = <<~EOM.freeze
     \\------ PLANNED
     |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
-    |📕Randall Munroe - How To: Absurd Scientific Advice for Common Real-World Problems|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
+    |📕Randall Munroe - How To|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
   EOM
   @files[:examples][:compact_planned] = <<~EOM.freeze
     \\------ PLANNED
-    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library, @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
-    \\SCIENCE: 📕Randall Munroe - How To: Absurd Scientific Advice for Common Real-World Problems @Lexpub, 🔊On the Origin of Species, 🔊Weird Earth @Hoopla
+    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+    \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
   EOM
 
   # Create files before all tests.
@@ -700,7 +700,7 @@ class CsvParseTest < TestBase
   )
   how_to = item_data(
     author: "Randall Munroe",
-    title: "How To: Absurd Scientific Advice for Common Real-World Problems",
+    title: "How To",
     variants:    [{ format: :print,
                     sources: [{ name: "Lexpub", url: nil }],
                     isbn: "B07NCQTJV3",
@@ -732,23 +732,29 @@ class CsvParseTest < TestBase
   )
   how_to = item_data(
     author: "Randall Munroe",
-    title: "How To: Absurd Scientific Advice for Common Real-World Problems",
+    title: "How To",
     variants:  [{ format: :print,
-                  sources: [{ name: "Lexpub", url: nil }] }],
-    genres: %w[science]
-  )
-  darwin = item_data(
-    title: "On the Origin of Species",
-    variants:  [{ format: :audiobook }],
+                  sources: [{ name: "Lexpub", url: nil }] },
+                { format: :ebook,
+                  sources: [{ name: "Lexpub", url: nil },
+                            { name: "Hoopla", url: nil }] },
+                { format: :audiobook,
+                  sources: [{ name: "Hoopla", url: nil },
+                            { name: "Jeffco", url: nil }] }],
     genres: %w[science]
   )
   weird_earth = item_data(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: "Hoopla", url: nil }] }],
+                  sources: [{ name: "Hoopla", url: nil },
+                            { name: "Lexpub", url: nil }] },
+                { format: :print,
+                  sources: [{ name: "Lexpub", url: nil }] },
+                { format: :ebook,
+                  sources: [{ name: "Lexpub", url: nil }] }],
     genres: %w[science]
   )
-  @items[:examples][:compact_planned] = [nero, true_grit, lebowski, how_to, darwin, weird_earth]
+  @items[:examples][:compact_planned] = [nero, true_grit, lebowski, how_to, weird_earth]
 
 
 
@@ -765,10 +771,10 @@ class CsvParseTest < TestBase
     end
 
     unless custom_numeric_columns.nil?
-      this_config = this_config.deeper_merge(csv: { custom_numeric_columns: })
+      this_config.deeper_merge!(csv: { custom_numeric_columns: })
     end
     unless custom_text_columns.nil?
-      this_config = this_config.deeper_merge(csv: { custom_text_columns: })
+      this_config.deeper_merge!(csv: { custom_text_columns: })
     end
 
     @parse = Reading::Csv::Parse.new(this_config)

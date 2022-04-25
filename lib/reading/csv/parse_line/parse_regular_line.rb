@@ -33,13 +33,13 @@ module Reading
         end
 
         def custom_parse_attributes
-          numeric = custom_parse_attributes_of_type(:numeric) do |value|
+          numeric = custom_parse_attributes_of_type(:numeric) { |value|
             Float(value, exception: false)
-          end
+          }
 
-          text = custom_parse_attributes_of_type(:text) do |value|
+          text = custom_parse_attributes_of_type(:text) { |value|
             value
-          end
+          }
 
           (numeric + text).to_h
         end
