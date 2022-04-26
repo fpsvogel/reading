@@ -96,35 +96,35 @@ class CsvParseTest < TestBase
   # crammed into them.
   @files[:features_name] =
   {
-  author:
+  :"author" =>
     "Tom Holt - Goatsong",
-  series:
+  :"series" =>
     "Tom Holt - Goatsong -- in The Walled Orchard",
-  series_with_volume:
+  :"series with volume" =>
     "Tom Holt - Goatsong -- The Walled Orchard, #1",
-  extra_info:
+  :"extra info" =>
     "Tom Holt - Goatsong -- unabridged -- 1990",
-  extra_info_and_series:
+  :"extra info and series" =>
     "Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990",
-  format:
+  :"format" =>
     "📕Tom Holt - Goatsong",
-  multi_items:
+  :"multi items" =>
     "📕Tom Holt - Goatsong, 🔊Sapiens",
-  progress:
+  :"progress" =>
     "50% Goatsong",
-  progress_pages:
+  :"progress pages" =>
     "p220 Goatsong",
-  progress_pages_without_p:
+  :"progress pages without p" =>
     "220 Goatsong",
-  progress_time:
+  :"progress time" =>
     "2:30 Goatsong",
-  dnf:
+  :"dnf" =>
     "DNF Goatsong",
-  dnf_with_progress:
+  :"dnf with progress" =>
     "DNF 50% Goatsong",
-  dnf_with_multi_items:
+  :"dnf with multi items" =>
     "DNF 📕Tom Holt - Goatsong, 🔊Sapiens",
-  all_features:
+  :"all features" =>
     "DNF 50% 📕Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
   }
 
@@ -132,124 +132,139 @@ class CsvParseTest < TestBase
   # columns are preceded by the name column.
   @files[:features_sources] =
   {
-  isbn10:
+  :"ISBN-10" =>
     "Goatsong|0312038380",
-  isbn13:
+  :"ISBN-13" =>
     "Goatsong|978-0312038380",
-  ASIN:
+  :"ASIN" =>
     "Goatsong|B00GVG01HE",
-  source:
+  :"source" =>
     "Goatsong|Little Library",
-  url_source:
+  :"URL source" =>
     "Goatsong|https://www.edlin.org/holt",
-  url_source_with_name:
+  :"URL source with name" =>
     "Goatsong|about Tom Holt - https://www.edlin.org/holt",
-  url_source_with_name_after:
+  :"URL source with name after" =>
     "Goatsong|https://www.edlin.org/holt - about Tom Holt",
-  url_source_with_auto_name:
+  :"URL source with auto name" =>
     "Goatsong|https://archive.org/details/walledorchard0000holt",
-  sources:
+  :"sources" =>
     "Goatsong|Little Library https://www.edlin.org/holt Lexpub",
-  sources_commas:
+  :"sources commas" =>
     "Goatsong|Little Library, https://www.edlin.org/holt - about Tom Holt, Lexpub",
-  source_with_isbn:
+  :"source with ISBN" =>
     "Goatsong|Little Library 0312038380",
-  source_with_isbn_reversed:
+  :"source with ISBN reversed" =>
     "Goatsong|0312038380 Little Library",
-  sources_with_isbn:
+  :"sources with ISBN" =>
     "Goatsong|Little Library 0312038380 https://www.edlin.org/holt",
-  sources_with_isbn_commas:
+  :"sources with ISBN commas" =>
     "Goatsong|Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub",
-  simple_variants:
+  :"simple variants" =>
     "Goatsong|Little Library -- Lexpub",
-  extra_info_can_be_included_if_format_is_specified:
+  :"extra info can be included if format is specified" =>
     "Goatsong|📕Little Library -- unabridged -- 1990",
-  formats_can_delimit_variants:
+  :"formats can delimit variants" =>
     "Goatsong|📕Little Library -- unabridged -- 1990, 🔊Lexpub",
-  length_after_sources_isbn_and_before_extra_info:
+  :"length after sources ISBN and before extra info" =>
     "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
-  multiple_sources_allowed_in_variant:
+  :"multiple sources allowed in variant" =>
     "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub, 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
   }
 
   @files[:features_dates_started] =
   {
-  date_started:
+  :"date started" =>
     "Sapiens|2020/09/01",
-  date_added:
+  :"date added" =>
     "Sapiens|2019/08/20 >",
-  date_added_and_started:
+  :"date added and started" =>
     "Sapiens|2019/08/20 > 2020/09/01",
-  dates_started:
+  :"dates started" =>
     "Sapiens|2020/09/01, 2021/07/15",
-  dates_added_and_started:
+  :"dates added and started" =>
     "Sapiens|2019/08/20 > 2020/09/01, 2021/07/15, 2021/09/20 >",
-  progress:
+  :"progress" =>
     "Sapiens|50% 2020/09/01",
-  progress_must_be_at_the_beginning_or_immediately_after_date_started_separator:
+  :"progress must be at the beginning or immediately after date started separator" =>
     "Sapiens|2019/08/20 > 50% 2020/09/01, 50% 2021/01/01 > 2021/07/15",
-  progress_pages:
+  :"progress pages" =>
     "Sapiens|220p 2020/09/01",
-  progress_pages_without_p:
+  :"progress pages without p" =>
     "Sapiens|220 2020/09/01",
-  progress_time:
+  :"progress time" =>
     "Sapiens|2:30 2020/09/01",
-  dnf:
+  :"dnf" =>
     "Sapiens|DNF 2020/09/01",
-  dnf_with_progress:
+  :"dnf with progress" =>
     "Sapiens|DNF 50% 2020/09/01",
-  variant:
+  :"variant" =>
     "Sapiens|2020/09/01 v2",
-  variant_with_just_date_added:
+  :"variant with just date added" =>
     "Sapiens|2019/08/20 > v2",
-  variant_can_be_anywhere:
+  :"variant can be anywhere" =>
     "Sapiens|2019/08/20 v2 >, v3 2021/07/15",
-  group_can_be_indicated_at_the_very_end:
+  :"group can be indicated at the very end" =>
     "Sapiens|2020/09/01 v2 🤝🏼 county book club",
-  group_can_be_without_text:
+  :"group can be without text" =>
     "Sapiens|2020/09/01 v2 🤝🏼",
-  other_text_before_or_after_dates_is_ignored:
+  :"other text before or after dates is ignored" =>
     "Sapiens|found on Chirp on 2019/08/20 and recommended by Jo > instantly hooked 2020/09/01 at the beach",
-  all_features:
+  :"all features" =>
     "Sapiens|found on Chirp on 2019/08/20 and recommended by Jo > DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15, 2021/09/20 > v3",
   }
 
   @files[:features_genres] =
   {
-  genres:
+  :"genres" =>
     "Goatsong|novel, history",
-  visibility:
+  :"visibility" =>
     "Goatsong|novel, history, for starred friends",
-  visibility_anywhere:
+  :"visibility anywhere" =>
     "Goatsong|novel, for starred friends, history",
-  visibility_alt:
+  :"visibility alt" =>
     "Goatsong|novel, to-starred, history",
   }
+
+  # \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+  # \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
+
+  # @files[:features_compact_planned] =
+  # {
+  # genres:
+  #   "Goatsong|novel, history",
+  # visibility:
+  #   "Goatsong|novel, history, for starred friends",
+  # visibility_anywhere:
+  #   "Goatsong|novel, for starred friends, history",
+  # visibility_alt:
+  #   "Goatsong|novel, to-starred, history",
+  # }
 
 
 
   ## TEST DATA: EXAMPLES
   # Realistic examples from the reading.csv template in Plain Reading.
   @files[:examples] = {}
-  @files[:examples][:in_progress] = <<~EOM.freeze
+  @files[:examples][:"in progress"] = <<~EOM.freeze
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/06/11 > 2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
     5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
-  @files[:examples][:done] = <<~EOM.freeze
+  @files[:examples][:"done"] = <<~EOM.freeze
     \\------ DONE
     4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
     2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats, for friends|10:13|I would've felt bad if I hadn't tried.
     1|DNF 🎤FiveThirtyEight Politics, 🎤The NPR Politics Podcast, 🎤Pod Save America| |2021/08/02|2021/08/02|politics, podcast, for starred friends|0:30|Not very deep. Disappointing.
     5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science| |Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet.|It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
   EOM
-  @files[:examples][:planned] = <<~EOM.freeze
+  @files[:examples][:"planned"] = <<~EOM.freeze
     \\------ PLANNED
     |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
     |📕Randall Munroe - How To|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
   EOM
-  @files[:examples][:compact_planned] = <<~EOM.freeze
+  @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
@@ -349,54 +364,54 @@ class CsvParseTest < TestBase
 
   @items[:features_name] = {}
   a_basic = item_data(author: "Tom Holt", title: "Goatsong")
-  @items[:features_name][:author] = [a_basic]
+  @items[:features_name][:"author"] = [a_basic]
 
   a = a_basic.deeper_merge(series: [{ name: "The Walled Orchard" }])
-  @items[:features_name][:series] = [a]
+  @items[:features_name][:"series"] = [a]
 
   a = a.deeper_merge(series: [{ volume: 1 }])
   series_with_volume = a.slice(:series)
-  @items[:features_name][:series_with_volume] = [a]
+  @items[:features_name][:"series with volume"] = [a]
 
   extra_info = %w[unabridged 1990]
   variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
   a = a_basic.deeper_merge(variants_with_extra_info)
-  @items[:features_name][:extra_info] = [a]
+  @items[:features_name][:"extra info"] = [a]
 
   a = a.merge(series_with_volume)
-  @items[:features_name][:extra_info_and_series] = [a]
+  @items[:features_name][:"extra info and series"] = [a]
 
   a_with_format = a_basic.deeper_merge(variants: [{ format: :print }])
-  @items[:features_name][:format] = [a_with_format]
+  @items[:features_name][:"format"] = [a_with_format]
 
   b = item_data(title: "Sapiens", variants: [{ format: :audiobook }])
-  @items[:features_name][:multi_items] = [a_with_format, b]
+  @items[:features_name][:"multi items"] = [a_with_format, b]
 
   half_progress = { experiences: [{ progress: 0.5 }] }
   a = item_data(title: "Goatsong", **half_progress)
-  @items[:features_name][:progress] = [a]
+  @items[:features_name][:"progress"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 220 }])
-  @items[:features_name][:progress_pages] = [a]
+  @items[:features_name][:"progress pages"] = [a]
 
-  @items[:features_name][:progress_pages_without_p] = [a]
+  @items[:features_name][:"progress pages without p"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: "2:30" }])
-  @items[:features_name][:progress_time] = [a]
+  @items[:features_name][:"progress time"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 0 }])
-  @items[:features_name][:dnf] = [a]
+  @items[:features_name][:"dnf"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 0.5 }])
-  @items[:features_name][:dnf_with_progress] = [a]
+  @items[:features_name][:"dnf with progress"] = [a]
 
   a = a_with_format.deeper_merge(experiences: [{ progress: 0 }])
   b = b.deeper_merge(experiences: [{ progress: 0 }])
-  @items[:features_name][:dnf_with_multi_items] = [a, b]
+  @items[:features_name][:"dnf with multi items"] = [a, b]
 
   a = a.merge(series_with_volume).deeper_merge(variants_with_extra_info).deeper_merge(half_progress)
   b = b.deeper_merge(half_progress)
-  @items[:features_name][:all_features] = [a, b]
+  @items[:features_name][:"all features"] = [a, b]
 
 
 
@@ -405,83 +420,83 @@ class CsvParseTest < TestBase
   a_basic = item_data(title:)
   isbn = "0312038380"
   a = a_basic.deeper_merge(variants: [{ isbn: isbn }])
-  @items[:features_sources][:isbn10] = [a]
+  @items[:features_sources][:"ISBN-10"] = [a]
 
   a = a_basic.deeper_merge(variants: [{ isbn: "978-0312038380" }])
-  @items[:features_sources][:isbn13] = [a]
+  @items[:features_sources][:"ISBN-13"] = [a]
 
   a = a_basic.deeper_merge(variants: [{ isbn: "B00GVG01HE" }])
-  @items[:features_sources][:ASIN] = [a]
+  @items[:features_sources][:"ASIN"] = [a]
 
   library = { name: "Little Library", url: nil }
   a = a_basic.deeper_merge(variants: [{ sources: [library] }])
-  @items[:features_sources][:source] = [a]
+  @items[:features_sources][:"source"] = [a]
 
   site = { name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
            url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site] }])
-  @items[:features_sources][:url_source] = [a]
+  @items[:features_sources][:"URL source"] = [a]
 
   site_named = { name: "about Tom Holt", url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site_named] }])
-  @items[:features_sources][:url_source_with_name] = [a]
+  @items[:features_sources][:"URL source with name"] = [a]
 
-  @items[:features_sources][:url_source_with_name_after] = [a]
+  @items[:features_sources][:"URL source with name after"] = [a]
 
   site_auto_named = { name: "Internet Archive",
                       url: "https://archive.org/details/walledorchard0000holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site_auto_named] }])
-  @items[:features_sources][:url_source_with_auto_name] = [a]
+  @items[:features_sources][:"URL source with auto name"] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
   a = a_basic.deeper_merge(variants: [{ sources: three_sources }])
-  @items[:features_sources][:sources] = [a]
+  @items[:features_sources][:"sources"] = [a]
 
   three_sources_with_name = [site_named, library, lexpub]
   a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name }])
-  @items[:features_sources][:sources_commas] = [a]
+  @items[:features_sources][:"sources commas"] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: [library],
                                         isbn: isbn }])
-  @items[:features_sources][:source_with_isbn] = [a]
+  @items[:features_sources][:"source with ISBN"] = [a]
 
-  @items[:features_sources][:source_with_isbn_reversed] = [a]
+  @items[:features_sources][:"source with ISBN reversed"] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: [site, library],
                                         isbn: isbn }])
-  @items[:features_sources][:sources_with_isbn] = [a]
+  @items[:features_sources][:"sources with ISBN"] = [a]
 
   a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name,
                                         isbn: isbn }])
-  @items[:features_sources][:sources_with_isbn_commas] = [a]
+  @items[:features_sources][:"sources with ISBN commas"] = [a]
 
   a = item_data(title:,
                 variants: [{ sources: [library] },
                            { sources: [lexpub] }])
-  @items[:features_sources][:simple_variants] = [a]
+  @items[:features_sources][:"simple variants"] = [a]
 
   a = item_data(title:,
                 variants: [{ format: :print,
                              sources: [library],
                              extra_info: extra_info }])
-  @items[:features_sources][:extra_info_can_be_included_if_format_is_specified] = [a]
+  @items[:features_sources][:"extra info can be included if format is specified"] = [a]
 
   a = item_data(title:,
                 variants: [a[:variants].first,
                               { format: :audiobook,
                                 sources: [lexpub] }])
-  @items[:features_sources][:formats_can_delimit_variants] = [a]
+  @items[:features_sources][:"formats can delimit variants"] = [a]
 
   a = item_data(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
                            a[:variants].last.merge(length: "7:03")])
-  @items[:features_sources][:length_after_sources_isbn_and_before_extra_info] = [a]
+  @items[:features_sources][:"length after sources ISBN and before extra info"] = [a]
 
   a = item_data(title:,
                 variants: [a[:variants].first.merge(sources: three_sources_with_name),
                            a[:variants].last])
-  @items[:features_sources][:multiple_sources_allowed_in_variant] = [a]
+  @items[:features_sources][:"multiple sources allowed in variant"] = [a]
 
 
 
@@ -489,30 +504,30 @@ class CsvParseTest < TestBase
   a_basic = item_data(title: "Sapiens")
   exp_started = { experiences: [{ date_started: "2020/09/01" }] }
   a_started = a_basic.deeper_merge(exp_started)
-  @items[:features_dates_started][:date_started] = [a_started]
+  @items[:features_dates_started][:"date started"] = [a_started]
 
   exp_added = { experiences: [{ date_added: "2019/08/20" }] }
   a = a_basic.deeper_merge(exp_added)
-  @items[:features_dates_started][:date_added] = [a]
+  @items[:features_dates_started][:"date added"] = [a]
 
   a_added_started = a_basic.deeper_merge(exp_added.deeper_merge(exp_started))
-  @items[:features_dates_started][:date_added_and_started] = [a_added_started]
+  @items[:features_dates_started][:"date added and started"] = [a_added_started]
 
   exp_second_started = { experiences: [{},
                                        { date_started: "2021/07/15" }] }
   a = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started))
-  @items[:features_dates_started][:dates_started] = [a]
+  @items[:features_dates_started][:"dates started"] = [a]
 
   exp_third_added = { experiences: [{},
                                     {},
                                     { date_added: "2021/09/20" }] }
   a_many = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started)
                               .deeper_merge(exp_added).deeper_merge(exp_third_added))
-  @items[:features_dates_started][:dates_added_and_started] = [a_many]
+  @items[:features_dates_started][:"dates added and started"] = [a_many]
 
   exp_progress = ->(amount) { { experiences: [{ progress: amount }] } }
   a_halfway = a_started.deeper_merge(exp_progress.call(0.5))
-  @items[:features_dates_started][:progress] = [a_halfway]
+  @items[:features_dates_started][:"progress"] = [a_halfway]
 
   exp_second_added = { experiences: [{},
                                      { date_added: "2021/01/01" }] }
@@ -521,59 +536,59 @@ class CsvParseTest < TestBase
   a = item_data(**a_basic.deeper_merge(exp_added).deeper_merge(exp_second_added)
                           .deeper_merge(exp_started).deeper_merge(exp_second_started)
                           .deeper_merge(exp_two_progresses))
-  @items[:features_dates_started][:progress_must_be_at_the_beginning_or_immediately_after_date_started_separator] = [a]
+  @items[:features_dates_started][:"progress must be at the beginning or immediately after date started separator"] = [a]
 
   a = a_started.deeper_merge(exp_progress.call(220))
-  @items[:features_dates_started][:progress_pages] = [a]
+  @items[:features_dates_started][:"progress pages"] = [a]
 
-  @items[:features_dates_started][:progress_pages_without_p] = [a]
+  @items[:features_dates_started][:"progress pages without p"] = [a]
 
   a = a_started.deeper_merge(exp_progress.call("2:30"))
-  @items[:features_dates_started][:progress_time] = [a]
+  @items[:features_dates_started][:"progress time"] = [a]
 
   a = a_started.deeper_merge(exp_progress.call(0))
-  @items[:features_dates_started][:dnf] = [a]
+  @items[:features_dates_started][:"dnf"] = [a]
 
-  @items[:features_dates_started][:dnf_with_progress] = [a_halfway]
+  @items[:features_dates_started][:"dnf with progress"] = [a_halfway]
 
   exp_v2 = { experiences: [{ variant_index: 1 }] }
   a_variant = a_started.deeper_merge(exp_v2)
-  @items[:features_dates_started][:variant] = [a_variant]
+  @items[:features_dates_started][:"variant"] = [a_variant]
 
   a = a_basic.deeper_merge(exp_added.deeper_merge(exp_v2))
-  @items[:features_dates_started][:variant_with_just_date_added] = [a]
+  @items[:features_dates_started][:"variant with just date added"] = [a]
 
   exp_v3 = { experiences: [{},
                            { variant_index: 2 }] }
   a = item_data(**a.deeper_merge(exp_second_started).deeper_merge(exp_v3))
-  @items[:features_dates_started][:variant_can_be_anywhere] = [a]
+  @items[:features_dates_started][:"variant can be anywhere"] = [a]
 
   a = a_variant.deeper_merge(experiences: [{ group: "county book club" }])
-  @items[:features_dates_started][:group_can_be_indicated_at_the_very_end] = [a]
+  @items[:features_dates_started][:"group can be indicated at the very end"] = [a]
 
   a = a_variant.deeper_merge(experiences: [{ group: "" }])
-  @items[:features_dates_started][:group_can_be_without_text] = [a]
+  @items[:features_dates_started][:"group can be without text"] = [a]
 
-  @items[:features_dates_started][:other_text_before_or_after_dates_is_ignored] = [a_added_started]
+  @items[:features_dates_started][:"other text before or after dates is ignored"] = [a_added_started]
 
   a = a_many.deeper_merge(experiences: [{ progress: 0.5,
                                           variant_index: 1 },
                                         { progress: "2:30" },
                                         { variant_index: 2 }])
-  @items[:features_dates_started][:all_features] = [a]
+  @items[:features_dates_started][:"all features"] = [a]
 
 
 
   @items[:features_genres] = {}
   a_basic = item_data(title: "Goatsong", genres: %w[novel history])
-  @items[:features_genres][:genres] = [a_basic]
+  @items[:features_genres][:"genres"] = [a_basic]
 
   a = a_basic.merge(visibility: 1)
-  @items[:features_genres][:visibility] = [a]
+  @items[:features_genres][:"visibility"] = [a]
 
-  @items[:features_genres][:visibility_anywhere] = [a]
+  @items[:features_genres][:"visibility anywhere"] = [a]
 
-  @items[:features_genres][:visibility_alt] = [a]
+  @items[:features_genres][:"visibility alt"] = [a]
 
 
 
@@ -613,7 +628,7 @@ class CsvParseTest < TestBase
     #           { dates: Date.parse("2019-05-20"), amount: 46 },
     #           { dates: Date.parse("2019-05-21"), amount: 47 }]
   )
-  @items[:examples][:in_progress] = [sapiens, goatsong]
+  @items[:examples][:"in progress"] = [sapiens, goatsong]
 
   insula = item_data(
     rating: 4,
@@ -691,7 +706,7 @@ class CsvParseTest < TestBase
     public_notes: ["Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet."],
     blurb: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist."
   )
-  @items[:examples][:done] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
+  @items[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
 
 
   nero = item_data(
@@ -712,7 +727,7 @@ class CsvParseTest < TestBase
     experiences: [{ date_added: "2021/06/27" }],
     genres: %w[science]
   )
-  @items[:examples][:planned] = [nero, how_to]
+  @items[:examples][:"planned"] = [nero, how_to]
 
   nero = item_data(
     author: "Tom Holt",
@@ -758,7 +773,7 @@ class CsvParseTest < TestBase
                   sources: [{ name: "Lexpub", url: nil }] }],
     genres: %w[science]
   )
-  @items[:examples][:compact_planned] = [nero, true_grit, lebowski, how_to, weird_earth]
+  @items[:examples][:"compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 
 
 
