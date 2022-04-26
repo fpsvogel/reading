@@ -4,6 +4,7 @@ require "rubygems"
 require "bundler/setup"
 
 require "debug"
+require "date"
 
 require "minitest/autorun"
 require "minitest/reporters"

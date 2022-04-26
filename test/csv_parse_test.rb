@@ -235,7 +235,7 @@ class CsvParseTest < TestBase
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/06/11 > 2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
-    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247||||2019/5/1 p31, 5/2 p54, 5/6-15 10p, 5/20 p200, 5/21 done
+    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
   @files[:examples][:done] = <<~EOM.freeze
     \\------ DONE
@@ -607,7 +607,11 @@ class CsvParseTest < TestBase
                     progress: 0.5 }],
     visibility: 3,
     genres: ["historical fiction"],
-    history: ["2019/5/1 p31, 5/2 p54, 5/6-15 10p, 5/20 p200, 5/21 done"]
+    # history: [{ dates: Date.parse("2019-05-01"), amount: 31 },
+    #           { dates: Date.parse("2019-05-02"), amount: 23 },
+    #           { dates: Date.parse("2019-05-06")..Date.parse("2019-05-15"), amount: 10 },
+    #           { dates: Date.parse("2019-05-20"), amount: 46 },
+    #           { dates: Date.parse("2019-05-21"), amount: 47 }]
   )
   @items[:examples][:in_progress] = [sapiens, goatsong]
 
@@ -791,7 +795,7 @@ class CsvParseTest < TestBase
 
   def without_blank_hashes(item_data)
     template = config.fetch(:item).fetch(:template)
-    %i[series variants experiences].each do |attribute|
+    %i[series variants experiences history].each do |attribute|
       item_data[attribute] =
         item_data[attribute].reject { |value| value == template[attribute].first }
     end

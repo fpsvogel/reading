@@ -3,6 +3,7 @@ require_relative "../../errors"
 require_relative "parse_attribute"
 require_relative "parse_variants"
 require_relative "parse_experiences"
+require_relative "parse_history"
 
 module Reading
   module Csv
@@ -152,12 +153,6 @@ module Reading
         class ParsePrivateNotes < ParseNotesAttribute
           def call(_name = nil, columns)
             split_notes(:private_notes, columns)
-          end
-        end
-
-        class ParseHistory < ParseNotesAttribute
-          def call(_name = nil, columns)
-            split_notes(:history, columns)
           end
         end
       end

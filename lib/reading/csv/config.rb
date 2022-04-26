@@ -53,7 +53,9 @@ module Reading
                                 public_notes: [],
                                 blurb: nil,
                                 private_notes: [],
-                                history: [] },
+                                history: [{ dates: nil,
+                                            amount: nil,
+                                            description: nil }] },
     },
     csv: {
       path:                     nil, # Set if you want to load a local file.
