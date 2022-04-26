@@ -226,20 +226,20 @@ class CsvParseTest < TestBase
     "Goatsong|novel, to-starred, history",
   }
 
-  # \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+  # \\NOVEL: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
   # \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
 
-  # @files[:features_compact_planned] =
-  # {
-  # genres:
-  #   "Goatsong|novel, history",
-  # visibility:
-  #   "Goatsong|novel, history, for starred friends",
-  # visibility_anywhere:
-  #   "Goatsong|novel, for starred friends, history",
-  # visibility_alt:
-  #   "Goatsong|novel, to-starred, history",
-  # }
+  # :compact_planned (unlike in other :features_x) is merely semantic; it has no
+  # effect in set_columns below.
+  @files[:features_compact_planned] =
+  {
+  :"title only" =>
+    "\\NOVEL: ⚡A Song for Nero",
+  :"author" =>
+    "\\NOVEL: ⚡Tom Holt - A Song for Nero",
+  :"sources" =>
+    "\\NOVEL: ⚡A Song for Nero @Little Library @Hoopla",
+  }
 
 
 
@@ -250,7 +250,7 @@ class CsvParseTest < TestBase
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/06/11 > 2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
-    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
+    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|novel|247
   EOM
   @files[:examples][:"done"] = <<~EOM.freeze
     \\------ DONE
@@ -261,30 +261,14 @@ class CsvParseTest < TestBase
   EOM
   @files[:examples][:"planned"] = <<~EOM.freeze
     \\------ PLANNED
-    |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
+    |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |novel|580
     |📕Randall Munroe - How To|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
   EOM
   @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
-    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+    \\NOVEL: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
   EOM
-
-  # Create files before all tests.
-  @files.each do |group_name, hash|
-    hash.each do |name, string|
-      IO.write("#{group_name}_#{name}.csv", string)
-    end
-  end
-
-  # Then delete them afterward.
-  Minitest.after_run do
-    @files.each do |group_name, hash|
-      hash.each do |name, string|
-        File.delete("#{group_name}_#{name}.csv")
-      end
-    end
-  end
 
 
 
@@ -306,40 +290,40 @@ class CsvParseTest < TestBase
   end
 
   @items = {}
-  @items[:enabled_columns] = []
+  @items[:enabled_columns] = {}
   a = item_data(title: "Sapiens")
   b = item_data(title: "Goatsong")
   c = item_data(title: "How To")
-  @items[:enabled_columns] << [a, b, c]
+  @items[:enabled_columns][:"name"] = [a, b, c]
 
   b_finished_inner = { experiences: [{ date_finished: "2020/5/30" }] }
   b_finished = b.deeper_merge(b_finished_inner)
-  @items[:enabled_columns] << [a, b_finished, c]
+  @items[:enabled_columns][:"name, dates_finished"] = [a, b_finished, c]
 
   a_started = a.deeper_merge(experiences: [{ date_started: "2021/9/1" }])
   b_started = b.deeper_merge(experiences: [{ date_started: "2020/5/1" }])
-  @items[:enabled_columns] << [a_started, b_started, c]
+  @items[:enabled_columns][:"name, dates_started"] = [a_started, b_started, c]
 
   a = a_started
   b = b_started.deeper_merge(b_finished_inner)
-  @items[:enabled_columns] << [a, b, c]
+  @items[:enabled_columns][:"name, dates_started, dates_finished"] = [a, b, c]
 
   a = a.merge(rating: nil)
   b = b.merge(rating: 5)
-  @items[:enabled_columns] << [a, b, c]
+  @items[:enabled_columns][:"rating, name, dates_started, dates_finished"] = [a, b, c]
 
   a_length = a.deeper_merge(variants: [{ length: "15:17" }])
   b_length = b.deeper_merge(variants: [{ length: 247 }])
-  @items[:enabled_columns] << [a_length, b_length, c]
+  @items[:enabled_columns][:"rating, name, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
   a_sources = a.deeper_merge(variants: [{ isbn: "B00ICN066A",
                               sources: [{ name: "Vail Library", url: nil }] }])
   b_sources = b.deeper_merge(variants: [{ isbn: "0312038380" }])
-  @items[:enabled_columns] << [a_sources, b_sources, c]
+  @items[:enabled_columns][:"rating, name, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
   a = a_sources.deeper_merge(variants: [{ length: "15:17" }])
   b = b_sources.deeper_merge(variants: [{ length: 247 }])
-  @items[:enabled_columns] << [a, b, c]
+  @items[:enabled_columns][:"rating, name, sources, dates_started, dates_finished, length"] = [a, b, c]
 
 
 
@@ -592,6 +576,19 @@ class CsvParseTest < TestBase
 
 
 
+  @items[:features_compact_planned] = {}
+  a = item_data(title: "A Song for Nero", genres: ["novel"], variants: [{ format: :ebook }])
+  @items[:features_compact_planned][:"title only"] = [a]
+
+  a_author = a.merge(author: "Tom Holt")
+  @items[:features_compact_planned][:"author"] = [a_author]
+
+  a_sources = a.deeper_merge(variants: [{ sources: [{ name: "Little Library", url: nil },
+                                                    { name: "Hoopla", url: nil } ] }])
+  @items[:features_compact_planned][:"sources"] = [a_sources]
+
+
+
   @items[:examples] = {}
   sapiens = item_data(
     title: "Sapiens: A Brief History of Humankind",
@@ -621,7 +618,7 @@ class CsvParseTest < TestBase
                   { date_started: "2021/08/17",
                     progress: 0.5 }],
     visibility: 3,
-    genres: ["historical fiction"],
+    genres: ["novel"],
     # history: [{ dates: Date.parse("2019-05-01"), amount: 31 },
     #           { dates: Date.parse("2019-05-02"), amount: 23 },
     #           { dates: Date.parse("2019-05-06")..Date.parse("2019-05-15"), amount: 10 },
@@ -715,7 +712,7 @@ class CsvParseTest < TestBase
     variants:    [{ format: :ebook,
                     isbn: "B00GW4U2TM",
                     length: 580 }],
-    genres: ["historical fiction"]
+    genres: ["novel"]
   )
   how_to = item_data(
     author: "Randall Munroe",
@@ -733,21 +730,21 @@ class CsvParseTest < TestBase
     author: "Tom Holt",
     title: "A Song for Nero",
     variants:  [{ format: :ebook }],
-    genres: ["historical fiction"]
+    genres: ["novel"]
   )
   true_grit = item_data(
     title: "True Grit",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Little Library", url: nil },
                             { name: "Hoopla", url: nil }] }],
-    genres: ["historical fiction"]
+    genres: ["novel"]
   )
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
                   sources: [{ name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
-    genres: ["historical fiction"]
+    genres: ["novel"]
   )
   how_to = item_data(
     author: "Randall Munroe",
@@ -832,10 +829,8 @@ class CsvParseTest < TestBase
     }
   end
 
-  def parse(path)
-    @parse.call(path:)
-  rescue Errno::ENOENT
-    raise Reading::FileError.new(path, label: "File not found!")
+  def parse(string)
+    @parse.call(StringIO.new(string))
   end
 
 
@@ -843,13 +838,12 @@ class CsvParseTest < TestBase
   ### THE ACTUAL TESTS
 
   ## TESTS: ENABLING COLUMNS
-  column_sets = files[:enabled_columns].keys
-  column_sets.each_with_index do |set_name, i|
+  files[:enabled_columns].each do |set_name, file_str|
     columns = set_name.to_s.split(", ").map(&:to_sym)
     define_method "test_enabled_columns_#{columns.join("_")}" do
       set_columns(*columns)
-      exp = tidy(items[:enabled_columns][i])
-      act = parse("enabled_columns_#{set_name}.csv")
+      exp = tidy(items[:enabled_columns][set_name])
+      act = parse(file_str)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse with these columns enabled: #{set_name}"
@@ -861,7 +855,7 @@ class CsvParseTest < TestBase
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
     exp = tidy(items[:custom_columns][:numeric])
-    act = parse("custom_columns_numeric.csv")
+    act = parse(files[:custom_columns][:numeric])
     # debugger unless exp == act
     assert_equal exp, act
   end
@@ -870,20 +864,20 @@ class CsvParseTest < TestBase
     set_columns(*%i[rating name sources dates_started dates_finished length],
                 custom_text_columns: { mood: nil, will_reread: "no" })
     exp = tidy(items[:custom_columns][:text])
-    act = parse("custom_columns_text.csv")
+    act = parse(files[:custom_columns][:text])
     # debugger unless exp == act
     assert_equal exp, act
   end
 
   ## TESTS: FEATURES OF SINGLE COLUMNS
   files.keys.select { |key| key.start_with?("features_") }.each do |group_name|
-    files[group_name].each do |feat, _file_str|
+    files[group_name].each do |feat, file_str|
       column = group_name[group_name.to_s.index("_") + 1..-1].to_sym
       column_humanized = column.to_s.tr("_", " ").capitalize
       define_method "test_#{column}_feature_#{feat}" do
         set_columns(column)
         exp = tidy(items[group_name][feat])
-        act = parse("#{group_name}_#{feat}.csv")
+        act = parse(file_str)
         # debugger unless exp == act
         assert_equal exp, act,
           "Failed to parse this #{column_humanized} column feature: #{feat}"
@@ -892,11 +886,11 @@ class CsvParseTest < TestBase
   end
 
   ## TESTS: EXAMPLES
-  files[:examples].each do |set_name, _file_str|
+  files[:examples].each do |set_name, file_str|
     define_method "test_example_#{set_name}" do
       set_columns(:all)
       exp = tidy(items[:examples][set_name])
-      act = parse("examples_#{set_name}.csv")
+      act = parse(file_str)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this set of examples: #{set_name}"
