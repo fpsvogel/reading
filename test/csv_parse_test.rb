@@ -226,19 +226,20 @@ class CsvParseTest < TestBase
     "Goatsong|novel, to-starred, history",
   }
 
-  # \\NOVEL: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
-  # \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
-
-  # :compact_planned (unlike in other :features_x) is merely semantic; it has no
-  # effect in set_columns below.
+  # The compact_planned part (unlike in other :features_x) is merely semantic;
+  # it has no effect in set_columns below.
   @files[:features_compact_planned] =
   {
   :"title only" =>
-    "\\NOVEL: ⚡A Song for Nero",
+    "\\HISTORICAL FICTION: ⚡A Song for Nero",
   :"author" =>
-    "\\NOVEL: ⚡Tom Holt - A Song for Nero",
+    "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero",
   :"sources" =>
-    "\\NOVEL: ⚡A Song for Nero @Little Library @Hoopla",
+    "\\HISTORICAL FICTION: ⚡A Song for Nero @Little Library @Hoopla",
+  :"multiple first formats" =>
+    "\\HISTORICAL FICTION: ⚡🔊A Song for Nero @Little Library @Hoopla",
+  :"formats in sources" =>
+    "\\HISTORICAL FICTION: ⚡🔊A Song for Nero @Little Library @📕🔊Jeffco @Hoopla @📕Lexpub",
   }
 
 
@@ -250,7 +251,7 @@ class CsvParseTest < TestBase
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/06/11 > 2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
-    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|novel|247
+    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
   @files[:examples][:"done"] = <<~EOM.freeze
     \\------ DONE
@@ -261,12 +262,12 @@ class CsvParseTest < TestBase
   EOM
   @files[:examples][:"planned"] = <<~EOM.freeze
     \\------ PLANNED
-    |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |novel|580
+    |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
     |📕Randall Munroe - How To|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
   EOM
   @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
-    \\NOVEL: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
   EOM
 
@@ -577,15 +578,31 @@ class CsvParseTest < TestBase
 
 
   @items[:features_compact_planned] = {}
-  a = item_data(title: "A Song for Nero", genres: ["novel"], variants: [{ format: :ebook }])
+  a = item_data(title: "A Song for Nero",
+                genres: ["historical fiction"],
+                variants: [{ format: :ebook }])
   @items[:features_compact_planned][:"title only"] = [a]
 
   a_author = a.merge(author: "Tom Holt")
   @items[:features_compact_planned][:"author"] = [a_author]
 
-  a_sources = a.deeper_merge(variants: [{ sources: [{ name: "Little Library", url: nil },
-                                                    { name: "Hoopla", url: nil } ] }])
+  little_and_hoopla = [{ name: "Little Library", url: nil },
+                       { name: "Hoopla", url: nil }]
+  a_sources = a.deeper_merge(variants: [{ sources: little_and_hoopla }])
   @items[:features_compact_planned][:"sources"] = [a_sources]
+
+  a_multi_first_formats = a_sources.deeper_merge(
+    variants: [a_sources[:variants].first,
+               a_sources[:variants].first.merge(format: :audiobook)])
+  @items[:features_compact_planned][:"multiple first formats"] = [a_multi_first_formats]
+
+  a_formats_in_sources = a_multi_first_formats.deeper_merge(
+    variants: [{ format: :ebook, sources: little_and_hoopla },
+               { format: :audiobook, sources: little_and_hoopla.dup.insert(1, { name: "Jeffco", url: nil }) },
+               { format: :print, sources: [{ name: "Jeffco", url: nil },
+                                           { name: "Lexpub", url: nil }],
+                 isbn: nil, length: nil, extra_info: [] }])
+  @items[:features_compact_planned][:"formats in sources"] = [a_formats_in_sources]
 
 
 
@@ -618,7 +635,7 @@ class CsvParseTest < TestBase
                   { date_started: "2021/08/17",
                     progress: 0.5 }],
     visibility: 3,
-    genres: ["novel"],
+    genres: ["historical fiction"],
     # history: [{ dates: Date.parse("2019-05-01"), amount: 31 },
     #           { dates: Date.parse("2019-05-02"), amount: 23 },
     #           { dates: Date.parse("2019-05-06")..Date.parse("2019-05-15"), amount: 10 },
@@ -712,7 +729,7 @@ class CsvParseTest < TestBase
     variants:    [{ format: :ebook,
                     isbn: "B00GW4U2TM",
                     length: 580 }],
-    genres: ["novel"]
+    genres: ["historical fiction"]
   )
   how_to = item_data(
     author: "Randall Munroe",
@@ -730,21 +747,21 @@ class CsvParseTest < TestBase
     author: "Tom Holt",
     title: "A Song for Nero",
     variants:  [{ format: :ebook }],
-    genres: ["novel"]
+    genres: ["historical fiction"]
   )
   true_grit = item_data(
     title: "True Grit",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Little Library", url: nil },
                             { name: "Hoopla", url: nil }] }],
-    genres: ["novel"]
+    genres: ["historical fiction"]
   )
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
                   sources: [{ name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
-    genres: ["novel"]
+    genres: ["historical fiction"]
   )
   how_to = item_data(
     author: "Randall Munroe",

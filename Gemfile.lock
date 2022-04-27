@@ -32,6 +32,7 @@ GEM
       ruby-progressbar
     pastel (0.8.0)
       tty-color (~> 0.5)
+    pretty-diffs (1.0.2)
     reline (0.3.1)
       io-console (~> 0.5)
     ruby-progressbar (1.11.0)
@@ -46,6 +47,7 @@ DEPENDENCIES
   debug (>= 1.0.0)
   minitest (~> 5.0)
   minitest-reporters (~> 1.0)
+  pretty-diffs
   reading-csv!
 
 BUNDLED WITH
