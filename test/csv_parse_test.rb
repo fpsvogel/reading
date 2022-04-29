@@ -128,8 +128,8 @@ class CsvParseTest < TestBase
     "DNF 50% 📕Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
   }
 
-  # The name column is enabled by default, so the strings for other single
-  # columns are preceded by the name column.
+  # The Name column is enabled by default, so the strings for other single
+  # columns are preceded by the Name column.
   @files[:features_sources] =
   {
   :"ISBN-10" =>
@@ -241,6 +241,28 @@ class CsvParseTest < TestBase
   :"formats in sources" =>
     "\\HISTORICAL FICTION: ⚡🔊A Song for Nero @Little Library @📕🔊Jeffco @Hoopla @📕Lexpub",
   }
+
+  # @files[:features_history] =
+  # {
+  # :"dates and descriptions" =>
+  #   "Fullstack Ruby|2021/12/6 #1 Why Ruby2JS is a Game Changer -- 12/21 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
+  # :"time amounts" =>
+  #   "Fullstack Ruby|2021/12/6 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
+  # :"page amounts" =>
+  #   "War and Peace|2021/04/28 115p -- 4/30 96p",
+  # :"page amounts without p" =>
+  #   "War and Peace|2021/04/28 115 -- 4/30 96",
+  # :"date ranges" =>
+  #   "War and Peace|2021/04/28-29 115p -- 4/30-5/1 97p",
+  # :"with description, amount is for part and not per day" =>
+  #   "War and Peace|2021/04/28-29 51p Vol 1 Pt 1 -- 4/30-5/3 Vol 1 Pt 2",
+  # :"stopping points for amount" =>
+  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 p211",
+  # :"mixed amounts and stopping points" =>
+  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p",
+  # :"reread" =>
+  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p ---- 2022/1/1-2/15 50p",
+  # }
 
 
 
@@ -606,6 +628,30 @@ class CsvParseTest < TestBase
 
 
 
+  @items[:features_history] = {}
+  a = item_data(
+    title: "Fullstack Ruby",
+    history: [{ dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
+                amount: nil,
+                description: "#1 Why Ruby2JS is a Game Changer" },
+              { dates: Date.parse("2021/12/21")..Date.parse("2021/12/21"),
+                amount: nil,
+                description: "#2 Componentized View Architecture FTW!" },
+              { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
+                amount: nil,
+                description: "#3 String-Based Templates vs. DSLs" }]
+  )
+  @items[:features_history][:"dates"] = [a]
+
+  a_times = a.merge(
+    history: [a[:history].first.merge(amount: "0:35" ),
+              a[:history].first.merge(amount: "0:45" ),
+              a[:history].first.merge(amount: "0:45" )]
+  )
+  @items[:features_history][:"time amounts"] = [a]
+
+
+
   @items[:examples] = {}
   sapiens = item_data(
     title: "Sapiens: A Brief History of Humankind",
@@ -835,6 +881,25 @@ class CsvParseTest < TestBase
     item_data
   end
 
+  # def without_blank_hashes(item_data)
+  #   template = config.fetch(:item).fetch(:template)
+  #   %i[series variants experiences].each do |attribute|
+  #     item_data[attribute] =
+  #       item_data[attribute].reject { |value| value == template[attribute].first }
+  #   end
+  #   # Same for inner hash array at [:variants][:sources].
+  #   item_data[:variants].each do |variant|
+  #     variant[:sources] =
+  #       variant[:sources].reject { |value| value == template.fetch(:variants).first.fetch(:sources).first }
+  #   end
+  #   # Same for inner hash array at [:experiences][:chunks].
+  #   item_data[:experiences].each do |variant|
+  #     variant[:chunks] =
+  #       variant[:chunks].reject { |value| value == template.fetch(:experiences).first.fetch(:chunks).first }
+  #   end
+  #   item_data
+  # end
+
   def with_reread(data, date_started, date_finished, **other_attributes)
     data.dup.then { |dup|
       new_experience = dup[:experiences].first.merge(date_started:, date_finished:)
@@ -889,15 +954,16 @@ class CsvParseTest < TestBase
   ## TESTS: FEATURES OF SINGLE COLUMNS
   files.keys.select { |key| key.start_with?("features_") }.each do |group_name|
     files[group_name].each do |feat, file_str|
-      column = group_name[group_name.to_s.index("_") + 1..-1].to_sym
-      column_humanized = column.to_s.tr("_", " ").capitalize
-      define_method "test_#{column}_feature_#{feat}" do
-        set_columns(column)
+      columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
+      columns = columns_sym.to_s.split(", ").map(&:to_sym)
+      main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
+      define_method "test_#{columns_sym}_feature_#{feat}" do
+        set_columns(*columns)
         exp = tidy(items[group_name][feat])
         act = parse(file_str)
         # debugger unless exp == act
         assert_equal exp, act,
-          "Failed to parse this #{column_humanized} column feature: #{feat}"
+          "Failed to parse this #{main_column_humanized} column feature: #{feat}"
       end
     end
   end

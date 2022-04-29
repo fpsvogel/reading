@@ -31,6 +31,29 @@ module Reading
                                 "tv.apple.com" => "Apple TV" },
         default_name_for_url: "site"
       },
+      # template:               { rating: nil,
+      #                           author: nil,
+      #                           title: nil,
+      #                           series:      [{ name: nil,
+      #                                           volume: nil }],
+      #                           variants:    [{ format: nil,
+      #                                           sources: [{ name: nil,
+      #                                                       url: nil }],
+      #                                           isbn: nil,
+      #                                           length: nil,
+      #                                           extra_info: [] }],
+      #                           experiences: [{ date_added: nil,
+      #                                           chunks: [{ dates: nil,
+      #                                                      amount: nil,
+      #                                                      description: nil }],
+      #                                           progress: nil,
+      #                                           group: nil,
+      #                                           variant_index: 0 }],
+      #                           visibility: 3, # TODO use a constant here.
+      #                           genres: [],
+      #                           public_notes: [],
+      #                           blurb: nil,
+      #                           private_notes: [] }
       template:               { rating: nil,
                                 author: nil,
                                 title: nil,
@@ -43,7 +66,7 @@ module Reading
                                                 length: nil,
                                                 extra_info: [] }],
                                 experiences: [{ date_added: nil,
-                                                date_started:  nil,
+                                                date_started: nil,
                                                 date_finished: nil,
                                                 progress: nil,
                                                 group: nil,
@@ -55,7 +78,7 @@ module Reading
                                 private_notes: [],
                                 history: [{ dates: nil,
                                             amount: nil,
-                                            description: nil }] },
+                                            description: nil }] }
     },
     csv: {
       path:                     nil, # Set if you want to load a local file.

@@ -1,3 +1,9 @@
+## [0.3.0] - 2022-05-10
+
+- Added configurable default values for custom columns.
+- Multiple format emojis allowed in compact planned items.
+- Implemented parsing of the History column.
+
 ## [0.2.5] - 2021-10-08
 
 - ActiveSupport 7 allowed.
