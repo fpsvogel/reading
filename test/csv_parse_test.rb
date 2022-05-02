@@ -319,16 +319,19 @@ class CsvParseTest < TestBase
   c = item_data(title: "How To")
   @items[:enabled_columns][:"name"] = [a, b, c]
 
-  b_finished_inner = { experiences: [{ date_finished: "2020/5/30" }] }
+  b_finished_inner = { experiences: [{ spans: [{ dates: .."2020/5/30", amount: nil, description: nil }] }] }
   b_finished = b.deeper_merge(b_finished_inner)
   @items[:enabled_columns][:"name, dates_finished"] = [a, b_finished, c]
 
-  a_started = a.deeper_merge(experiences: [{ date_started: "2021/9/1" }])
-  b_started = b.deeper_merge(experiences: [{ date_started: "2020/5/1" }])
+  a_started = a.deeper_merge(experiences: [{ spans: [{ dates: "2021/9/1".., amount: nil, description: nil }] }])
+  b_started = b.deeper_merge(experiences: [{ spans: [{ dates: "2020/5/1".., amount: nil, description: nil }] }])
   @items[:enabled_columns][:"name, dates_started"] = [a_started, b_started, c]
 
   a = a_started
-  b = b_started.deeper_merge(b_finished_inner)
+  b = item_data(
+    title: "Goatsong",
+    experiences: [{ spans: [{ dates: "2020/5/1".."2020/5/30", amount: nil, description: nil }] }]
+  )
   @items[:enabled_columns][:"name, dates_started, dates_finished"] = [a, b, c]
 
   a = a.merge(rating: nil)
@@ -509,7 +512,7 @@ class CsvParseTest < TestBase
 
   @items[:features_dates_started] = {}
   a_basic = item_data(title: "Sapiens")
-  exp_started = { experiences: [{ date_started: "2020/09/01" }] }
+  exp_started = { experiences: [{ spans: [{ dates: "2020/09/01".., amount: nil, description: nil }] }] }
   a_started = a_basic.deeper_merge(exp_started)
   @items[:features_dates_started][:"date started"] = [a_started]
 
@@ -521,7 +524,7 @@ class CsvParseTest < TestBase
   @items[:features_dates_started][:"date added and started"] = [a_added_started]
 
   exp_second_started = { experiences: [{},
-                                       { date_started: "2021/07/15" }] }
+                                       { spans: [{ dates: "2021/07/15".., amount: nil, description: nil }] }] }
   a = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started))
   @items[:features_dates_started][:"dates started"] = [a]
 
@@ -643,7 +646,7 @@ class CsvParseTest < TestBase
   )
   @items[:features_history][:"dates"] = [a]
 
-  a_times = a.merge(
+  a = a.merge(
     history: [a[:history].first.merge(amount: "0:35" ),
               a[:history].first.merge(amount: "0:45" ),
               a[:history].first.merge(amount: "0:45" )]
@@ -660,7 +663,7 @@ class CsvParseTest < TestBase
                     isbn: "B00ICN066A",
                     length: "15:17" }],
     experiences: [{ date_added: "2021/06/11",
-                    date_started:  "2021/09/20" }],
+                    spans: [{ dates: "2021/09/20".., amount: nil, description: nil }] }],
     genres: %w[history wisdom],
     public_notes: ["Ch. 5: \"We did not domesticate wheat. It domesticated us.\"", "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos.", "Ch. 19: are we happier in modernity? It's doubtful."],
     blurb: "History with a sociological bent, with special attention paid to human happiness."
@@ -674,11 +677,9 @@ class CsvParseTest < TestBase
     variants:    [{ format: :print,
                     isbn: "0312038380",
                     length: 247 }],
-    experiences: [{ date_started: "2019/05/28",
-                    date_finished: "2019/06/13" },
-                  { date_started: "2020/05/01" ,
-                    date_finished: "2020/05/23" },
-                  { date_started: "2021/08/17",
+    experiences: [{ spans: [{ dates: "2019/05/28".."2019/06/13", amount: nil, description: nil }] },
+                  { spans: [{ dates: "2020/05/01".."2020/05/23", amount: nil, description: nil }] },
+                  { spans: [{ dates: "2021/08/17".., amount: nil, description: nil }],
                     progress: 0.5 }],
     visibility: 3,
     genres: ["historical fiction"],
@@ -699,8 +700,7 @@ class CsvParseTest < TestBase
                     isbn: "1533694567",
                     length: "8:18",
                     extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
-    experiences: [{ date_started: "2020/10/20",
-                    date_finished: "2021/08/31",
+    experiences: [{ spans: [{ dates: "2020/10/20".."2021/08/31", amount: nil, description: nil }],
                     group: "weekly Latin reading with Sean and Dennis" }],
     genres: %w[latin novel],
     public_notes: ["Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html", "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d"]
@@ -712,11 +712,9 @@ class CsvParseTest < TestBase
                     sources: [{ name: "gift from neighbor Edith", url: nil }],
                     isbn: "B01NCYY3BV",
                     length: "10:13" }],
-    experiences: [{ date_started:  "2020/03/21",
-                    date_finished: "2020/04/01",
+    experiences: [{ spans: [{ dates: "2020/03/21".."2020/04/01", amount: nil, description: nil }],
                     progress: 0.5 },
-                  { date_started:  "2021/08/06",
-                    date_finished: "2021/08/11",
+                  { spans: [{ dates: "2021/08/06".."2021/08/11", amount: nil, description: nil }],
                     progress: "4:45" }],
     visibility: 2,
     genres: %w[cats],
@@ -727,8 +725,7 @@ class CsvParseTest < TestBase
     title: "FiveThirtyEight Politics",
     variants:    [{ format: :audio,
                     length: "0:30" }],
-    experiences: [{ date_started:  "2021/08/02",
-                    date_finished: "2021/08/02",
+    experiences: [{ spans: [{ dates: "2021/08/02".."2021/08/02", amount: nil, description: nil }],
                     progress: 0,
                     variant_index: 0 }],
     visibility: 1,
@@ -751,15 +748,12 @@ class CsvParseTest < TestBase
                     isbn: "B00IYUYF4A",
                     length: 320,
                     extra_info: ["published 2014"] }],
-    experiences: [{ date_started:  "2021/08/01",
-                    date_finished: "2021/08/15",
+    experiences: [{ spans: [{ dates: "2021/08/01".."2021/08/15", amount: nil, description: nil }],
                     variant_index: 0 },
-                  { date_started:  "2021/08/16",
-                    date_finished: "2021/08/28",
+                  { spans: [{ dates: "2021/08/16".."2021/08/28", amount: nil, description: nil }],
                     group: "with Sam",
                     variant_index: 1 },
-                  { date_started:  "2021/09/01",
-                    date_finished: "2021/09/10",
+                  { spans: [{ dates: "2021/09/01".."2021/09/10", amount: nil, description: nil }],
                     variant_index: 0 }],
     visibility: 3,
     genres: %w[science],
@@ -870,35 +864,22 @@ class CsvParseTest < TestBase
 
   def without_blank_hashes(item_data)
     template = config.fetch(:item).fetch(:template)
-    %i[series variants experiences history].each do |attribute|
+    %i[series variants experiences].each do |attribute|
       item_data[attribute] =
         item_data[attribute].reject { |value| value == template[attribute].first }
     end
+    # Same for inner hash array at [:variants][:sources].
     item_data[:variants].each do |variant|
       variant[:sources] =
         variant[:sources].reject { |value| value == template.fetch(:variants).first.fetch(:sources).first }
     end
+    # Same for inner hash array at [:experiences][:spans].
+    item_data[:experiences].each do |variant|
+      variant[:spans] =
+        variant[:spans].reject { |value| value == template.fetch(:experiences).first.fetch(:spans).first }
+    end
     item_data
   end
-
-  # def without_blank_hashes(item_data)
-  #   template = config.fetch(:item).fetch(:template)
-  #   %i[series variants experiences].each do |attribute|
-  #     item_data[attribute] =
-  #       item_data[attribute].reject { |value| value == template[attribute].first }
-  #   end
-  #   # Same for inner hash array at [:variants][:sources].
-  #   item_data[:variants].each do |variant|
-  #     variant[:sources] =
-  #       variant[:sources].reject { |value| value == template.fetch(:variants).first.fetch(:sources).first }
-  #   end
-  #   # Same for inner hash array at [:experiences][:chunks].
-  #   item_data[:experiences].each do |variant|
-  #     variant[:chunks] =
-  #       variant[:chunks].reject { |value| value == template.fetch(:experiences).first.fetch(:chunks).first }
-  #   end
-  #   item_data
-  # end
 
   def with_reread(data, date_started, date_finished, **other_attributes)
     data.dup.then { |dup|

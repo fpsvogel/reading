@@ -16,8 +16,9 @@ module Reading
             using_dates = started.map.with_index { |entry, i|
               {
                 date_added: date_added(entry)                 || template.fetch(:date_added),
-                date_started:  date_started(entry)            || template.fetch(:date_started),
-                date_finished: date_finished(finished, i)     || template.fetch(:date_finished),
+                spans: spans(entry, finished, i)              || template.fetch(:spans),
+                # date_started:  date_started(entry)            || template.fetch(:date_started),
+                # date_finished: date_finished(finished, i)     || template.fetch(:date_finished),
                 progress: progress(entry) ||
                   progress(columns[:name],
                      ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
@@ -58,6 +59,18 @@ module Reading
 
           def date_added(date_entry)
             date_entry.match(@config.fetch(:csv).fetch(:regex).fetch(:date_added))&.captures&.first
+          end
+
+          def spans(date_entry, dates_finished, date_index)
+            started = date_started(date_entry)
+            finished = date_finished(dates_finished, date_index)
+            return [] if started.nil? && finished.nil?
+
+            [{
+              dates: started..finished,
+              amount: nil,
+              description: nil
+            }]
           end
 
           def date_started(date_entry)
