@@ -3,7 +3,6 @@ require_relative "../../errors"
 require_relative "parse_attribute"
 require_relative "parse_variants"
 require_relative "parse_experiences"
-require_relative "parse_history"
 
 module Reading
   module Csv
