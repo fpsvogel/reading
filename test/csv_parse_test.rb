@@ -242,10 +242,10 @@ class CsvParseTest < TestBase
     "\\HISTORICAL FICTION: ⚡🔊A Song for Nero @Little Library @📕🔊Jeffco @Hoopla @📕Lexpub",
   }
 
-  # @files[:features_history] =
-  # {
-  # :"dates and descriptions" =>
-  #   "Fullstack Ruby|2021/12/6 #1 Why Ruby2JS is a Game Changer -- 12/21 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
+  @files[:features_history] =
+  {
+  :"dates and descriptions" =>
+    "Fullstack Ruby|2021/12/6 #1 Why Ruby2JS is a Game Changer -- 12/21 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
   # :"time amounts" =>
   #   "Fullstack Ruby|2021/12/6 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
   # :"page amounts" =>
@@ -262,7 +262,7 @@ class CsvParseTest < TestBase
   #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p",
   # :"reread" =>
   #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p ---- 2022/1/1-2/15 50p",
-  # }
+  }
 
 
 
@@ -642,22 +642,21 @@ class CsvParseTest < TestBase
   @items[:features_history] = {}
   a = item_data(
     title: "Fullstack Ruby",
-    history: [{ dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
-                amount: nil,
-                description: "#1 Why Ruby2JS is a Game Changer" },
-              { dates: Date.parse("2021/12/21")..Date.parse("2021/12/21"),
-                amount: nil,
-                description: "#2 Componentized View Architecture FTW!" },
-              { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
-                amount: nil,
-                description: "#3 String-Based Templates vs. DSLs" }]
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
+        description: "#1 Why Ruby2JS is a Game Changer" },
+      { dates: Date.parse("2021/12/21")..Date.parse("2021/12/21"),
+        description: "#2 Componentized View Architecture FTW!" },
+      { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
+        description: "#3 String-Based Templates vs. DSLs" }] }]
   )
-  @items[:features_history][:"dates"] = [a]
+  @items[:features_history][:"dates and descriptions"] = [a]
 
   a = a.merge(
-    history: [a[:history].first.merge(amount: "0:35" ),
-              a[:history].first.merge(amount: "0:45" ),
-              a[:history].first.merge(amount: "0:45" )]
+    experiences: [{ spans: [
+      a[:experiences].first[:spans].first.merge(amount: "0:35" ),
+      a[:experiences].first[:spans].first.merge(amount: "0:45" ),
+      a[:experiences].first[:spans].first.merge(amount: "0:45" )] }]
   )
   @items[:features_history][:"time amounts"] = [a]
 
