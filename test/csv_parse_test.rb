@@ -303,12 +303,20 @@ class CsvParseTest < TestBase
     # array value's first hash as the template for all corresponding partial
     # data, for example in :variants and :experiences in the item template.
     config.fetch(:item).fetch(:template).merge(partial_data) do |key, old_value, new_value|
-      if old_value.is_a?(Array) && old_value.first.is_a?(Hash)
-        template = old_value.first
-        new_value.map { |v| template.merge(v) }
-      else
-        new_value
+      item_template_merge(key, old_value, new_value)
+    end
+  end
+
+  def self.item_template_merge(key, old_value, new_value)
+    if old_value.is_a?(Array) && old_value.first.is_a?(Hash)
+      template = old_value.first
+      new_value.map do |v|
+        template.merge(v) do |k, old_v, new_v|
+          item_template_merge(k, old_v, new_v)
+        end
       end
+    else
+      new_value
     end
   end
 
@@ -319,18 +327,18 @@ class CsvParseTest < TestBase
   c = item_data(title: "How To")
   @items[:enabled_columns][:"name"] = [a, b, c]
 
-  b_finished_inner = { experiences: [{ spans: [{ dates: .."2020/5/30", amount: nil, description: nil }] }] }
+  b_finished_inner = { experiences: [{ spans: [{ dates: .."2020/5/30" }] }] }
   b_finished = b.deeper_merge(b_finished_inner)
   @items[:enabled_columns][:"name, dates_finished"] = [a, b_finished, c]
 
-  a_started = a.deeper_merge(experiences: [{ spans: [{ dates: "2021/9/1".., amount: nil, description: nil }] }])
-  b_started = b.deeper_merge(experiences: [{ spans: [{ dates: "2020/5/1".., amount: nil, description: nil }] }])
+  a_started = a.deeper_merge(experiences: [{ spans: [{ dates: "2021/9/1".. }] }])
+  b_started = b.deeper_merge(experiences: [{ spans: [{ dates: "2020/5/1".. }] }])
   @items[:enabled_columns][:"name, dates_started"] = [a_started, b_started, c]
 
   a = a_started
   b = item_data(
     title: "Goatsong",
-    experiences: [{ spans: [{ dates: "2020/5/1".."2020/5/30", amount: nil, description: nil }] }]
+    experiences: [{ spans: [{ dates: "2020/5/1".."2020/5/30" }] }]
   )
   @items[:enabled_columns][:"name, dates_started, dates_finished"] = [a, b, c]
 
@@ -512,7 +520,7 @@ class CsvParseTest < TestBase
 
   @items[:features_dates_started] = {}
   a_basic = item_data(title: "Sapiens")
-  exp_started = { experiences: [{ spans: [{ dates: "2020/09/01".., amount: nil, description: nil }] }] }
+  exp_started = { experiences: [{ spans: [{ dates: "2020/09/01".. }] }] }
   a_started = a_basic.deeper_merge(exp_started)
   @items[:features_dates_started][:"date started"] = [a_started]
 
@@ -524,7 +532,7 @@ class CsvParseTest < TestBase
   @items[:features_dates_started][:"date added and started"] = [a_added_started]
 
   exp_second_started = { experiences: [{},
-                                       { spans: [{ dates: "2021/07/15".., amount: nil, description: nil }] }] }
+                                       { spans: [{ dates: "2021/07/15".. }] }] }
   a = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started))
   @items[:features_dates_started][:"dates started"] = [a]
 
@@ -659,11 +667,11 @@ class CsvParseTest < TestBase
   sapiens = item_data(
     title: "Sapiens: A Brief History of Humankind",
     variants:    [{ format: :audiobook,
-                    sources: [{ name: "Vail Library", url: nil }],
+                    sources: [{ name: "Vail Library" }],
                     isbn: "B00ICN066A",
                     length: "15:17" }],
     experiences: [{ date_added: "2021/06/11",
-                    spans: [{ dates: "2021/09/20".., amount: nil, description: nil }] }],
+                    spans: [{ dates: "2021/09/20".. }] }],
     genres: %w[history wisdom],
     public_notes: ["Ch. 5: \"We did not domesticate wheat. It domesticated us.\"", "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos.", "Ch. 19: are we happier in modernity? It's doubtful."],
     blurb: "History with a sociological bent, with special attention paid to human happiness."
@@ -677,9 +685,9 @@ class CsvParseTest < TestBase
     variants:    [{ format: :print,
                     isbn: "0312038380",
                     length: 247 }],
-    experiences: [{ spans: [{ dates: "2019/05/28".."2019/06/13", amount: nil, description: nil }] },
-                  { spans: [{ dates: "2020/05/01".."2020/05/23", amount: nil, description: nil }] },
-                  { spans: [{ dates: "2021/08/17".., amount: nil, description: nil }],
+    experiences: [{ spans: [{ dates: "2019/05/28".."2019/06/13" }] },
+                  { spans: [{ dates: "2020/05/01".."2020/05/23" }] },
+                  { spans: [{ dates: "2021/08/17".. }],
                     progress: 0.5 }],
     visibility: 3,
     genres: ["historical fiction"],
@@ -700,7 +708,7 @@ class CsvParseTest < TestBase
                     isbn: "1533694567",
                     length: "8:18",
                     extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
-    experiences: [{ spans: [{ dates: "2020/10/20".."2021/08/31", amount: nil, description: nil }],
+    experiences: [{ spans: [{ dates: "2020/10/20".."2021/08/31" }],
                     group: "weekly Latin reading with Sean and Dennis" }],
     genres: %w[latin novel],
     public_notes: ["Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html", "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d"]
@@ -709,12 +717,12 @@ class CsvParseTest < TestBase
     rating: 2,
     title: "Total Cat Mojo",
     variants:    [{ format: :audiobook,
-                    sources: [{ name: "gift from neighbor Edith", url: nil }],
+                    sources: [{ name: "gift from neighbor Edith" }],
                     isbn: "B01NCYY3BV",
                     length: "10:13" }],
-    experiences: [{ spans: [{ dates: "2020/03/21".."2020/04/01", amount: nil, description: nil }],
+    experiences: [{ spans: [{ dates: "2020/03/21".."2020/04/01" }],
                     progress: 0.5 },
-                  { spans: [{ dates: "2021/08/06".."2021/08/11", amount: nil, description: nil }],
+                  { spans: [{ dates: "2021/08/06".."2021/08/11" }],
                     progress: "4:45" }],
     visibility: 2,
     genres: %w[cats],
@@ -725,7 +733,7 @@ class CsvParseTest < TestBase
     title: "FiveThirtyEight Politics",
     variants:    [{ format: :audio,
                     length: "0:30" }],
-    experiences: [{ spans: [{ dates: "2021/08/02".."2021/08/02", amount: nil, description: nil }],
+    experiences: [{ spans: [{ dates: "2021/08/02".."2021/08/02" }],
                     progress: 0,
                     variant_index: 0 }],
     visibility: 1,
@@ -739,21 +747,21 @@ class CsvParseTest < TestBase
     author: "Randall Munroe",
     title: "What If?: Serious Scientific Answers to Absurd Hypothetical Questions",
     variants:    [{ format: :audiobook,
-                    sources: [{ name: "Lexpub", url: nil }],
+                    sources: [{ name: "Lexpub" }],
                     isbn: "B00LV2F1ZA",
                     length: "6:36",
                     extra_info: ["unabridged", "published 2016"] },
                   { format: :ebook,
-                    sources: [{ name: "Amazon", url: nil }],
+                    sources: [{ name: "Amazon" }],
                     isbn: "B00IYUYF4A",
                     length: 320,
                     extra_info: ["published 2014"] }],
-    experiences: [{ spans: [{ dates: "2021/08/01".."2021/08/15", amount: nil, description: nil }],
+    experiences: [{ spans: [{ dates: "2021/08/01".."2021/08/15" }],
                     variant_index: 0 },
-                  { spans: [{ dates: "2021/08/16".."2021/08/28", amount: nil, description: nil }],
+                  { spans: [{ dates: "2021/08/16".."2021/08/28" }],
                     group: "with Sam",
                     variant_index: 1 },
-                  { spans: [{ dates: "2021/09/01".."2021/09/10", amount: nil, description: nil }],
+                  { spans: [{ dates: "2021/09/01".."2021/09/10" }],
                     variant_index: 0 }],
     visibility: 3,
     genres: %w[science],
@@ -775,7 +783,7 @@ class CsvParseTest < TestBase
     author: "Randall Munroe",
     title: "How To",
     variants:    [{ format: :print,
-                    sources: [{ name: "Lexpub", url: nil }],
+                    sources: [{ name: "Lexpub" }],
                     isbn: "B07NCQTJV3",
                     length: 320 }],
     experiences: [{ date_added: "2021/06/27" }],
@@ -792,8 +800,8 @@ class CsvParseTest < TestBase
   true_grit = item_data(
     title: "True Grit",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: "Little Library", url: nil },
-                            { name: "Hoopla", url: nil }] }],
+                  sources: [{ name: "Little Library" },
+                            { name: "Hoopla" }] }],
     genres: ["historical fiction"]
   )
   lebowski = item_data(
@@ -807,24 +815,24 @@ class CsvParseTest < TestBase
     author: "Randall Munroe",
     title: "How To",
     variants:  [{ format: :print,
-                  sources: [{ name: "Lexpub", url: nil }] },
+                  sources: [{ name: "Lexpub" }] },
                 { format: :ebook,
-                  sources: [{ name: "Lexpub", url: nil },
-                            { name: "Hoopla", url: nil }] },
+                  sources: [{ name: "Lexpub" },
+                            { name: "Hoopla" }] },
                 { format: :audiobook,
-                  sources: [{ name: "Hoopla", url: nil },
-                            { name: "Jeffco", url: nil }] }],
+                  sources: [{ name: "Hoopla" },
+                            { name: "Jeffco" }] }],
     genres: %w[science]
   )
   weird_earth = item_data(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: "Hoopla", url: nil },
-                            { name: "Lexpub", url: nil }] },
+                  sources: [{ name: "Hoopla" },
+                            { name: "Lexpub" }] },
                 { format: :print,
-                  sources: [{ name: "Lexpub", url: nil }] },
+                  sources: [{ name: "Lexpub" }] },
                 { format: :ebook,
-                  sources: [{ name: "Lexpub", url: nil }] }],
+                  sources: [{ name: "Lexpub" }] }],
     genres: %w[science]
   )
   @items[:examples][:"compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
