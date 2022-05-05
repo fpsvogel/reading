@@ -4,12 +4,14 @@ require_relative "test_base"
 require "reading/csv/config"
 require "reading/csv/parse"
 require "reading/util/deeper_merge"
+require "reading/util/dig_bang"
 
 class CsvParseTest < TestBase
   using Reading::Util::DeeperMerge
+  using Reading::Util::DigBang
 
   @config = Reading.config
-  @config.fetch(:errors)[:handle_error] = lambda do |error|
+  @config[:errors][:handle_error] = lambda do |error|
     @error_log << error
     puts error
   end
@@ -244,8 +246,8 @@ class CsvParseTest < TestBase
 
   @files[:features_history] =
   {
-  :"dates and descriptions" =>
-    "Fullstack Ruby|2021/12/6 #1 Why Ruby2JS is a Game Changer -- 12/21 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
+  # :"dates and descriptions" =>
+  #   "Fullstack Ruby|2021/12/6 #1 Why Ruby2JS is a Game Changer -- 12/21 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
   # :"time amounts" =>
   #   "Fullstack Ruby|2021/12/6 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
   # :"page amounts" =>
@@ -302,7 +304,7 @@ class CsvParseTest < TestBase
     # This merge is not the same as Reading::Util::DeeperMerge. This one uses an
     # array value's first hash as the template for all corresponding partial
     # data, for example in :variants and :experiences in the item template.
-    config.fetch(:item).fetch(:template).merge(partial_data) do |key, old_value, new_value|
+    config.dig!(:item, :template).merge(partial_data) do |key, old_value, new_value|
       item_template_merge(key, old_value, new_value)
     end
   end
@@ -450,7 +452,7 @@ class CsvParseTest < TestBase
   a = a_basic.deeper_merge(variants: [{ sources: [library] }])
   @items[:features_sources][:"source"] = [a]
 
-  site = { name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
+  site = { name: config.dig!(:item, :sources, :default_name_for_url),
            url: "https://www.edlin.org/holt" }
   a = a_basic.deeper_merge(variants: [{ sources: [site] }])
   @items[:features_sources][:"URL source"] = [a]
@@ -654,9 +656,9 @@ class CsvParseTest < TestBase
 
   a = a.merge(
     experiences: [{ spans: [
-      a[:experiences].first[:spans].first.merge(amount: "0:35" ),
-      a[:experiences].first[:spans].first.merge(amount: "0:45" ),
-      a[:experiences].first[:spans].first.merge(amount: "0:45" )] }]
+      a.dig!(:experiences, 0, :spans).first.merge(amount: "0:35" ),
+      a.dig!(:experiences, 0, :spans).first.merge(amount: "0:45" ),
+      a.dig!(:experiences, 0, :spans).first.merge(amount: "0:45" )] }]
   )
   @items[:features_history][:"time amounts"] = [a]
 
@@ -806,7 +808,7 @@ class CsvParseTest < TestBase
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
+                  sources: [{ name: config.dig!(:item, :sources, :default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
     genres: ["historical fiction"]
   )
@@ -840,14 +842,14 @@ class CsvParseTest < TestBase
 
   ### UTILITY METHODS
 
-  NO_COLUMNS = config.fetch(:csv).fetch(:columns).keys.map { |col| [col, false] }.to_h
+  NO_COLUMNS = config.dig!(:csv, :columns).keys.map { |col| [col, false] }.to_h
 
   def set_columns(*columns, custom_numeric_columns: nil, custom_text_columns: nil)
     if columns.empty? || columns.first == :all
       this_config = config
     else
       this_columns = { columns: NO_COLUMNS.merge(columns.map { |col| [col, true] }.to_h) }
-      this_config = config.merge(csv: config.fetch(:csv).merge(this_columns))
+      this_config = config.merge(csv: config[:csv].merge(this_columns))
     end
 
     unless custom_numeric_columns.nil?
@@ -870,7 +872,7 @@ class CsvParseTest < TestBase
   end
 
   def without_blank_hashes(item_data)
-    template = config.fetch(:item).fetch(:template)
+    template = config.dig!(:item, :template)
     %i[series variants experiences].each do |attribute|
       item_data[attribute] =
         item_data[attribute].reject { |value| value == template[attribute].first }
@@ -878,12 +880,12 @@ class CsvParseTest < TestBase
     # Same for inner hash array at [:variants][:sources].
     item_data[:variants].each do |variant|
       variant[:sources] =
-        variant[:sources].reject { |value| value == template.fetch(:variants).first.fetch(:sources).first }
+        variant[:sources].reject { |value| value == template.dig!(:variants, 0, :sources).first }
     end
     # Same for inner hash array at [:experiences][:spans].
     item_data[:experiences].each do |variant|
       variant[:spans] =
-        variant[:spans].reject { |value| value == template.fetch(:experiences).first.fetch(:spans).first }
+        variant[:spans].reject { |value| value == template.dig!(:experiences, 0, :spans).first }
     end
     item_data
   end

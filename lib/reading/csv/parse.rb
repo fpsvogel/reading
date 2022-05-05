@@ -1,4 +1,5 @@
 require_relative "../util/deeper_merge"
+require_relative "../util/dig_bang"
 require_relative "config"
 require_relative "parse_line/parse_regular_line"
 require_relative "parse_line/parse_compact_planned_line"
@@ -6,6 +7,7 @@ require_relative "parse_line/parse_compact_planned_line"
 module Reading
   module Csv
     using Util::DeeperMerge
+    using Util::DigBang
 
     # Parse is a function that parses CSV lines into item data (an array of hashes).
     # For the structure of these hashes, see @config[:item] in config.rb
@@ -20,7 +22,7 @@ module Reading
           if custom_config[:item] && custom_config[:item][:formats]
             @config[:item][:formats] = custom_config[:item][:formats]
           end
-          @config.fetch(:csv).fetch(:columns)[:name] = true # Name column can't be disabled.
+          @config.dig!(:csv, :columns)[:name] = true # Name column can't be disabled.
           Reading.add_regex_config(@config)
         end
       end
@@ -43,11 +45,11 @@ module Reading
         skip_compact_planned: false,
         &postprocess
       )
-        if feed.nil? && path.nil? && @config.fetch(:csv).fetch(:path).nil?
+        if feed.nil? && path.nil? && @config.dig!(:csv, :path).nil?
           raise ArgumentError, "No file given to load."
         end
 
-        feed ||= File.open(path || @config.fetch(:csv).fetch(:path))
+        feed ||= File.open(path || @config.dig!(:csv, :path))
         parse_regular = ParseRegularLine.new(@config)
         parse_compact_planned = ParseCompactPlannedLine.new(@config)
         items = []
@@ -71,7 +73,7 @@ module Reading
           end
 
           if selective
-            continue = @config.fetch(:csv).fetch(:selective_continue).call(items.last)
+            continue = @config.dig!(:csv, :selective_continue).call(items.last)
             case continue
             when false
               break
@@ -106,12 +108,12 @@ module Reading
       end
 
       def starts_with_comment_character?(line)
-        line.start_with?(@config.fetch(:csv).fetch(:comment_character)) ||
-          line.match?(/\A\s+#{@config.fetch(:csv).fetch(:regex).fetch(:comment_escaped)}/)
+        line.start_with?(@config.dig!(:csv, :comment_character)) ||
+          line.match?(/\A\s+#{@config.dig!(:csv, :regex, :comment_escaped)}/)
       end
 
       def compact_planned_line?(line)
-        line.match?(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
+        line.match?(@config.dig!(:csv, :regex, :compact_planned_line_start))
       end
     end
   end

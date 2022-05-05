@@ -1,5 +1,6 @@
 require "active_support/core_ext/object/blank"
 require_relative "../../errors"
+require_relative "../../util/dig_bang"
 require_relative "parse_attribute"
 require_relative "parse_variants"
 require_relative "parse_experiences"
@@ -8,6 +9,8 @@ module Reading
   module Csv
     class Parse
       class ParseLine
+        using Util::DigBang
+
         class ParseRating < ParseAttribute
           def call(_name = nil, columns)
             return nil unless columns[:rating]
@@ -21,8 +24,8 @@ module Reading
         class ParseAuthor < ParseAttribute
           def call(name, _columns = nil)
             name
-              .sub(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
-              .match(/.+(?=#{@config.fetch(:csv).fetch(:short_separator)})/)
+              .sub(/\A#{@config.dig!(:csv, :regex, :formats)}/, "")
+              .match(/.+(?=#{@config.dig!(:csv, :short_separator)})/)
               &.to_s
               &.strip
           end
@@ -31,9 +34,9 @@ module Reading
         class ParseTitle < ParseAttribute
           def call(name, _columns = nil)
             name
-              .sub(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/, "")
-              .sub(/.+#{@config.fetch(:csv).fetch(:short_separator)}/, "")
-              .sub(/#{@config.fetch(:csv).fetch(:long_separator)}.+\z/, "")
+              .sub(/\A#{@config.dig!(:csv, :regex, :formats)}/, "")
+              .sub(/.+#{@config.dig!(:csv, :short_separator)}/, "")
+              .sub(/#{@config.dig!(:csv, :long_separator)}.+\z/, "")
               .strip
               .presence
           end
@@ -42,14 +45,14 @@ module Reading
         class ParseSeries < ParseAttribute
           def call(name, _columns = nil)
             separated = name
-              .split(@config.fetch(:csv).fetch(:long_separator))
+              .split(@config.dig!(:csv, :long_separator))
               .map(&:strip)
               .map(&:presence)
               .compact
             separated.delete_at(0) # everything before the series/extra info
             separated.map { |str|
-              volume = str.match(@config.fetch(:csv).fetch(:regex).fetch(:series_volume))
-              prefix = "#{@config.fetch(:csv).fetch(:series_prefix)} "
+              volume = str.match(@config.dig!(:csv, :regex, :series_volume))
+              prefix = "#{@config.dig!(:csv, :series_prefix)} "
               if volume || str.start_with?(prefix)
                 { name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
                   volume: volume&.captures&.first&.to_i                      || default[:volume] }
@@ -59,7 +62,7 @@ module Reading
           end
 
           def default
-            @config.fetch(:item).fetch(:template).fetch(:series).first
+            @config.dig!(:item, :template, :series).first
           end
         end
 
@@ -70,7 +73,7 @@ module Reading
 
           def all_genres(columns)
             @@all_genres ||= columns[:genres]
-              .split(@config.fetch(:csv).fetch(:separator))
+              .split(@config.dig!(:csv, :separator))
               .map(&:strip)
               .map(&:presence)
               .compact.presence
@@ -93,7 +96,7 @@ module Reading
 
           def call(_name = nil, columns)
             return nil unless columns[:genres]
-            visibility = @config.fetch(:item).fetch(:template).fetch(:visibility)
+            visibility = @config.dig!(:item, :template, :visibility)
             all_genres(columns).each do |entry|
               if specified_visibility = visibility_string_to_number(entry)
                 visibility = specified_visibility
@@ -129,8 +132,8 @@ module Reading
             columns[column_name]
               .presence
               &.chomp
-              &.sub(/#{@config.fetch(:csv).fetch(:long_separator).rstrip}\s*\z/, "")
-              &.split(@config.fetch(:csv).fetch(:long_separator))
+              &.sub(/#{@config.dig!(:csv, :long_separator).rstrip}\s*\z/, "")
+              &.split(@config.dig!(:csv, :long_separator))
           end
         end
 

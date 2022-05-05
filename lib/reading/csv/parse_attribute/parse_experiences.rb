@@ -1,5 +1,6 @@
 require "active_support/core_ext/object/blank"
 require_relative "../../errors"
+require_relative "../../util/dig_bang"
 
 # GOATSONG example in @files[:examples][:in_progress]
 # [{ dates: Date.parse("2019-05-01"), amount: 31 },
@@ -15,10 +16,11 @@ module Reading
     class Parse
       class ParseLine
         class ParseExperiences < ParseAttribute
+          using Util::DigBang
 
           def call(_name = nil, columns)
             started, finished = dates_split(columns)
-            if @config.fetch(:csv).fetch(:reverse_dates)
+            if @config.dig!(:csv, :reverse_dates)
               started, finished = started.reverse, finished.reverse
             end
 
@@ -48,18 +50,18 @@ module Reading
           end
 
           def template
-            @template ||= @config.fetch(:item).fetch(:template).fetch(:experiences).first
+            @template ||= @config.dig!(:item, :template, :experiences).first
           end
 
           def dates_split(columns)
             dates_finished = columns[:dates_finished]&.presence
-                              &.split(@config.fetch(:csv).fetch(:separator)) || []
+                              &.split(@config.dig!(:csv, :separator)) || []
             # Don't use #has_key? because simply checking for nil covers the
             # case where dates_started is the last column and omitted.
             started_column_exists = columns[:dates_started]&.presence
             dates_started =
               if started_column_exists
-                columns[:dates_started]&.presence&.split(@config.fetch(:csv).fetch(:separator))
+                columns[:dates_started]&.presence&.split(@config.dig!(:csv, :separator))
               else
                 [""] * dates_finished.count
               end
@@ -67,7 +69,7 @@ module Reading
           end
 
           def date_added(date_entry)
-            date_entry.match(@config.fetch(:csv).fetch(:regex).fetch(:date_added))&.captures&.first
+            date_entry.match(@config.dig!(:csv, :regex, :date_added))&.captures&.first
           end
 
           def spans(date_entry, dates_finished, date_index)
@@ -83,7 +85,7 @@ module Reading
           end
 
           def date_started(date_entry)
-            date_entry.match(@config.fetch(:csv).fetch(:regex).fetch(:date_started))&.captures&.first
+            date_entry.match(@config.dig!(:csv, :regex, :date_started))&.captures&.first
           end
 
           def date_finished(dates_finished, date_index)
@@ -92,10 +94,10 @@ module Reading
           end
 
           def progress(str, ignore_if_no_dnf: false)
-            dnf = str.match(@config.fetch(:csv).fetch(:regex).fetch(:dnf))&.captures&.first
+            dnf = str.match(@config.dig!(:csv, :regex, :dnf))&.captures&.first
 
             if dnf || !ignore_if_no_dnf
-              captures = str.match(@config.fetch(:csv).fetch(:regex).fetch(:progress))&.captures
+              captures = str.match(@config.dig!(:csv, :regex, :progress))&.captures
               if captures
                 if prog_percent = captures[1]&.to_i
                   return prog_percent / 100.0
@@ -112,11 +114,11 @@ module Reading
           end
 
           def group(entry)
-            entry.match(@config.fetch(:csv).fetch(:regex).fetch(:group_experience))&.captures&.first
+            entry.match(@config.dig!(:csv, :regex, :group_experience))&.captures&.first
           end
 
           def variant_index(date_entry)
-            match = date_entry.match(@config.fetch(:csv).fetch(:regex).fetch(:variant_index))
+            match = date_entry.match(@config.dig!(:csv, :regex, :variant_index))
             (match&.captures&.first&.to_i || 1) - 1
           end
         end

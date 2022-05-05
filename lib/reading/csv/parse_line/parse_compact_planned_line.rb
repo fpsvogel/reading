@@ -1,5 +1,6 @@
 require "active_support/core_ext/object/blank"
 require_relative "../../util/deeper_merge"
+require_relative "../../util/dig_bang"
 require_relative "../../errors"
 require_relative "parse_line"
 
@@ -7,6 +8,7 @@ module Reading
   module Csv
     class Parse
       using Util::DeeperMerge
+      using Util::DigBang
 
       # ParseCompactPlannedLine is a function that parses a line of compactly
       # listed planned items in a CSV reading list into an array of item data (hashes).
@@ -14,7 +16,7 @@ module Reading
         private
 
         def before_parse(line)
-          list_start = line.match(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_line_start))
+          list_start = line.match(@config.dig!(:csv, :regex, :compact_planned_line_start))
           @genre = list_start[:genre].downcase
           @line_without_genre = line.sub(list_start.to_s, "")
         end
@@ -24,7 +26,7 @@ module Reading
         end
 
         def item_data(name)
-          match = name.match(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_item))
+          match = name.match(@config.dig!(:csv, :regex, :compact_planned_item))
           unless match
             raise InvalidItemError, "Invalid planned item"
           end
@@ -44,7 +46,7 @@ module Reading
         end
 
         def template
-          @template ||= @config.fetch(:item).fetch(:template)
+          @template ||= @config.dig!(:item, :template)
         end
 
         def parse_variants(item_match)
@@ -57,7 +59,7 @@ module Reading
           inverted_variants.each do |inverted_variant|
             inverted_variant[:format_emojis_str] ||= item_match[:first_format_emojis]
             format_emojis = inverted_variant[:format_emojis_str].scan(
-              /#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/
+              /#{@config.dig!(:csv, :regex, :formats)}/
             )
             format_emojis.each do |format_emoji|
               format = format(format_emoji)
@@ -71,28 +73,28 @@ module Reading
         end
 
         def format(format_emoji)
-          @config.fetch(:item).fetch(:formats).key(format_emoji)
+          @config.dig!(:item, :formats).key(format_emoji)
         end
 
         def blank_variant(format)
           {
             format: format,
             sources: [],
-            isbn: template.fetch(:variants).first.fetch(:isbn),
-            length: template.fetch(:variants).first.fetch(:length),
-            extra_info: template.fetch(:variants).first.fetch(:extra_info) }
+            isbn: template.dig!(:variants, 0, :isbn),
+            length: template.dig!(:variants, 0, :length),
+            extra_info: template.dig!(:variants, 0, :extra_info) }
         end
 
         def sources_with_format_emojis(sources_str)
           return [] if sources_str.nil?
 
           sources_str
-            .split(@config.fetch(:csv).fetch(:compact_planned_source_prefix))
+            .split(@config.dig!(:csv, :compact_planned_source_prefix))
             .map { |source| source.sub(/\s*,\s*/, "") }
             .map(&:strip)
             .reject(&:empty?)
             .map { |source_str|
-              match = source_str.match(@config.fetch(:csv).fetch(:regex).fetch(:compact_planned_source))
+              match = source_str.match(@config.dig!(:csv, :regex, :compact_planned_source))
               {
                 format_emojis_str: match[:format_emojis].presence,
                 source: source(match[:source_name])
@@ -103,7 +105,7 @@ module Reading
         def source(source_name)
           if valid_url?(source_name)
             source_name = source_name.chop if source_name.chars.last == "/"
-            { name: @config.fetch(:item).fetch(:sources).fetch(:default_name_for_url),
+            { name: @config.dig!(:item, :sources, :default_name_for_url),
               url: source_name }
           else
             { name: source_name,

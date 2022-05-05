@@ -1,6 +1,9 @@
 require "pastel"
+require_relative "util/dig_bang"
 
 module Reading
+  using Util::DigBang
+
   Colors = Pastel.new
 
   class AppError < StandardError
@@ -10,7 +13,7 @@ module Reading
 
     # source is e.g. the CSV line where an invalid Item comes from.
     def handle(source: nil, config:)
-      handle = config.fetch(:errors).fetch(:handle_error)
+      handle = config.dig!(:errors, :handle_error)
       if source.nil?
         handle.call(self)
       else
@@ -30,7 +33,7 @@ module Reading
 
     def styled_with_source(source, config:)
       truncated_source = truncate(source,
-                                  config.fetch(:errors).fetch(:max_length),
+                                  config.dig!(:errors, :max_length),
                                   padding: message.length)
       self.class.new(truncated_source,
                       label: styled(message, config))
@@ -43,7 +46,7 @@ module Reading
     end
 
     def styled(str, config)
-      case config.fetch(:errors).fetch(:style_mode)
+      case config.dig!(:errors, :style_mode)
       when :terminal
         Colors.send("bright_#{color}").bold(str)
       when :html

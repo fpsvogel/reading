@@ -1,4 +1,8 @@
+require_relative "../util/dig_bang"
+
 module Reading
+  using Util::DigBang
+
   def self.config
     @config
   end
@@ -89,10 +93,10 @@ module Reading
 
   def self.add_regex_config(custom_config)
     return custom_config[:csv][:regex] unless custom_config[:csv][:regex].nil?
-    comment_character = Regexp.escape(custom_config.fetch(:csv).fetch(:comment_character))
-    formats = /#{custom_config.fetch(:item).fetch(:formats).values.join("|")}/
-    dnf_string = Regexp.escape(custom_config.fetch(:csv).fetch(:dnf_string))
-    date_sep = Regexp.escape(custom_config.fetch(:csv).fetch(:date_separator))
+    comment_character = Regexp.escape(custom_config.dig!(:csv, :comment_character))
+    formats = /#{custom_config.dig!(:item, :formats).values.join("|")}/
+    dnf_string = Regexp.escape(custom_config.dig!(:csv, :dnf_string))
+    date_sep = Regexp.escape(custom_config.dig!(:csv, :date_separator))
     date_regex = /(\d{4}#{date_sep}\d?\d#{date_sep}\d?\d)/ # TODO hardcode the date separator?
     time_length = /(\d+:\d\d)/
     pages_length = /p?(\d+)p?/
@@ -111,7 +115,7 @@ module Reading
         date_started: /#{date_regex}[^>]*\z/,
         dnf: /(?<=>|\A)\s*(#{dnf_string})/,
         progress: /(?<=#{dnf_string}|>|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
-        group_experience: /#{config.fetch(:csv).fetch(:group_emoji)}\s*(.*)\s*\z/,
+        group_experience: /#{config.dig!(:csv, :group_emoji)}\s*(.*)\s*\z/,
         variant_index: /\s+v(\d+)/,
         date_finished: date_regex,
         time_length: time_length,
@@ -125,8 +129,8 @@ module Reading
 
     def isbn_regex
       return @isbn_regex unless @isbn_regex.nil?
-      isbn_lookbehind = "(?<=\\A|\\s|#{config.fetch(:csv).fetch(:separator)})"
-      isbn_lookahead = "(?=\\z|\\s|#{config.fetch(:csv).fetch(:separator)})"
+      isbn_lookbehind = "(?<=\\A|\\s|#{config.dig!(:csv, :separator)})"
+      isbn_lookahead = "(?=\\z|\\s|#{config.dig!(:csv, :separator)})"
       isbn_bare_regex = /(?:\d{3}[-\s]?)?[A-Z\d]{10}/ # also includes ASIN
       @isbn_regex = /#{isbn_lookbehind}#{isbn_bare_regex.source}#{isbn_lookahead}/
     end
@@ -134,10 +138,10 @@ module Reading
     def sources_regex
       return @sources_regex unless @sources_regex.nil?
       isbn = "(#{isbn_regex.source})"
-      url_name = "([^#{config.fetch(:csv).fetch(:separator)}]+)"
-      url = "(https?://[^\\s#{config.fetch(:csv).fetch(:separator)}]+)"
-      url_prename = "#{url_name}#{config.fetch(:csv).fetch(:short_separator)}#{url}"
-      url_postname = "#{url}#{config.fetch(:csv).fetch(:short_separator)}#{url_name}"
+      url_name = "([^#{config.dig!(:csv, :separator)}]+)"
+      url = "(https?://[^\\s#{config.dig!(:csv, :separator)}]+)"
+      url_prename = "#{url_name}#{config.dig!(:csv, :short_separator)}#{url}"
+      url_postname = "#{url}#{config.dig!(:csv, :short_separator)}#{url_name}"
       @sources_regex = /#{isbn}|#{url_prename}|#{url_postname}|#{url}/
     end
   end

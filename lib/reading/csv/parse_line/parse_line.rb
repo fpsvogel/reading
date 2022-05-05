@@ -1,10 +1,13 @@
 require_relative "../../errors"
+require_relative "../../util/dig_bang"
 
 module Reading
   module Csv
     class Parse
       # ParseLine is a base class that contains behaviors common to Parse___ classes.
       class ParseLine
+        using Util::DigBang
+
         def initialize(merged_config)
           @config ||= merged_config
           after_initialize
@@ -35,7 +38,7 @@ module Reading
           # initial/middle columns in ParseRegularLine#set_columns, and raise
           # appropriate errors if possible.
           unless e.is_a? InvalidItemError
-            if @config.fetch(:errors).fetch(:catch_all_errors)
+            if @config.dig!(:errors, :catch_all_errors)
               e = InvalidItemError.new("A line could not be parsed. Check this line")
             else
               raise e
@@ -53,13 +56,13 @@ module Reading
 
         def split_by_format_emojis
           multi_items_to_be_split_by_format_emojis
-            .split(@config.fetch(:csv).fetch(:regex).fetch(:formats_split))
+            .split(@config.dig!(:csv, :regex, :formats_split))
             .tap { |names|
-              names.first.sub!(@config.fetch(:csv).fetch(:regex).fetch(:dnf), "")
-              names.first.sub!(@config.fetch(:csv).fetch(:regex).fetch(:progress), "")
+              names.first.sub!(@config.dig!(:csv, :regex, :dnf), "")
+              names.first.sub!(@config.dig!(:csv, :regex, :progress), "")
             }
             .map { |name| name.strip.sub(/\s*,\z/, "") }
-            .partition { |name| name.match?(/\A#{@config.fetch(:csv).fetch(:regex).fetch(:formats)}/) }
+            .partition { |name| name.match?(/\A#{@config.dig!(:csv, :regex, :formats)}/) }
             .reject(&:empty?)
             .first
         end
@@ -69,13 +72,13 @@ module Reading
         # If no parsed data has been added to the template values for these, they
         # are considered blank, and are replaced with an empty array so that their
         # emptiness is more apparent, e.g. data[:experiences].empty? will return true.
-        def without_blank_hashes(data_hash, template: @config.fetch(:item).fetch(:template))
+        def without_blank_hashes(data_hash, template: @config.dig!(:item, :template))
           data_hash.map { |key, val|
             if is_array_of_hashes?(val)
-              if is_blank_like_template?(val, template.fetch(key))
+              if is_blank_like_template?(val, template.dig!(key))
                 [key, []]
               else
-                [key, val.map { without_blank_hashes(_1, template: template.fetch(key).first) }]
+                [key, val.map { without_blank_hashes(_1, template: template.dig!(key).first) }]
               end
             else
               [key, val]
