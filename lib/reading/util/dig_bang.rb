@@ -20,11 +20,11 @@ module Reading
 
     module DigBang
       refine Hash do
-        include DeepFetch
+        import_methods DeepFetch
       end
 
       refine Array do
-        include DeepFetch
+        import_methods DeepFetch
       end
     end
   end
