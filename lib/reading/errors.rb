@@ -46,7 +46,7 @@ module Reading
     end
 
     def styled(str, config)
-      case config.deep_fetch(:errors, :style_mode)
+      case config.deep_fetch(:errors, :styling)
       when :terminal
         Colors.send("bright_#{color}").bold(str)
       when :html

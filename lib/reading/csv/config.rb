@@ -5,6 +5,10 @@ module Reading
   using Util::DeepFetch
   using Util::DeepMerge
 
+  # Builds a hash of the default config combined with the given custom config.
+  # @param custom_config [Hash] a custom config which overrides the defaults,
+  # e.g. { errors: { styling: :html } }
+  # @return [Hash]
   def self.build_config(custom_config)
     config = @default_config.deep_merge(custom_config)
 
@@ -17,12 +21,13 @@ module Reading
     # Name column can't be disabled.
     config.deep_fetch(:csv, :columns)[:name] = true
 
-    # Add the regex config, which is built based on the config so far.
-    config[:csv][:regex] = regex_config(config)
+    # Add the Regex config, which is built based on the config so far.
+    config[:csv][:regex] = build_regex_config(config)
 
     config
   end
 
+  # The default config, excluding Regex config (see further down).
   @default_config =
     {
       errors:
@@ -30,7 +35,7 @@ module Reading
           handle_error:     -> (error) { puts error },
           max_length:       100, # or require "io/console", then IO.console.winsize[1]
           catch_all_errors: false, # set this to false during development.
-          style_mode:       :terminal, # or :html
+          styling:          :terminal, # or :html
         },
       item:
         {
@@ -138,7 +143,11 @@ module Reading
         },
     }
 
-  def self.regex_config(other_config)
+  # Builds the Regex portion of the config, based on the given config.
+  # @param other_config [Hash] the rest of the config, i.e. @default_config
+  # overriden by any custom config.
+  # @return [Hash]
+  private_class_method def self.build_regex_config(other_config)
     return other_config[:csv][:regex] if other_config.dig(:csv, :regex)
 
     comment_character = Regexp.escape(other_config.deep_fetch(:csv, :comment_character))
@@ -172,6 +181,7 @@ module Reading
     }
   end
 
+  # Builds the Regex for item ISBN/ASIN.
   private_class_method def self.isbn_regex(other_config)
     return @isbn_regex unless @isbn_regex.nil?
 
@@ -182,6 +192,7 @@ module Reading
     @isbn_regex = /#{isbn_lookbehind}#{isbn_bare_regex.source}#{isbn_lookahead}/
   end
 
+  # Builds the Regex for item sources.
   private_class_method def self.sources_regex(other_config)
     return @sources_regex unless @sources_regex.nil?
 
