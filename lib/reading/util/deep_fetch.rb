@@ -1,7 +1,14 @@
 module Reading
   module Util
+    # Similar to Array#dig and Hash#dig but raises an error for not found elements.
+    #
+    # More flexible but slightly slower alternative:
+    #   keys.reduce(self) { |a, e| a.fetch(e) }
+    #
+    # See performance comparisons:
+    # https://fpsvogel.com/posts/2022/ruby-hash-dot-syntax-deep-fetch
     module DeepFetch
-      def dig!(*keys)
+      def deep_fetch(*keys)
         case keys.length
         when 1
           fetch(keys[0])
@@ -12,13 +19,10 @@ module Reading
         when 4
           fetch(keys[0]).fetch(keys[1]).fetch(keys[2]).fetch(keys[3])
         end
-        # Or this, more flexible but slightly slower.
-        # From https://github.com/dogweather/digbang
-        # keys.reduce(self) { |a, e| a.fetch(e) }
       end
     end
 
-    module DigBang
+    module DeepFetch
       refine Hash do
         import_methods DeepFetch
       end

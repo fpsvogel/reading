@@ -1,8 +1,8 @@
 require "pastel"
-require_relative "util/dig_bang"
+require_relative "util/deep_fetch"
 
 module Reading
-  using Util::DigBang
+  using Util::DeepFetch
 
   Colors = Pastel.new
 
@@ -13,7 +13,7 @@ module Reading
 
     # source is e.g. the CSV line where an invalid Item comes from.
     def handle(source: nil, config:)
-      handle = config.dig!(:errors, :handle_error)
+      handle = config.deep_fetch(:errors, :handle_error)
       if source.nil?
         handle.call(self)
       else
@@ -33,7 +33,7 @@ module Reading
 
     def styled_with_source(source, config:)
       truncated_source = truncate(source,
-                                  config.dig!(:errors, :max_length),
+                                  config.deep_fetch(:errors, :max_length),
                                   padding: message.length)
       self.class.new(truncated_source,
                       label: styled(message, config))
@@ -46,7 +46,7 @@ module Reading
     end
 
     def styled(str, config)
-      case config.dig!(:errors, :style_mode)
+      case config.deep_fetch(:errors, :style_mode)
       when :terminal
         Colors.send("bright_#{color}").bold(str)
       when :html

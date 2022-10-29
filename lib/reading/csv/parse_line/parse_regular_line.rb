@@ -1,6 +1,6 @@
 require_relative "../../errors"
 require_relative "../../util/blank"
-require_relative "../../util/dig_bang"
+require_relative "../../util/deep_fetch"
 require_relative "parse_line"
 require_relative "../parse_attribute/parse_attributes"
 
@@ -10,7 +10,7 @@ module Reading
       # ParseRegularLine is a function that parses a normal row in a CSV reading
       # log into an array of item data (hashes).
       class ParseRegularLine < ParseLine
-        using Util::DigBang
+        using Util::DeepFetch
 
         private
 
@@ -28,7 +28,7 @@ module Reading
         end
 
         def setup_parse_attributes
-          @parse_attributes ||= @config.dig!(:item, :template).map { |attribute, _default|
+          @parse_attributes ||= @config.deep_fetch(:item, :template).map { |attribute, _default|
             parser_class_name = "Parse#{attribute.to_s.split("_").map(&:capitalize).join}"
             [attribute, self.class.const_get(parser_class_name).new(@config)]
           }.to_h
@@ -48,7 +48,7 @@ module Reading
         end
 
         def custom_parse_attributes_of_type(type, &process_value)
-          @config.dig!(:csv, :"custom_#{type}_columns").map { |attribute, _default_value|
+          @config.deep_fetch(:csv, :"custom_#{type}_columns").map { |attribute, _default_value|
             custom_class = Class.new ParseAttribute
 
             custom_class.define_method :call do |item_name, columns|
@@ -62,12 +62,12 @@ module Reading
 
         def set_columns(line)
           @columns = @config
-            .dig!(:csv, :columns)
+            .deep_fetch(:csv, :columns)
             .select { |_name, enabled| enabled }
             .keys
-            .concat(@config.dig!(:csv, :custom_numeric_columns).keys)
-            .concat(@config.dig!(:csv, :custom_text_columns).keys)
-            .zip(line.split(@config.dig!(:csv, :column_separator)))
+            .concat(@config.deep_fetch(:csv, :custom_numeric_columns).keys)
+            .concat(@config.deep_fetch(:csv, :custom_text_columns).keys)
+            .zip(line.split(@config.deep_fetch(:csv, :column_separator)))
             .to_h
         end
 
@@ -79,11 +79,11 @@ module Reading
 
         def item_data(name)
           @config
-            .dig!(:item, :template)
-            .merge(@config.dig!(:csv, :custom_numeric_columns))
-            .merge(@config.dig!(:csv, :custom_text_columns))
+            .deep_fetch(:item, :template)
+            .merge(@config.deep_fetch(:csv, :custom_numeric_columns))
+            .merge(@config.deep_fetch(:csv, :custom_text_columns))
             .map { |attribute, default_value|
-              parsed = @parse_attributes.dig!(attribute).call(name, @columns)
+              parsed = @parse_attributes.deep_fetch(attribute).call(name, @columns)
 
               [attribute, parsed || default_value]
             }.to_h

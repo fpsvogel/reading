@@ -2,6 +2,7 @@ module Reading
   module Util
     # Modified from active_support/core_ext/hash/deep_merge
     # https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/hash/deep_merge.rb
+    #
     # This deep_merge also iterates through arrays of hashes and merges them.
     module DeepMerge
       refine Hash do
