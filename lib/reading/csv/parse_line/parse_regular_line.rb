@@ -1,5 +1,5 @@
-require "active_support/core_ext/object/blank"
 require_relative "../../errors"
+require_relative "../../util/blank"
 require_relative "../../util/dig_bang"
 require_relative "parse_line"
 require_relative "../parse_attribute/parse_attributes"

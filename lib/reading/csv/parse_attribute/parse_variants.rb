@@ -1,5 +1,5 @@
-require "active_support/core_ext/object/blank"
 require_relative "../../errors"
+require_relative "../../util/blank"
 require_relative "../../util/dig_bang"
 
 module Reading
