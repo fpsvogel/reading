@@ -10,11 +10,17 @@ class CsvParseTest < TestBase
   using Reading::Util::DeeperMerge
   using Reading::Util::DigBang
 
-  @config = Reading.config
-  @config[:errors][:handle_error] = lambda do |error|
-    @error_log << error
-    puts error
-  end
+  custom_config =
+    {
+      errors:
+        {
+          handle_error: lambda do |error|
+              @error_log << error
+              puts error
+            end
+        }
+    }
+  @config = Reading.build_config(custom_config)
 
   @files = {}
 

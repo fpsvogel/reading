@@ -13,18 +13,7 @@ module Reading
     # For the structure of these hashes, see @config[:item] in config.rb
     class Parse
       def initialize(custom_config = {})
-        unless @config
-          @config = Reading.config.deeper_merge(custom_config)
-          # If custom formats are given, use only the custom formats.
-          # Brackets are used for custom_config (not #fetch as with @config elsewhere)
-          # because custom_config may not include this data, whereas @config
-          # includes the entire config structure as defined in config.rb.
-          if custom_config[:item] && custom_config[:item][:formats]
-            @config[:item][:formats] = custom_config[:item][:formats]
-          end
-          @config.dig!(:csv, :columns)[:name] = true # Name column can't be disabled.
-          Reading.add_regex_config(@config)
-        end
+        @config ||= Reading.build_config(custom_config)
       end
 
       # - Returns a hash of item data in the same order as they arrive from feed.
