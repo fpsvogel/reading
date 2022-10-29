@@ -1,12 +1,12 @@
 require_relative "../util/dig_bang"
-require_relative "../util/deeper_merge"
+require_relative "../util/deep_merge"
 
 module Reading
   using Util::DigBang
-  using Util::DeeperMerge
+  using Util::DeepMerge
 
   def self.build_config(custom_config)
-    config = @default_config.deeper_merge(custom_config)
+    config = @default_config.deep_merge(custom_config)
 
     # If custom formats are given, use only the custom formats. #dig is used here
     # (not #dig! as most elsewhere) because custom_config may not include this data.

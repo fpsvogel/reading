@@ -3,11 +3,11 @@ require_relative "test_base"
 
 require "reading/csv/config"
 require "reading/csv/parse"
-require "reading/util/deeper_merge"
+require "reading/util/deep_merge"
 require "reading/util/dig_bang"
 
 class CsvParseTest < TestBase
-  using Reading::Util::DeeperMerge
+  using Reading::Util::DeepMerge
   using Reading::Util::DigBang
 
   custom_config =
@@ -307,7 +307,7 @@ class CsvParseTest < TestBase
   # The results of parsing the above CSVs are expected to equal this data.
 
   def self.item_data(**partial_data)
-    # This merge is not the same as Reading::Util::DeeperMerge. This one uses an
+    # This merge is not the same as Reading::Util::DeepMerge. This one uses an
     # array value's first hash as the template for all corresponding partial
     # data, for example in :variants and :experiences in the item template.
     config.dig!(:item, :template).merge(partial_data) do |key, old_value, new_value|
@@ -336,11 +336,11 @@ class CsvParseTest < TestBase
   @items[:enabled_columns][:"name"] = [a, b, c]
 
   b_finished_inner = { experiences: [{ spans: [{ dates: .."2020/5/30" }] }] }
-  b_finished = b.deeper_merge(b_finished_inner)
+  b_finished = b.deep_merge(b_finished_inner)
   @items[:enabled_columns][:"name, dates_finished"] = [a, b_finished, c]
 
-  a_started = a.deeper_merge(experiences: [{ spans: [{ dates: "2021/9/1".. }] }])
-  b_started = b.deeper_merge(experiences: [{ spans: [{ dates: "2020/5/1".. }] }])
+  a_started = a.deep_merge(experiences: [{ spans: [{ dates: "2021/9/1".. }] }])
+  b_started = b.deep_merge(experiences: [{ spans: [{ dates: "2020/5/1".. }] }])
   @items[:enabled_columns][:"name, dates_started"] = [a_started, b_started, c]
 
   a = a_started
@@ -354,17 +354,17 @@ class CsvParseTest < TestBase
   b = b.merge(rating: 5)
   @items[:enabled_columns][:"rating, name, dates_started, dates_finished"] = [a, b, c]
 
-  a_length = a.deeper_merge(variants: [{ length: "15:17" }])
-  b_length = b.deeper_merge(variants: [{ length: 247 }])
+  a_length = a.deep_merge(variants: [{ length: "15:17" }])
+  b_length = b.deep_merge(variants: [{ length: 247 }])
   @items[:enabled_columns][:"rating, name, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
-  a_sources = a.deeper_merge(variants: [{ isbn: "B00ICN066A",
+  a_sources = a.deep_merge(variants: [{ isbn: "B00ICN066A",
                               sources: [{ name: "Vail Library", url: nil }] }])
-  b_sources = b.deeper_merge(variants: [{ isbn: "0312038380" }])
+  b_sources = b.deep_merge(variants: [{ isbn: "0312038380" }])
   @items[:enabled_columns][:"rating, name, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
-  a = a_sources.deeper_merge(variants: [{ length: "15:17" }])
-  b = b_sources.deeper_merge(variants: [{ length: 247 }])
+  a = a_sources.deep_merge(variants: [{ length: "15:17" }])
+  b = b_sources.deep_merge(variants: [{ length: 247 }])
   @items[:enabled_columns][:"rating, name, sources, dates_started, dates_finished, length"] = [a, b, c]
 
 
@@ -392,22 +392,22 @@ class CsvParseTest < TestBase
   a_basic = item_data(author: "Tom Holt", title: "Goatsong")
   @items[:features_name][:"author"] = [a_basic]
 
-  a = a_basic.deeper_merge(series: [{ name: "The Walled Orchard" }])
+  a = a_basic.deep_merge(series: [{ name: "The Walled Orchard" }])
   @items[:features_name][:"series"] = [a]
 
-  a = a.deeper_merge(series: [{ volume: 1 }])
+  a = a.deep_merge(series: [{ volume: 1 }])
   series_with_volume = a.slice(:series)
   @items[:features_name][:"series with volume"] = [a]
 
   extra_info = %w[unabridged 1990]
   variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
-  a = a_basic.deeper_merge(variants_with_extra_info)
+  a = a_basic.deep_merge(variants_with_extra_info)
   @items[:features_name][:"extra info"] = [a]
 
   a = a.merge(series_with_volume)
   @items[:features_name][:"extra info and series"] = [a]
 
-  a_with_format = a_basic.deeper_merge(variants: [{ format: :print }])
+  a_with_format = a_basic.deep_merge(variants: [{ format: :print }])
   @items[:features_name][:"format"] = [a_with_format]
 
   b = item_data(title: "Sapiens", variants: [{ format: :audiobook }])
@@ -431,12 +431,12 @@ class CsvParseTest < TestBase
   a = item_data(title: "Goatsong", experiences: [{ progress: 0.5 }])
   @items[:features_name][:"dnf with progress"] = [a]
 
-  a = a_with_format.deeper_merge(experiences: [{ progress: 0 }])
-  b = b.deeper_merge(experiences: [{ progress: 0 }])
+  a = a_with_format.deep_merge(experiences: [{ progress: 0 }])
+  b = b.deep_merge(experiences: [{ progress: 0 }])
   @items[:features_name][:"dnf with multi items"] = [a, b]
 
-  a = a.merge(series_with_volume).deeper_merge(variants_with_extra_info).deeper_merge(half_progress)
-  b = b.deeper_merge(half_progress)
+  a = a.merge(series_with_volume).deep_merge(variants_with_extra_info).deep_merge(half_progress)
+  b = b.deep_merge(half_progress)
   @items[:features_name][:"all features"] = [a, b]
 
 
@@ -445,55 +445,55 @@ class CsvParseTest < TestBase
   title = "Goatsong"
   a_basic = item_data(title:)
   isbn = "0312038380"
-  a = a_basic.deeper_merge(variants: [{ isbn: isbn }])
+  a = a_basic.deep_merge(variants: [{ isbn: isbn }])
   @items[:features_sources][:"ISBN-10"] = [a]
 
-  a = a_basic.deeper_merge(variants: [{ isbn: "978-0312038380" }])
+  a = a_basic.deep_merge(variants: [{ isbn: "978-0312038380" }])
   @items[:features_sources][:"ISBN-13"] = [a]
 
-  a = a_basic.deeper_merge(variants: [{ isbn: "B00GVG01HE" }])
+  a = a_basic.deep_merge(variants: [{ isbn: "B00GVG01HE" }])
   @items[:features_sources][:"ASIN"] = [a]
 
   library = { name: "Little Library", url: nil }
-  a = a_basic.deeper_merge(variants: [{ sources: [library] }])
+  a = a_basic.deep_merge(variants: [{ sources: [library] }])
   @items[:features_sources][:"source"] = [a]
 
   site = { name: config.dig!(:item, :sources, :default_name_for_url),
            url: "https://www.edlin.org/holt" }
-  a = a_basic.deeper_merge(variants: [{ sources: [site] }])
+  a = a_basic.deep_merge(variants: [{ sources: [site] }])
   @items[:features_sources][:"URL source"] = [a]
 
   site_named = { name: "about Tom Holt", url: "https://www.edlin.org/holt" }
-  a = a_basic.deeper_merge(variants: [{ sources: [site_named] }])
+  a = a_basic.deep_merge(variants: [{ sources: [site_named] }])
   @items[:features_sources][:"URL source with name"] = [a]
 
   @items[:features_sources][:"URL source with name after"] = [a]
 
   site_auto_named = { name: "Internet Archive",
                       url: "https://archive.org/details/walledorchard0000holt" }
-  a = a_basic.deeper_merge(variants: [{ sources: [site_auto_named] }])
+  a = a_basic.deep_merge(variants: [{ sources: [site_auto_named] }])
   @items[:features_sources][:"URL source with auto name"] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
-  a = a_basic.deeper_merge(variants: [{ sources: three_sources }])
+  a = a_basic.deep_merge(variants: [{ sources: three_sources }])
   @items[:features_sources][:"sources"] = [a]
 
   three_sources_with_name = [site_named, library, lexpub]
-  a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name }])
+  a = a_basic.deep_merge(variants: [{ sources: three_sources_with_name }])
   @items[:features_sources][:"sources commas"] = [a]
 
-  a = a_basic.deeper_merge(variants: [{ sources: [library],
+  a = a_basic.deep_merge(variants: [{ sources: [library],
                                         isbn: isbn }])
   @items[:features_sources][:"source with ISBN"] = [a]
 
   @items[:features_sources][:"source with ISBN reversed"] = [a]
 
-  a = a_basic.deeper_merge(variants: [{ sources: [site, library],
+  a = a_basic.deep_merge(variants: [{ sources: [site, library],
                                         isbn: isbn }])
   @items[:features_sources][:"sources with ISBN"] = [a]
 
-  a = a_basic.deeper_merge(variants: [{ sources: three_sources_with_name,
+  a = a_basic.deep_merge(variants: [{ sources: three_sources_with_name,
                                         isbn: isbn }])
   @items[:features_sources][:"sources with ISBN commas"] = [a]
 
@@ -529,75 +529,75 @@ class CsvParseTest < TestBase
   @items[:features_dates_started] = {}
   a_basic = item_data(title: "Sapiens")
   exp_started = { experiences: [{ spans: [{ dates: "2020/09/01".. }] }] }
-  a_started = a_basic.deeper_merge(exp_started)
+  a_started = a_basic.deep_merge(exp_started)
   @items[:features_dates_started][:"date started"] = [a_started]
 
   exp_added = { experiences: [{ date_added: "2019/08/20" }] }
-  a = a_basic.deeper_merge(exp_added)
+  a = a_basic.deep_merge(exp_added)
   @items[:features_dates_started][:"date added"] = [a]
 
-  a_added_started = a_basic.deeper_merge(exp_added.deeper_merge(exp_started))
+  a_added_started = a_basic.deep_merge(exp_added.deep_merge(exp_started))
   @items[:features_dates_started][:"date added and started"] = [a_added_started]
 
   exp_second_started = { experiences: [{},
                                        { spans: [{ dates: "2021/07/15".. }] }] }
-  a = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started))
+  a = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   @items[:features_dates_started][:"dates started"] = [a]
 
   exp_third_added = { experiences: [{},
                                     {},
                                     { date_added: "2021/09/20" }] }
-  a_many = item_data(**a_basic.deeper_merge(exp_started).deeper_merge(exp_second_started)
-                              .deeper_merge(exp_added).deeper_merge(exp_third_added))
+  a_many = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started)
+                              .deep_merge(exp_added).deep_merge(exp_third_added))
   @items[:features_dates_started][:"dates added and started"] = [a_many]
 
   exp_progress = ->(amount) { { experiences: [{ progress: amount }] } }
-  a_halfway = a_started.deeper_merge(exp_progress.call(0.5))
+  a_halfway = a_started.deep_merge(exp_progress.call(0.5))
   @items[:features_dates_started][:"progress"] = [a_halfway]
 
   exp_second_added = { experiences: [{},
                                      { date_added: "2021/01/01" }] }
   exp_two_progresses = { experiences: [{ progress: 0.5 },
                                        { progress: 0.5 }] }
-  a = item_data(**a_basic.deeper_merge(exp_added).deeper_merge(exp_second_added)
-                          .deeper_merge(exp_started).deeper_merge(exp_second_started)
-                          .deeper_merge(exp_two_progresses))
+  a = item_data(**a_basic.deep_merge(exp_added).deep_merge(exp_second_added)
+                          .deep_merge(exp_started).deep_merge(exp_second_started)
+                          .deep_merge(exp_two_progresses))
   @items[:features_dates_started][:"progress must be at the beginning or immediately after date started separator"] = [a]
 
-  a = a_started.deeper_merge(exp_progress.call(220))
+  a = a_started.deep_merge(exp_progress.call(220))
   @items[:features_dates_started][:"progress pages"] = [a]
 
   @items[:features_dates_started][:"progress pages without p"] = [a]
 
-  a = a_started.deeper_merge(exp_progress.call("2:30"))
+  a = a_started.deep_merge(exp_progress.call("2:30"))
   @items[:features_dates_started][:"progress time"] = [a]
 
-  a = a_started.deeper_merge(exp_progress.call(0))
+  a = a_started.deep_merge(exp_progress.call(0))
   @items[:features_dates_started][:"dnf"] = [a]
 
   @items[:features_dates_started][:"dnf with progress"] = [a_halfway]
 
   exp_v2 = { experiences: [{ variant_index: 1 }] }
-  a_variant = a_started.deeper_merge(exp_v2)
+  a_variant = a_started.deep_merge(exp_v2)
   @items[:features_dates_started][:"variant"] = [a_variant]
 
-  a = a_basic.deeper_merge(exp_added.deeper_merge(exp_v2))
+  a = a_basic.deep_merge(exp_added.deep_merge(exp_v2))
   @items[:features_dates_started][:"variant with just date added"] = [a]
 
   exp_v3 = { experiences: [{},
                            { variant_index: 2 }] }
-  a = item_data(**a.deeper_merge(exp_second_started).deeper_merge(exp_v3))
+  a = item_data(**a.deep_merge(exp_second_started).deep_merge(exp_v3))
   @items[:features_dates_started][:"variant can be anywhere"] = [a]
 
-  a = a_variant.deeper_merge(experiences: [{ group: "county book club" }])
+  a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
   @items[:features_dates_started][:"group can be indicated at the very end"] = [a]
 
-  a = a_variant.deeper_merge(experiences: [{ group: "" }])
+  a = a_variant.deep_merge(experiences: [{ group: "" }])
   @items[:features_dates_started][:"group can be without text"] = [a]
 
   @items[:features_dates_started][:"other text before or after dates is ignored"] = [a_added_started]
 
-  a = a_many.deeper_merge(experiences: [{ progress: 0.5,
+  a = a_many.deep_merge(experiences: [{ progress: 0.5,
                                           variant_index: 1 },
                                         { progress: "2:30" },
                                         { variant_index: 2 }])
@@ -629,15 +629,15 @@ class CsvParseTest < TestBase
 
   little_and_hoopla = [{ name: "Little Library", url: nil },
                        { name: "Hoopla", url: nil }]
-  a_sources = a.deeper_merge(variants: [{ sources: little_and_hoopla }])
+  a_sources = a.deep_merge(variants: [{ sources: little_and_hoopla }])
   @items[:features_compact_planned][:"sources"] = [a_sources]
 
-  a_multi_first_formats = a_sources.deeper_merge(
+  a_multi_first_formats = a_sources.deep_merge(
     variants: [a_sources[:variants].first,
                a_sources[:variants].first.merge(format: :audiobook)])
   @items[:features_compact_planned][:"multiple first formats"] = [a_multi_first_formats]
 
-  a_formats_in_sources = a_multi_first_formats.deeper_merge(
+  a_formats_in_sources = a_multi_first_formats.deep_merge(
     variants: [{ format: :ebook, sources: little_and_hoopla },
                { format: :audiobook, sources: little_and_hoopla.dup.insert(1, { name: "Jeffco", url: nil }) },
                { format: :print, sources: [{ name: "Jeffco", url: nil },
@@ -859,10 +859,10 @@ class CsvParseTest < TestBase
     end
 
     unless custom_numeric_columns.nil?
-      this_config.deeper_merge!(csv: { custom_numeric_columns: })
+      this_config.deep_merge!(csv: { custom_numeric_columns: })
     end
     unless custom_text_columns.nil?
-      this_config.deeper_merge!(csv: { custom_text_columns: })
+      this_config.deep_merge!(csv: { custom_text_columns: })
     end
 
     @parse = Reading::Csv::Parse.new(this_config)

@@ -2,6 +2,7 @@
 
 - [x] Removed dependency on ActiveSupport.
 - [ ] Implemented parsing of the History column.
+- [ ] Added tests for refinements/monkeypatches in lib.
 
 ## [0.3.0] - 2022-05-10
 

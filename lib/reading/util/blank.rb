@@ -1,5 +1,6 @@
-# from https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/object/blank.rb
-# except detection of ENCODED_BLANKS is removed
+# Copied from active_support/core_ext/object/blank
+# https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/object/blank.rb
+# Except detection of ENCODED_BLANKS is omitted here.
 class Object
   # An object is blank if it's false, empty, or a whitespace string.
   # For example, +nil+, '', '   ', [], {}, and +false+ are all blank.

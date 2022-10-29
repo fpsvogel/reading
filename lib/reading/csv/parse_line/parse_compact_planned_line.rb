@@ -1,5 +1,5 @@
 require_relative "../../util/blank"
-require_relative "../../util/deeper_merge"
+require_relative "../../util/deep_merge"
 require_relative "../../util/dig_bang"
 require_relative "../../errors"
 require_relative "parse_line"
@@ -7,7 +7,7 @@ require_relative "parse_line"
 module Reading
   module Csv
     class Parse
-      using Util::DeeperMerge
+      using Util::DeepMerge
       using Util::DigBang
 
       # ParseCompactPlannedLine is a function that parses a line of compactly
@@ -33,14 +33,14 @@ module Reading
 
           author = ParseAuthor.new(@config).call(match[:author_title])
           title = ParseTitle.new(@config).call(match[:author_title])
-          item = template.deeper_merge(
+          item = template.deep_merge(
             author: author || template.fetch(:author),
             title: title,
             genres: [@genre] || template.fetch(:genres)
           )
 
           variants = parse_variants(match)
-          item.deeper_merge!(variants: variants)
+          item.deep_merge!(variants: variants)
 
           item
         end

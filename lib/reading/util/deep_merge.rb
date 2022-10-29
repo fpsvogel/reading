@@ -1,16 +1,18 @@
 module Reading
   module Util
     # Modified from active_support/core_ext/hash/deep_merge
-    module DeeperMerge
+    # https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/hash/deep_merge.rb
+    # This deep_merge also iterates through arrays of hashes and merges them.
+    module DeepMerge
       refine Hash do
-        def deeper_merge(other_hash, &block)
-          dup.deeper_merge!(other_hash, &block)
+        def deep_merge(other_hash, &block)
+          dup.deep_merge!(other_hash, &block)
         end
 
-        def deeper_merge!(other_hash, &block)
+        def deep_merge!(other_hash, &block)
           merge!(other_hash) do |key, this_val, other_val|
             if this_val.is_a?(Hash) && other_val.is_a?(Hash)
-              this_val.deeper_merge(other_val, &block)
+              this_val.deep_merge(other_val, &block)
             # I added this part for merging values that are arrays of hashes.
             elsif this_val.is_a?(Array) && other_val.is_a?(Array) &&
                   this_val.all? { |el| el.is_a?(Hash) } &&
@@ -25,7 +27,7 @@ module Reading
                 if this_el.nil?
                   other_el
                 else
-                  this_el.deeper_merge(other_el || {})
+                  this_el.deep_merge(other_el || {})
                 end
               }
             elsif block_given?

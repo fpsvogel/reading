@@ -1,4 +1,4 @@
-require_relative "../util/deeper_merge"
+require_relative "../util/deep_merge"
 require_relative "../util/dig_bang"
 require_relative "config"
 require_relative "parse_line/parse_regular_line"
@@ -6,7 +6,7 @@ require_relative "parse_line/parse_compact_planned_line"
 
 module Reading
   module Csv
-    using Util::DeeperMerge
+    using Util::DeepMerge
     using Util::DigBang
 
     # Parse is a function that parses CSV lines into item data (an array of hashes).
