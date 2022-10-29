@@ -28,7 +28,7 @@ module Reading
                 if this_el.nil?
                   other_el
                 else
-                  this_el.deep_merge(other_el || {})
+                  this_el.deep_merge(other_el || {}, &block)
                 end
               }
             elsif block_given?

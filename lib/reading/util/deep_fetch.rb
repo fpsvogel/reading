@@ -1,5 +1,8 @@
 module Reading
   module Util
+    class FetchDepthExceededError < StandardError
+    end
+
     # Similar to Array#dig and Hash#dig but raises an error for not found elements.
     #
     # More flexible but slightly slower alternative:
@@ -18,6 +21,8 @@ module Reading
           fetch(keys[0]).fetch(keys[1]).fetch(keys[2])
         when 4
           fetch(keys[0]).fetch(keys[1]).fetch(keys[2]).fetch(keys[3])
+        else
+          raise FetchDepthExceededError, "#deep_fetch can't fetch that deep!"
         end
       end
     end

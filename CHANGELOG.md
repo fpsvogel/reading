@@ -1,8 +1,11 @@
+## TODO:
+
+- [ ] Implement parsing of the History column.
+
 ## [0.3.1] - WIP
 
-- [x] Removed dependency on ActiveSupport.
-- [ ] Implemented parsing of the History column.
-- [ ] Added tests for refinements/monkeypatches in lib.
+- Removed dependency on ActiveSupport.
+- Added tests for refinements and monkey patches in util.
 
 ## [0.3.0] - 2022-05-10
 
