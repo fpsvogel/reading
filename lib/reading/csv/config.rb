@@ -140,6 +140,7 @@ module Reading
           group_emoji:              "🤝🏼",
           compact_planned_source_prefix: "@",
           reverse_dates:            false,
+          skip_compact_planned:     false,
         },
     }
 

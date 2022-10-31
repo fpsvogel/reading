@@ -31,8 +31,7 @@ module Reading
       feed = nil,
       path: nil,
       close_feed: true,
-      selective: true,
-      skip_compact_planned: false
+      selective: true
     )
       if feed.nil? && path.nil? && @config.deep_fetch(:csv, :path).nil?
         raise ArgumentError, "No file given to load."
@@ -42,7 +41,7 @@ module Reading
       items = []
 
       feed.each_line do |line|
-        row = Row.from_line(line, self, skip_compact_planned:)
+        row = Row.from_line(line, self.config)
         next unless row
 
         items += row.parse(line)

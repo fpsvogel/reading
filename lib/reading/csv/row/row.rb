@@ -7,40 +7,40 @@ module Reading
     class Row
       using Util::DeepFetch
 
-      def self.from_line(line, csv, skip_compact_planned: false)
+      def self.from_line(line, config)
         line = line.dup.force_encoding(Encoding::UTF_8).strip
 
-        regular_row = RegularRow.new(csv.config)
-        compact_planned_row = CompactPlannedRow.new(csv.config)
+        regular_row = RegularRow.new(config)
+        compact_planned_row = CompactPlannedRow.new(config)
 
-        case row_type(line, csv)
+        case row_type(line, config)
         when :blank, :comment
           nil
         when :regular
           regular_row
-        when :compact_planned_row
-          return nil if skip_compact_planned
+        when :compact_planned
+          return nil if config.deep_fetch(:csv, :skip_compact_planned)
           compact_planned_row
         end
       end
 
-      private_class_method def self.row_type(line, csv)
+      private_class_method def self.row_type(line, config)
         return :blank if line.empty?
 
-        if starts_with_comment_character?(line, csv)
-          return :compact_planned_row if compact_planned_row?(line, csv)
+        if starts_with_comment_character?(line, config)
+          return :compact_planned if compact_planned_row?(line, config)
           return :comment
         end
         :regular
       end
 
-      private_class_method def self.starts_with_comment_character?(line, csv)
-        line.start_with?(csv.config.deep_fetch(:csv, :comment_character)) ||
-          line.match?(/\A\s+#{csv.config.deep_fetch(:csv, :regex, :comment_escaped)}/)
+      private_class_method def self.starts_with_comment_character?(line, config)
+        line.start_with?(config.deep_fetch(:csv, :comment_character)) ||
+          line.match?(/\A\s+#{config.deep_fetch(:csv, :regex, :comment_escaped)}/)
       end
 
-      private_class_method def self.compact_planned_row?(line, csv)
-        line.match?(csv.config.deep_fetch(:csv, :regex, :compact_planned_row_start))
+      private_class_method def self.compact_planned_row?(line, config)
+        line.match?(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
       end
 
       def initialize(config)
