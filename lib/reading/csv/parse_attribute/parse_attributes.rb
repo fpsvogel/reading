@@ -11,6 +11,9 @@ module Reading
       class ParseLine
         using Util::DeepFetch
 
+        # The short attribute parsers are collected below. The longer attribute
+        # parsers are separated into their own files.
+
         class ParseRating < ParseAttribute
           def call(_name = nil, columns)
             return nil unless columns[:rating]

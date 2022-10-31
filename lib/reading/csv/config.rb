@@ -7,7 +7,7 @@ module Reading
 
   # Builds a hash of the default config combined with the given custom config.
   # @param custom_config [Hash] a custom config which overrides the defaults,
-  # e.g. { errors: { styling: :html } }
+  #   e.g. { errors: { styling: :html } }
   # @return [Hash]
   def self.build_config(custom_config)
     config = @default_config.deep_merge(custom_config)
@@ -145,7 +145,7 @@ module Reading
 
   # Builds the Regex portion of the config, based on the given config.
   # @param other_config [Hash] the rest of the config, i.e. @default_config
-  # overriden by any custom config.
+  #   overriden by any custom config.
   # @return [Hash]
   private_class_method def self.build_regex_config(other_config)
     return other_config[:csv][:regex] if other_config.dig(:csv, :regex)

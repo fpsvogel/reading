@@ -10,22 +10,21 @@ module Reading
     using Util::DeepFetch
 
     # Parse is a function that parses CSV lines into item data (an array of hashes).
-    # For the structure of these hashes, see @config[:item] in config.rb
+    # For the hash structure, see @default_config[:item][:template] in config.rb
     class Parse
+      # @param custom_config [Hash] a custom config which overrides the defaults,
+      #   e.g. { errors: { styling: :html } }
       def initialize(custom_config = {})
         @config ||= Reading.build_config(custom_config)
       end
 
-      # - Returns a hash of item data in the same order as they arrive from feed.
-      # - feed is anything with #each_line.
-      # - close_feed determines whether the feed is closed before returning.
-      # - If selective is true, parsing is stopped or an item skipped depending
-      #   on the return value of the selective_continue proc in config.
-      # - skip_compact_planned determines whether compact planned items are parsed.
-      # - postprocess can be used to convert the data hashes into Items. this
-      #   way Item can access the CSV source line, which is useful since Item
-      #   does additional validation on the data, and in case of any errors it
-      #   can pass along the source line to an error message.
+      # Parses item data line by line.
+      # @param feed [Object] the input source, which must respond to #each_line.
+      # @param close_feed [Boolean] whether the feed should be closed before returning.
+      # @param selective [Boolean] if true, parsing is stopped or an item skipped
+      #   depending on the return value of the selective_continue proc in config.
+      # @param skip_compact_planned [Boolean] whether compact planned items are parsed.
+      # @return [Array<Hash>] an array of hashes like the template in config.rb
       def call(
         feed = nil,
         path: nil,
@@ -47,10 +46,6 @@ module Reading
           line.force_encoding(Encoding::UTF_8)
           cur_line = line.strip
 
-          # This could be refactored into LineType classes (BlankLine, CommentLine, etc.)
-          # each with a #line_match? method and an associated action for a match,
-          # but this abstraction wouldn't be justified because I doubt there'll
-          # be any additional line types in the future, besides the four types here.
           case line_type(cur_line)
           when :blank, :comment
             next

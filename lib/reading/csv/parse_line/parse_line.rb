@@ -8,11 +8,14 @@ module Reading
       class ParseLine
         using Util::DeepFetch
 
-        def initialize(merged_config)
-          @config ||= merged_config
+        def initialize(config)
+          @config ||= config
           after_initialize
         end
 
+        # Parses a CSV row into an array of hashes of item data.
+        # @param line [String] a CSV row
+        # @return [Array<Hash>] an array of hashes like the template in config.rb
         def call(line, &postprocess)
           before_parse(line)
           titles = []

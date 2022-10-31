@@ -8,7 +8,7 @@ module Reading
   module Csv
     class Parse
       # ParseRegularLine is a function that parses a normal row in a CSV reading
-      # log into an array of item data (hashes).
+      # log into an array of hashes of item data.
       class ParseRegularLine < ParseLine
         using Util::DeepFetch
 

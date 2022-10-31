@@ -67,6 +67,6 @@ module Reading
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
-  # InvalidItemError indicates that data for a new Item is invalid.
+  # InvalidItemError indicates that data for a new item is invalid.
   class InvalidItemError < AppError; end
 end

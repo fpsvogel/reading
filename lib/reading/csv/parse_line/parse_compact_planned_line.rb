@@ -10,8 +10,8 @@ module Reading
       using Util::DeepMerge
       using Util::DeepFetch
 
-      # ParseCompactPlannedLine is a function that parses a line of compactly
-      # listed planned items in a CSV reading list into an array of item data (hashes).
+      # ParseCompactPlannedLine is a function that parses a reading log CSV row
+      # of compactly listed planned items, into an array of hashes of item data.
       class ParseCompactPlannedLine < ParseLine
         private
 
