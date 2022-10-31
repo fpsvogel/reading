@@ -9,6 +9,8 @@ module Reading
     using Util::DeepMerge
     using Util::DeepFetch
 
+    attr_reader :config
+
     # @param custom_config [Hash] a custom config which overrides the defaults,
     #   e.g. { errors: { styling: :html } }
     def initialize(custom_config = {})
@@ -37,24 +39,15 @@ module Reading
       end
 
       feed ||= File.open(path || @config.deep_fetch(:csv, :path))
-      regular_row = RegularRow.new(@config)
-      compact_planned_row = CompactPlannedRow.new(@config)
       items = []
 
       feed.each_line do |line|
-        line.force_encoding(Encoding::UTF_8)
-          .strip!
+        row = Row.from_line(line, self, skip_compact_planned:)
+        next unless row
 
-        case row_type(line)
-        when :blank, :comment
-          next
-        when :regular
-          items += regular_row.parse(line)
-        when :compact_planned_row
-          next if skip_compact_planned
-          items += compact_planned_row.parse(line)
-        end
+        items += row.parse(line)
 
+        # TODO redesign selective continue, to avoid `next unless row` above
         if selective
           continue = @config.deep_fetch(:csv, :selective_continue).call(items.last)
           case continue
@@ -76,27 +69,6 @@ module Reading
       feed&.close if close_feed && feed.respond_to?(:close)
       # Reset to pre-call state.
       initialize
-    end
-
-    private
-
-    def row_type(row)
-      return :blank if row.empty?
-
-      if starts_with_comment_character?(row)
-        return :compact_planned_row if compact_planned_row?(row)
-        return :comment
-      end
-      :regular
-    end
-
-    def starts_with_comment_character?(row)
-      row.start_with?(@config.deep_fetch(:csv, :comment_character)) ||
-        row.match?(/\A\s+#{@config.deep_fetch(:csv, :regex, :comment_escaped)}/)
-    end
-
-    def compact_planned_row?(row)
-      row.match?(@config.deep_fetch(:csv, :regex, :compact_planned_row_start))
     end
   end
 end
