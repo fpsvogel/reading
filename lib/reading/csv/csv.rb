@@ -1,6 +1,7 @@
 require_relative "../util/deep_merge"
 require_relative "../util/deep_fetch"
 require_relative "config"
+require_relative "row/blank_row"
 require_relative "row/regular_row"
 require_relative "row/compact_planned_row"
 
@@ -38,8 +39,6 @@ module Reading
 
       feed.each_line do |line|
         row = Row.from_line(line, self.config)
-        next unless row
-
         items += row.parse(line)
       end
 

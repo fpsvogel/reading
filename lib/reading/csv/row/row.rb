@@ -10,16 +10,17 @@ module Reading
       def self.from_line(line, config)
         line = line.dup.force_encoding(Encoding::UTF_8).strip
 
+        blank_row = BlankRow.new(config)
         regular_row = RegularRow.new(config)
         compact_planned_row = CompactPlannedRow.new(config)
 
         case row_type(line, config)
         when :blank, :comment
-          nil
+          blank_row
         when :regular
           regular_row
         when :compact_planned
-          return nil if config.deep_fetch(:csv, :skip_compact_planned)
+          return blank_row if config.deep_fetch(:csv, :skip_compact_planned)
           compact_planned_row
         end
       end
