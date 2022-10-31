@@ -7,10 +7,10 @@ require_relative "parse_experiences"
 
 module Reading
   class CSV
-    class ParseRow
+    class Row
       using Util::DeepFetch
 
-      # The short attribute parsers are collected below. The longer attribute
+      # The simpler attribute parsers are collected below. The longer attribute
       # parsers are separated into their own files.
 
       class ParseRating < ParseAttribute

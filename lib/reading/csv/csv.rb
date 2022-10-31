@@ -1,8 +1,8 @@
 require_relative "../util/deep_merge"
 require_relative "../util/deep_fetch"
 require_relative "config"
-require_relative "parse_row/parse_regular_row"
-require_relative "parse_row/parse_compact_planned_row"
+require_relative "row/regular_row"
+require_relative "row/compact_planned_row"
 
 module Reading
   class CSV
@@ -37,8 +37,8 @@ module Reading
       end
 
       feed ||= File.open(path || @config.deep_fetch(:csv, :path))
-      parse_regular = ParseRegularRow.new(@config)
-      parse_compact_planned = ParseCompactPlannedRow.new(@config)
+      regular_row = RegularRow.new(@config)
+      compact_planned_row = CompactPlannedRow.new(@config)
       items = []
 
       feed.each_line do |row|
@@ -49,10 +49,10 @@ module Reading
         when :blank, :comment
           next
         when :regular
-          items += parse_regular.call(cur_row)
+          items += regular_row.parse(cur_row)
         when :compact_planned_row
           next if skip_compact_planned
-          items += parse_compact_planned.call(cur_row)
+          items += compact_planned_row.parse(cur_row)
         end
 
         if selective

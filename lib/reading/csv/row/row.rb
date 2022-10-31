@@ -3,8 +3,8 @@ require_relative "../../util/deep_fetch"
 
 module Reading
   class CSV
-    # ParseRow is a base class that contains behaviors common to Parse___ classes.
-    class ParseRow
+    # A base class that contains behaviors common to Parse___ classes for rows.
+    class Row
       using Util::DeepFetch
 
       def initialize(config)
@@ -15,7 +15,7 @@ module Reading
       # Parses a CSV row into an array of hashes of item data.
       # @param row [String] a CSV row
       # @return [Array<Hash>] an array of hashes like the template in config.rb
-      def call(row)
+      def parse(row)
         before_parse(row)
         titles = []
 

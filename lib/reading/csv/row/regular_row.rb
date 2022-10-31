@@ -1,14 +1,14 @@
 require_relative "../../errors"
 require_relative "../../util/blank"
 require_relative "../../util/deep_fetch"
-require_relative "parse_row"
+require_relative "row"
 require_relative "../parse_attribute/parse_attributes"
 
 module Reading
   class CSV
-    # ParseRegularRow is a function that parses a normal row in a CSV reading
-    # log into an array of hashes of item data.
-    class ParseRegularRow < ParseRow
+    # A function that parses a normal row in a CSV reading log into an array of
+    # hashes of item data.
+    class RegularRow < Row
       using Util::DeepFetch
 
       private

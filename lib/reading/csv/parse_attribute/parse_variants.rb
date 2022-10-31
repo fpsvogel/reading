@@ -4,7 +4,7 @@ require_relative "../../util/deep_fetch"
 
 module Reading
   class CSV
-    class ParseRow
+    class Row
       class ParseVariants < ParseAttribute
         using Util::DeepFetch
 

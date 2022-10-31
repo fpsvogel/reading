@@ -2,16 +2,16 @@ require_relative "../../util/blank"
 require_relative "../../util/deep_merge"
 require_relative "../../util/deep_fetch"
 require_relative "../../errors"
-require_relative "parse_row"
+require_relative "row"
 
 module Reading
   class CSV
-    using Util::DeepMerge
-    using Util::DeepFetch
+    # A function that parses a reading log CSV row of compactly listed planned
+    # items, into an array of hashes of item data.
+    class CompactPlannedRow < Row
+      using Util::DeepMerge
+      using Util::DeepFetch
 
-    # ParseCompactPlannedRow is a function that parses a reading log CSV row
-    # of compactly listed planned items, into an array of hashes of item data.
-    class ParseCompactPlannedRow < ParseRow
       private
 
       def before_parse(row)
