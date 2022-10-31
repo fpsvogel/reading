@@ -2,11 +2,11 @@ require_relative "test_helper"
 require_relative "test_base"
 
 require "reading/csv/config"
-require "reading/csv/parse"
+require "reading/csv/csv"
 require "reading/util/deep_merge"
 require "reading/util/deep_fetch"
 
-class CsvParseTest < TestBase
+class CSVParseTest < TestBase
   using Reading::Util::DeepMerge
   using Reading::Util::DeepFetch
 
@@ -865,7 +865,7 @@ class CsvParseTest < TestBase
       this_config.deep_merge!(csv: { custom_text_columns: })
     end
 
-    @parse = Reading::Csv::Parse.new(this_config)
+    @csv = Reading::CSV.new(this_config)
   end
 
   # Removes any blank hashes in arrays, i.e. any that are the same as in the
@@ -908,7 +908,7 @@ class CsvParseTest < TestBase
   end
 
   def parse(string)
-    @parse.call(StringIO.new(string))
+    @csv.parse(StringIO.new(string))
   end
 
 

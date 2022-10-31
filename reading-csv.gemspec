@@ -2,7 +2,7 @@ require_relative "lib/reading/csv/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "reading-csv"
-  spec.version       = Reading::Csv::VERSION
+  spec.version       = Reading::CSV::VERSION
   spec.authors       = ["Felipe Vogel"]
   spec.email         = ["fps.vogel@gmail.com"]
 
@@ -23,11 +23,6 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/fpsvogel/reading-csv"
   spec.metadata["changelog_uri"] = "https://github.com/fpsvogel/reading-csv/blob/master/CHANGELOG.md"
-
-  # spec.files = ["lib/reading/csv/parse.rb",
-  #               "lib/reading/csv/errors.rb",
-  #               "lib/reading/csv/util.rb"
-  #               "README.md", "LICENSE.txt"]
 
   # # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   # spec.files = Dir.chdir(File.expand_path(__dir__)) do

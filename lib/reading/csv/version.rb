@@ -1,5 +1,5 @@
 module Reading
-  module Csv
+  class CSV
     VERSION = "0.3.0"
   end
 end

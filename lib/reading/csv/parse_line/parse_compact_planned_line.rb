@@ -5,117 +5,115 @@ require_relative "../../errors"
 require_relative "parse_line"
 
 module Reading
-  module Csv
-    class Parse
-      using Util::DeepMerge
-      using Util::DeepFetch
+  class CSV
+    using Util::DeepMerge
+    using Util::DeepFetch
 
-      # ParseCompactPlannedLine is a function that parses a reading log CSV row
-      # of compactly listed planned items, into an array of hashes of item data.
-      class ParseCompactPlannedLine < ParseLine
-        private
+    # ParseCompactPlannedLine is a function that parses a reading log CSV row
+    # of compactly listed planned items, into an array of hashes of item data.
+    class ParseCompactPlannedLine < ParseLine
+      private
 
-        def before_parse(line)
-          list_start = line.match(@config.deep_fetch(:csv, :regex, :compact_planned_line_start))
-          @genre = list_start[:genre].downcase
-          @line_without_genre = line.sub(list_start.to_s, "")
+      def before_parse(line)
+        list_start = line.match(@config.deep_fetch(:csv, :regex, :compact_planned_line_start))
+        @genre = list_start[:genre].downcase
+        @line_without_genre = line.sub(list_start.to_s, "")
+      end
+
+      def multi_items_to_be_split_by_format_emojis
+        @line_without_genre
+      end
+
+      def item_data(name)
+        match = name.match(@config.deep_fetch(:csv, :regex, :compact_planned_item))
+        unless match
+          raise InvalidItemError, "Invalid planned item"
         end
 
-        def multi_items_to_be_split_by_format_emojis
-          @line_without_genre
-        end
+        author = ParseAuthor.new(@config).call(match[:author_title])
+        title = ParseTitle.new(@config).call(match[:author_title])
+        item = template.deep_merge(
+          author: author || template.fetch(:author),
+          title: title,
+          genres: [@genre] || template.fetch(:genres)
+        )
 
-        def item_data(name)
-          match = name.match(@config.deep_fetch(:csv, :regex, :compact_planned_item))
-          unless match
-            raise InvalidItemError, "Invalid planned item"
-          end
+        variants = parse_variants(match)
+        item.deep_merge!(variants: variants)
 
-          author = ParseAuthor.new(@config).call(match[:author_title])
-          title = ParseTitle.new(@config).call(match[:author_title])
-          item = template.deep_merge(
-            author: author || template.fetch(:author),
-            title: title,
-            genres: [@genre] || template.fetch(:genres)
+        item
+      end
+
+      def template
+        @template ||= @config.deep_fetch(:item, :template)
+      end
+
+      def parse_variants(item_match)
+        inverted_variants = sources_with_format_emojis(item_match[:sources])
+
+        variants = []
+        inverted_variants[0] ||= {} # because there'll be at least one variant for the first format(s)
+        inverted_variants.first[:format_emojis_str] = item_match[:first_format_emojis]
+
+        inverted_variants.each do |inverted_variant|
+          inverted_variant[:format_emojis_str] ||= item_match[:first_format_emojis]
+          format_emojis = inverted_variant[:format_emojis_str].scan(
+            /#{@config.deep_fetch(:csv, :regex, :formats)}/
           )
-
-          variants = parse_variants(match)
-          item.deep_merge!(variants: variants)
-
-          item
-        end
-
-        def template
-          @template ||= @config.deep_fetch(:item, :template)
-        end
-
-        def parse_variants(item_match)
-          inverted_variants = sources_with_format_emojis(item_match[:sources])
-
-          variants = []
-          inverted_variants[0] ||= {} # because there'll be at least one variant for the first format(s)
-          inverted_variants.first[:format_emojis_str] = item_match[:first_format_emojis]
-
-          inverted_variants.each do |inverted_variant|
-            inverted_variant[:format_emojis_str] ||= item_match[:first_format_emojis]
-            format_emojis = inverted_variant[:format_emojis_str].scan(
-              /#{@config.deep_fetch(:csv, :regex, :formats)}/
-            )
-            format_emojis.each do |format_emoji|
-              format = format(format_emoji)
-              variant_for_format = variants.select { |variant| variant[:format] == format }.first ||
-                (variants << blank_variant(format)).last
-              variant_for_format[:sources] << inverted_variant[:source] unless inverted_variant[:source].nil?
-            end
+          format_emojis.each do |format_emoji|
+            format = format(format_emoji)
+            variant_for_format = variants.select { |variant| variant[:format] == format }.first ||
+              (variants << blank_variant(format)).last
+            variant_for_format[:sources] << inverted_variant[:source] unless inverted_variant[:source].nil?
           end
-
-          variants
         end
 
-        def format(format_emoji)
-          @config.deep_fetch(:item, :formats).key(format_emoji)
-        end
+        variants
+      end
 
-        def blank_variant(format)
-          {
-            format: format,
-            sources: [],
-            isbn: template.deep_fetch(:variants, 0, :isbn),
-            length: template.deep_fetch(:variants, 0, :length),
-            extra_info: template.deep_fetch(:variants, 0, :extra_info) }
-        end
+      def format(format_emoji)
+        @config.deep_fetch(:item, :formats).key(format_emoji)
+      end
 
-        def sources_with_format_emojis(sources_str)
-          return [] if sources_str.nil?
+      def blank_variant(format)
+        {
+          format: format,
+          sources: [],
+          isbn: template.deep_fetch(:variants, 0, :isbn),
+          length: template.deep_fetch(:variants, 0, :length),
+          extra_info: template.deep_fetch(:variants, 0, :extra_info) }
+      end
 
-          sources_str
-            .split(@config.deep_fetch(:csv, :compact_planned_source_prefix))
-            .map { |source| source.sub(/\s*,\s*/, "") }
-            .map(&:strip)
-            .reject(&:empty?)
-            .map { |source_str|
-              match = source_str.match(@config.deep_fetch(:csv, :regex, :compact_planned_source))
-              {
-                format_emojis_str: match[:format_emojis].presence,
-                source: source(match[:source_name])
-              }
+      def sources_with_format_emojis(sources_str)
+        return [] if sources_str.nil?
+
+        sources_str
+          .split(@config.deep_fetch(:csv, :compact_planned_source_prefix))
+          .map { |source| source.sub(/\s*,\s*/, "") }
+          .map(&:strip)
+          .reject(&:empty?)
+          .map { |source_str|
+            match = source_str.match(@config.deep_fetch(:csv, :regex, :compact_planned_source))
+            {
+              format_emojis_str: match[:format_emojis].presence,
+              source: source(match[:source_name])
             }
-        end
+          }
+      end
 
-        def source(source_name)
-          if valid_url?(source_name)
-            source_name = source_name.chop if source_name.chars.last == "/"
-            { name: @config.deep_fetch(:item, :sources, :default_name_for_url),
-              url: source_name }
-          else
-            { name: source_name,
-              url: nil }
-          end
+      def source(source_name)
+        if valid_url?(source_name)
+          source_name = source_name.chop if source_name.chars.last == "/"
+          { name: @config.deep_fetch(:item, :sources, :default_name_for_url),
+            url: source_name }
+        else
+          { name: source_name,
+            url: nil }
         end
+      end
 
-        def valid_url?(str)
-          str&.match?(/http[^\s,]+/)
-        end
+      def valid_url?(str)
+        str&.match?(/http[^\s,]+/)
       end
     end
   end
