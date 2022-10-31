@@ -23,15 +23,11 @@ module Reading
     #   if nil, the file at the given path or at @config[:csv][:path] is used.
     # @param path [String] of the source file; if nil, @config[:csv][:path] is used.
     # @param close_feed [Boolean] whether the feed should be closed before returning.
-    # @param selective [Boolean] if true, parsing is stopped or an item skipped
-    #   depending on the return value of the selective_continue proc in config.
-    # @param skip_compact_planned [Boolean] whether compact planned items are parsed.
     # @return [Array<Hash>] an array of hashes like the template in config.rb
     def parse(
       feed = nil,
       path: nil,
-      close_feed: true,
-      selective: true
+      close_feed: true
     )
       if feed.nil? && path.nil? && @config.deep_fetch(:csv, :path).nil?
         raise ArgumentError, "No file given to load."
@@ -45,17 +41,6 @@ module Reading
         next unless row
 
         items += row.parse(line)
-
-        # TODO redesign selective continue, to avoid `next unless row` above
-        if selective
-          continue = @config.deep_fetch(:csv, :selective_continue).call(items.last)
-          case continue
-          when false
-            break
-          when :skip
-            items.pop
-          end
-        end
       end
 
       items

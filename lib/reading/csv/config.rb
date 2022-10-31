@@ -110,8 +110,6 @@ module Reading
       csv:
         {
           path:               nil, # Set if you want to load a local file.
-          # For selective sync; this default is to continue in all cases.
-          selective_continue: -> (last_parsed_data) { true },
           columns:
             {
               rating:         true,
