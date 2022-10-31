@@ -11,7 +11,7 @@ module Reading
       super(label + colon_before?(msg) + (msg || ""))
     end
 
-    # source is e.g. the CSV line where an invalid Item comes from.
+    # source is e.g. the CSV row where an invalid Item comes from.
     def handle(source: nil, config:)
       handle = config.deep_fetch(:errors, :handle_error)
       if source.nil?

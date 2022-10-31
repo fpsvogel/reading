@@ -7,7 +7,7 @@ require_relative "parse_experiences"
 
 module Reading
   class CSV
-    class ParseLine
+    class ParseRow
       using Util::DeepFetch
 
       # The short attribute parsers are collected below. The longer attribute
@@ -82,7 +82,7 @@ module Reading
         end
       end
 
-      # TODO make Parse___ officially stateful (resets state after a line is
+      # TODO make Parse___ officially stateful (resets state after a row is
       # parsed) so that the Genres column doesn't have this hacky state where
       # ParseGenres resets state because it's called after ParseVisibility.
       # this is order-dependent, requiring that :visibility appear before

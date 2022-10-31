@@ -1,14 +1,14 @@
 require_relative "../../errors"
 require_relative "../../util/blank"
 require_relative "../../util/deep_fetch"
-require_relative "parse_line"
+require_relative "parse_row"
 require_relative "../parse_attribute/parse_attributes"
 
 module Reading
   class CSV
-    # ParseRegularLine is a function that parses a normal row in a CSV reading
+    # ParseRegularRow is a function that parses a normal row in a CSV reading
     # log into an array of hashes of item data.
-    class ParseRegularLine < ParseLine
+    class ParseRegularRow < ParseRow
       using Util::DeepFetch
 
       private
@@ -17,8 +17,8 @@ module Reading
         setup_parse_attributes
       end
 
-      def before_parse(line)
-        set_columns(line)
+      def before_parse(row)
+        set_columns(row)
         ensure_name_column_present
       end
 
@@ -59,14 +59,14 @@ module Reading
         }
       end
 
-      def set_columns(line)
+      def set_columns(row)
         @columns = @config
           .deep_fetch(:csv, :columns)
           .select { |_name, enabled| enabled }
           .keys
           .concat(@config.deep_fetch(:csv, :custom_numeric_columns).keys)
           .concat(@config.deep_fetch(:csv, :custom_text_columns).keys)
-          .zip(line.split(@config.deep_fetch(:csv, :column_separator)))
+          .zip(row.split(@config.deep_fetch(:csv, :column_separator)))
           .to_h
       end
 

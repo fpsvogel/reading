@@ -3,8 +3,8 @@ require_relative "../../util/deep_fetch"
 
 module Reading
   class CSV
-    # ParseLine is a base class that contains behaviors common to Parse___ classes.
-    class ParseLine
+    # ParseRow is a base class that contains behaviors common to Parse___ classes.
+    class ParseRow
       using Util::DeepFetch
 
       def initialize(config)
@@ -13,10 +13,10 @@ module Reading
       end
 
       # Parses a CSV row into an array of hashes of item data.
-      # @param line [String] a CSV row
+      # @param row [String] a CSV row
       # @return [Array<Hash>] an array of hashes like the template in config.rb
-      def call(line)
-        before_parse(line)
+      def call(row)
+        before_parse(row)
         titles = []
 
         items = split_by_format_emojis.map { |name|
@@ -33,17 +33,17 @@ module Reading
 
       rescue InvalidItemError, StandardError => e
         # TODO instead of rescuing StandardError here, test missing
-        # initial/middle columns in ParseRegularLine#set_columns, and raise
+        # initial/middle columns in ParseRegularRow#set_columns, and raise
         # appropriate errors if possible.
         unless e.is_a? InvalidItemError
           if @config.deep_fetch(:errors, :catch_all_errors)
-            e = InvalidItemError.new("A line could not be parsed. Check this line")
+            e = InvalidItemError.new("A row could not be parsed. Check this row")
           else
             raise e
           end
         end
 
-        e.handle(source: line, config: @config)
+        e.handle(source: row, config: @config)
         []
       ensure
         # Reset to pre-call state.
@@ -97,7 +97,7 @@ module Reading
       end
 
       # Hook, can be overridden.
-      def before_parse(line)
+      def before_parse(row)
       end
 
       def multi_items_to_be_split_by_format_emojis

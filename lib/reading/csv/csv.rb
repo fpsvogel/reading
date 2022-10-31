@@ -1,8 +1,8 @@
 require_relative "../util/deep_merge"
 require_relative "../util/deep_fetch"
 require_relative "config"
-require_relative "parse_line/parse_regular_line"
-require_relative "parse_line/parse_compact_planned_line"
+require_relative "parse_row/parse_regular_row"
+require_relative "parse_row/parse_compact_planned_row"
 
 module Reading
   class CSV
@@ -37,22 +37,22 @@ module Reading
       end
 
       feed ||= File.open(path || @config.deep_fetch(:csv, :path))
-      parse_regular = ParseRegularLine.new(@config)
-      parse_compact_planned = ParseCompactPlannedLine.new(@config)
+      parse_regular = ParseRegularRow.new(@config)
+      parse_compact_planned = ParseCompactPlannedRow.new(@config)
       items = []
 
-      feed.each_line do |line|
-        line.force_encoding(Encoding::UTF_8)
-        cur_line = line.strip
+      feed.each_line do |row|
+        row.force_encoding(Encoding::UTF_8)
+        cur_row = row.strip
 
-        case line_type(cur_line)
+        case row_type(cur_row)
         when :blank, :comment
           next
         when :regular
-          items += parse_regular.call(cur_line)
-        when :compact_planned_line
+          items += parse_regular.call(cur_row)
+        when :compact_planned_row
           next if skip_compact_planned
-          items += parse_compact_planned.call(cur_line)
+          items += parse_compact_planned.call(cur_row)
         end
 
         if selective
@@ -80,23 +80,23 @@ module Reading
 
     private
 
-    def line_type(line)
-      return :blank if line.empty?
+    def row_type(row)
+      return :blank if row.empty?
 
-      if starts_with_comment_character?(line)
-        return :compact_planned_line if compact_planned_line?(line)
+      if starts_with_comment_character?(row)
+        return :compact_planned_row if compact_planned_row?(row)
         return :comment
       end
       :regular
     end
 
-    def starts_with_comment_character?(line)
-      line.start_with?(@config.deep_fetch(:csv, :comment_character)) ||
-        line.match?(/\A\s+#{@config.deep_fetch(:csv, :regex, :comment_escaped)}/)
+    def starts_with_comment_character?(row)
+      row.start_with?(@config.deep_fetch(:csv, :comment_character)) ||
+        row.match?(/\A\s+#{@config.deep_fetch(:csv, :regex, :comment_escaped)}/)
     end
 
-    def compact_planned_line?(line)
-      line.match?(@config.deep_fetch(:csv, :regex, :compact_planned_line_start))
+    def compact_planned_row?(row)
+      row.match?(@config.deep_fetch(:csv, :regex, :compact_planned_row_start))
     end
   end
 end

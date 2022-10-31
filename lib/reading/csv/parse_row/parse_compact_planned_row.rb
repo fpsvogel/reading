@@ -2,26 +2,26 @@ require_relative "../../util/blank"
 require_relative "../../util/deep_merge"
 require_relative "../../util/deep_fetch"
 require_relative "../../errors"
-require_relative "parse_line"
+require_relative "parse_row"
 
 module Reading
   class CSV
     using Util::DeepMerge
     using Util::DeepFetch
 
-    # ParseCompactPlannedLine is a function that parses a reading log CSV row
+    # ParseCompactPlannedRow is a function that parses a reading log CSV row
     # of compactly listed planned items, into an array of hashes of item data.
-    class ParseCompactPlannedLine < ParseLine
+    class ParseCompactPlannedRow < ParseRow
       private
 
-      def before_parse(line)
-        list_start = line.match(@config.deep_fetch(:csv, :regex, :compact_planned_line_start))
+      def before_parse(row)
+        list_start = row.match(@config.deep_fetch(:csv, :regex, :compact_planned_row_start))
         @genre = list_start[:genre].downcase
-        @line_without_genre = line.sub(list_start.to_s, "")
+        @row_without_genre = row.sub(list_start.to_s, "")
       end
 
       def multi_items_to_be_split_by_format_emojis
-        @line_without_genre
+        @row_without_genre
       end
 
       def item_data(name)
