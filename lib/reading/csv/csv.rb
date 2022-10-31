@@ -41,18 +41,18 @@ module Reading
       compact_planned_row = CompactPlannedRow.new(@config)
       items = []
 
-      feed.each_line do |row|
-        row.force_encoding(Encoding::UTF_8)
-        cur_row = row.strip
+      feed.each_line do |line|
+        line.force_encoding(Encoding::UTF_8)
+          .strip!
 
-        case row_type(cur_row)
+        case row_type(line)
         when :blank, :comment
           next
         when :regular
-          items += regular_row.parse(cur_row)
+          items += regular_row.parse(line)
         when :compact_planned_row
           next if skip_compact_planned
-          items += compact_planned_row.parse(cur_row)
+          items += compact_planned_row.parse(line)
         end
 
         if selective
