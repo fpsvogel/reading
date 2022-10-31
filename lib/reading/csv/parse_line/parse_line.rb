@@ -16,7 +16,7 @@ module Reading
         # Parses a CSV row into an array of hashes of item data.
         # @param line [String] a CSV row
         # @return [Array<Hash>] an array of hashes like the template in config.rb
-        def call(line, &postprocess)
+        def call(line)
           before_parse(line)
           titles = []
 
@@ -27,11 +27,7 @@ module Reading
             end
             titles << data[:title]
 
-            if block_given?
-              postprocess.call(data)
-            else
-              data
-            end
+            data
           }.compact
 
           items

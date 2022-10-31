@@ -30,8 +30,7 @@ module Reading
         path: nil,
         close_feed: true,
         selective: true,
-        skip_compact_planned: false,
-        &postprocess
+        skip_compact_planned: false
       )
         if feed.nil? && path.nil? && @config.deep_fetch(:csv, :path).nil?
           raise ArgumentError, "No file given to load."
@@ -50,10 +49,10 @@ module Reading
           when :blank, :comment
             next
           when :regular
-            items += parse_regular.call(cur_line, &postprocess)
+            items += parse_regular.call(cur_line)
           when :compact_planned_line
             next if skip_compact_planned
-            items += parse_compact_planned.call(cur_line, &postprocess)
+            items += parse_compact_planned.call(cur_line)
           end
 
           if selective
