@@ -22,11 +22,11 @@ module Reading
       private
 
       def skip?
-        @config.deep_fetch(:csv, :skip_compact_planned)
+        config.deep_fetch(:csv, :skip_compact_planned)
       end
 
       def before_parse(row)
-        list_start = row.match(@config.deep_fetch(:csv, :regex, :compact_planned_row_start))
+        list_start = row.match(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
         @genre = list_start[:genre].downcase
         @row_without_genre = row.sub(list_start.to_s, "")
       end
@@ -36,13 +36,13 @@ module Reading
       end
 
       def item_data(name)
-        match = name.match(@config.deep_fetch(:csv, :regex, :compact_planned_item))
+        match = name.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
         unless match
           raise InvalidItemError, "Invalid planned item"
         end
 
-        author = ParseAuthor.new(@config).call(match[:author_title])
-        title = ParseTitle.new(@config).call(match[:author_title])
+        author = ParseAuthor.new(config).call(match[:author_title])
+        title = ParseTitle.new(config).call(match[:author_title])
         item = template.deep_merge(
           author: author || template.fetch(:author),
           title: title,
@@ -56,7 +56,7 @@ module Reading
       end
 
       def template
-        @template ||= @config.deep_fetch(:item, :template)
+        @template ||= config.deep_fetch(:item, :template)
       end
 
       def parse_variants(item_match)
@@ -69,7 +69,7 @@ module Reading
         inverted_variants.each do |inverted_variant|
           inverted_variant[:format_emojis_str] ||= item_match[:first_format_emojis]
           format_emojis = inverted_variant[:format_emojis_str].scan(
-            /#{@config.deep_fetch(:csv, :regex, :formats)}/
+            /#{config.deep_fetch(:csv, :regex, :formats)}/
           )
           format_emojis.each do |format_emoji|
             format = format(format_emoji)
@@ -83,7 +83,7 @@ module Reading
       end
 
       def format(format_emoji)
-        @config.deep_fetch(:item, :formats).key(format_emoji)
+        config.deep_fetch(:item, :formats).key(format_emoji)
       end
 
       def blank_variant(format)
@@ -99,12 +99,12 @@ module Reading
         return [] if sources_str.nil?
 
         sources_str
-          .split(@config.deep_fetch(:csv, :compact_planned_source_prefix))
+          .split(config.deep_fetch(:csv, :compact_planned_source_prefix))
           .map { |source| source.sub(/\s*,\s*/, "") }
           .map(&:strip)
           .reject(&:empty?)
           .map { |source_str|
-            match = source_str.match(@config.deep_fetch(:csv, :regex, :compact_planned_source))
+            match = source_str.match(config.deep_fetch(:csv, :regex, :compact_planned_source))
             {
               format_emojis_str: match[:format_emojis].presence,
               source: source(match[:source_name])
@@ -115,7 +115,7 @@ module Reading
       def source(source_name)
         if valid_url?(source_name)
           source_name = source_name.chop if source_name.chars.last == "/"
-          { name: @config.deep_fetch(:item, :sources, :default_name_for_url),
+          { name: config.deep_fetch(:item, :sources, :default_name_for_url),
             url: source_name }
         else
           { name: source_name,

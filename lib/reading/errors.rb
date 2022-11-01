@@ -7,18 +7,11 @@ module Reading
   Colors = Pastel.new
 
   class AppError < StandardError
-    def initialize(msg = nil, label: "Error")
-      super(label + colon_before?(msg) + (msg || ""))
-    end
-
-    # source is e.g. the CSV row where an invalid Item comes from.
-    def handle(source: nil, config:)
+    def handle(line:)
       handle = config.deep_fetch(:errors, :handle_error)
-      if source.nil?
-        handle.call(self)
-      else
-        handle.call(styled_with_source(source, config:))
-      end
+      styled_error = styled_with_line(line)
+
+      handle.call(styled_error)
     end
 
     protected
@@ -27,16 +20,14 @@ module Reading
       :red
     end
 
-    def colon_before?(msg)
-      msg.nil? ? "" : ": "
-    end
-
-    def styled_with_source(source, config:)
-      truncated_source = truncate(source,
-                                  config.deep_fetch(:errors, :max_length),
-                                  padding: message.length)
-      self.class.new(truncated_source,
-                      label: styled(message, config))
+    def styled_with_line(line)
+      truncated_line =
+        truncate(
+          line.string,
+          line.csv.config.deep_fetch(:errors, :max_length),
+          padding: message.length,
+        )
+      self.class.new("#{styled(message, line.csv.config)}: #{truncated_line}")
     end
 
     def truncate(str, max, padding: 0, min: 30)
@@ -55,18 +46,13 @@ module Reading
     end
   end
 
-  module Warning
-    def color
-      :yellow
-    end
-  end
-
   # FILE # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+  # Indicates that there was a problem accessing a file.
   class FileError < AppError; end
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
-  # InvalidItemError indicates that data for a new item is invalid.
+  # Indicates that data for a new item is invalid.
   class InvalidItemError < AppError; end
 end

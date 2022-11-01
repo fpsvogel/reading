@@ -28,7 +28,9 @@ module Reading
       path: nil,
       close_feed: true
     )
-      if feed.nil? && path.nil? && @config.deep_fetch(:csv, :path).nil?
+      path ||= @config.deep_fetch(:csv, :path)
+
+      if feed.nil? && path.nil?
         raise ArgumentError, "No file given to load."
       end
 
@@ -43,9 +45,9 @@ module Reading
       items
 
     rescue Errno::ENOENT
-      raise FileError.new(path, label: "File not found!")
+      raise FileError.new("File not found! #{path}")
     rescue Errno::EISDIR
-      raise FileError.new(path, label: "The reading list must be a file, not a directory!")
+      raise FileError.new("The reading list must be a file, but the path given is a directory: #{path}")
     ensure
       feed&.close if close_feed && feed.respond_to?(:close)
     end
