@@ -19,16 +19,9 @@ module Reading
         return [] if skip?
 
         before_parse(@string)
-        titles = []
 
         items = split_by_format_emojis.map { |name|
-          data = item_data(name).then { |data| without_blank_hashes(data) }
-          if titles.include?(data[:title])
-            raise InvalidItemError, "A title must not appear more than once in the list"
-          end
-          titles << data[:title]
-
-          data
+          item_data(name).then { |data| without_blank_hashes(data) }
         }.compact
 
         items
