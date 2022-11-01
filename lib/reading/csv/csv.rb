@@ -48,8 +48,6 @@ module Reading
       raise FileError.new(path, label: "The reading list must be a file, not a directory!")
     ensure
       feed&.close if close_feed && feed.respond_to?(:close)
-      # Reset to pre-call state.
-      initialize
     end
   end
 end

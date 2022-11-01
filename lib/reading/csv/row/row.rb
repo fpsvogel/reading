@@ -47,9 +47,6 @@ module Reading
 
         e.handle(source: @string, config: @config)
         []
-      ensure
-        # Reset to pre-call state.
-        initialize(@config)
       end
 
       private
