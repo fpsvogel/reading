@@ -21,13 +21,8 @@ module Reading
     # @param feed [Object] the input source, which must respond to #each_line;
     #   if nil, the file at the given path or at @config[:csv][:path] is used.
     # @param path [String] of the source file; if nil, @config[:csv][:path] is used.
-    # @param close_feed [Boolean] whether the feed should be closed before returning.
     # @return [Array<Hash>] an array of hashes like the template in config.rb
-    def parse(
-      feed = nil,
-      path: nil,
-      close_feed: true
-    )
+    def parse(feed = nil, path: nil)
       path ||= @config.deep_fetch(:csv, :path)
 
       if feed.nil? && path.nil?
@@ -49,7 +44,7 @@ module Reading
     rescue Errno::EISDIR
       raise FileError.new("The reading list must be a file, but the path given is a directory: #{path}")
     ensure
-      feed&.close if close_feed && feed.respond_to?(:close)
+      feed&.close if feed.respond_to?(:close)
     end
   end
 end
