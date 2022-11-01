@@ -18,8 +18,8 @@ module Reading
         setup_parse_attributes
       end
 
-      def before_parse(row)
-        set_columns(row)
+      def before_parse
+        set_columns
         ensure_name_column_present
       end
 
@@ -60,14 +60,14 @@ module Reading
         }
       end
 
-      def set_columns(row)
+      def set_columns
         @columns = config
           .deep_fetch(:csv, :columns)
           .select { |_name, enabled| enabled }
           .keys
           .concat(config.deep_fetch(:csv, :custom_numeric_columns).keys)
           .concat(config.deep_fetch(:csv, :custom_text_columns).keys)
-          .zip(row.split(config.deep_fetch(:csv, :column_separator)))
+          .zip(string.split(config.deep_fetch(:csv, :column_separator)))
           .to_h
       end
 
@@ -77,7 +77,7 @@ module Reading
         end
       end
 
-      def item_data(name)
+      def item_hash(name)
         config
           .deep_fetch(:item, :template)
           .merge(config.deep_fetch(:csv, :custom_numeric_columns))

@@ -25,17 +25,17 @@ module Reading
         config.deep_fetch(:csv, :skip_compact_planned)
       end
 
-      def before_parse(row)
-        list_start = row.match(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
+      def before_parse
+        list_start = string.match(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
         @genre = list_start[:genre].downcase
-        @row_without_genre = row.sub(list_start.to_s, "")
+        @row_without_genre = string.sub(list_start.to_s, "")
       end
 
       def multi_items_to_be_split_by_format_emojis
         @row_without_genre
       end
 
-      def item_data(name)
+      def item_hash(name)
         match = name.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
         unless match
           raise InvalidItemError, "Invalid planned item"

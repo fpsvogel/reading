@@ -1,14 +1,17 @@
 require_relative "../../errors"
 require_relative "../../util/deep_fetch"
+require_relative "../../util/compact_item_hash"
 
 module Reading
   class CSV
-    # A base class that contains behaviors common to Parse___ classes for rows.
+    # A base class that contains behaviors common to ___Row classes.
     class Row
       using Util::DeepFetch
+      using Util::CompactItemHash
 
       private attr_reader :line
 
+      # @param line [Line] the Line that this Row represents.
       def initialize(line)
         @line = line
 
@@ -18,12 +21,13 @@ module Reading
       # Parses a CSV row into an array of hashes of item data.
       # @return [Array<Hash>] an array of hashes like the template in config.rb
       def parse
-        return [] if skip?
+        return [] if skip? # overridable hook
 
-        before_parse(string)
+        before_parse # overridable hook
 
         items = split_by_format_emojis.map { |name|
-          item_data(name).then { |data| without_blank_hashes(data) }
+          item_hash(name)
+            .compact_item_hash(template: config.deep_fetch(:item, :template))
         }.compact
 
         items
@@ -67,39 +71,12 @@ module Reading
           .first
       end
 
-      # Removes blank arrays of hashes from the given item hash, e.g. series,
-      # variants, variants[:sources], and experiences in the template in config.rb.
-      # If no parsed data has been added to the template values for these, they
-      # are considered blank, and are replaced with an empty array so that their
-      # emptiness is more apparent, e.g. data[:experiences].empty? will return true.
-      def without_blank_hashes(data_hash, template: config.deep_fetch(:item, :template))
-        data_hash.map { |key, val|
-          if is_array_of_hashes?(val)
-            if is_blank_like_template?(val, template.deep_fetch(key))
-              [key, []]
-            else
-              [key, val.map { without_blank_hashes(_1, template: template.deep_fetch(key).first) }]
-            end
-          else
-            [key, val]
-          end
-        }.to_h
-      end
-
-      def is_array_of_hashes?(val)
-        val.is_a?(Array) && val.first.is_a?(Hash)
-      end
-
-      def is_blank_like_template?(val, template_val)
-        val.length == 1 && val == template_val
-      end
-
       # Hook, can be overridden.
       def after_initialize
       end
 
       # Hook, can be overridden.
-      def before_parse(row)
+      def before_parse
       end
 
       # Can be overridden.
@@ -111,7 +88,7 @@ module Reading
         raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
       end
 
-      def item_data(name)
+      def item_hash(name)
         raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
       end
     end

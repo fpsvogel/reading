@@ -4,7 +4,9 @@ require_relative "regular_row"
 
 module Reading
   class CSV
-    # A bridge between CSV rows as strings and as Row subclasses. A factory of sorts.
+    # A bridge between rows as strings and as parsable Rows, used whenever the
+    # context of the line in the CSV is needed, e.g. converting a line to a Row,
+    # or adding a CSV line to a Row parsing error.
     class Line
       attr_reader :string, :csv
 
