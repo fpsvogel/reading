@@ -6,13 +6,24 @@ require_relative "row"
 
 module Reading
   class CSV
-    # A function that parses a reading log CSV row of compactly listed planned
-    # items, into an array of hashes of item data.
+    # Parses a row of compactly listed planned items into an array of hashes of
+    # item data.
     class CompactPlannedRow < Row
       using Util::DeepMerge
       using Util::DeepFetch
 
+      def self.match?(line)
+        comment_char = line.csv.config.deep_fetch(:csv, :comment_character)
+
+        line.string.strip.start_with?(comment_char) &&
+          line.string.match?(line.csv.config.deep_fetch(:csv, :regex, :compact_planned_row_start))
+      end
+
       private
+
+      def skip?
+        @config.deep_fetch(:csv, :skip_compact_planned)
+      end
 
       def before_parse(row)
         list_start = row.match(@config.deep_fetch(:csv, :regex, :compact_planned_row_start))

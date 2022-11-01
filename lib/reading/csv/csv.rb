@@ -1,9 +1,7 @@
 require_relative "../util/deep_merge"
 require_relative "../util/deep_fetch"
 require_relative "config"
-require_relative "row/blank_row"
-require_relative "row/regular_row"
-require_relative "row/compact_planned_row"
+require_relative "row/line"
 
 module Reading
   class CSV
@@ -37,9 +35,9 @@ module Reading
       feed ||= File.open(path || @config.deep_fetch(:csv, :path))
       items = []
 
-      feed.each_line do |line|
-        row = Row.from_line(line, self.config)
-        items += row.parse(line)
+      feed.each_line do |string|
+        row = Line.new(string, self).to_row
+        items += row.parse
       end
 
       items

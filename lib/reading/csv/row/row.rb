@@ -7,53 +7,18 @@ module Reading
     class Row
       using Util::DeepFetch
 
-      def self.from_line(line, config)
-        line = line.dup.force_encoding(Encoding::UTF_8).strip
-
-        blank_row = BlankRow.new(config)
-        regular_row = RegularRow.new(config)
-        compact_planned_row = CompactPlannedRow.new(config)
-
-        case row_type(line, config)
-        when :blank, :comment
-          blank_row
-        when :regular
-          regular_row
-        when :compact_planned
-          return blank_row if config.deep_fetch(:csv, :skip_compact_planned)
-          compact_planned_row
-        end
-      end
-
-      private_class_method def self.row_type(line, config)
-        return :blank if line.empty?
-
-        if starts_with_comment_character?(line, config)
-          return :compact_planned if compact_planned_row?(line, config)
-          return :comment
-        end
-        :regular
-      end
-
-      private_class_method def self.starts_with_comment_character?(line, config)
-        line.start_with?(config.deep_fetch(:csv, :comment_character)) ||
-          line.match?(/\A\s+#{config.deep_fetch(:csv, :regex, :comment_escaped)}/)
-      end
-
-      private_class_method def self.compact_planned_row?(line, config)
-        line.match?(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
-      end
-
-      def initialize(config)
-        @config ||= config
+      def initialize(line)
+        @string ||= line.string
+        @config ||= line.csv.config
         after_initialize
       end
 
       # Parses a CSV row into an array of hashes of item data.
-      # @param row [String] a CSV row
       # @return [Array<Hash>] an array of hashes like the template in config.rb
-      def parse(row)
-        before_parse(row)
+      def parse
+        return [] if skip?
+
+        before_parse(@string)
         titles = []
 
         items = split_by_format_emojis.map { |name|
@@ -80,7 +45,7 @@ module Reading
           end
         end
 
-        e.handle(source: row, config: @config)
+        e.handle(source: @string, config: @config)
         []
       ensure
         # Reset to pre-call state.
@@ -135,6 +100,11 @@ module Reading
 
       # Hook, can be overridden.
       def before_parse(row)
+      end
+
+      # Can be overridden.
+      def skip?
+        false
       end
 
       def multi_items_to_be_split_by_format_emojis

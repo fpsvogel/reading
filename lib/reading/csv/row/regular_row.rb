@@ -6,8 +6,9 @@ require_relative "../parse_attribute/parse_attributes"
 
 module Reading
   class CSV
-    # A function that parses a normal row in a CSV reading log into an array of
-    # hashes of item data.
+    # Parses a normal CSV row into an array of hashes of item data. Typically
+    # a normal row describes one item and so it's parsed into an array containing
+    # a single hash, but it's also possible for a row to describe multiple items.
     class RegularRow < Row
       using Util::DeepFetch
 
