@@ -14,7 +14,7 @@ module Reading
       # parsers are separated into their own files.
 
       class ParseRating < ParseAttribute
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           return nil unless columns[:rating]
           rating = columns[:rating].strip
           return nil if rating.empty?
@@ -24,8 +24,8 @@ module Reading
       end
 
       class ParseAuthor < ParseAttribute
-        def call(name, _columns = nil)
-          name
+        def call(head, _columns = nil)
+          head
             .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
             .match(/.+(?=#{@config.deep_fetch(:csv, :short_separator)})/)
             &.to_s
@@ -34,8 +34,8 @@ module Reading
       end
 
       class ParseTitle < ParseAttribute
-        def call(name, _columns = nil)
-          name
+        def call(head, _columns = nil)
+          head
             .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
             .sub(/.+#{@config.deep_fetch(:csv, :short_separator)}/, "")
             .sub(/#{@config.deep_fetch(:csv, :long_separator)}.+\z/, "")
@@ -45,8 +45,8 @@ module Reading
       end
 
       class ParseSeries < ParseAttribute
-        def call(name, _columns = nil)
-          separated = name
+        def call(head, _columns = nil)
+          separated = head
             .split(@config.deep_fetch(:csv, :long_separator))
             .map(&:strip)
             .map(&:presence)
@@ -96,7 +96,7 @@ module Reading
             2 => ["for friends", "to friends", "for-friends", "to-friends"]
           }
 
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           return nil unless columns[:genres]
           visibility = @config.deep_fetch(:item, :template, :visibility)
           all_genres(columns).each do |entry|
@@ -118,7 +118,7 @@ module Reading
       end
 
       class ParseGenres < ParseFromGenreColumn
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           return nil unless columns[:genres]
           genres = @@all_genres # Visibility has already been taken out by ParseVisibility.
           @@all_genres = nil
@@ -140,13 +140,13 @@ module Reading
       end
 
       class ParsePublicNotes < ParseNotesAttribute
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           split_notes(:public_notes, columns)
         end
       end
 
       class ParseBlurb < ParseAttribute
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           return nil unless columns[:blurb]
           columns[:blurb]
             .presence
@@ -155,7 +155,7 @@ module Reading
       end
 
       class ParsePrivateNotes < ParseNotesAttribute
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           split_notes(:private_notes, columns)
         end
       end

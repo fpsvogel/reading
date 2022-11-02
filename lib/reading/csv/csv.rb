@@ -1,7 +1,7 @@
 require_relative "../util/deep_merge"
 require_relative "../util/deep_fetch"
 require_relative "config"
-require_relative "row/line"
+require_relative "line"
 
 module Reading
   class CSV
@@ -33,7 +33,9 @@ module Reading
       items = []
 
       feed.each_line do |string|
-        row = Line.new(string, self).to_row
+        line = Line.new(string, self)
+        row = line.to_row
+
         items += row.parse
       end
 

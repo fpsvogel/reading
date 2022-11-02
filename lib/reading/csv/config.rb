@@ -18,8 +18,8 @@ module Reading
       config[:item][:formats] = custom_config.dig(:item, :formats)
     end
 
-    # Name column can't be disabled.
-    config.deep_fetch(:csv, :columns)[:name] = true
+    # Head column can't be disabled.
+    config.deep_fetch(:csv, :columns)[:head] = true
 
     # Add the Regex config, which is built based on the config so far.
     config[:csv][:regex] = build_regex_config(config)
@@ -113,7 +113,7 @@ module Reading
           columns:
             {
               rating:         true,
-              name:           true, # always enabled
+              head:           true, # always enabled
               sources:        true,
               dates_started:  true,
               dates_finished: true,

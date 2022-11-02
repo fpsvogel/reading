@@ -31,47 +31,47 @@ class CSVParseTest < TestBase
   # only the columns enabled that are listed in the hash key. This tests basic
   # functionality of each column, and a few possible combinations of columns.
   @files[:enabled_columns] = {}
-  @files[:enabled_columns][:"name"] = <<~EOM.freeze
+  @files[:enabled_columns][:"head"] = <<~EOM.freeze
     \\Author - Title
     Sapiens
     Goatsong
     How To
   EOM
-  @files[:enabled_columns][:"name, dates_finished"] = <<~EOM.freeze
+  @files[:enabled_columns][:"head, dates_finished"] = <<~EOM.freeze
     \\Author - Title|Dates finished
     Sapiens
     Goatsong|2020/5/30
     How To
   EOM
-  @files[:enabled_columns][:"name, dates_started"] = <<~EOM.freeze
+  @files[:enabled_columns][:"head, dates_started"] = <<~EOM.freeze
     Sapiens|2021/9/1
     Goatsong|2020/5/1
     How To
   EOM
-  @files[:enabled_columns][:"name, dates_started, dates_finished"] = <<~EOM.freeze
+  @files[:enabled_columns][:"head, dates_started, dates_finished"] = <<~EOM.freeze
     Sapiens|2021/9/1
     Goatsong|2020/5/1|2020/5/30
     How To
   EOM
-  @files[:enabled_columns][:"rating, name, dates_started, dates_finished"] = <<~EOM.freeze
+  @files[:enabled_columns][:"rating, head, dates_started, dates_finished"] = <<~EOM.freeze
     |Sapiens|2021/9/1
     5|Goatsong|2020/5/1|2020/5/30
     |How To
   EOM
   # length but no sources
-  @files[:enabled_columns][:"rating, name, dates_started, dates_finished, length"] = <<~EOM.freeze
+  @files[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = <<~EOM.freeze
     |Sapiens|2021/9/1||15:17
     5|Goatsong|2020/5/1|2020/5/30|247
     |How To
   EOM
   # sources but no length
-  @files[:enabled_columns][:"rating, name, sources, dates_started, dates_finished"] = <<~EOM.freeze
+  @files[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = <<~EOM.freeze
     |Sapiens|Vail Library B00ICN066A|2021/9/1
     5|Goatsong|0312038380|2020/5/1|2020/5/30
     |How To
   EOM
   # sources and length
-  @files[:enabled_columns][:"rating, name, sources, dates_started, dates_finished, length"] = <<~EOM.freeze
+  @files[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = <<~EOM.freeze
     |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17
     5|Goatsong|0312038380|2020/5/1|2020/5/30|247
     |How To
@@ -83,13 +83,13 @@ class CSVParseTest < TestBase
   # The type of the custom column is indicated by the hash key.
   @files[:custom_columns] = {}
   @files[:custom_columns][:numeric] = <<~EOM.freeze
-    \\Rating|Name|Sources|Dates started|Dates finished|Length|Surprise factor|Family friendliness
+    \\Rating|Head|Sources|Dates started|Dates finished|Length|Surprise factor|Family friendliness
     |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|6|3.9
     5|Goatsong|0312038380|2020/5/1|2020/5/30|247|9
     |How To
   EOM
   @files[:custom_columns][:text] = <<~EOM.freeze
-    \\Rating|Name|Sources|Dates started|Dates finished|Length|Mood|Will reread?
+    \\Rating|Head|Sources|Dates started|Dates finished|Length|Mood|Will reread?
     |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|apprehensive|yes
     5|Goatsong|0312038380|2020/5/1|2020/5/30|247|tragicomic
     |How To
@@ -102,7 +102,7 @@ class CSVParseTest < TestBase
   # hash key) and a bunch of possible content for that column is tested. These
   # are the columns that are more flexible and can have lots of information
   # crammed into them.
-  @files[:features_name] =
+  @files[:features_head] =
   {
   :"author" =>
     "Tom Holt - Goatsong",
@@ -136,8 +136,8 @@ class CSVParseTest < TestBase
     "DNF 50% 📕Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
   }
 
-  # The Name column is enabled by default, so the strings for other single
-  # columns are preceded by the Name column.
+  # The Head column is enabled by default, so the strings for other single
+  # columns are preceded by the Head column.
   @files[:features_sources] =
   {
   :"ISBN-10" =>
@@ -333,39 +333,39 @@ class CSVParseTest < TestBase
   a = item_data(title: "Sapiens")
   b = item_data(title: "Goatsong")
   c = item_data(title: "How To")
-  @items[:enabled_columns][:"name"] = [a, b, c]
+  @items[:enabled_columns][:"head"] = [a, b, c]
 
   b_finished_inner = { experiences: [{ spans: [{ dates: .."2020/5/30" }] }] }
   b_finished = b.deep_merge(b_finished_inner)
-  @items[:enabled_columns][:"name, dates_finished"] = [a, b_finished, c]
+  @items[:enabled_columns][:"head, dates_finished"] = [a, b_finished, c]
 
   a_started = a.deep_merge(experiences: [{ spans: [{ dates: "2021/9/1".. }] }])
   b_started = b.deep_merge(experiences: [{ spans: [{ dates: "2020/5/1".. }] }])
-  @items[:enabled_columns][:"name, dates_started"] = [a_started, b_started, c]
+  @items[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
 
   a = a_started
   b = item_data(
     title: "Goatsong",
     experiences: [{ spans: [{ dates: "2020/5/1".."2020/5/30" }] }]
   )
-  @items[:enabled_columns][:"name, dates_started, dates_finished"] = [a, b, c]
+  @items[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
 
   a = a.merge(rating: nil)
   b = b.merge(rating: 5)
-  @items[:enabled_columns][:"rating, name, dates_started, dates_finished"] = [a, b, c]
+  @items[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a, b, c]
 
   a_length = a.deep_merge(variants: [{ length: "15:17" }])
   b_length = b.deep_merge(variants: [{ length: 247 }])
-  @items[:enabled_columns][:"rating, name, dates_started, dates_finished, length"] = [a_length, b_length, c]
+  @items[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
   a_sources = a.deep_merge(variants: [{ isbn: "B00ICN066A",
                               sources: [{ name: "Vail Library", url: nil }] }])
   b_sources = b.deep_merge(variants: [{ isbn: "0312038380" }])
-  @items[:enabled_columns][:"rating, name, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
+  @items[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
   a = a_sources.deep_merge(variants: [{ length: "15:17" }])
   b = b_sources.deep_merge(variants: [{ length: 247 }])
-  @items[:enabled_columns][:"rating, name, sources, dates_started, dates_finished, length"] = [a, b, c]
+  @items[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a, b, c]
 
 
 
@@ -388,56 +388,56 @@ class CSVParseTest < TestBase
 
 
 
-  @items[:features_name] = {}
+  @items[:features_head] = {}
   a_basic = item_data(author: "Tom Holt", title: "Goatsong")
-  @items[:features_name][:"author"] = [a_basic]
+  @items[:features_head][:"author"] = [a_basic]
 
   a = a_basic.deep_merge(series: [{ name: "The Walled Orchard" }])
-  @items[:features_name][:"series"] = [a]
+  @items[:features_head][:"series"] = [a]
 
   a = a.deep_merge(series: [{ volume: 1 }])
   series_with_volume = a.slice(:series)
-  @items[:features_name][:"series with volume"] = [a]
+  @items[:features_head][:"series with volume"] = [a]
 
   extra_info = %w[unabridged 1990]
   variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
   a = a_basic.deep_merge(variants_with_extra_info)
-  @items[:features_name][:"extra info"] = [a]
+  @items[:features_head][:"extra info"] = [a]
 
   a = a.merge(series_with_volume)
-  @items[:features_name][:"extra info and series"] = [a]
+  @items[:features_head][:"extra info and series"] = [a]
 
   a_with_format = a_basic.deep_merge(variants: [{ format: :print }])
-  @items[:features_name][:"format"] = [a_with_format]
+  @items[:features_head][:"format"] = [a_with_format]
 
   b = item_data(title: "Sapiens", variants: [{ format: :audiobook }])
-  @items[:features_name][:"multi items"] = [a_with_format, b]
+  @items[:features_head][:"multi items"] = [a_with_format, b]
 
   half_progress = { experiences: [{ progress: 0.5 }] }
   a = item_data(title: "Goatsong", **half_progress)
-  @items[:features_name][:"progress"] = [a]
+  @items[:features_head][:"progress"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 220 }])
-  @items[:features_name][:"progress pages"] = [a]
+  @items[:features_head][:"progress pages"] = [a]
 
-  @items[:features_name][:"progress pages without p"] = [a]
+  @items[:features_head][:"progress pages without p"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: "2:30" }])
-  @items[:features_name][:"progress time"] = [a]
+  @items[:features_head][:"progress time"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 0 }])
-  @items[:features_name][:"dnf"] = [a]
+  @items[:features_head][:"dnf"] = [a]
 
   a = item_data(title: "Goatsong", experiences: [{ progress: 0.5 }])
-  @items[:features_name][:"dnf with progress"] = [a]
+  @items[:features_head][:"dnf with progress"] = [a]
 
   a = a_with_format.deep_merge(experiences: [{ progress: 0 }])
   b = b.deep_merge(experiences: [{ progress: 0 }])
-  @items[:features_name][:"dnf with multi items"] = [a, b]
+  @items[:features_head][:"dnf with multi items"] = [a, b]
 
   a = a.merge(series_with_volume).deep_merge(variants_with_extra_info).deep_merge(half_progress)
   b = b.deep_merge(half_progress)
-  @items[:features_name][:"all features"] = [a, b]
+  @items[:features_head][:"all features"] = [a, b]
 
 
 
@@ -930,7 +930,7 @@ class CSVParseTest < TestBase
 
   ## TESTS: CUSTOM COLUMNS
   def test_custom_numeric_columns
-    set_columns(*%i[rating name sources dates_started dates_finished length],
+    set_columns(*%i[rating head sources dates_started dates_finished length],
                 custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
     exp = tidy(items[:custom_columns][:numeric])
     act = parse(files[:custom_columns][:numeric])
@@ -939,7 +939,7 @@ class CSVParseTest < TestBase
   end
 
   def test_custom_text_columns
-    set_columns(*%i[rating name sources dates_started dates_finished length],
+    set_columns(*%i[rating head sources dates_started dates_finished length],
                 custom_text_columns: { mood: nil, will_reread: "no" })
     exp = tidy(items[:custom_columns][:text])
     act = parse(files[:custom_columns][:text])

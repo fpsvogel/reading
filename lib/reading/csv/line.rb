@@ -1,6 +1,6 @@
-require_relative "compact_planned_row"
-require_relative "blank_row"
-require_relative "regular_row"
+require_relative "row/compact_planned_row"
+require_relative "row/blank_row"
+require_relative "row/regular_row"
 
 module Reading
   class CSV

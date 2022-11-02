@@ -8,7 +8,7 @@ module Reading
       class ParseExperiences < ParseAttribute
         using Util::DeepFetch
 
-        def call(_name = nil, columns)
+        def call(_head = nil, columns)
           started, finished = dates_split(columns)
           if @config.deep_fetch(:csv, :reverse_dates)
             started, finished = started.reverse, finished.reverse
@@ -21,7 +21,7 @@ module Reading
               # date_started:  date_started(entry)            || template.fetch(:date_started),
               # date_finished: date_finished(finished, i)     || template.fetch(:date_finished),
               progress: progress(entry) ||
-                progress(columns[:name],
+                progress(columns[:head],
                     ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
               group: group(entry)                           || template.fetch(:group),
               variant_index: variant_index(entry)           || template.fetch(:variant_index)
@@ -31,7 +31,7 @@ module Reading
           if using_dates
             return using_dates
           else
-            if prog = progress(columns[:name])
+            if prog = progress(columns[:head])
               return [template.merge(progress: prog)]
             else
               return nil

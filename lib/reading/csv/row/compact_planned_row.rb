@@ -31,12 +31,12 @@ module Reading
         @row_without_genre = string.sub(list_start.to_s, "")
       end
 
-      def multi_items_to_be_split_by_format_emojis
+      def string_to_be_split_by_format_emojis
         @row_without_genre
       end
 
-      def item_hash(name)
-        match = name.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
+      def item_hash(head)
+        match = head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
         unless match
           raise InvalidItemError, "Invalid planned item"
         end

@@ -27,8 +27,8 @@ module Reading
 
         before_parse
 
-        items = split_by_format_emojis.map { |name|
-          item_hash(name)
+        items = heads.map { |head|
+          item_hash(head)
             .compact_by(template: config.deep_fetch(:item, :template))
         }.compact
 
@@ -60,15 +60,22 @@ module Reading
         @line.csv.config
       end
 
-      def split_by_format_emojis
-        multi_items_to_be_split_by_format_emojis
+      # A "head" is a string in the Head column containing a chunk of item
+      # information, starting with a format emoji. A typical row describes one
+      # item and so contains one head, but a row describing multiple items (with
+      # multiple heads in the Head column) is possible. Also, a row of compact
+      # planned items is essentially a list of heads, though with different
+      # elements than a normal row's head.
+      # @return [Array<String>]
+      def heads
+        string_to_be_split_by_format_emojis
           .split(config.deep_fetch(:csv, :regex, :formats_split))
-          .tap { |names|
-            names.first.sub!(config.deep_fetch(:csv, :regex, :dnf), "")
-            names.first.sub!(config.deep_fetch(:csv, :regex, :progress), "")
+          .tap { |heads|
+            heads.first.sub!(config.deep_fetch(:csv, :regex, :dnf), "")
+            heads.first.sub!(config.deep_fetch(:csv, :regex, :progress), "")
           }
-          .map { |name| name.strip.sub(/\s*,\z/, "") }
-          .partition { |name| name.match?(/\A#{config.deep_fetch(:csv, :regex, :formats)}/) }
+          .map { |head| head.strip.sub(/\s*,\z/, "") }
+          .partition { |head| head.match?(/\A#{config.deep_fetch(:csv, :regex, :formats)}/) }
           .reject(&:empty?)
           .first
       end
@@ -85,11 +92,11 @@ module Reading
         false
       end
 
-      def multi_items_to_be_split_by_format_emojis
+      def string_to_be_split_by_format_emojis
         raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
       end
 
-      def item_hash(name)
+      def item_hash(head)
         raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
       end
     end

@@ -20,11 +20,11 @@ module Reading
 
       def before_parse
         set_columns
-        ensure_name_column_present
+        ensure_head_column_present
       end
 
-      def multi_items_to_be_split_by_format_emojis
-        @columns[:name]
+      def string_to_be_split_by_format_emojis
+        @columns[:head]
       end
 
       def setup_parse_attributes
@@ -51,7 +51,7 @@ module Reading
         config.deep_fetch(:csv, :"custom_#{type}_columns").map { |attribute, _default_value|
           custom_class = Class.new ParseAttribute
 
-          custom_class.define_method :call do |item_name, columns|
+          custom_class.define_method :call do |item_head, columns|
             value = columns[attribute.to_sym]&.strip&.presence
             process_value.call(value)
           end
@@ -63,7 +63,7 @@ module Reading
       def set_columns
         @columns = config
           .deep_fetch(:csv, :columns)
-          .select { |_name, enabled| enabled }
+          .select { |_head, enabled| enabled }
           .keys
           .concat(config.deep_fetch(:csv, :custom_numeric_columns).keys)
           .concat(config.deep_fetch(:csv, :custom_text_columns).keys)
@@ -71,19 +71,19 @@ module Reading
           .to_h
       end
 
-      def ensure_name_column_present
-        if @columns[:name].nil? || @columns[:name].strip.empty?
-          raise InvalidItemError, "The Name column must not be blank"
+      def ensure_head_column_present
+        if @columns[:head].nil? || @columns[:head].strip.empty?
+          raise InvalidItemError, "The Head column must not be blank"
         end
       end
 
-      def item_hash(name)
+      def item_hash(head)
         config
           .deep_fetch(:item, :template)
           .merge(config.deep_fetch(:csv, :custom_numeric_columns))
           .merge(config.deep_fetch(:csv, :custom_text_columns))
           .map { |attribute, default_value|
-            parsed = @parse_attributes.deep_fetch(attribute).call(name, @columns)
+            parsed = @parse_attributes.deep_fetch(attribute).call(head, @columns)
 
             [attribute, parsed || default_value]
           }.to_h

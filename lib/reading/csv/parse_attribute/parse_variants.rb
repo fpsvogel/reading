@@ -8,10 +8,10 @@ module Reading
       class ParseVariants < ParseAttribute
         using Util::DeepFetch
 
-        def call(name, columns)
-          format_in_name = format(name)
+        def call(head, columns)
+          format_in_head = format(head)
           length_in_length = length(columns[:length])
-          extra_info_in_name = extra_info(name).presence
+          extra_info_in_head = extra_info(head).presence
           sources_str = columns[:sources]&.presence || " "
           separator =
             if sources_str.match(@config.deep_fetch(:csv, :regex, :formats))
@@ -26,13 +26,13 @@ module Reading
 
             variant =
               {
-                format: format(variant_str) || format_in_name || template.fetch(:format),
+                format: format(variant_str) || format_in_head || template.fetch(:format),
                 sources: sources(variant_str)                 || template.fetch(:sources),
                 isbn: isbn(variant_str)                       || template.fetch(:isbn),
                 length: length(variant_str,
                         in_variant: true) || length_in_length || template.fetch(:length),
                 extra_info: extra_info(variant_with_extra_info).presence ||
-                                          extra_info_in_name || template.fetch(:extra_info)
+                                          extra_info_in_head || template.fetch(:extra_info)
               }
 
             if variant != template
