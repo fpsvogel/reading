@@ -9,7 +9,7 @@ module Reading
   # @param custom_config [Hash] a custom config which overrides the defaults,
   #   e.g. { errors: { styling: :html } }
   # @return [Hash]
-  def self.build_config(custom_config)
+  def self.build_config(custom_config = {})
     config = @default_config.deep_merge(custom_config)
 
     # If custom formats are given, use only the custom formats. #dig is used here

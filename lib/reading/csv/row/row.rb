@@ -1,13 +1,13 @@
 require_relative "../../errors"
 require_relative "../../util/deep_fetch"
-require_relative "../../util/compact_item_hash"
+require_relative "../../util/compact_by_template"
 
 module Reading
   class CSV
     # A base class that contains behaviors common to ___Row classes.
     class Row
       using Util::DeepFetch
-      using Util::CompactItemHash
+      using Util::CompactByTemplate
 
       private attr_reader :line
 
@@ -18,16 +18,18 @@ module Reading
         after_initialize
       end
 
-      # Parses a CSV row into an array of hashes of item data.
+      # Parses a CSV row into an array of hashes of item data. How this is done
+      # depends on how the template methods (further below) are implemented in
+      # subclasses of Row.
       # @return [Array<Hash>] an array of hashes like the template in config.rb
       def parse
-        return [] if skip? # overridable hook
+        return [] if skip?
 
-        before_parse # overridable hook
+        before_parse
 
         items = split_by_format_emojis.map { |name|
           item_hash(name)
-            .compact_item_hash(template: config.deep_fetch(:item, :template))
+            .compact_by(template: config.deep_fetch(:item, :template))
         }.compact
 
         items
@@ -71,15 +73,14 @@ module Reading
           .first
       end
 
-      # Hook, can be overridden.
+      # Below: template methods that can (or must) be overridden.
+
       def after_initialize
       end
 
-      # Hook, can be overridden.
       def before_parse
       end
 
-      # Can be overridden.
       def skip?
         false
       end
