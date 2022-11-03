@@ -20,7 +20,7 @@ class CSVParseTest < TestBase
             end
         }
     }
-  @config = Reading.build_config(custom_config)
+  @config = Reading::Config.new(custom_config).hash
 
   @files = {}
 

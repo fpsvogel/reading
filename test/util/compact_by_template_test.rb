@@ -17,7 +17,7 @@ class CompactByTemplateTest < Minitest::Test
   end
 
   def test_compacted_template_has_arrays_of_hashes_emptied
-    template = Reading.build_config[:item][:template]
+    template = Reading::Config.new.hash[:item][:template]
     compacted = template.merge({ series: [], variants: [], experiences: [] })
 
     assert_equal compacted, template.compact_by(template:)

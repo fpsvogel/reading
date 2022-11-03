@@ -13,7 +13,7 @@ module Reading
     # @param custom_config [Hash] a custom config which overrides the defaults,
     #   e.g. { errors: { styling: :html } }
     def initialize(custom_config = {})
-      @config ||= Reading.build_config(custom_config)
+      @config ||= Config.new(custom_config).hash
     end
 
     # Parses a CSV reading log into item data (an array of hashes).
