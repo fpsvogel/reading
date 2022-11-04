@@ -78,10 +78,8 @@ module Reading
     # Not an item attribute; only shares common behavior across the below
     # attribute parsers.
     class FromGenreColumnAttributeBase < Attribute
-      @@all_genres = nil
-
       def all_genres(columns)
-        @@all_genres ||= columns[:genres]
+        columns[:genres]
           .split(@config.deep_fetch(:csv, :separator))
           .map(&:strip)
           .map(&:presence)
@@ -89,18 +87,14 @@ module Reading
       end
     end
 
-    # TODO make Parse___ officially stateful (resets state after a row is
-    # parsed) so that the Genres column doesn't have this hacky state where
-    # ParseGenres resets state because it's called after ParseVisibility.
-    # this is order-dependent, requiring that :visibility appear before
-    # :genres in the item template.
     class VisibilityAttribute < FromGenreColumnAttributeBase
       VISIBILITY_STRINGS =
-        { 0 => ["private", "for me", "to me", "for-me", "to-me"],
+        {
+          0 => ["private", "for me", "to me", "for-me", "to-me"],
           1 => ["for starred friends", "to starred friends",
                 "for-starred-friends", "to-starred-friends",
                 "for starred", "to starred", "for-starred", "to-starred"],
-          2 => ["for friends", "to friends", "for-friends", "to-friends"]
+          2 => ["for friends", "to friends", "for-friends", "to-friends"],
         }
 
       def parse(_item_head = nil, columns)
@@ -111,7 +105,6 @@ module Reading
         all_genres(columns).each do |entry|
           if specified_visibility = visibility_string_to_number(entry)
             visibility = specified_visibility
-            @@all_genres.delete(entry)
             break
           end
         end
@@ -134,9 +127,7 @@ module Reading
       def parse(_item_head = nil, columns)
         return nil unless columns[:genres]
 
-        genres = @@all_genres # Visibility has already been taken out by ParseVisibility.
-        @@all_genres = nil
-        genres
+        all_genres(columns) - VisibilityAttribute::VISIBILITY_STRINGS.values.flatten
       end
     end
 
