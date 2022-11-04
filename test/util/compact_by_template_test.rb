@@ -1,7 +1,7 @@
 require_relative "../test_helper"
 
 require "reading/util/compact_by_template"
-require "reading/csv/config"
+require "reading/config"
 
 class CompactByTemplateTest < Minitest::Test
   using Reading::Util::CompactByTemplate

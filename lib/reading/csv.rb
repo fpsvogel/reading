@@ -1,5 +1,5 @@
-require_relative "../util/deep_merge"
-require_relative "../util/deep_fetch"
+require_relative "util/deep_merge"
+require_relative "util/deep_fetch"
 require_relative "config"
 require_relative "line"
 

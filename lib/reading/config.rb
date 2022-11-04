@@ -1,5 +1,5 @@
-require_relative "../util/deep_fetch"
-require_relative "../util/deep_merge"
+require_relative "util/deep_fetch"
+require_relative "util/deep_merge"
 
 module Reading
   # Builds a hash config.

@@ -1,8 +1,8 @@
 require_relative "test_helper"
 require_relative "test_base"
 
-require "reading/csv/config"
-require "reading/csv/csv"
+require "reading/config"
+require "reading/csv"
 require "reading/util/deep_merge"
 require "reading/util/deep_fetch"
 

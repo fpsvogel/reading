@@ -2,10 +2,10 @@
 
 - [ ] Implement parsing of the History column.
 
-## [0.3.1] - WIP
+## [0.4.0] - WIP
 
+- Renamed to Reading.
 - Removed dependency on ActiveSupport.
-- Added tests for refinements and monkey patches in util.
 
 ## [0.3.0] - 2022-05-10
 
@@ -35,7 +35,7 @@
 - Added custom columns.
 - Added compact planned item lists.
 - Heavily refactored and rewrote tests from scratch.
-- All this was to make reading-csv ready for use in [Plain Reading](https://github.com/fpsvogel/plainreading).
+- All this was to make Reading ready for use in [Plain Reading](https://github.com/fpsvogel/plainreading).
 
 ## [0.1.0] - 2021-06-22
 
