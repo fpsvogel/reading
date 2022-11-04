@@ -7,11 +7,12 @@ module Reading
     class VariantsAttribute < Attribute
       using Util::DeepFetch
 
-      def parse(head, columns)
-        format_in_head = format(head)
+      def parse(item_head, columns)
+        format_in_head = format(item_head)
         length_in_length = length(columns[:length])
-        extra_info_in_head = extra_info(head).presence
+        extra_info_in_head = extra_info(item_head).presence
         sources_str = columns[:sources]&.presence || " "
+
         separator =
           if sources_str.match(@config.deep_fetch(:csv, :regex, :formats))
             @config.deep_fetch(:csv, :regex, :formats_split)
@@ -41,6 +42,8 @@ module Reading
           end
         }.compact.presence
       end
+
+      private
 
       def template
         @template ||= @config.deep_fetch(:item, :template, :variants).first
@@ -123,6 +126,7 @@ module Reading
         return nil if array.nil? || array.empty?
 
         array = [array[0].strip, array[1]&.strip]
+
         if valid_url?(array[0])
           if valid_url?(array[1])
             raise InvalidItemError, "Each Source must have only one one URL."
@@ -136,8 +140,10 @@ module Reading
         url.chop! if url&.chars&.last == "/"
         name = array[0] || auto_name_from_url(url)
 
-        { name: name || template.deep_fetch(:sources, 0, :name),
-          url: url   || template.deep_fetch(:sources, 0, :url) }
+        {
+          name: name || template.deep_fetch(:sources, 0, :name),
+          url: url   || template.deep_fetch(:sources, 0, :url),
+        }
       end
 
       def valid_url?(str)

@@ -9,22 +9,24 @@ module Reading
   class Row
     using Util::DeepFetch
 
-    # The simpler attribute parsers are collected below. The longer attribute
-    # parsers are separated into their own files.
+    # The simpler attributes are collected below. The more complex attributes
+    # are separated into their own files.
 
     class RatingAttribute < Attribute
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         return nil unless columns[:rating]
+
         rating = columns[:rating].strip
         return nil if rating.empty?
+
         Integer(rating, exception: false) ||
           Float(rating, exception: false)
       end
     end
 
     class AuthorAttribute < Attribute
-      def parse(head, _columns = nil)
-        head
+      def parse(item_head, _columns = nil)
+        item_head
           .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
           .match(/.+(?=#{@config.deep_fetch(:csv, :short_separator)})/)
           &.to_s
@@ -33,8 +35,8 @@ module Reading
     end
 
     class TitleAttribute < Attribute
-      def parse(head, _columns = nil)
-        head
+      def parse(item_head, _columns = nil)
+        item_head
           .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
           .sub(/.+#{@config.deep_fetch(:csv, :short_separator)}/, "")
           .sub(/#{@config.deep_fetch(:csv, :long_separator)}.+\z/, "")
@@ -44,23 +46,29 @@ module Reading
     end
 
     class SeriesAttribute < Attribute
-      def parse(head, _columns = nil)
-        separated = head
+      def parse(item_head, _columns = nil)
+        separated = item_head
           .split(@config.deep_fetch(:csv, :long_separator))
           .map(&:strip)
           .map(&:presence)
           .compact
+
         separated.delete_at(0) # everything before the series/extra info
+
         separated.map { |str|
           volume = str.match(@config.deep_fetch(:csv, :regex, :series_volume))
           prefix = "#{@config.deep_fetch(:csv, :series_prefix)} "
+
           if volume || str.start_with?(prefix)
-            { name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
-              volume: volume&.captures&.first&.to_i                      || default[:volume] }
+            {
+              name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
+              volume: volume&.captures&.first&.to_i                      || default[:volume],
+            }
           end
-        }
-        .compact.presence
+        }.compact.presence
       end
+
+      private
 
       def default
         @config.deep_fetch(:item, :template, :series).first
@@ -95,9 +103,11 @@ module Reading
           2 => ["for friends", "to friends", "for-friends", "to-friends"]
         }
 
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         return nil unless columns[:genres]
+
         visibility = @config.deep_fetch(:item, :template, :visibility)
+
         all_genres(columns).each do |entry|
           if specified_visibility = visibility_string_to_number(entry)
             visibility = specified_visibility
@@ -105,20 +115,25 @@ module Reading
             break
           end
         end
+
         visibility
       end
+
+      private
 
       def visibility_string_to_number(entry)
         VISIBILITY_STRINGS.each do |number, strings|
           return number if strings.include?(entry)
         end
+
         nil
       end
     end
 
     class GenresAttribute < FromGenreColumnAttributeBase
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         return nil unless columns[:genres]
+
         genres = @@all_genres # Visibility has already been taken out by ParseVisibility.
         @@all_genres = nil
         genres
@@ -130,6 +145,7 @@ module Reading
     class NotesAttributeBase < Attribute
       def split_notes(column_name, columns)
         return nil unless columns[column_name]
+
         columns[column_name]
           .presence
           &.chomp
@@ -139,14 +155,15 @@ module Reading
     end
 
     class PublicNotesAttribute < NotesAttributeBase
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         split_notes(:public_notes, columns)
       end
     end
 
     class BlurbAttribute < Attribute
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         return nil unless columns[:blurb]
+
         columns[:blurb]
           .presence
           &.chomp
@@ -154,7 +171,7 @@ module Reading
     end
 
     class PrivateNotesAttribute < NotesAttributeBase
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         split_notes(:private_notes, columns)
       end
     end

@@ -34,24 +34,22 @@ module Reading
       @row_without_genre
     end
 
-    def item_hash(head)
-      match = head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
+    def item_hash(item_head)
+      match = item_head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
       unless match
         raise InvalidItemError, "Invalid planned item"
       end
 
       author = AuthorAttribute.new(config).parse(match[:author_title])
       title = TitleAttribute.new(config).parse(match[:author_title])
-      item = template.deep_merge(
+      variants = parse_variants(match)
+
+      template.deep_merge(
         author: author || template.fetch(:author),
         title: title,
-        genres: [@genre] || template.fetch(:genres)
+        genres: [@genre] || template.fetch(:genres),
+        variants: variants,
       )
-
-      variants = parse_variants(match)
-      item.deep_merge!(variants: variants)
-
-      item
     end
 
     def template
@@ -62,7 +60,7 @@ module Reading
       inverted_variants = sources_with_format_emojis(item_match[:sources])
 
       variants = []
-      inverted_variants[0] ||= {} # because there'll be at least one variant for the first format(s)
+      inverted_variants[0] ||= {} # because there will be at least one variant for the first format(s)
       inverted_variants.first[:format_emojis_str] = item_match[:first_format_emojis]
 
       inverted_variants.each do |inverted_variant|
@@ -70,10 +68,13 @@ module Reading
         format_emojis = inverted_variant[:format_emojis_str].scan(
           /#{config.deep_fetch(:csv, :regex, :formats)}/
         )
+
         format_emojis.each do |format_emoji|
           format = format(format_emoji)
+
           variant_for_format = variants.select { |variant| variant[:format] == format }.first ||
             (variants << blank_variant(format)).last
+
           variant_for_format[:sources] << inverted_variant[:source] unless inverted_variant[:source].nil?
         end
       end

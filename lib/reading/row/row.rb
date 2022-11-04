@@ -26,8 +26,8 @@ module Reading
 
       before_parse
 
-      items = heads.map { |head|
-        item_hash(head)
+      items = item_heads.map { |item_head|
+        item_hash(item_head)
           .compact_by(template: config.deep_fetch(:item, :template))
       }.compact
 
@@ -66,15 +66,15 @@ module Reading
     # planned items is essentially a list of heads, though with different
     # elements than a normal row's head.
     # @return [Array<String>]
-    def heads
+    def item_heads
       string_to_be_split_by_format_emojis
         .split(config.deep_fetch(:csv, :regex, :formats_split))
-        .tap { |heads|
-          heads.first.sub!(config.deep_fetch(:csv, :regex, :dnf), "")
-          heads.first.sub!(config.deep_fetch(:csv, :regex, :progress), "")
+        .tap { |item_heads|
+          item_heads.first.sub!(config.deep_fetch(:csv, :regex, :dnf), "")
+          item_heads.first.sub!(config.deep_fetch(:csv, :regex, :progress), "")
         }
-        .map { |head| head.strip.sub(/\s*,\z/, "") }
-        .partition { |head| head.match?(/\A#{config.deep_fetch(:csv, :regex, :formats)}/) }
+        .map { |item_head| item_head.strip.sub(/\s*,\z/, "") }
+        .partition { |item_head| item_head.match?(/\A#{config.deep_fetch(:csv, :regex, :formats)}/) }
         .reject(&:empty?)
         .first
     end
@@ -95,7 +95,7 @@ module Reading
       raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
     end
 
-    def item_hash(head)
+    def item_hash(item_head)
       raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
     end
   end

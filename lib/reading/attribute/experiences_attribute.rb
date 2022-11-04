@@ -7,8 +7,9 @@ module Reading
     class ExperiencesAttribute < Attribute
       using Util::DeepFetch
 
-      def parse(_head = nil, columns)
+      def parse(_item_head = nil, columns)
         started, finished = dates_split(columns)
+
         if @config.deep_fetch(:csv, :reverse_dates)
           started, finished = started.reverse, finished.reverse
         end
@@ -17,8 +18,6 @@ module Reading
           {
             date_added: date_added(entry)                 || template.fetch(:date_added),
             spans: spans(entry, finished, i)              || template.fetch(:spans),
-            # date_started:  date_started(entry)            || template.fetch(:date_started),
-            # date_finished: date_finished(finished, i)     || template.fetch(:date_finished),
             progress: progress(entry) ||
               progress(columns[:head],
                   ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
@@ -69,7 +68,7 @@ module Reading
         [{
           dates: started..finished,
           amount: nil,
-          description: nil
+          description: nil,
         }]
       end
 
@@ -79,6 +78,7 @@ module Reading
 
       def date_finished(dates_finished, date_index)
         return nil if dates_finished.nil?
+
         dates_finished[date_index]&.strip&.presence
       end
 
@@ -108,6 +108,7 @@ module Reading
 
       def variant_index(date_entry)
         match = date_entry.match(@config.deep_fetch(:csv, :regex, :variant_index))
+
         (match&.captures&.first&.to_i || 1) - 1
       end
     end

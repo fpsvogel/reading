@@ -14,7 +14,7 @@ module Reading
     private
 
     def after_initialize
-      setup_attributes
+      set_attribute_parsers
     end
 
     def before_parse
@@ -26,30 +26,30 @@ module Reading
       @columns[:head]
     end
 
-    def setup_attributes
-      @attribute_classes ||= config.deep_fetch(:item, :template).map { |attribute_name, _default|
+    def set_attribute_parsers
+      @attribute_parsers ||= config.deep_fetch(:item, :template).map { |attribute_name, _default|
         attribute_name_camelcase = attribute_name.to_s.split("_").map(&:capitalize).join
         attribute_class_name = "#{attribute_name_camelcase}Attribute"
         attribute_class = self.class.const_get(attribute_class_name)
 
         [attribute_name, attribute_class.new(config)]
       }.to_h
-      .merge(custom_attributes)
+      .merge(custom_attribute_parsers)
     end
 
-    def custom_attributes
-      numeric = custom_attributes_of_type(:numeric) { |value|
+    def custom_attribute_parsers
+      numeric = custom_attribute_parsers_of_type(:numeric) do |value|
         Float(value, exception: false)
-      }
+      end
 
-      text = custom_attributes_of_type(:text) { |value|
+      text = custom_attribute_parsers_of_type(:text) do |value|
         value
-      }
+      end
 
       (numeric + text).to_h
     end
 
-    def custom_attributes_of_type(type, &process_value)
+    def custom_attribute_parsers_of_type(type, &process_value)
       config.deep_fetch(:csv, :"custom_#{type}_columns").map { |attribute, _default_value|
         custom_class = Class.new(Attribute)
 
@@ -79,14 +79,14 @@ module Reading
       end
     end
 
-    def item_hash(head)
+    def item_hash(item_head)
       config
         .deep_fetch(:item, :template)
         .merge(config.deep_fetch(:csv, :custom_numeric_columns))
         .merge(config.deep_fetch(:csv, :custom_text_columns))
         .map { |attribute_name, default_value|
-          attribute_class = @attribute_classes.fetch(attribute_name)
-          parsed = attribute_class.parse(head, @columns)
+          attribute_parser = @attribute_parsers.fetch(attribute_name)
+          parsed = attribute_parser.parse(item_head, @columns)
 
           [attribute_name, parsed || default_value]
         }.to_h
