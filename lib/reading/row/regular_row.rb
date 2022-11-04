@@ -2,7 +2,7 @@ require_relative "../errors"
 require_relative "../util/blank"
 require_relative "../util/deep_fetch"
 require_relative "row"
-require_relative "../parse_attribute/parse_attributes"
+require_relative "../attribute/all_attributes"
 
 module Reading
   # Parses a normal CSV row into an array of hashes of item data. Typically
@@ -14,7 +14,7 @@ module Reading
     private
 
     def after_initialize
-      setup_parse_attributes
+      setup_attributes
     end
 
     def before_parse
@@ -26,31 +26,34 @@ module Reading
       @columns[:head]
     end
 
-    def setup_parse_attributes
-      @parse_attributes ||= config.deep_fetch(:item, :template).map { |attribute, _default|
-        parser_class_name = "Parse#{attribute.to_s.split("_").map(&:capitalize).join}"
-        [attribute, self.class.const_get(parser_class_name).new(config)]
+    def setup_attributes
+      @attribute_classes ||= config.deep_fetch(:item, :template).map { |attribute_name, _default|
+        attribute_name_camelcase = attribute_name.to_s.split("_").map(&:capitalize).join
+        attribute_class_name = "#{attribute_name_camelcase}Attribute"
+        attribute_class = self.class.const_get(attribute_class_name)
+
+        [attribute_name, attribute_class.new(config)]
       }.to_h
-      .merge(custom_parse_attributes)
+      .merge(custom_attributes)
     end
 
-    def custom_parse_attributes
-      numeric = custom_parse_attributes_of_type(:numeric) { |value|
+    def custom_attributes
+      numeric = custom_attributes_of_type(:numeric) { |value|
         Float(value, exception: false)
       }
 
-      text = custom_parse_attributes_of_type(:text) { |value|
+      text = custom_attributes_of_type(:text) { |value|
         value
       }
 
       (numeric + text).to_h
     end
 
-    def custom_parse_attributes_of_type(type, &process_value)
+    def custom_attributes_of_type(type, &process_value)
       config.deep_fetch(:csv, :"custom_#{type}_columns").map { |attribute, _default_value|
-        custom_class = Class.new ParseAttribute
+        custom_class = Class.new(Attribute)
 
-        custom_class.define_method :call do |item_head, columns|
+        custom_class.define_method(:parse) do |item_head, columns|
           value = columns[attribute.to_sym]&.strip&.presence
           process_value.call(value)
         end
@@ -81,10 +84,11 @@ module Reading
         .deep_fetch(:item, :template)
         .merge(config.deep_fetch(:csv, :custom_numeric_columns))
         .merge(config.deep_fetch(:csv, :custom_text_columns))
-        .map { |attribute, default_value|
-          parsed = @parse_attributes.deep_fetch(attribute).call(head, @columns)
+        .map { |attribute_name, default_value|
+          attribute_class = @attribute_classes.fetch(attribute_name)
+          parsed = attribute_class.parse(head, @columns)
 
-          [attribute, parsed || default_value]
+          [attribute_name, parsed || default_value]
         }.to_h
     end
   end

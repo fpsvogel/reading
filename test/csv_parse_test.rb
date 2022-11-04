@@ -918,7 +918,7 @@ class CSVParseTest < TestBase
   ## TESTS: ENABLING COLUMNS
   files[:enabled_columns].each do |set_name, file_str|
     columns = set_name.to_s.split(", ").map(&:to_sym)
-    define_method "test_enabled_columns_#{columns.join("_")}" do
+    define_method("test_enabled_columns_#{columns.join("_")}") do
       set_columns(*columns)
       exp = tidy(items[:enabled_columns][set_name])
       act = parse(file_str)
@@ -953,7 +953,7 @@ class CSVParseTest < TestBase
       columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
-      define_method "test_#{columns_sym}_feature_#{feat}" do
+      define_method("test_#{columns_sym}_feature_#{feat}") do
         set_columns(*columns)
         exp = tidy(items[group_name][feat])
         act = parse(file_str)
@@ -966,7 +966,7 @@ class CSVParseTest < TestBase
 
   ## TESTS: EXAMPLES
   files[:examples].each do |set_name, file_str|
-    define_method "test_example_#{set_name}" do
+    define_method("test_example_#{set_name}") do
       set_columns(:all)
       exp = tidy(items[:examples][set_name])
       act = parse(file_str)

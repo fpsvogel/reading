@@ -4,10 +4,10 @@ require_relative "../util/deep_fetch"
 
 module Reading
   class Row
-    class ParseExperiences < ParseAttribute
+    class ExperiencesAttribute < Attribute
       using Util::DeepFetch
 
-      def call(_head = nil, columns)
+      def parse(_head = nil, columns)
         started, finished = dates_split(columns)
         if @config.deep_fetch(:csv, :reverse_dates)
           started, finished = started.reverse, finished.reverse

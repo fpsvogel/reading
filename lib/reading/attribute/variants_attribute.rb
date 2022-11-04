@@ -4,10 +4,10 @@ require_relative "../util/deep_fetch"
 
 module Reading
   class Row
-    class ParseVariants < ParseAttribute
+    class VariantsAttribute < Attribute
       using Util::DeepFetch
 
-      def call(head, columns)
+      def parse(head, columns)
         format_in_head = format(head)
         length_in_length = length(columns[:length])
         extra_info_in_head = extra_info(head).presence
