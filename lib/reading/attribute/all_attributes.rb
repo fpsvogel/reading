@@ -13,7 +13,7 @@ module Reading
     # are separated into their own files.
 
     class RatingAttribute < Attribute
-      def parse(_item_head = nil, columns)
+      def parse
         return nil unless columns[:rating]
 
         rating = columns[:rating].strip
@@ -25,7 +25,7 @@ module Reading
     end
 
     class AuthorAttribute < Attribute
-      def parse(item_head, _columns = nil)
+      def parse
         item_head
           .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
           .match(/.+(?=#{@config.deep_fetch(:csv, :short_separator)})/)
@@ -35,7 +35,7 @@ module Reading
     end
 
     class TitleAttribute < Attribute
-      def parse(item_head, _columns = nil)
+      def parse
         item_head
           .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
           .sub(/.+#{@config.deep_fetch(:csv, :short_separator)}/, "")
@@ -46,7 +46,7 @@ module Reading
     end
 
     class SeriesAttribute < Attribute
-      def parse(item_head, _columns = nil)
+      def parse
         separated = item_head
           .split(@config.deep_fetch(:csv, :long_separator))
           .map(&:strip)
@@ -97,7 +97,7 @@ module Reading
           2 => ["for friends", "to friends", "for-friends", "to-friends"],
         }
 
-      def parse(_item_head = nil, columns)
+      def parse
         return nil unless columns[:genres]
 
         visibility = @config.deep_fetch(:item, :template, :visibility)
@@ -124,7 +124,7 @@ module Reading
     end
 
     class GenresAttribute < FromGenreColumnAttributeBase
-      def parse(_item_head = nil, columns)
+      def parse
         return nil unless columns[:genres]
 
         all_genres(columns) - VisibilityAttribute::VISIBILITY_STRINGS.values.flatten
@@ -146,13 +146,13 @@ module Reading
     end
 
     class PublicNotesAttribute < NotesAttributeBase
-      def parse(_item_head = nil, columns)
+      def parse
         split_notes(:public_notes, columns)
       end
     end
 
     class BlurbAttribute < Attribute
-      def parse(_item_head = nil, columns)
+      def parse
         return nil unless columns[:blurb]
 
         columns[:blurb]
@@ -162,7 +162,7 @@ module Reading
     end
 
     class PrivateNotesAttribute < NotesAttributeBase
-      def parse(_item_head = nil, columns)
+      def parse
         split_notes(:private_notes, columns)
       end
     end

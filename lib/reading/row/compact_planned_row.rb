@@ -40,8 +40,8 @@ module Reading
         raise InvalidItemError, "Invalid planned item"
       end
 
-      author = AuthorAttribute.new(config).parse(match[:author_title])
-      title = TitleAttribute.new(config).parse(match[:author_title])
+      author = AuthorAttribute.new(item_head: match[:author_title], config:).parse
+      title = TitleAttribute.new(item_head: match[:author_title], config:).parse
       variants = parse_variants(match)
 
       template.deep_merge(
