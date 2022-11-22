@@ -1,11 +1,8 @@
-## TODO:
-
-- [ ] Implement parsing of the History column.
-
-## [0.4.0] - WIP
+## [0.3.1] - 2022-11-22
 
 - Renamed to Reading.
 - Removed dependency on ActiveSupport.
+- High-level cleanup/refactor.
 
 ## [0.3.0] - 2022-05-10
 
