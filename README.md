@@ -1,6 +1,6 @@
 <h1 align="center">Reading</h1>
 
-Reading parses a CSV reading list into an array of Ruby hashes containing the data of the books and other items listed in the CSV file. My [Plain Reading app](https://plainreading.herokuapp.com) serves as a web interface for Reading. [My personal site's Reading page](https://fpsvogel.com/reading/) is also built using this gem.
+Reading parses a CSV reading list into an array of Ruby hashes containing the data of the books and other items listed in the CSV file. [My personal site's Reading page](https://fpsvogel.com/reading/) is built using this gem.
 
 ### Table of Contents
 
