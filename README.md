@@ -1,6 +1,6 @@
 <h1 align="center">Reading</h1>
 
-Reading parses a CSV reading list into an array of Ruby hashes containing the data of items (such as books) listed in the CSV file. [My personal site's Reading page](https://fpsvogel.com/reading/) is built using this gem.
+Reading parses a CSV reading log into an array of Ruby hashes containing the data of items (such as books) listed in the CSV file. [My personal site's Reading page](https://fpsvogel.com/reading/) is built using this gem.
 
 ### Table of Contents
 
@@ -19,7 +19,7 @@ Because I love reading and keeping track of my reading, but I don't love the lim
 - I don't like being limited to a database of existing book metadata. In Goodreads I could add new titles to their database, but that is cumbersome. Plus, it's nice to be able to track items other than books.
 - On Goodreads and similar sites, my reading data is theirs, not mine. I could get my data by exporting it as a CSV file, but then the formatting of the file is terrible because it's full of junk columns that I don't want.
 
-These considerations led me to start tracking my reading and notes directly in a CSV file. Then a problem arose: how to share my reading list with friends? I'm sure they wouldn't want to wade through my massive CSV file, and anyway I have some items and notes in there that I don't want everyone to see.
+These considerations led me to start tracking my reading and notes directly in a CSV file. Then a problem arose: how to share my reading log with friends? I'm sure they wouldn't want to wade through my massive CSV file, and anyway I have some items and notes in there that I don't want everyone to see.
 
 That's where Reading helps: it transforms my `reading.csv` into a page on my site.
 
@@ -41,10 +41,10 @@ Or install it yourself as:
 
 ## Usage
 
-The most basic usage is simply to specify the path to your CSV reading list, and it will be parsed with the default configuration. See [CSV documentation](#csv-documentation) below to learn about the expected format of the CSV file.
+The most basic usage is simply to specify the path to your CSV reading log, and it will be parsed with the default configuration. See [CSV documentation](#csv-documentation) below to learn about the expected format of the CSV file.
 
 ```ruby
-file_path = "/home/jo/reading.csv"
+file_path = "/home/user/reading.csv"
 csv = Reading::CSV.new(path: file_path)
 items_hashes = csv.parse
 ```

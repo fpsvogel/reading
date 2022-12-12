@@ -1,4 +1,4 @@
-\ This is a template for your own plain-text reading list.
+\ This is a template for your own plain-text reading log.
 \ This file can be turned into a pretty webpage at Plain Reading: https://plainreading.herokuapp.com
 \ Register a new account, then upload your CSV file or connect to your Dropbox where you have it saved.
 \ If you haven't yet, take a look at the CSV guide: https://plainreading.herokuapp.com/guide
@@ -15,7 +15,7 @@
 
 \ For editing in VS Code or other text editors, you might want to make a hotkey to set up a new column instantly.
 \ This way you won't have to type out all the column dividers and today's date.
-\ For more on that, see https://github.com/fpsvogel/plainreading/blob/main/doc/autohotkey-reading-csv.ahk
+\ For more on that, see https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.ahk
 
 
 

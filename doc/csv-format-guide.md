@@ -4,7 +4,7 @@ Welcome! This is a guide to setting up your own `reading.csv` to be parsed by Re
 
 ## Basics
 
-Let's take a look at how your reading.csv should be formatted. Here is the beginning of a minimal reading list:
+Let's take a look at how your reading.csv should be formatted. Here is the beginning of a minimal reading log:
 
   ```
   \Author - Title|Dates finished
@@ -25,7 +25,7 @@ Let's take a look at how your reading.csv should be formatted. Here is the begin
   - Dates can have leading zeroes ("06" in "2019/06/18") or omit them ("2020/5/8"), whichever you prefer.
   - Dates must be in order, left to right (earlier dates on the left).
 
-If this minimal kind of reading list is what you want, be sure to initialize a `Reading::CSV` with unwanted columns disabled:
+If this minimal kind of reading log is what you want, be sure to initialize a `Reading::CSV` with unwanted columns disabled:
 
   ```
   custom_config = {

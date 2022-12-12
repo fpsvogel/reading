@@ -20,7 +20,7 @@ class CSVParseTest < TestBase
             end
         }
     }
-  @config = Reading::Config.new(custom_config).hash
+  @base_config = Reading::Config.new(config: custom_config).hash
 
   @files = {}
 
@@ -310,7 +310,7 @@ class CSVParseTest < TestBase
     # This merge is not the same as Reading::Util::DeepMerge. This one uses an
     # array value's first hash as the template for all corresponding partial
     # data, for example in :variants and :experiences in the item template.
-    config.deep_fetch(:item, :template).merge(partial_data) do |key, old_value, new_value|
+    base_config.deep_fetch(:item, :template).merge(partial_data) do |key, old_value, new_value|
       item_template_merge(key, old_value, new_value)
     end
   end
@@ -458,7 +458,7 @@ class CSVParseTest < TestBase
   a = a_basic.deep_merge(variants: [{ sources: [library] }])
   @items[:features_sources][:"source"] = [a]
 
-  site = { name: config.deep_fetch(:item, :sources, :default_name_for_url),
+  site = { name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
            url: "https://www.edlin.org/holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site] }])
   @items[:features_sources][:"URL source"] = [a]
@@ -814,7 +814,7 @@ class CSVParseTest < TestBase
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: config.deep_fetch(:item, :sources, :default_name_for_url),
+                  sources: [{ name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
     genres: ["historical fiction"]
   )
@@ -848,14 +848,14 @@ class CSVParseTest < TestBase
 
   ### UTILITY METHODS
 
-  NO_COLUMNS = config.deep_fetch(:csv, :columns).keys.map { |col| [col, false] }.to_h
+  NO_COLUMNS = base_config.deep_fetch(:csv, :columns).keys.map { |col| [col, false] }.to_h
 
   def set_columns(*columns, custom_numeric_columns: nil, custom_text_columns: nil)
     if columns.empty? || columns.first == :all
-      this_config = config
+      this_config = base_config
     else
       this_columns = { columns: NO_COLUMNS.merge(columns.map { |col| [col, true] }.to_h) }
-      this_config = config.merge(csv: config[:csv].merge(this_columns))
+      this_config = base_config.merge(csv: base_config[:csv].merge(this_columns))
     end
 
     unless custom_numeric_columns.nil?
@@ -865,7 +865,7 @@ class CSVParseTest < TestBase
       this_config.deep_merge!(csv: { custom_text_columns: })
     end
 
-    @csv = Reading::CSV.new(this_config)
+    @this_config = this_config
   end
 
   # Removes any blank hashes in arrays, i.e. any that are the same as in the
@@ -878,7 +878,7 @@ class CSVParseTest < TestBase
   end
 
   def without_blank_hashes(item_data)
-    template = config.deep_fetch(:item, :template)
+    template = base_config.deep_fetch(:item, :template)
     %i[series variants experiences].each do |attribute|
       item_data[attribute] =
         item_data[attribute].reject { |value| value == template[attribute].first }
@@ -908,7 +908,11 @@ class CSVParseTest < TestBase
   end
 
   def parse(string)
-    @csv.parse(StringIO.new(string))
+    csv = Reading::CSV.new(
+      string,
+      config: @this_config,
+    )
+    csv.parse
   end
 
 

@@ -120,7 +120,6 @@ module Reading
           },
         csv:
           {
-            path:               nil, # Set if you want to load a local file.
             columns:
               {
                 rating:         true,
