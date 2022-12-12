@@ -275,7 +275,8 @@ class CSVParseTest < TestBase
 
 
   ## TEST DATA: EXAMPLES
-  # Realistic examples from the reading.csv template in Plain Reading.
+  # Realistic examples from the reading.csv template:
+  # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
   @files[:examples] = {}
   @files[:examples][:"in progress"] = <<~EOM.freeze
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History

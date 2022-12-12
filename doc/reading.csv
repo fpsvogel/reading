@@ -1,10 +1,10 @@
 \ This is a template for your own plain-text reading log.
-\ This file can be turned into a pretty webpage at Plain Reading: https://plainreading.herokuapp.com
-\ Register a new account, then upload your CSV file or connect to your Dropbox where you have it saved.
-\ If you haven't yet, take a look at the CSV guide: https://plainreading.herokuapp.com/guide
-\ The examples below are taken from the guide.
+\ This file can be parsed by the Reading gem, so that you can display the data on a webpage.
+\ Example: fpsvogel.com/reading
+\ The examples below are taken from the CSV format guide:
+\ https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb
 
-\ Any line in this file starting with a backslash (\) is a comment and will be ignored by Plain Reading.
+\ Any line in this file starting with a backslash (\) is a comment and will be ignored by the Reading parser.
 \ Feel free to delete these explanatory comments.
 
 \ You can edit this file in any spreadsheet app or text editor.
@@ -23,7 +23,7 @@
 \   🙥 THE BASICS 🙦
 \ ╘══════════════════╛
 
-\ Notes on this section: https://plainreading.herokuapp.com/guide#basics
+\ Notes on this section: https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb#basics
 
 \ Minimal example:
 
@@ -46,7 +46,7 @@ Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06
 \   🙥 ADVANCED FEATURES 🙦
 \ ╘═════════════════════════╛
 
-\ Notes on this section: https://plainreading.herokuapp.com/guide#advanced
+\ Notes on this section: https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb#advanced
 
 \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
 \------ DONE
@@ -61,7 +61,7 @@ Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06
 \   🙥 PLANNED ITEMS 🙦
 \ ╘═════════════════════╛
 
-\ Notes on this section: https://plainreading.herokuapp.com/guide#planned-items
+\ Notes on this section: https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb#planned-items
 
 \ Regular full-line planned items:
 
@@ -76,22 +76,13 @@ Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06
 \HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
 \SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
 
-\ For Plain Reading to parse planned these compact planned items, you must:
-    \ - Include the format emoji before each title.
-    \ - Start the line with a comment character, then a single genre in all caps, then a colon (:).
-\ The all-caps genre is changed to lowercase in Plain Reading. So if you have a "science" genre, the items after "SCIENCE" here will be in that same "science" genre.
-\ At the end of an item you can list sources, each immediately preceded by "@".
-
-\ By default, planned items are visible only to friends.
-\ To change this and other settings, and to discover even more features not covered here, see the Settings page: https://plainreading.com/settings
-
 
 
 \ ╒══════════════════════════╕
 \   🙥 THE HISTORY COLUMN 🙦
 \ ╘══════════════════════════╛
 
-\ Notes on this section: https://plainreading.herokuapp.com/guide#history
+\ Notes on this section: https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb#history
 
 \------ DONE
 4|🎞️Eyes on the Prize: America's Civil Rights Movement|https://worldchannel.org/show/eyes-on-the-prize/ https://jeffco.kanopy.com/video/eyes-prize|2021/07/28, 2021/09/01|2021/08/03|history|14:00||||2021/7/28 1:00 -- 7/29 -- 7/30 -- 7/31 x5 -- 8/1 x4 -- 8/2 -- 8/3 ---- 9/1 -- 9/2

@@ -1,6 +1,6 @@
 <h1 align="center">Reading</h1>
 
-Reading parses a CSV reading log into an array of Ruby hashes containing the data of items (such as books) listed in the CSV file. [My personal site's Reading page](https://fpsvogel.com/reading/) is built using this gem.
+Reading parses a CSV reading log into an array of Ruby hashes containing the data of items (such as books) listed in the CSV file. [My personal site's Reading page](https://fpsvogel.com/reading/) is built with the help of this gem.
 
 ### Table of Contents
 
@@ -8,6 +8,7 @@ Reading parses a CSV reading log into an array of Ruby hashes containing the dat
 - [Installation](#installation)
 - [Usage](#usage)
 - [CSV documentation](#csv-documentation)
+- [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -72,6 +73,10 @@ items_hashes = csv.parse
 The [CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb) shows by example how to set up a CSV reading log of your own. If you prefer looking at tests, see [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
 
 The parsing features are documented more comprehensively in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
+
+## How to add a reading page to your site
+
+The Reading gem parses your CSV reading log, and then it's up to you to display that parsed information on a webpage. I've set up my personal site so that it automatically parses my reading log during site generation, and it even automatically re-generates every week to update my reading page. I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-bridgetown), which may be less useful if you use something other than [Bridgetown](https://www.bridgetownrb.com/) for your site… but you should use Bridgetown, it's great 😉
 
 ## Contributing
 
