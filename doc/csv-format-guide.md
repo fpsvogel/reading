@@ -1,10 +1,10 @@
 # How to format your CSV file
 
-Welcome! This is a guide to setting up your own `reading.csv` to be parsed by Reading. If you want the quickest start possible, then download [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv) and edit it, referring to this guide as needed. Then see [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage) for how to parse the CSV file.
+Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv), which includes the examples below, and you can refer to the notes below as needed. Then see [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage) for how to parse the CSV file.
 
 ## Basics
 
-Let's take a look at how your reading.csv should be formatted. Here is the beginning of a minimal reading log:
+Here is the beginning of a minimal CSV reading log:
 
   ```
   \Author - Title|Dates finished
@@ -13,17 +13,13 @@ Let's take a look at how your reading.csv should be formatted. Here is the begin
   Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06/18, 2020/5/8
   ```
 
-- The first two lines are comments serving as headers.
-  - Any line starting with a backslash (`\`) is a comment and will be ignored by the parser. These headers are comments; they are for your convenience and don't need to be formatted in any particular way.
-  - The second line is a section header. "In progress" means items that you're currently reading, watching, etc.
+- The first two lines (headers and a section heading) are comments. Any line starting with a backslash (`\`) is a comment and will be ignored by the parser. So you can format these lines however you want.
 - Then we have two items, books in this case.
   - Columns are divided by a pipe character (`|`).
-  - This means you *must not* use the pipe character anywhere except to divide columns (or in comments, as in the top line).
+  - This means you *must not* use the pipe character anywhere except to divide columns (or in comments).
   - Columns may be omitted from the right, as in the first item.
   - The author is optional. The first item omits it.
   - You're currently re-reading the second item: it has two "Dates finished", making this your third time reading it. Nice!
-  - Dates can have leading zeroes ("06" in "2019/06/18") or omit them ("2020/5/8"), whichever you prefer.
-  - Dates must be in order, left to right (earlier dates on the left).
 
 If this minimal kind of reading log is what you want, be sure to initialize a `Reading::CSV` with unwanted columns disabled:
 

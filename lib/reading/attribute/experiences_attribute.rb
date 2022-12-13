@@ -14,7 +14,7 @@ module Reading
           started, finished = started.reverse, finished.reverse
         end
 
-        using_dates = started.map.with_index { |entry, i|
+        experiences_with_dates = started.map.with_index { |entry, i|
           {
             date_added: date_added(entry)                 || template.fetch(:date_added),
             spans: spans(entry, finished, i)              || template.fetch(:spans),
@@ -26,8 +26,8 @@ module Reading
           }
         }.presence
 
-        if using_dates
-          return using_dates
+        if experiences_with_dates
+          return sort_experiences(experiences_with_dates)
         else
           if prog = progress(columns[:head])
             return [template.merge(progress: prog)]
@@ -37,19 +37,21 @@ module Reading
         end
       end
 
+      private
+
       def template
         @template ||= config.deep_fetch(:item, :template, :experiences).first
       end
 
       def dates_split(columns)
         dates_finished = columns[:dates_finished]&.presence
-                          &.split(config.deep_fetch(:csv, :separator)) || []
+                          &.split(config.deep_fetch(:csv, :separator))&.map(&:strip) || []
         # Don't use #has_key? because simply checking for nil covers the
         # case where dates_started is the last column and omitted.
         started_column_exists = columns[:dates_started]&.presence
         dates_started =
           if started_column_exists
-            columns[:dates_started]&.presence&.split(config.deep_fetch(:csv, :separator))
+            columns[:dates_started]&.presence&.split(config.deep_fetch(:csv, :separator))&.map(&:strip)
           else
             [""] * dates_finished.count
           end
@@ -79,7 +81,7 @@ module Reading
       def date_finished(dates_finished, date_index)
         return nil if dates_finished.nil?
 
-        dates_finished[date_index]&.strip&.presence
+        dates_finished[date_index]&.presence
       end
 
       def progress(str, ignore_if_no_dnf: false)
@@ -110,6 +112,14 @@ module Reading
         match = date_entry.match(config.deep_fetch(:csv, :regex, :variant_index))
 
         (match&.captures&.first&.to_i || 1) - 1
+      end
+
+      def sort_experiences(experiences)
+        experiences.sort_by { |exp|
+          first_date_added = exp[:date_added]
+          first_date_started = exp[:spans].first&.dig(:dates)&.begin
+          first_date_added || first_date_started || ""
+        }
       end
     end
   end

@@ -190,6 +190,8 @@ class CSVParseTest < TestBase
     "Sapiens|2019/08/20 > 2020/09/01",
   :"dates started" =>
     "Sapiens|2020/09/01, 2021/07/15",
+  :"dates started in any order" =>
+    "Sapiens|2020/09/01, 2022/01/01, 2021/07/15",
   :"dates added and started" =>
     "Sapiens|2019/08/20 > 2020/09/01, 2021/07/15, 2021/09/20 >",
   :"progress" =>
@@ -210,12 +212,11 @@ class CSVParseTest < TestBase
     "Sapiens|2020/09/01 v2",
   :"variant with just date added" =>
     "Sapiens|2019/08/20 > v2",
-  :"variant can be anywhere" =>
-    "Sapiens|2019/08/20 v2 >, v3 2021/07/15",
   :"group can be indicated at the very end" =>
     "Sapiens|2020/09/01 v2 🤝🏼 county book club",
   :"group can be without text" =>
     "Sapiens|2020/09/01 v2 🤝🏼",
+  # RM this feature (unparsed text!)
   :"other text before or after dates is ignored" =>
     "Sapiens|found on Chirp on 2019/08/20 and recommended by Jo > instantly hooked 2020/09/01 at the beach",
   :"all features" =>
@@ -545,6 +546,12 @@ class CSVParseTest < TestBase
   a = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   @items[:features_dates_started][:"dates started"] = [a]
 
+  exp_third_started = { experiences: [{},
+                                      {},
+                                      { spans: [{ dates: "2022/01/01".. }] }] }
+  z = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
+  @items[:features_dates_started][:"dates started in any order"] = [z]
+
   exp_third_added = { experiences: [{},
                                     {},
                                     { date_added: "2021/09/20" }] }
@@ -584,11 +591,6 @@ class CSVParseTest < TestBase
 
   a = a_basic.deep_merge(exp_added.deep_merge(exp_v2))
   @items[:features_dates_started][:"variant with just date added"] = [a]
-
-  exp_v3 = { experiences: [{},
-                           { variant_index: 2 }] }
-  a = item_data(**a.deep_merge(exp_second_started).deep_merge(exp_v3))
-  @items[:features_dates_started][:"variant can be anywhere"] = [a]
 
   a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
   @items[:features_dates_started][:"group can be indicated at the very end"] = [a]
