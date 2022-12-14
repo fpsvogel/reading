@@ -199,18 +199,10 @@ class CSVParseTest < Minitest::Test
   {
   :"date started" =>
     "Sapiens|2020/09/01",
-  :"date added" =>
-    "Sapiens|2019/08/20 >",
-  :"date added and started" =>
-    "Sapiens|2019/08/20 > 2020/09/01",
   :"dates started" =>
     "Sapiens|2020/09/01, 2021/07/15",
-  :"dates added and started" =>
-    "Sapiens|2019/08/20 > 2020/09/01, 2021/07/15, 2021/09/20 >",
   :"progress" =>
     "Sapiens|50% 2020/09/01",
-  :"progress must be at the beginning or immediately after date started separator" =>
-    "Sapiens|2019/08/20 > 50% 2020/09/01, 50% 2021/01/01 > 2021/07/15",
   :"progress pages" =>
     "Sapiens|220p 2020/09/01",
   :"progress pages without p" =>
@@ -223,17 +215,15 @@ class CSVParseTest < Minitest::Test
     "Sapiens|DNF 50% 2020/09/01",
   :"variant" =>
     "Sapiens|2020/09/01 v2",
-  :"variant with just date added" =>
-    "Sapiens|2019/08/20 > v2",
   :"group can be indicated at the very end" =>
     "Sapiens|2020/09/01 v2 🤝🏼 county book club",
   :"group can be without text" =>
     "Sapiens|2020/09/01 v2 🤝🏼",
   # RM this feature (unparsed text!)
   :"other text before or after dates is ignored" =>
-    "Sapiens|found on Chirp on 2019/08/20 and recommended by Jo > instantly hooked 2020/09/01 at the beach",
+    "Sapiens|instantly hooked 2020/09/01 at the beach",
   :"all features" =>
-    "Sapiens|found on Chirp on 2019/08/20 and recommended by Jo > DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15, 2021/09/20 > v3",
+    "Sapiens|DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15",
   }
 
   @files[:features_genres] =
@@ -293,9 +283,9 @@ class CSVParseTest < Minitest::Test
   # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
   @files[:examples] = {}
   @files[:examples][:"in progress"] = <<~EOM.freeze
-    \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
+    \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
     \\------ IN PROGRESS
-    |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/06/11 > 2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
+    |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
     5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
   @files[:examples][:"done"] = <<~EOM.freeze
@@ -308,7 +298,6 @@ class CSVParseTest < Minitest::Test
   @files[:examples][:"planned"] = <<~EOM.freeze
     \\------ PLANNED
     |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
-    |📕Randall Munroe - How To|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
   EOM
   @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
@@ -564,13 +553,6 @@ class CSVParseTest < Minitest::Test
   a_started = a_basic.deep_merge(exp_started)
   @items[:features_dates_started][:"date started"] = [a_started]
 
-  exp_added = { experiences: [{ date_added: Date.parse("2019/08/20") }] }
-  a = a_basic.deep_merge(exp_added)
-  @items[:features_dates_started][:"date added"] = [a]
-
-  a_added_started = a_basic.deep_merge(exp_added.deep_merge(exp_started))
-  @items[:features_dates_started][:"date added and started"] = [a_added_started]
-
   exp_second_started = { experiences: [{},
                                        { spans: [{ dates: Date.parse("2021/07/15").. }] }] }
   a = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
@@ -582,25 +564,9 @@ class CSVParseTest < Minitest::Test
   z = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
   @items[:features_dates_started][:"dates started in any order"] = [z]
 
-  exp_third_added = { experiences: [{},
-                                    {},
-                                    { date_added: Date.parse("2021/09/20") }] }
-  a_many = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started)
-                              .deep_merge(exp_added).deep_merge(exp_third_added))
-  @items[:features_dates_started][:"dates added and started"] = [a_many]
-
   exp_progress = ->(amount) { { experiences: [{ progress: amount }] } }
   a_halfway = a_started.deep_merge(exp_progress.call(0.5))
   @items[:features_dates_started][:"progress"] = [a_halfway]
-
-  exp_second_added = { experiences: [{},
-                                     { date_added: Date.parse("2021/01/01") }] }
-  exp_two_progresses = { experiences: [{ progress: 0.5 },
-                                       { progress: 0.5 }] }
-  a = item_data(**a_basic.deep_merge(exp_added).deep_merge(exp_second_added)
-                          .deep_merge(exp_started).deep_merge(exp_second_started)
-                          .deep_merge(exp_two_progresses))
-  @items[:features_dates_started][:"progress must be at the beginning or immediately after date started separator"] = [a]
 
   a = a_started.deep_merge(exp_progress.call(220))
   @items[:features_dates_started][:"progress pages"] = [a]
@@ -619,21 +585,19 @@ class CSVParseTest < Minitest::Test
   a_variant = a_started.deep_merge(exp_v2)
   @items[:features_dates_started][:"variant"] = [a_variant]
 
-  a = a_basic.deep_merge(exp_added.deep_merge(exp_v2))
-  @items[:features_dates_started][:"variant with just date added"] = [a]
-
   a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
   @items[:features_dates_started][:"group can be indicated at the very end"] = [a]
 
   a = a_variant.deep_merge(experiences: [{ group: "" }])
   @items[:features_dates_started][:"group can be without text"] = [a]
 
-  @items[:features_dates_started][:"other text before or after dates is ignored"] = [a_added_started]
 
+  @items[:features_dates_started][:"other text before or after dates is ignored"] = [a_started]
+
+  a_many = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   a = a_many.deep_merge(experiences: [{ progress: 0.5,
-                                          variant_index: 1 },
-                                        { progress: "2:30" },
-                                        { variant_index: 2 }])
+                                        variant_index: 1 },
+                                      { progress: "2:30" }])
   @items[:features_dates_started][:"all features"] = [a]
 
 
@@ -710,8 +674,7 @@ class CSVParseTest < Minitest::Test
                     sources: [{ name: "Vail Library" }],
                     isbn: "B00ICN066A",
                     length: "15:17" }],
-    experiences: [{ date_added: Date.parse("2021/06/11"),
-                    spans: [{ dates: Date.parse("2021/09/20").. }] }],
+    experiences: [{ spans: [{ dates: Date.parse("2021/09/20").. }] }],
     genres: %w[history wisdom],
     public_notes: ["Ch. 5: \"We did not domesticate wheat. It domesticated us.\"", "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos.", "Ch. 19: are we happier in modernity? It's doubtful."],
     blurb: "History with a sociological bent, with special attention paid to human happiness."
@@ -819,17 +782,7 @@ class CSVParseTest < Minitest::Test
                     length: 580 }],
     genres: ["historical fiction"]
   )
-  how_to = item_data(
-    author: "Randall Munroe",
-    title: "How To",
-    variants:    [{ format: :print,
-                    sources: [{ name: "Lexpub" }],
-                    isbn: "B07NCQTJV3",
-                    length: 320 }],
-    experiences: [{ date_added: Date.parse("2021/06/27") }],
-    genres: %w[science]
-  )
-  @items[:examples][:"planned"] = [nero, how_to]
+  @items[:examples][:"planned"] = [nero]
 
   nero = item_data(
     author: "Tom Holt",

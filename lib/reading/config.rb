@@ -100,7 +100,6 @@ module Reading
                   }],
                 experiences:
                   [{
-                    date_added: nil,
                     spans:
                       [{
                         dates: nil,
@@ -142,7 +141,6 @@ module Reading
             separator:                ",",
             short_separator:          " - ",
             long_separator:           " -- ",
-            date_separator:           "/",
             dnf_string:               "DNF",
             series_prefix:            "in",
             group_emoji:              "🤝🏼",
@@ -160,8 +158,6 @@ module Reading
       comment_character = Regexp.escape(@hash.deep_fetch(:csv, :comment_character))
       formats = /#{@hash.deep_fetch(:item, :formats).values.join("|")}/
       dnf_string = Regexp.escape(@hash.deep_fetch(:csv, :dnf_string))
-      date_sep = Regexp.escape(@hash.deep_fetch(:csv, :date_separator))
-      date_regex = /(\d{4}#{date_sep}\d?\d#{date_sep}\d?\d)/ # TODO hardcode the date separator?
       time_length = /(\d+:\d\d)/
       pages_length = /p?(\d+)p?/
 
@@ -175,13 +171,11 @@ module Reading
         series_volume: /,\s*#(\d+)\z/,
         isbn: isbn_regex,
         sources: sources_regex,
-        date_added: /#{date_regex}.*>/,
-        date_started: /#{date_regex}[^>]*\z/,
-        dnf: /(?<=>|\A)\s*(#{dnf_string})/,
-        progress: /(?<=#{dnf_string}|>|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
+        dnf: /\A\s*(#{dnf_string})/,
+        progress: /(?<=#{dnf_string}|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
         variant_index: /\s+v(\d+)/,
-        date_finished: date_regex,
+        date: /(\d{4}\/\d?\d\/\d?\d)/,
         time_length: time_length,
         pages_length: pages_length,
         pages_length_in_variant: /(?:\A|\s+|p)(\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13

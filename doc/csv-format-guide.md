@@ -48,9 +48,9 @@ You could go even more minimalist and disable the Dates Finished column if you j
 But by default, all columns are enabled. Here are those same two items, but now with all columns:
 
   ```
-  \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
+  \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
   \------ IN PROGRESS
-  |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/06/11 > 2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
+  |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
   5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247||||2019/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21 done
   ```
 
@@ -64,7 +64,7 @@ But by default, all columns are enabled. Here are those same two items, but now 
 Here are a few more examples. This time, let's list items that you've finished.
 
   ```
-  \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates added > Started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
+  \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
   \------ DONE
   4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
   2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats, for friends|10:13|I would've felt bad if I hadn't tried.
@@ -95,12 +95,11 @@ I'm open to new ideas, so if you want to add an item in your reading.csv in a di
 
 ## Planned items
 
-Next up: planned items, a.k.a. your "to read" list. One way to track this is to have normal items, but without a date started, and (if you want) with a date added, which is marked by a semicolon after it.
+Next up: planned items, a.k.a. your "to read" list. One way to track this is to have normal items, but without a date started.
 
   ```
   \------ PLANNED
   |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
-  |📕Randall Munroe - How To|Lexpub B07NCQTJV3|2021/06/27 >| |science|320
   ```
 
 But this method has two disadvantages for listing books that you just *might* read: (a) it takes more time than just jotting down the title, and (b) it takes up a lot of space if you have a long "to read" list.

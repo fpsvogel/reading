@@ -13,7 +13,6 @@ module Reading
 
         experiences_with_dates = started.map.with_index { |entry, i|
           {
-            date_added: date_added(entry)                 || template.fetch(:date_added),
             spans: spans(entry, finished, i)              || template.fetch(:spans),
             progress: progress(entry) ||
               progress(columns[:head],
@@ -71,11 +70,6 @@ module Reading
         [dates_started, dates_finished]
       end
 
-      def date_added(date_entry)
-        date_str = date_entry.match(config.deep_fetch(:csv, :regex, :date_added))&.captures&.first
-        Date.parse(date_str) if date_str
-      end
-
       def spans(date_entry, dates_finished, date_index)
         started = date_started(date_entry)
         finished = date_finished(dates_finished, date_index)
@@ -89,7 +83,7 @@ module Reading
       end
 
       def date_started(date_entry)
-        date_str = date_entry.match(config.deep_fetch(:csv, :regex, :date_started))&.captures&.first
+        date_str = date_entry.match(config.deep_fetch(:csv, :regex, :date))&.captures&.first
         Date.parse(date_str) if date_str
       end
 
