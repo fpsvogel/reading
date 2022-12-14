@@ -3,6 +3,7 @@ require_relative "test_base"
 
 require "reading/config"
 require "reading/csv"
+require "reading/errors"
 require "reading/util/deep_merge"
 require "reading/util/deep_fetch"
 
@@ -15,18 +16,17 @@ class CSVParseTest < TestBase
       errors:
         {
           handle_error: lambda do |error|
-              @error_log << error
-              puts error
+              raise error
             end
         }
     }
-  @base_config = Reading::Config.new(config: custom_config).hash
+  @base_config = Reading::Config.new(custom_config).hash
 
   @files = {}
 
-  ### TEST DATA
+  # ==== TEST INPUT
 
-  ## TEST DATA: ENABLING COLUMNS
+  ## TEST INPUT: ENABLING COLUMNS
   # In the columns tests, the CSVs in the heredocs below are each parsed with
   # only the columns enabled that are listed in the hash key. This tests basic
   # functionality of each column, and a few possible combinations of columns.
@@ -79,7 +79,7 @@ class CSVParseTest < TestBase
 
 
 
-  ## TEST DATA: CUSTOM COLUMNS
+  ## TEST INPUT: CUSTOM COLUMNS
   # The type of the custom column is indicated by the hash key.
   @files[:custom_columns] = {}
   @files[:custom_columns][:numeric] = <<~EOM.freeze
@@ -97,7 +97,7 @@ class CSVParseTest < TestBase
 
 
 
-  ## TEST DATA: FEATURES OF SINGLE COLUMNS
+  ## TEST INPUT: FEATURES OF SINGLE COLUMNS
   # In each the features tests, a single column is enabled (specified in the
   # hash key) and a bunch of possible content for that column is tested. These
   # are the columns that are more flexible and can have lots of information
@@ -190,8 +190,6 @@ class CSVParseTest < TestBase
     "Sapiens|2019/08/20 > 2020/09/01",
   :"dates started" =>
     "Sapiens|2020/09/01, 2021/07/15",
-  :"dates started in any order" =>
-    "Sapiens|2020/09/01, 2022/01/01, 2021/07/15",
   :"dates added and started" =>
     "Sapiens|2019/08/20 > 2020/09/01, 2021/07/15, 2021/09/20 >",
   :"progress" =>
@@ -270,12 +268,12 @@ class CSVParseTest < TestBase
   # :"mixed amounts and stopping points" =>
   #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p",
   # :"reread" =>
-  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p ---- 2022/1/1-2/15 50p",
+  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p - 2022/1/1-2/15 50p",
   }
 
 
 
-  ## TEST DATA: EXAMPLES
+  ## TEST INPUT: EXAMPLES
   # Realistic examples from the reading.csv template:
   # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
   @files[:examples] = {}
@@ -305,7 +303,24 @@ class CSVParseTest < TestBase
 
 
 
-  ### EXPECTED DATA
+  ## TEST INPUT: ERRORS
+  # Bad input that should raise an error.
+  @files[:errors] = {}
+  @files[:errors][Reading::InvalidDateError] =
+  {
+  :"end date before start date" =>
+    "|Sapiens||2020/01/01|2019/01/01",
+  :"start dates out of order" =>
+    "|Sapiens||2020/01/01, 2019/01/01",
+  :"end date after the next start date for the same variant" =>
+    "|Sapiens||2020/01/01, 2020/02/01|2020/03/01, ",
+  :"OK: end date after the next start date for different variants" =>
+    "|Sapiens||2020/01/01, 2020/02/01 v2|2020/03/01, ",
+  }
+
+
+
+  # ==== EXPECTED DATA
   # The results of parsing the above CSVs are expected to equal this data.
 
   def self.item_data(**partial_data)
@@ -337,18 +352,18 @@ class CSVParseTest < TestBase
   c = item_data(title: "How To")
   @items[:enabled_columns][:"head"] = [a, b, c]
 
-  b_finished_inner = { experiences: [{ spans: [{ dates: .."2020/5/30" }] }] }
+  b_finished_inner = { experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30") }] }] }
   b_finished = b.deep_merge(b_finished_inner)
   @items[:enabled_columns][:"head, dates_finished"] = [a, b_finished, c]
 
-  a_started = a.deep_merge(experiences: [{ spans: [{ dates: "2021/9/1".. }] }])
-  b_started = b.deep_merge(experiences: [{ spans: [{ dates: "2020/5/1".. }] }])
+  a_started = a.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2021/9/1").. }] }])
+  b_started = b.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2020/5/1").. }] }])
   @items[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
 
   a = a_started
   b = item_data(
     title: "Goatsong",
-    experiences: [{ spans: [{ dates: "2020/5/1".."2020/5/30" }] }]
+    experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30") }] }]
   )
   @items[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
 
@@ -530,11 +545,11 @@ class CSVParseTest < TestBase
 
   @items[:features_dates_started] = {}
   a_basic = item_data(title: "Sapiens")
-  exp_started = { experiences: [{ spans: [{ dates: "2020/09/01".. }] }] }
+  exp_started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
   a_started = a_basic.deep_merge(exp_started)
   @items[:features_dates_started][:"date started"] = [a_started]
 
-  exp_added = { experiences: [{ date_added: "2019/08/20" }] }
+  exp_added = { experiences: [{ date_added: Date.parse("2019/08/20") }] }
   a = a_basic.deep_merge(exp_added)
   @items[:features_dates_started][:"date added"] = [a]
 
@@ -542,19 +557,19 @@ class CSVParseTest < TestBase
   @items[:features_dates_started][:"date added and started"] = [a_added_started]
 
   exp_second_started = { experiences: [{},
-                                       { spans: [{ dates: "2021/07/15".. }] }] }
+                                       { spans: [{ dates: Date.parse("2021/07/15").. }] }] }
   a = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   @items[:features_dates_started][:"dates started"] = [a]
 
   exp_third_started = { experiences: [{},
                                       {},
-                                      { spans: [{ dates: "2022/01/01".. }] }] }
+                                      { spans: [{ dates: Date.parse("2022/01/01").. }] }] }
   z = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
   @items[:features_dates_started][:"dates started in any order"] = [z]
 
   exp_third_added = { experiences: [{},
                                     {},
-                                    { date_added: "2021/09/20" }] }
+                                    { date_added: Date.parse("2021/09/20") }] }
   a_many = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started)
                               .deep_merge(exp_added).deep_merge(exp_third_added))
   @items[:features_dates_started][:"dates added and started"] = [a_many]
@@ -564,7 +579,7 @@ class CSVParseTest < TestBase
   @items[:features_dates_started][:"progress"] = [a_halfway]
 
   exp_second_added = { experiences: [{},
-                                     { date_added: "2021/01/01" }] }
+                                     { date_added: Date.parse("2021/01/01") }] }
   exp_two_progresses = { experiences: [{ progress: 0.5 },
                                        { progress: 0.5 }] }
   a = item_data(**a_basic.deep_merge(exp_added).deep_merge(exp_second_added)
@@ -680,8 +695,8 @@ class CSVParseTest < TestBase
                     sources: [{ name: "Vail Library" }],
                     isbn: "B00ICN066A",
                     length: "15:17" }],
-    experiences: [{ date_added: "2021/06/11",
-                    spans: [{ dates: "2021/09/20".. }] }],
+    experiences: [{ date_added: Date.parse("2021/06/11"),
+                    spans: [{ dates: Date.parse("2021/09/20").. }] }],
     genres: %w[history wisdom],
     public_notes: ["Ch. 5: \"We did not domesticate wheat. It domesticated us.\"", "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos.", "Ch. 19: are we happier in modernity? It's doubtful."],
     blurb: "History with a sociological bent, with special attention paid to human happiness."
@@ -695,9 +710,9 @@ class CSVParseTest < TestBase
     variants:    [{ format: :print,
                     isbn: "0312038380",
                     length: 247 }],
-    experiences: [{ spans: [{ dates: "2019/05/28".."2019/06/13" }] },
-                  { spans: [{ dates: "2020/05/01".."2020/05/23" }] },
-                  { spans: [{ dates: "2021/08/17".. }],
+    experiences: [{ spans: [{ dates: Date.parse("2019/05/28")..Date.parse("2019/06/13") }] },
+                  { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23") }] },
+                  { spans: [{ dates: Date.parse("2021/08/17").. }],
                     progress: 0.5 }],
     visibility: 3,
     genres: ["historical fiction"],
@@ -718,7 +733,7 @@ class CSVParseTest < TestBase
                     isbn: "1533694567",
                     length: "8:18",
                     extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
-    experiences: [{ spans: [{ dates: "2020/10/20".."2021/08/31" }],
+    experiences: [{ spans: [{ dates: Date.parse("2020/10/20")..Date.parse("2021/08/31") }],
                     group: "weekly Latin reading with Sean and Dennis" }],
     genres: %w[latin novel],
     public_notes: ["Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html", "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d"]
@@ -730,9 +745,9 @@ class CSVParseTest < TestBase
                     sources: [{ name: "gift from neighbor Edith" }],
                     isbn: "B01NCYY3BV",
                     length: "10:13" }],
-    experiences: [{ spans: [{ dates: "2020/03/21".."2020/04/01" }],
+    experiences: [{ spans: [{ dates: Date.parse("2020/03/21")..Date.parse("2020/04/01") }],
                     progress: 0.5 },
-                  { spans: [{ dates: "2021/08/06".."2021/08/11" }],
+                  { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11") }],
                     progress: "4:45" }],
     visibility: 2,
     genres: %w[cats],
@@ -743,7 +758,7 @@ class CSVParseTest < TestBase
     title: "FiveThirtyEight Politics",
     variants:    [{ format: :audio,
                     length: "0:30" }],
-    experiences: [{ spans: [{ dates: "2021/08/02".."2021/08/02" }],
+    experiences: [{ spans: [{ dates: Date.parse("2021/08/02")..Date.parse("2021/08/02") }],
                     progress: 0,
                     variant_index: 0 }],
     visibility: 1,
@@ -766,12 +781,12 @@ class CSVParseTest < TestBase
                     isbn: "B00IYUYF4A",
                     length: 320,
                     extra_info: ["published 2014"] }],
-    experiences: [{ spans: [{ dates: "2021/08/01".."2021/08/15" }],
+    experiences: [{ spans: [{ dates: Date.parse("2021/08/01")..Date.parse("2021/08/15") }],
                     variant_index: 0 },
-                  { spans: [{ dates: "2021/08/16".."2021/08/28" }],
+                  { spans: [{ dates: Date.parse("2021/08/16")..Date.parse("2021/08/28") }],
                     group: "with Sam",
                     variant_index: 1 },
-                  { spans: [{ dates: "2021/09/01".."2021/09/10" }],
+                  { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10") }],
                     variant_index: 0 }],
     visibility: 3,
     genres: %w[science],
@@ -796,7 +811,7 @@ class CSVParseTest < TestBase
                     sources: [{ name: "Lexpub" }],
                     isbn: "B07NCQTJV3",
                     length: 320 }],
-    experiences: [{ date_added: "2021/06/27" }],
+    experiences: [{ date_added: Date.parse("2021/06/27") }],
     genres: %w[science]
   )
   @items[:examples][:"planned"] = [nero, how_to]
@@ -849,7 +864,7 @@ class CSVParseTest < TestBase
 
 
 
-  ### UTILITY METHODS
+  # ==== UTILITY METHODS
 
   NO_COLUMNS = base_config.deep_fetch(:csv, :columns).keys.map { |col| [col, false] }.to_h
 
@@ -920,7 +935,7 @@ class CSVParseTest < TestBase
 
 
 
-  ### THE ACTUAL TESTS
+  # ==== THE ACTUAL TESTS
 
   ## TESTS: ENABLING COLUMNS
   files[:enabled_columns].each do |set_name, file_str|
@@ -980,6 +995,22 @@ class CSVParseTest < TestBase
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this set of examples: #{set_name}"
+    end
+  end
+
+  ## TESTS: ERRORS
+  files[:errors].each do |error, inputs_hash|
+    inputs_hash.each do |name, file_str|
+      define_method("test_example_#{name}") do
+        set_columns(:all)
+        if name.start_with? "OK: "
+          refute_nil parse(file_str) # Should not raise an error.
+        else
+          assert_raises error, "Failed to raise #{error} for: #{name}" do
+            parse(file_str)
+          end
+        end
+      end
     end
   end
 end

@@ -8,7 +8,7 @@ module Reading
 
   class AppError < StandardError
     def handle(line:)
-      handle = config.deep_fetch(:errors, :handle_error)
+      handle = line.csv.config.deep_fetch(:errors, :handle_error)
       styled_error = styled_with_line(line)
 
       handle.call(styled_error)
@@ -53,6 +53,9 @@ module Reading
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
-  # Indicates that data for a new item is invalid.
+  # General error meaning a CSV row is invalid.
   class InvalidItemError < AppError; end
+
+  # Means a date is unparsable, or a set of dates does not make logical sense.
+  class InvalidDateError < InvalidItemError; end
 end
