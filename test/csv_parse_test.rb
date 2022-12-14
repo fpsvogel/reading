@@ -1,5 +1,6 @@
+$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+
 require_relative "test_helper"
-require_relative "test_base"
 
 require "reading/config"
 require "reading/csv"
@@ -7,9 +8,23 @@ require "reading/errors"
 require "reading/util/deep_merge"
 require "reading/util/deep_fetch"
 
-class CSVParseTest < TestBase
+class CSVParseTest < Minitest::Test
   using Reading::Util::DeepMerge
   using Reading::Util::DeepFetch
+
+  self.class.attr_reader :files, :items, :base_config
+
+  def files
+    self.class.files
+  end
+
+  def items
+    self.class.items
+  end
+
+  def base_config
+    self.class.base_config
+  end
 
   custom_config =
     {
@@ -27,7 +42,7 @@ class CSVParseTest < TestBase
   # ==== TEST INPUT
 
   ## TEST INPUT: ENABLING COLUMNS
-  # In the columns tests, the CSVs in the heredocs below are each parsed with
+  # In the columns tests, the Files in the heredocs below are each parsed with
   # only the columns enabled that are listed in the hash key. This tests basic
   # functionality of each column, and a few possible combinations of columns.
   @files[:enabled_columns] = {}
@@ -321,7 +336,7 @@ class CSVParseTest < TestBase
 
 
   # ==== EXPECTED DATA
-  # The results of parsing the above CSVs are expected to equal this data.
+  # The results of parsing the above Files are expected to equal this data.
 
   def self.item_data(**partial_data)
     # This merge is not the same as Reading::Util::DeepMerge. This one uses an
@@ -999,8 +1014,8 @@ class CSVParseTest < TestBase
   end
 
   ## TESTS: ERRORS
-  files[:errors].each do |error, inputs_hash|
-    inputs_hash.each do |name, file_str|
+  files[:errors].each do |error, files_hash|
+    files_hash.each do |name, file_str|
       define_method("test_example_#{name}") do
         set_columns(:all)
         if name.start_with? "OK: "
