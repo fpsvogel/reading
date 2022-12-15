@@ -34,20 +34,19 @@ module Reading
     end
 
     def item_hash(item_head)
-      match = item_head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
-      unless match
+      item_match = item_head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
+      unless item_match
         raise InvalidItemError, "Invalid planned item"
       end
 
-      author = AuthorAttribute.new(item_head: match[:author_title], config:).parse
-      title = TitleAttribute.new(item_head: match[:author_title], config:).parse
-      variants = parse_variants(match)
+      author = AuthorAttribute.new(item_head: item_match[:author_title], config:).parse
+      title = TitleAttribute.new(item_head: item_match[:author_title], config:).parse
 
       template.deep_merge(
         author: author || template.fetch(:author),
         title: title,
         genres: [@genre] || template.fetch(:genres),
-        variants: variants,
+        variants: [parse_variant(item_match)],
       )
     end
 
@@ -55,22 +54,15 @@ module Reading
       @template ||= config.deep_fetch(:item, :template)
     end
 
-    def parse_variants(item_match)
-      variant = {
-        format: nil,
+    def parse_variant(item_match)
+      format_emoji = item_match[:format_emoji]
+      {
+        format: format(format_emoji),
         sources: sources(item_match[:sources]) || template.deep_fetch(:variants, 0, :sources),
         isbn: template.deep_fetch(:variants, 0, :isbn),
         length: template.deep_fetch(:variants, 0, :length),
-        extra_info: template.deep_fetch(:variants, 0, :extra_info)
+        extra_info: template.deep_fetch(:variants, 0, :extra_info),
       }
-
-      variants = item_match[:format_emojis].scan(
-        /#{config.deep_fetch(:csv, :regex, :formats)}/
-      ).map do |format_emoji|
-        variant.merge(format: format(format_emoji))
-      end
-
-      variants
     end
 
     def format(format_emoji)
