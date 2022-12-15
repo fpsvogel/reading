@@ -27,7 +27,7 @@ If this minimal kind of reading log is what you want, be sure to initialize a `R
   custom_config = {
     csv: {
       columns: {
-        # All columns except head and dates_finished.
+        # Disables all columns except head and dates_finished.
         rating:         false,
         sources:        false,
         dates_started:  false,
@@ -67,19 +67,16 @@ Here are a few more examples. This time, let's list items that you've finished.
   \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
   \------ DONE
   4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
-  2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats, for friends|10:13|I would've felt bad if I hadn't tried.
-  1|DNF 🎤FiveThirtyEight Politics, 🎤The NPR Politics Podcast, 🎤Pod Save America| |2021/08/02|2021/08/02|politics, podcast, for starred friends|0:30|Not very deep. Disappointing.
+  2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats|10:13|I would've felt bad if I hadn't tried.
+  1|DNF 🎤FiveThirtyEight Politics, 🎤The NPR Politics Podcast, 🎤Pod Save America| |2021/08/02|2021/08/02|politics, podcast|0:30|Not very deep. Disappointing.
   5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science| |Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet.|It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
   ```
 
-- **"Robert Louis…":**  The series ("Mount Hope Classics") comes after a special word: "in" (must be lowercase).
+- **"Robert Louis…":**  The series ("Mount Hope Classics") comes after a special word: "in" (must be lowercase). If the item had a position in the series, you would do this instead: Mount Hope Classics, #5.
   - Extra info can also be indicated after the title: in this example, the translator and the fact that this book is unabridged.
-  - The series and extra info can appear in any order. This could have been "… Thesauraria -- unabridged - in Mount Hope Classics - trans. Arcadius Avellanus".
-  - Two hyphens surrounded by a space (" -- ") are the divider before series, before extra info, between notes, and (as we'll see in the last example of this section) between item variants.
-  - Also, you can include the group experience emoji (🤝🏼) after a date started. If you write a note after the emoji, it will be shown in your public notes by default.
-- **"Total Cat Mojo":** DNF means "Did Not Finish". You can specify your stopping point with a percentage, a length such as "55p" or "1:03". Or you can not specify it at all, as in the next example. If you don't specify the stopping point or if the stopping point was the same each time you read it, you can just write "DNF" once before the format and title, like this: `2|DNF 50% 🔊Total Cat Mojo|…`
-  - Also in this example we have "for friends" in the Genres column. This and other visibility markers can be used if a reading log is parsed and displayed on a site with users and a "friends" feature. (Maybe you don't want the whole world to know that you listened to a cat audiobook… twice.) The other visibility levels are "for starred friends" (or "for starred") and "for me" (or "private" if you prefer). Or you can use "to" instead of "for", and/or hyphens instead of spaces, e.g. "to me", "to-me", or "for-me".
-- **"FiveThirtyEight…":** Here we see a multi-item line. This is most useful when you DNF'ed several items and equally disliked them. But a multi-item line doesn't *have* to be DNF.
+  - If you read/watched something in a group, you can add the group experience emoji (🤝🏼) after a date started, then the group description.
+- **"Total Cat Mojo":** DNF means "Did Not Finish". You can specify your stopping point with a percentage, a page count such as "55p", or a time such as "1:03" (hours and minutes). Or you can not specify the stopping point at all, as in the next example. If you attempted the book once or if the stopping point was the same each time you read it, it may be easier just write "DNF" once before the format and title, like this: `2|DNF 50% 🔊Total Cat Mojo|…`
+- **"FiveThirtyEight…":** Here we see a multi-item line. This is most useful when you DNF'ed several items and equally disliked them. (But a multi-item line doesn't *have* to be DNF.)
 - **"Randall…":** This is an item that you re-read as a different *variant*: in this example, the first variant is an audiobook from Lexpub, and the second variant is an ebook from Amazon.
   - In the Sources column you can describe each variant with these data, in this order: format, source(s), ISBN/ASIN, length, and/or extra info. These are all formatted in the same way as usual.
   - If a variant omits data that can also be in other columns (format, length, extra info), then this data in the variant will be defined by other columns rather than being blank. So if these data are the same across all variants, you can write them down just once in the other columns.

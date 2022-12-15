@@ -75,59 +75,15 @@ module Reading
       end
     end
 
-    # Not an item attribute; only shares common behavior across the below
-    # attribute parsers.
-    class FromGenreColumnAttributeBase < Attribute
-      def all_genres(columns)
+    class GenresAttribute < Attribute
+      def parse
+        return nil unless columns[:genres]
+
         columns[:genres]
           .split(@config.deep_fetch(:csv, :separator))
           .map(&:strip)
           .map(&:presence)
           .compact.presence
-      end
-    end
-
-    class VisibilityAttribute < FromGenreColumnAttributeBase
-      VISIBILITY_STRINGS =
-        {
-          0 => ["private", "for me", "to me", "for-me", "to-me"],
-          1 => ["for starred friends", "to starred friends",
-                "for-starred-friends", "to-starred-friends",
-                "for starred", "to starred", "for-starred", "to-starred"],
-          2 => ["for friends", "to friends", "for-friends", "to-friends"],
-        }
-
-      def parse
-        return nil unless columns[:genres]
-
-        visibility = @config.deep_fetch(:item, :template, :visibility)
-
-        all_genres(columns).each do |entry|
-          if specified_visibility = visibility_string_to_number(entry)
-            visibility = specified_visibility
-            break
-          end
-        end
-
-        visibility
-      end
-
-      private
-
-      def visibility_string_to_number(entry)
-        VISIBILITY_STRINGS.each do |number, strings|
-          return number if strings.include?(entry)
-        end
-
-        nil
-      end
-    end
-
-    class GenresAttribute < FromGenreColumnAttributeBase
-      def parse
-        return nil unless columns[:genres]
-
-        all_genres(columns) - VisibilityAttribute::VISIBILITY_STRINGS.values.flatten
       end
     end
 

@@ -219,23 +219,10 @@ class CSVParseTest < Minitest::Test
     "Sapiens|2020/09/01 v2 🤝🏼 county book club",
   :"group can be without text" =>
     "Sapiens|2020/09/01 v2 🤝🏼",
-  # RM this feature (unparsed text!)
   :"other text before or after dates is ignored" =>
     "Sapiens|instantly hooked 2020/09/01 at the beach",
   :"all features" =>
     "Sapiens|DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15",
-  }
-
-  @files[:features_genres] =
-  {
-  :"genres" =>
-    "Goatsong|novel, history",
-  :"visibility" =>
-    "Goatsong|novel, history, for starred friends",
-  :"visibility anywhere" =>
-    "Goatsong|novel, for starred friends, history",
-  :"visibility alt" =>
-    "Goatsong|novel, to-starred, history",
   }
 
   # The compact_planned part (unlike in other :features_x) is merely semantic;
@@ -291,8 +278,8 @@ class CSVParseTest < Minitest::Test
   @files[:examples][:"done"] = <<~EOM.freeze
     \\------ DONE
     4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
-    2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats, for friends|10:13|I would've felt bad if I hadn't tried.
-    1|DNF 🎤FiveThirtyEight Politics, 🎤The NPR Politics Podcast, 🎤Pod Save America| |2021/08/02|2021/08/02|politics, podcast, for starred friends|0:30|Not very deep. Disappointing.
+    2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats|10:13|I would've felt bad if I hadn't tried.
+    1|DNF 🎤FiveThirtyEight Politics, 🎤The NPR Politics Podcast, 🎤Pod Save America| |2021/08/02|2021/08/02|politics, podcast|0:30|Not very deep. Disappointing.
     5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science| |Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet.|It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
   EOM
   @files[:examples][:"planned"] = <<~EOM.freeze
@@ -602,19 +589,6 @@ class CSVParseTest < Minitest::Test
 
 
 
-  @items[:features_genres] = {}
-  a_basic = item_data(title: "Goatsong", genres: %w[novel history])
-  @items[:features_genres][:"genres"] = [a_basic]
-
-  a = a_basic.merge(visibility: 1)
-  @items[:features_genres][:"visibility"] = [a]
-
-  @items[:features_genres][:"visibility anywhere"] = [a]
-
-  @items[:features_genres][:"visibility alt"] = [a]
-
-
-
   @items[:features_compact_planned] = {}
   a = item_data(title: "A Song for Nero",
                 genres: ["historical fiction"],
@@ -692,7 +666,6 @@ class CSVParseTest < Minitest::Test
                   { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23") }] },
                   { spans: [{ dates: Date.parse("2021/08/17").. }],
                     progress: 0.5 }],
-    visibility: 3,
     genres: ["historical fiction"],
     # history: [{ dates: Date.parse("2019-05-01"), amount: 31 },
     #           { dates: Date.parse("2019-05-02"), amount: 23 },
@@ -727,7 +700,6 @@ class CSVParseTest < Minitest::Test
                     progress: 0.5 },
                   { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11") }],
                     progress: "4:45" }],
-    visibility: 2,
     genres: %w[cats],
     public_notes: ["I would've felt bad if I hadn't tried."]
   )
@@ -739,7 +711,6 @@ class CSVParseTest < Minitest::Test
     experiences: [{ spans: [{ dates: Date.parse("2021/08/02")..Date.parse("2021/08/02") }],
                     progress: 0,
                     variant_index: 0 }],
-    visibility: 1,
     genres: %w[politics podcast],
     public_notes: ["Not very deep. Disappointing."]
   )
@@ -766,7 +737,6 @@ class CSVParseTest < Minitest::Test
                     variant_index: 1 },
                   { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10") }],
                     variant_index: 0 }],
-    visibility: 3,
     genres: %w[science],
     public_notes: ["Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet."],
     blurb: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist."

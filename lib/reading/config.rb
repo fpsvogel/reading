@@ -110,7 +110,6 @@ module Reading
                     group: nil,
                     variant_index: 0,
                   }],
-                visibility: 3, # TODO use a constant here.
                 genres: [],
                 public_notes: [],
                 blurb: nil,
