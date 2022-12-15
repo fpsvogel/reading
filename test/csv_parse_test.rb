@@ -133,6 +133,10 @@ class CSVParseTest < Minitest::Test
     "📕Tom Holt - Goatsong",
   :"multi items" =>
     "📕Tom Holt - Goatsong, 🔊Sapiens",
+  :"multi items without a comma" =>
+    "📕Tom Holt - Goatsong 🔊Sapiens",
+  :"multi items with a long separator" =>
+    "📕Tom Holt - Goatsong -- 🔊Sapiens",
   :"progress" =>
     "50% Goatsong",
   :"progress pages" =>
@@ -189,6 +193,10 @@ class CSVParseTest < Minitest::Test
     "Goatsong|📕Little Library -- unabridged -- 1990",
   :"formats can delimit variants" =>
     "Goatsong|📕Little Library -- unabridged -- 1990, 🔊Lexpub",
+  :"formats can omit the preceding comma" =>
+    "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
+  :"formats can be preceded by a long separator" =>
+    "Goatsong|📕Little Library -- unabridged -- 1990 -- 🔊Lexpub",
   :"length after sources ISBN and before extra info" =>
     "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
@@ -417,6 +425,10 @@ class CSVParseTest < Minitest::Test
   b = item_data(title: "Sapiens", variants: [{ format: :audiobook }])
   @items[:features_head][:"multi items"] = [a_with_format, b]
 
+  @items[:features_head][:"multi items without a comma"] = [a_with_format, b]
+
+  @items[:features_head][:"multi items with a long separator"] = [a_with_format, b]
+
   half_progress = { experiences: [{ progress: 0.5 }] }
   a = item_data(title: "Goatsong", **half_progress)
   @items[:features_head][:"progress"] = [a]
@@ -517,6 +529,10 @@ class CSVParseTest < Minitest::Test
                               { format: :audiobook,
                                 sources: [lexpub] }])
   @items[:features_sources][:"formats can delimit variants"] = [a]
+
+  @items[:features_sources][:"formats can omit the preceding comma"] = [a]
+
+  @items[:features_sources][:"formats can be preceded by a long separator"] = [a]
 
   a = item_data(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),

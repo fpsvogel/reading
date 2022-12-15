@@ -165,7 +165,7 @@ module Reading
         compact_planned_row_start: /\A\s*#{comment_character}(?<genre>[^a-z:,\|]+):\s*(?=#{formats})/,
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
         formats: formats,
-        formats_split: /\s*,\s*(?=#{formats})/,
+        formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
         series_volume: /,\s*#(\d+)\z/,
         isbn: isbn_regex,
         sources: sources_regex,

@@ -73,7 +73,7 @@ module Reading
           item_heads.first.sub!(config.deep_fetch(:csv, :regex, :dnf), "")
           item_heads.first.sub!(config.deep_fetch(:csv, :regex, :progress), "")
         }
-        .map { |item_head| item_head.strip.sub(/\s*,\z/, "") }
+        .map { |item_head| item_head.strip }
         .partition { |item_head| item_head.match?(/\A#{config.deep_fetch(:csv, :regex, :formats)}/) }
         .reject(&:empty?)
         .first
