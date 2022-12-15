@@ -235,10 +235,6 @@ class CSVParseTest < Minitest::Test
     "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero",
   :"sources" =>
     "\\HISTORICAL FICTION: ⚡A Song for Nero @Little Library @Hoopla",
-  :"multiple first formats" =>
-    "\\HISTORICAL FICTION: ⚡🔊A Song for Nero @Little Library @Hoopla",
-  :"formats in sources" =>
-    "\\HISTORICAL FICTION: ⚡🔊A Song for Nero @Little Library @📕🔊Jeffco @Hoopla @📕Lexpub",
   }
 
   @files[:features_history] =
@@ -289,7 +285,7 @@ class CSVParseTest < Minitest::Test
   @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
-    \\SCIENCE: 📕⚡Randall Munroe - How To @Lexpub @🔊⚡Hoopla @🔊Jeffco, 🔊Weird Earth @Hoopla @📕🔊⚡Lexpub
+    \\SCIENCE: 📕Randall Munroe - How To @Lexpub, 🔊Weird Earth @Hoopla @Lexpub
   EOM
 
 
@@ -603,19 +599,6 @@ class CSVParseTest < Minitest::Test
   a_sources = a.deep_merge(variants: [{ sources: little_and_hoopla }])
   @items[:features_compact_planned][:"sources"] = [a_sources]
 
-  a_multi_first_formats = a_sources.deep_merge(
-    variants: [a_sources[:variants].first,
-               a_sources[:variants].first.merge(format: :audiobook)])
-  @items[:features_compact_planned][:"multiple first formats"] = [a_multi_first_formats]
-
-  a_formats_in_sources = a_multi_first_formats.deep_merge(
-    variants: [{ format: :ebook, sources: little_and_hoopla },
-               { format: :audiobook, sources: little_and_hoopla.dup.insert(1, { name: "Jeffco", url: nil }) },
-               { format: :print, sources: [{ name: "Jeffco", url: nil },
-                                           { name: "Lexpub", url: nil }],
-                 isbn: nil, length: nil, extra_info: [] }])
-  @items[:features_compact_planned][:"formats in sources"] = [a_formats_in_sources]
-
 
 
   @items[:features_history] = {}
@@ -778,24 +761,14 @@ class CSVParseTest < Minitest::Test
     author: "Randall Munroe",
     title: "How To",
     variants:  [{ format: :print,
-                  sources: [{ name: "Lexpub" }] },
-                { format: :ebook,
-                  sources: [{ name: "Lexpub" },
-                            { name: "Hoopla" }] },
-                { format: :audiobook,
-                  sources: [{ name: "Hoopla" },
-                            { name: "Jeffco" }] }],
+                  sources: [{ name: "Lexpub" }] }],
     genres: %w[science]
   )
   weird_earth = item_data(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Hoopla" },
-                            { name: "Lexpub" }] },
-                { format: :print,
-                  sources: [{ name: "Lexpub" }] },
-                { format: :ebook,
-                  sources: [{ name: "Lexpub" }] }],
+                            { name: "Lexpub" }] }],
     genres: %w[science]
   )
   @items[:examples][:"compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]

@@ -1,4 +1,3 @@
-require_relative "../util/blank"
 require_relative "../util/deep_merge"
 require_relative "../util/deep_fetch"
 require_relative "../errors"
@@ -57,26 +56,18 @@ module Reading
     end
 
     def parse_variants(item_match)
-      inverted_variants = sources_with_format_emojis(item_match[:sources])
+      variant = {
+        format: nil,
+        sources: sources(item_match[:sources]) || template.deep_fetch(:variants, 0, :sources),
+        isbn: template.deep_fetch(:variants, 0, :isbn),
+        length: template.deep_fetch(:variants, 0, :length),
+        extra_info: template.deep_fetch(:variants, 0, :extra_info)
+      }
 
-      variants = []
-      inverted_variants[0] ||= {} # because there will be at least one variant for the first format(s)
-      inverted_variants.first[:format_emojis_str] = item_match[:first_format_emojis]
-
-      inverted_variants.each do |inverted_variant|
-        inverted_variant[:format_emojis_str] ||= item_match[:first_format_emojis]
-        format_emojis = inverted_variant[:format_emojis_str].scan(
-          /#{config.deep_fetch(:csv, :regex, :formats)}/
-        )
-
-        format_emojis.each do |format_emoji|
-          format = format(format_emoji)
-
-          variant_for_format = variants.select { |variant| variant[:format] == format }.first ||
-            (variants << blank_variant(format)).last
-
-          variant_for_format[:sources] << inverted_variant[:source] unless inverted_variant[:source].nil?
-        end
+      variants = item_match[:format_emojis].scan(
+        /#{config.deep_fetch(:csv, :regex, :formats)}/
+      ).map do |format_emoji|
+        variant.merge(format: format(format_emoji))
       end
 
       variants
@@ -86,16 +77,7 @@ module Reading
       config.deep_fetch(:item, :formats).key(format_emoji)
     end
 
-    def blank_variant(format)
-      {
-        format: format,
-        sources: [],
-        isbn: template.deep_fetch(:variants, 0, :isbn),
-        length: template.deep_fetch(:variants, 0, :length),
-        extra_info: template.deep_fetch(:variants, 0, :extra_info) }
-    end
-
-    def sources_with_format_emojis(sources_str)
+    def sources(sources_str)
       return [] if sources_str.nil?
 
       sources_str
@@ -103,24 +85,16 @@ module Reading
         .map { |source| source.sub(/\s*,\s*/, "") }
         .map(&:strip)
         .reject(&:empty?)
-        .map { |source_str|
-          match = source_str.match(config.deep_fetch(:csv, :regex, :compact_planned_source))
-          {
-            format_emojis_str: match[:format_emojis].presence,
-            source: source(match[:source_name])
-          }
+        .map { |source_name|
+          if valid_url?(source_name)
+            source_name = source_name.chop if source_name.chars.last == "/"
+            { name: config.deep_fetch(:item, :sources, :default_name_for_url),
+              url: source_name }
+          else
+            { name: source_name,
+              url: nil }
+          end
         }
-    end
-
-    def source(source_name)
-      if valid_url?(source_name)
-        source_name = source_name.chop if source_name.chars.last == "/"
-        { name: config.deep_fetch(:item, :sources, :default_name_for_url),
-          url: source_name }
-      else
-        { name: source_name,
-          url: nil }
-      end
     end
 
     def valid_url?(str)
