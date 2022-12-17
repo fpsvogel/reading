@@ -1,3 +1,9 @@
+## [0.3.2] - 2022-12-18
+
+- Added docs.
+- Removed unused features.
+- Removed two little-used columns, Blurb and Private Notes.
+
 ## [0.3.1] - 2022-11-22
 
 - Renamed to Reading.
