@@ -27,8 +27,8 @@ module Reading
     class AuthorAttribute < Attribute
       def parse
         item_head
-          .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
-          .match(/.+(?=#{@config.deep_fetch(:csv, :short_separator)})/)
+          .sub(/\A#{config.deep_fetch(:csv, :regex, :formats)}/, "")
+          .match(/.+(?=#{config.deep_fetch(:csv, :short_separator)})/)
           &.to_s
           &.strip
       end
@@ -37,9 +37,9 @@ module Reading
     class TitleAttribute < Attribute
       def parse
         item_head
-          .sub(/\A#{@config.deep_fetch(:csv, :regex, :formats)}/, "")
-          .sub(/.+#{@config.deep_fetch(:csv, :short_separator)}/, "")
-          .sub(/#{@config.deep_fetch(:csv, :long_separator)}.+\z/, "")
+          .sub(/\A#{config.deep_fetch(:csv, :regex, :formats)}/, "")
+          .sub(/.+#{config.deep_fetch(:csv, :short_separator)}/, "")
+          .sub(/#{config.deep_fetch(:csv, :long_separator)}.+\z/, "")
           .strip
           .presence
       end
@@ -48,7 +48,7 @@ module Reading
     class SeriesAttribute < Attribute
       def parse
         separated = item_head
-          .split(@config.deep_fetch(:csv, :long_separator))
+          .split(config.deep_fetch(:csv, :long_separator))
           .map(&:strip)
           .map(&:presence)
           .compact
@@ -56,8 +56,8 @@ module Reading
         separated.delete_at(0) # everything before the series/extra info
 
         separated.map { |str|
-          volume = str.match(@config.deep_fetch(:csv, :regex, :series_volume))
-          prefix = "#{@config.deep_fetch(:csv, :series_prefix)} "
+          volume = str.match(config.deep_fetch(:csv, :regex, :series_volume))
+          prefix = "#{config.deep_fetch(:csv, :series_prefix)} "
 
           if volume || str.start_with?(prefix)
             {
@@ -71,7 +71,7 @@ module Reading
       private
 
       def default
-        @config.deep_fetch(:item, :template, :series).first
+        config.deep_fetch(:item, :template, :series).first
       end
     end
 
@@ -80,46 +80,29 @@ module Reading
         return nil unless columns[:genres]
 
         columns[:genres]
-          .split(@config.deep_fetch(:csv, :separator))
+          .split(config.deep_fetch(:csv, :separator))
           .map(&:strip)
           .map(&:presence)
           .compact.presence
       end
     end
 
-    # Not an item attribute; only shares common behavior across the below
-    # attribute parsers.
-    class NotesAttributeBase < Attribute
-      def split_notes(column_name, columns)
-        return nil unless columns[column_name]
+    class NotesAttribute < Attribute
+      def parse
+        return nil unless columns[:public_notes]
 
-        columns[column_name]
+        columns[:public_notes]
           .presence
           &.chomp
-          &.sub(/#{@config.deep_fetch(:csv, :long_separator).rstrip}\s*\z/, "")
-          &.split(@config.deep_fetch(:csv, :long_separator))
-      end
-    end
-
-    class PublicNotesAttribute < NotesAttributeBase
-      def parse
-        split_notes(:public_notes, columns)
-      end
-    end
-
-    class BlurbAttribute < Attribute
-      def parse
-        return nil unless columns[:blurb]
-
-        columns[:blurb]
-          .presence
-          &.chomp
-      end
-    end
-
-    class PrivateNotesAttribute < NotesAttributeBase
-      def parse
-        split_notes(:private_notes, columns)
+          &.sub(/#{config.deep_fetch(:csv, :long_separator).rstrip}\s*\z/, "")
+          &.split(config.deep_fetch(:csv, :long_separator))
+          &.map { |string|
+            {
+              blurb: !!string.delete!(config.deep_fetch(:csv, :blurb_emoji)),
+              private: !!string.delete!(config.deep_fetch(:csv, :private_emoji)),
+              content: string.strip,
+            }
+          }
       end
     end
   end

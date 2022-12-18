@@ -274,21 +274,21 @@ class CSVParseTest < Minitest::Test
   # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
   @files[:examples] = {}
   @files[:examples][:"in progress"] = <<~EOM.freeze
-    \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Public notes|Blurb|Private notes|History
+    \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Notes|History
     \\------ IN PROGRESS
-    |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20| |history, wisdom|15:17|Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.|History with a sociological bent, with special attention paid to human happiness.
+    |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20||history, wisdom|15:17|💬History with a sociological bent, with special attention paid to human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.
     5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
   @files[:examples][:"done"] = <<~EOM.freeze
     \\------ DONE
     4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
-    2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats|10:13|I would've felt bad if I hadn't tried.
-    1|DNF 🎤FiveThirtyEight Politics 🎤The NPR Politics Podcast 🎤Pod Save America| |2021/08/02|2021/08/02|politics, podcast|0:30|Not very deep. Disappointing.
-    5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science| |Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet.|It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
+    2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats|10:13|🔒I would've felt bad if I hadn't tried.
+    1|DNF 🎤FiveThirtyEight Politics 🎤The NPR Politics Podcast 🎤Pod Save America||2021/08/02|2021/08/02|politics, podcast|0:30|Not very deep. Disappointing.
+    5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science||Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet. -- 💬It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
   EOM
   @files[:examples][:"planned"] = <<~EOM.freeze
     \\------ PLANNED
-    |⚡Tom Holt - A Song for Nero|B00GW4U2TM| | |historical fiction|580
+    |⚡Tom Holt - A Song for Nero|B00GW4U2TM|||historical fiction|580
   EOM
   @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
@@ -358,7 +358,7 @@ class CSVParseTest < Minitest::Test
   a = a_started
   b = item_data(
     title: "Goatsong",
-    experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30") }] }]
+    experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30") }] }],
   )
   @items[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
 
@@ -626,7 +626,7 @@ class CSVParseTest < Minitest::Test
       { dates: Date.parse("2021/12/21")..Date.parse("2021/12/21"),
         description: "#2 Componentized View Architecture FTW!" },
       { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
-        description: "#3 String-Based Templates vs. DSLs" }] }]
+        description: "#3 String-Based Templates vs. DSLs" }] }],
   )
   @items[:features_history][:"dates and descriptions"] = [a]
 
@@ -634,7 +634,7 @@ class CSVParseTest < Minitest::Test
     experiences: [{ spans: [
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:35" ),
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" ),
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" )] }]
+      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" )] }],
   )
   @items[:features_history][:"time amounts"] = [a]
 
@@ -649,8 +649,12 @@ class CSVParseTest < Minitest::Test
                     length: "15:17" }],
     experiences: [{ spans: [{ dates: Date.parse("2021/09/20").. }] }],
     genres: %w[history wisdom],
-    public_notes: ["Ch. 5: \"We did not domesticate wheat. It domesticated us.\"", "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos.", "Ch. 19: are we happier in modernity? It's doubtful."],
-    blurb: "History with a sociological bent, with special attention paid to human happiness."
+    notes: [
+      { blurb: true, content: "History with a sociological bent, with special attention paid to human happiness." },
+      { content: "Ch. 5: \"We did not domesticate wheat. It domesticated us.\"" },
+      { content: "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos." },
+      { content: "Ch. 19: are we happier in modernity? It's doubtful." },
+    ],
   )
   goatsong = item_data(
     rating: 5,
@@ -666,11 +670,6 @@ class CSVParseTest < Minitest::Test
                   { spans: [{ dates: Date.parse("2021/08/17").. }],
                     progress: 0.5 }],
     genres: ["historical fiction"],
-    # history: [{ dates: Date.parse("2019-05-01"), amount: 31 },
-    #           { dates: Date.parse("2019-05-02"), amount: 23 },
-    #           { dates: Date.parse("2019-05-06")..Date.parse("2019-05-15"), amount: 10 },
-    #           { dates: Date.parse("2019-05-20"), amount: 46 },
-    #           { dates: Date.parse("2019-05-21"), amount: 47 }]
   )
   @items[:examples][:"in progress"] = [sapiens, goatsong]
 
@@ -686,7 +685,10 @@ class CSVParseTest < Minitest::Test
     experiences: [{ spans: [{ dates: Date.parse("2020/10/20")..Date.parse("2021/08/31") }],
                     group: "weekly Latin reading with Sean and Dennis" }],
     genres: %w[latin novel],
-    public_notes: ["Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html", "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d"]
+    notes: [
+      { content: "Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html" },
+      { content: "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d" },
+    ],
   )
   cat_mojo = item_data(
     rating: 2,
@@ -700,7 +702,7 @@ class CSVParseTest < Minitest::Test
                   { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11") }],
                     progress: "4:45" }],
     genres: %w[cats],
-    public_notes: ["I would've felt bad if I hadn't tried."]
+    notes: [{ private: true, content: "I would've felt bad if I hadn't tried." }],
   )
   podcast_1 = item_data(
     rating: 1,
@@ -711,7 +713,7 @@ class CSVParseTest < Minitest::Test
                     progress: 0,
                     variant_index: 0 }],
     genres: %w[politics podcast],
-    public_notes: ["Not very deep. Disappointing."]
+    notes: [{ content: "Not very deep. Disappointing." }],
   )
   podcast_2 = podcast_1.merge(title: "The NPR Politics Podcast")
   podcast_3 = podcast_1.merge(title: "Pod Save America")
@@ -737,8 +739,10 @@ class CSVParseTest < Minitest::Test
                   { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10") }],
                     variant_index: 0 }],
     genres: %w[science],
-    public_notes: ["Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet."],
-    blurb: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist."
+    notes: [
+      { content: "Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet." },
+      { blurb: true, content: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist." },
+    ],
   )
   @items[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
 
@@ -749,7 +753,7 @@ class CSVParseTest < Minitest::Test
     variants:    [{ format: :ebook,
                     isbn: "B00GW4U2TM",
                     length: 580 }],
-    genres: ["historical fiction"]
+    genres: ["historical fiction"],
   )
   @items[:examples][:"planned"] = [nero]
 
@@ -757,35 +761,35 @@ class CSVParseTest < Minitest::Test
     author: "Tom Holt",
     title: "A Song for Nero",
     variants:  [{ format: :ebook }],
-    genres: ["historical fiction"]
+    genres: ["historical fiction"],
   )
   true_grit = item_data(
     title: "True Grit",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Little Library" },
                             { name: "Hoopla" }] }],
-    genres: ["historical fiction"]
+    genres: ["historical fiction"],
   )
   lebowski = item_data(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
                   sources: [{ name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
-    genres: ["historical fiction"]
+    genres: ["historical fiction"],
   )
   how_to = item_data(
     author: "Randall Munroe",
     title: "How To",
     variants:  [{ format: :print,
                   sources: [{ name: "Lexpub" }] }],
-    genres: %w[science]
+    genres: %w[science],
   )
   weird_earth = item_data(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Hoopla" },
                             { name: "Lexpub" }] }],
-    genres: %w[science]
+    genres: %w[science],
   )
   @items[:examples][:"compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 
@@ -824,20 +828,24 @@ class CSVParseTest < Minitest::Test
 
   def without_blank_hashes(item_data)
     template = base_config.deep_fetch(:item, :template)
-    %i[series variants experiences].each do |attribute|
+
+    %i[series variants experiences notes].each do |attribute|
       item_data[attribute] =
         item_data[attribute].reject { |value| value == template[attribute].first }
     end
+
     # Same for inner hash array at [:variants][:sources].
     item_data[:variants].each do |variant|
       variant[:sources] =
         variant[:sources].reject { |value| value == template.deep_fetch(:variants, 0, :sources).first }
     end
+
     # Same for inner hash array at [:experiences][:spans].
     item_data[:experiences].each do |variant|
       variant[:spans] =
         variant[:spans].reject { |value| value == template.deep_fetch(:experiences, 0, :spans).first }
     end
+
     item_data
   end
 

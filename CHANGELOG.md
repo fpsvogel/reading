@@ -2,7 +2,7 @@
 
 - Added docs.
 - Removed unused features.
-- Removed two little-used columns, Blurb and Private Notes.
+- Removed two little-used columns, Blurb and Private Notes, making them specially-marked Notes instead. Notes are now structured as an array of hashes rather than a simple array of strings.
 
 ## [0.3.1] - 2022-11-22
 

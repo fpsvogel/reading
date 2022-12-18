@@ -111,9 +111,12 @@ module Reading
                     variant_index: 0,
                   }],
                 genres: [],
-                public_notes: [],
-                blurb: nil,
-                private_notes: [],
+                notes:
+                  [{
+                    blurb: false,
+                    private: false,
+                    content: nil,
+                  }],
               },
           },
         csv:
@@ -143,6 +146,8 @@ module Reading
             dnf_string:               "DNF",
             series_prefix:            "in",
             group_emoji:              "🤝🏼",
+            blurb_emoji:              "💬",
+            private_emoji:            "🔒",
             compact_planned_source_prefix: "@",
             skip_compact_planned:     false,
           },
