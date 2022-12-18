@@ -178,7 +178,7 @@ module Reading
         progress: /(?<=#{dnf_string}|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
         variant_index: /\s+v(\d+)/,
-        date: /(\d{4}\/\d?\d\/\d?\d)/,
+        date: /\d{4}\/\d?\d\/\d?\d/,
         time_length: time_length,
         pages_length: pages_length,
         pages_length_in_variant: /(?:\A|\s+|p)(\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13

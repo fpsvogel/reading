@@ -83,8 +83,13 @@ module Reading
       end
 
       def date_started(date_entry)
-        date_str = date_entry.match(config.deep_fetch(:csv, :regex, :date))&.captures&.first
+        dates = date_entry.scan(config.deep_fetch(:csv, :regex, :date))
+        raise InvalidDateError, "Conjoined dates" if dates.count > 1
+
+        date_str = dates.first
         Date.parse(date_str) if date_str
+      rescue Date::Error
+        raise InvalidDateError, "Unparsable dates"
       end
 
       def date_finished(dates_finished, date_index)
@@ -92,6 +97,8 @@ module Reading
 
         date_str = dates_finished[date_index]&.presence
         Date.parse(date_str) if date_str
+      rescue Date::Error
+        raise InvalidDateError, "Date cannot be parsed"
       end
 
       def progress(str, ignore_if_no_dnf: false)
@@ -130,7 +137,7 @@ module Reading
           .map { |exp| exp[:spans].first[:dates].begin }
           .each_cons(2) do |a, b|
             if (a.nil? && b.nil?) || (a && b && a > b )
-              raise InvalidDateError, "Dates started are not in order."
+              raise InvalidDateError, "Dates started are not in order"
             end
           end
       end
@@ -141,7 +148,7 @@ module Reading
           .map { |exp| exp[:spans].last[:dates].end }
           .each_cons(2) do |a, b|
             if (a.nil? && b.nil?) || (a && b && a > b )
-              raise InvalidDateError, "Dates finished are not in order."
+              raise InvalidDateError, "Dates finished are not in order"
             end
           end
       end
@@ -155,7 +162,7 @@ module Reading
               b_metaspan = b[:spans].first[:dates].begin..b[:spans].last[:dates].end
               if a_metaspan.cover?(b_metaspan.begin || a_metaspan.begin || a_metaspan.end) ||
                   b_metaspan.cover?(a_metaspan.begin || b_metaspan.begin || b_metaspan.end)
-                raise InvalidDateError, "Experiences are overlapping."
+                raise InvalidDateError, "Experiences are overlapping"
               end
             end
           end
@@ -169,16 +176,16 @@ module Reading
               .map { |span| span[:dates] }
               .each do |dates|
                 if dates.begin && dates.end && dates.begin > dates.end
-                  raise InvalidDateError, "A date range is backward."
+                  raise InvalidDateError, "A date range is backward"
                 end
               end
               .each_cons(2) do |a, b|
                 if a.begin > b.begin || a.end > b.end
-                  raise InvalidDateError, "Dates are not in order."
+                  raise InvalidDateError, "Dates are not in order"
                 end
                 if a.cover?(b.begin || a.begin || a.end) ||
                     b.cover?(a.begin || b.begin || b.end)
-                  raise InvalidDateError, "Dates are overlapping."
+                  raise InvalidDateError, "Dates are overlapping"
                 end
               end
           end

@@ -303,6 +303,10 @@ class CSVParseTest < Minitest::Test
   @files[:errors] = {}
   @files[:errors][Reading::InvalidDateError] =
   {
+  :"conjoined dates" =>
+    "|Sapiens||2020/01/01 2019/01/01",
+  :"unparsable date" =>
+    "|Sapiens||2020/01/32|2019/01/01",
   :"end date before start date" =>
     "|Sapiens||2020/01/01|2019/01/01",
   :"start dates out of order" =>

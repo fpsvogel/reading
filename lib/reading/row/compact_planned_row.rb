@@ -36,7 +36,7 @@ module Reading
     def item_hash(item_head)
       item_match = item_head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
       unless item_match
-        raise InvalidItemError, "Invalid planned item"
+        raise InvalidItemError, "Title missing after #{item_head} in compact planned row"
       end
 
       author = AuthorAttribute.new(item_head: item_match[:author_title], config:).parse

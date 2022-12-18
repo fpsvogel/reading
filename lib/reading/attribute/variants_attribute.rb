@@ -129,11 +129,11 @@ module Reading
 
         if valid_url?(array[0])
           if valid_url?(array[1])
-            raise InvalidItemError, "Each Source must have only one one URL."
+            raise InvalidItemError, "Each Source must have only one one URL"
           end
           array = array.reverse
         elsif !valid_url?(array[1]) && !array[1].nil?
-          raise InvalidItemError, "Invalid URL, or each Source must have only one one name."
+          raise InvalidItemError, "Invalid URL, or each Source must have only one one name"
         end
 
         url = array[1]

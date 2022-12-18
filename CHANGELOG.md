@@ -1,6 +1,7 @@
 ## [0.3.2] - 2022-12-18
 
 - Added docs.
+- Added basic date validation.
 - Removed unused features.
 - Removed two little-used columns, Blurb and Private Notes, making them specially-marked Notes instead. Notes are now structured as an array of hashes rather than a simple array of strings.
 
