@@ -24,9 +24,14 @@ module Reading
     end
 
     def before_parse
-      list_start = string.match(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
-      @genre = list_start[:genre]&.downcase
-      @row_without_genre = string.sub(list_start.to_s, "")
+      emojis = config.deep_fetch(:csv, :regex, :unrecognized_emojis)
+      start_regex = config.deep_fetch(:csv, :regex, :compact_planned_row_start)
+
+      string_without_emojis = string.gsub(emojis, "")
+      start = string_without_emojis.match(start_regex)
+
+      @genre = start[:genre]&.downcase
+      @row_without_genre = string_without_emojis.sub(start.to_s, "")
     end
 
     def string_to_be_split_by_format_emojis

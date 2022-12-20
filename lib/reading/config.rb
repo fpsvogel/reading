@@ -160,7 +160,7 @@ module Reading
       return @hash[:csv][:regex] if @hash.dig(:csv, :regex)
 
       comment_character = Regexp.escape(@hash.deep_fetch(:csv, :comment_character))
-      formats = /#{@hash.deep_fetch(:item, :formats).values.join("|")}/
+      formats = @hash.deep_fetch(:item, :formats).values.join("|")
       dnf_string = Regexp.escape(@hash.deep_fetch(:csv, :dnf_string))
       time_length = /(\d+:\d\d)/
       pages_length = /p?(\d+)p?/
@@ -169,8 +169,9 @@ module Reading
         comment_escaped: comment_character,
         compact_planned_row_start: /\A\s*#{comment_character}(?:(?<genre>[^a-z:,\|]+):)?\s*(?=#{formats})/,
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
-        formats: formats,
+        formats: /#{formats}/,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
+        unrecognized_emojis: /(?!#{formats})\p{Emoji}/,
         series_volume: /,\s*#(\d+)\z/,
         isbn: isbn_regex,
         sources: sources_regex,

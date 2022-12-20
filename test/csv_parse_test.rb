@@ -247,6 +247,8 @@ class CSVParseTest < Minitest::Test
     "\\⚡A Song for Nero @Little Library @Hoopla",
   :"with genre" =>
     "\\HISTORICAL FICTION: ⚡A Song for Nero",
+  :"emojis are ignored" =>
+    "\\❓HISTORICAL FICTION:⚡💲A Song for Nero ✅@Little Library @Hoopla",
   :"multiple, titles only" =>
     "\\⚡A Song for Nero 🔊True Grit",
   :"multiple, everything" =>
@@ -633,6 +635,9 @@ class CSVParseTest < Minitest::Test
 
   a_genre = a.merge(genres: ["historical fiction"])
   @items[:features_compact_planned][:"with genre"] = [a_genre]
+
+  a_emojis_ignored = a_sources.merge(genres: ["historical fiction"])
+  @items[:features_compact_planned][:"emojis are ignored"] = [a_emojis_ignored]
 
   b = item_hash(title: "True Grit",
                 variants: [{ format: :audiobook }])
