@@ -7,10 +7,12 @@ require "reading/csv"
 require "reading/errors"
 require "reading/util/deep_merge"
 require "reading/util/deep_fetch"
+require "reading/util/to_struct"
 
 class CSVParseTest < Minitest::Test
   using Reading::Util::DeepMerge
   using Reading::Util::DeepFetch
+  using Reading::Util::ToStruct
 
   self.class.attr_reader :files, :items, :base_config
 
@@ -826,7 +828,7 @@ class CSVParseTest < Minitest::Test
   # the item template in config.
   def tidy(items)
     items.map { |data|
-      without_blank_hashes(data)
+      without_blank_hashes(data).to_struct
     }
   end
 

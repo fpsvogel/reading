@@ -47,17 +47,17 @@ The most basic usage is simply to specify the path to your CSV reading log, and 
 ```ruby
 file_path = "/home/user/reading.csv"
 csv = Reading::CSV.new(path: file_path)
-items_hashes = csv.parse
+items = csv.parse
 ```
 
-This returns an array of hashes, each representing an item (such as a book or podcast) structured like the template hash in `default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+This returns an array of Structs, each representing an item (such as a book or podcast) structured like the template hash in `default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 If instead of a file path you want to directly parse a string or file (anything responding to `#each_line`):
 
 ```ruby
 csv_string_or_file = File.read(file_path)
 csv = Reading::CSV.new(csv_string_or_file)
-items_hashes = csv.parse
+items = csv.parse
 ```
 
 To use custom configuration, pass a config hash when initializing:
@@ -65,7 +65,7 @@ To use custom configuration, pass a config hash when initializing:
 ```ruby
 custom_config = { csv: { skip_compact_planned: true } }
 csv = Reading::CSV.new(path: file_path, config: custom_config)
-items_hashes = csv.parse
+items = csv.parse
 ```
 
 ## CSV documentation

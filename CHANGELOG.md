@@ -4,8 +4,8 @@
 
 ## [0.8.0] - upcoming
 
+- Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
 - Add one-line planned items.
-- Add dot access to the returned hashes of parsed items.
 - Improve date validation. A dateless date entry now raises an error.
 - Ignore emojis in titles, other than format emojis. Note: use /\p{Emoji}/
 

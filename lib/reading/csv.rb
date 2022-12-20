@@ -1,5 +1,6 @@
 require_relative "util/deep_merge"
 require_relative "util/deep_fetch"
+require_relative "util/to_struct"
 require_relative "config"
 require_relative "line"
 
@@ -7,6 +8,7 @@ module Reading
   class CSV
     using Util::DeepMerge
     using Util::DeepFetch
+    using Util::ToStruct
 
     attr_reader :config
 
@@ -33,9 +35,11 @@ module Reading
       @config ||= Config.new(config).hash
     end
 
-    # Parses a CSV reading log into item data (an array of hashes).
-    # For the hash structure, see @default_config[:item][:template] in config.rb
-    # @return [Array<Hash>] an array of hashes like the template in config.rb
+    # Parses a CSV reading log into item data (an array of Structs).
+    # For what the Structs look like, see the Hash at @default_config[:item][:template]
+    # in config.rb. The Structs are identical in structure to that Hash (with
+    # every inner Hash replaced with a Struct).
+    # @return [Array<Struct>] an array of Structs like the template in config.rb
     def parse
       feed = @feed || File.open(@path)
       items = []
@@ -47,7 +51,7 @@ module Reading
         items += row.parse
       end
 
-      items
+      items.map(&:to_struct)
     ensure
       feed&.close if feed.respond_to?(:close)
     end
