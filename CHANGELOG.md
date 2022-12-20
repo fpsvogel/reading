@@ -5,9 +5,9 @@
 ## [0.8.0] - upcoming
 
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
-- Add one-line planned items.
+- Added support for one planned item per row.
+- Ignore emojis in compact planned items, other than format emojis. Note: use /\p{Emoji}/
 - Improve date validation. A dateless date entry now raises an error.
-- Ignore emojis in titles, other than format emojis. Note: use /\p{Emoji}/
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
 
 ## [0.7.0] - 2022-12-18

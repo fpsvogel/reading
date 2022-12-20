@@ -240,11 +240,17 @@ class CSVParseTest < Minitest::Test
   @files[:features_compact_planned] =
   {
   :"title only" =>
+    "\\⚡A Song for Nero",
+  :"with author" =>
+    "\\⚡Tom Holt - A Song for Nero",
+  :"with sources" =>
+    "\\⚡A Song for Nero @Little Library @Hoopla",
+  :"with genre" =>
     "\\HISTORICAL FICTION: ⚡A Song for Nero",
-  :"author" =>
-    "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero",
-  :"sources" =>
-    "\\HISTORICAL FICTION: ⚡A Song for Nero @Little Library @Hoopla",
+  :"multiple, titles only" =>
+    "\\⚡A Song for Nero 🔊True Grit",
+  :"multiple, everything" =>
+    "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero @Little Library @Hoopla 🔊True Grit @Lexpub",
   }
 
   @files[:features_history] =
@@ -292,9 +298,14 @@ class CSVParseTest < Minitest::Test
     \\------ PLANNED
     |⚡Tom Holt - A Song for Nero|B00GW4U2TM|||historical fiction|580
   EOM
-  @files[:examples][:"compact planned"] = <<~EOM.freeze
+  @files[:examples][:"single compact planned"] = <<~EOM.freeze
     \\------ PLANNED
-    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+    \\⚡How to Think Like a Roman Emperor
+    \\🔊Trevor Noah - Born a Crime @Lexpub @Jeffco
+  EOM
+  @files[:examples][:"multi compact planned"] = <<~EOM.freeze
+    \\------ PLANNED
+    \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE: 📕Randall Munroe - How To @Lexpub 🔊Weird Earth @Hoopla @Lexpub
   EOM
 
@@ -609,17 +620,30 @@ class CSVParseTest < Minitest::Test
 
   @items[:features_compact_planned] = {}
   a = item_hash(title: "A Song for Nero",
-                genres: ["historical fiction"],
                 variants: [{ format: :ebook }])
   @items[:features_compact_planned][:"title only"] = [a]
 
   a_author = a.merge(author: "Tom Holt")
-  @items[:features_compact_planned][:"author"] = [a_author]
+  @items[:features_compact_planned][:"with author"] = [a_author]
 
   little_and_hoopla = [{ name: "Little Library", url: nil },
                        { name: "Hoopla", url: nil }]
   a_sources = a.deep_merge(variants: [{ sources: little_and_hoopla }])
-  @items[:features_compact_planned][:"sources"] = [a_sources]
+  @items[:features_compact_planned][:"with sources"] = [a_sources]
+
+  a_genre = a.merge(genres: ["historical fiction"])
+  @items[:features_compact_planned][:"with genre"] = [a_genre]
+
+  b = item_hash(title: "True Grit",
+                variants: [{ format: :audiobook }])
+  @items[:features_compact_planned][:"multiple, titles only"] = [a, b]
+
+  a_all = a_author
+    .deep_merge(variants: a_sources[:variants])
+    .merge(genres: ["historical fiction"])
+  b_all = b.deep_merge(genres: ["historical fiction"],
+                       variants: [{ sources: [{ name: "Lexpub", url: nil }] }])
+  @items[:features_compact_planned][:"multiple, everything"] = [a_all, b_all]
 
 
 
@@ -763,6 +787,19 @@ class CSVParseTest < Minitest::Test
   )
   @items[:examples][:"planned"] = [nero]
 
+  emperor = item_hash(
+    title: "How to Think Like a Roman Emperor",
+    variants:  [{ format: :ebook }],
+  )
+  born_crime = item_hash(
+    author: "Trevor Noah",
+    title: "Born a Crime",
+    variants:  [{ format: :audiobook,
+                  sources: [{ name: "Lexpub" },
+                            { name: "Jeffco" }] }],
+  )
+  @items[:examples][:"single compact planned"] = [emperor, born_crime]
+
   nero = item_hash(
     author: "Tom Holt",
     title: "A Song for Nero",
@@ -772,8 +809,7 @@ class CSVParseTest < Minitest::Test
   true_grit = item_hash(
     title: "True Grit",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: "Little Library" },
-                            { name: "Hoopla" }] }],
+                  sources: [{ name: "Lexpub" }] }],
     genres: ["historical fiction"],
   )
   lebowski = item_hash(
@@ -797,7 +833,7 @@ class CSVParseTest < Minitest::Test
                             { name: "Lexpub" }] }],
     genres: %w[science],
   )
-  @items[:examples][:"compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
+  @items[:examples][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 
 
 

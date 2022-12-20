@@ -25,7 +25,7 @@ module Reading
 
     def before_parse
       list_start = string.match(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
-      @genre = list_start[:genre].downcase
+      @genre = list_start[:genre]&.downcase
       @row_without_genre = string.sub(list_start.to_s, "")
     end
 
@@ -45,7 +45,7 @@ module Reading
       template.deep_merge(
         author: author || template.fetch(:author),
         title: title,
-        genres: [@genre] || template.fetch(:genres),
+        genres: [@genre].compact || template.fetch(:genres),
         variants: [parse_variant(item_match)],
       )
     end

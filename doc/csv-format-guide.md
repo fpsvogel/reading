@@ -105,22 +105,33 @@ Next up: planned items, a.k.a. your "to read" list. One way to track this is to 
 
 ```
 \------ PLANNED
-|⚡Tom Holt - A Song for Nero|B00GW4U2TM|||historical fiction|580
+|⚡How to Think Like a Roman Emperor|B07D2C5NNV|||philosophy,history|293
 ```
 
 But this is quite verbose for keeping track of books that you just *might* read. Here is a quicker and more compact way to jot down planned items:
 
 ```
-\------ PLANNED
-\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
+\⚡How to Think Like a Roman Emperor
+```
+
+- For a compact planned item to be parsed, you must:
+  - Start the line with a comment character, then a single genre in all caps, then a colon (`:`).
+  - Include the format emoji before each item.
+
+You can include one or more sources after the title, each preceded by `@`:
+
+```
+\🔊Trevor Noah - Born a Crime @Lexpub @Jeffco
+```
+
+If you have a group of related planned items, you can list them after a genre like this:
+
+```
+\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
 \SCIENCE: 📕Randall Munroe - How To @Lexpub 🔊Weird Earth @Hoopla @Lexpub
 ```
 
-- For these compact planned items to be parsed, you must:
-  - Start the line with a comment character, then a single genre in all caps, then a colon (`:`).
-  - Include the format emoji before each item.
-- The all-caps genre is changed to lowercase by the parser. So if you have a "science" genre, the items after "SCIENCE" here will be in that same "science" genre.
-- At the end of an item you can list sources, each immediately preceded by `@`.
+- The all-caps genre is changed to lowercase by the parser. So the items after "SCIENCE" here will have the genre "science".
 - Commas between items (before format emojis) are optional.
 
 ## History
