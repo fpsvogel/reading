@@ -1,3 +1,14 @@
+## [0.9.0] - upcoming
+
+- Add parsing of the History column.
+
+## [0.8.0] - upcoming
+
+- Add one-line planned items.
+- Add dot access to the returned hashes of parsed items.
+- Improve date validation. A dateless date entry now raises an error.
+- Ignore emojis in titles, other than format emojis. Note: use /\p{Emoji}/
+
 ## [0.7.0] - 2022-12-18
 
 - Added docs.
