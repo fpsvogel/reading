@@ -8,6 +8,7 @@
 - Add one-line planned items.
 - Improve date validation. A dateless date entry now raises an error.
 - Ignore emojis in titles, other than format emojis. Note: use /\p{Emoji}/
+- Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
 
 ## [0.7.0] - 2022-12-18
 

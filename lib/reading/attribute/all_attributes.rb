@@ -98,8 +98,8 @@ module Reading
           &.split(config.deep_fetch(:csv, :long_separator))
           &.map { |string|
             {
-              blurb: !!string.delete!(config.deep_fetch(:csv, :blurb_emoji)),
-              private: !!string.delete!(config.deep_fetch(:csv, :private_emoji)),
+              blurb?: !!string.delete!(config.deep_fetch(:csv, :blurb_emoji)),
+              private?: !!string.delete!(config.deep_fetch(:csv, :private_emoji)),
               content: string.strip,
             }
           }

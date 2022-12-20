@@ -113,8 +113,8 @@ module Reading
                 genres: [],
                 notes:
                   [{
-                    blurb: false,
-                    private: false,
+                    blurb?: false,
+                    private?: false,
                     content: nil,
                   }],
               },

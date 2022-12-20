@@ -656,7 +656,7 @@ class CSVParseTest < Minitest::Test
     experiences: [{ spans: [{ dates: Date.parse("2021/09/20").. }] }],
     genres: %w[history wisdom],
     notes: [
-      { blurb: true, content: "History with a sociological bent, with special attention paid to human happiness." },
+      { blurb?: true, content: "History with a sociological bent, with special attention paid to human happiness." },
       { content: "Ch. 5: \"We did not domesticate wheat. It domesticated us.\"" },
       { content: "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos." },
       { content: "Ch. 19: are we happier in modernity? It's doubtful." },
@@ -708,7 +708,7 @@ class CSVParseTest < Minitest::Test
                   { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11") }],
                     progress: "4:45" }],
     genres: %w[cats],
-    notes: [{ private: true, content: "I would've felt bad if I hadn't tried." }],
+    notes: [{ private?: true, content: "I would've felt bad if I hadn't tried." }],
   )
   podcast_1 = item_data(
     rating: 1,
@@ -747,7 +747,7 @@ class CSVParseTest < Minitest::Test
     genres: %w[science],
     notes: [
       { content: "Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet." },
-      { blurb: true, content: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist." },
+      { blurb?: true, content: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist." },
     ],
   )
   @items[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
