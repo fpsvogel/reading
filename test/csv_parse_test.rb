@@ -322,13 +322,13 @@ class CSVParseTest < Minitest::Test
 
 
   # ==== EXPECTED DATA
-  # The results of parsing the above Files are expected to equal this data.
+  # The results of parsing the above Files are expected to equal these hashes.
 
-  def self.item_data(**partial_data)
-    # This merge is not the same as Reading::Util::DeepMerge. This one uses an
-    # array value's first hash as the template for all corresponding partial
-    # data, for example in :variants and :experiences in the item template.
-    base_config.deep_fetch(:item, :template).merge(partial_data) do |key, old_value, new_value|
+  def self.item_hash(**partial_hash)
+    # This merge is not the same as Reading::Util::DeepMerge. This one uses the
+    # first (empty) subhashes in the item template, for example in :variants and
+    # :experiences in the item template.
+    base_config.deep_fetch(:item, :template).merge(partial_hash) do |key, old_value, new_value|
       item_template_merge(key, old_value, new_value)
     end
   end
@@ -348,9 +348,9 @@ class CSVParseTest < Minitest::Test
 
   @items = {}
   @items[:enabled_columns] = {}
-  a = item_data(title: "Sapiens")
-  b = item_data(title: "Goatsong")
-  c = item_data(title: "How To")
+  a = item_hash(title: "Sapiens")
+  b = item_hash(title: "Goatsong")
+  c = item_hash(title: "How To")
   @items[:enabled_columns][:"head"] = [a, b, c]
 
   b_finished_inner = { experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30") }] }] }
@@ -362,7 +362,7 @@ class CSVParseTest < Minitest::Test
   @items[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
 
   a = a_started
-  b = item_data(
+  b = item_hash(
     title: "Goatsong",
     experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30") }] }],
   )
@@ -407,7 +407,7 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:features_head] = {}
-  a_basic = item_data(author: "Tom Holt", title: "Goatsong")
+  a_basic = item_hash(author: "Tom Holt", title: "Goatsong")
   @items[:features_head][:"author"] = [a_basic]
 
   a = a_basic.deep_merge(series: [{ name: "The Walled Orchard" }])
@@ -428,7 +428,7 @@ class CSVParseTest < Minitest::Test
   a_with_format = a_basic.deep_merge(variants: [{ format: :print }])
   @items[:features_head][:"format"] = [a_with_format]
 
-  b = item_data(title: "Sapiens", variants: [{ format: :audiobook }])
+  b = item_hash(title: "Sapiens", variants: [{ format: :audiobook }])
   @items[:features_head][:"multi items"] = [a_with_format, b]
 
   @items[:features_head][:"multi items without a comma"] = [a_with_format, b]
@@ -436,21 +436,21 @@ class CSVParseTest < Minitest::Test
   @items[:features_head][:"multi items with a long separator"] = [a_with_format, b]
 
   half_progress = { experiences: [{ progress: 0.5 }] }
-  a = item_data(title: "Goatsong", **half_progress)
+  a = item_hash(title: "Goatsong", **half_progress)
   @items[:features_head][:"progress"] = [a]
 
-  a = item_data(title: "Goatsong", experiences: [{ progress: 220 }])
+  a = item_hash(title: "Goatsong", experiences: [{ progress: 220 }])
   @items[:features_head][:"progress pages"] = [a]
 
   @items[:features_head][:"progress pages without p"] = [a]
 
-  a = item_data(title: "Goatsong", experiences: [{ progress: "2:30" }])
+  a = item_hash(title: "Goatsong", experiences: [{ progress: "2:30" }])
   @items[:features_head][:"progress time"] = [a]
 
-  a = item_data(title: "Goatsong", experiences: [{ progress: 0 }])
+  a = item_hash(title: "Goatsong", experiences: [{ progress: 0 }])
   @items[:features_head][:"dnf"] = [a]
 
-  a = item_data(title: "Goatsong", experiences: [{ progress: 0.5 }])
+  a = item_hash(title: "Goatsong", experiences: [{ progress: 0.5 }])
   @items[:features_head][:"dnf with progress"] = [a]
 
   a = a_with_format.deep_merge(experiences: [{ progress: 0 }])
@@ -465,7 +465,7 @@ class CSVParseTest < Minitest::Test
 
   @items[:features_sources] = {}
   title = "Goatsong"
-  a_basic = item_data(title:)
+  a_basic = item_hash(title:)
   isbn = "0312038380"
   a = a_basic.deep_merge(variants: [{ isbn: isbn }])
   @items[:features_sources][:"ISBN-10"] = [a]
@@ -519,18 +519,18 @@ class CSVParseTest < Minitest::Test
                                         isbn: isbn }])
   @items[:features_sources][:"sources with ISBN commas"] = [a]
 
-  a = item_data(title:,
+  a = item_hash(title:,
                 variants: [{ sources: [library] },
                            { sources: [lexpub] }])
   @items[:features_sources][:"simple variants"] = [a]
 
-  a = item_data(title:,
+  a = item_hash(title:,
                 variants: [{ format: :print,
                              sources: [library],
                              extra_info: extra_info }])
   @items[:features_sources][:"extra info can be included if format is specified"] = [a]
 
-  a = item_data(title:,
+  a = item_hash(title:,
                 variants: [a[:variants].first,
                               { format: :audiobook,
                                 sources: [lexpub] }])
@@ -540,12 +540,12 @@ class CSVParseTest < Minitest::Test
 
   @items[:features_sources][:"formats can be preceded by a long separator"] = [a]
 
-  a = item_data(title:,
+  a = item_hash(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
                            a[:variants].last.merge(length: "7:03")])
   @items[:features_sources][:"length after sources ISBN and before extra info"] = [a]
 
-  a = item_data(title:,
+  a = item_hash(title:,
                 variants: [a[:variants].first.merge(sources: three_sources_with_name),
                            a[:variants].last])
   @items[:features_sources][:"multiple sources allowed in variant"] = [a]
@@ -553,20 +553,20 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:features_dates_started] = {}
-  a_basic = item_data(title: "Sapiens")
+  a_basic = item_hash(title: "Sapiens")
   exp_started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
   a_started = a_basic.deep_merge(exp_started)
   @items[:features_dates_started][:"date started"] = [a_started]
 
   exp_second_started = { experiences: [{},
                                        { spans: [{ dates: Date.parse("2021/07/15").. }] }] }
-  a = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
+  a = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   @items[:features_dates_started][:"dates started"] = [a]
 
   exp_third_started = { experiences: [{},
                                       {},
                                       { spans: [{ dates: Date.parse("2022/01/01").. }] }] }
-  z = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
+  z = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
   @items[:features_dates_started][:"dates started in any order"] = [z]
 
   exp_progress = ->(amount) { { experiences: [{ progress: amount }] } }
@@ -599,7 +599,7 @@ class CSVParseTest < Minitest::Test
 
   @items[:features_dates_started][:"other text before or after dates is ignored"] = [a_started]
 
-  a_many = item_data(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
+  a_many = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   a = a_many.deep_merge(experiences: [{ progress: 0.5,
                                         variant_index: 1 },
                                       { progress: "2:30" }])
@@ -608,7 +608,7 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:features_multi_planned] = {}
-  a = item_data(title: "A Song for Nero",
+  a = item_hash(title: "A Song for Nero",
                 genres: ["historical fiction"],
                 variants: [{ format: :ebook }])
   @items[:features_multi_planned][:"title only"] = [a]
@@ -624,7 +624,7 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:features_history] = {}
-  a = item_data(
+  a = item_hash(
     title: "Fullstack Ruby",
     experiences: [{ spans: [
       { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
@@ -647,7 +647,7 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:examples] = {}
-  sapiens = item_data(
+  sapiens = item_hash(
     title: "Sapiens: A Brief History of Humankind",
     variants:    [{ format: :audiobook,
                     sources: [{ name: "Vail Library" }],
@@ -662,7 +662,7 @@ class CSVParseTest < Minitest::Test
       { content: "Ch. 19: are we happier in modernity? It's doubtful." },
     ],
   )
-  goatsong = item_data(
+  goatsong = item_hash(
     rating: 5,
     author: "Tom Holt",
     title: "Goatsong: A Novel of Ancient Athens",
@@ -679,7 +679,7 @@ class CSVParseTest < Minitest::Test
   )
   @items[:examples][:"in progress"] = [sapiens, goatsong]
 
-  insula = item_data(
+  insula = item_hash(
     rating: 4,
     author: "Robert Louis Stevenson",
     title: "Insula Thesauraria",
@@ -696,7 +696,7 @@ class CSVParseTest < Minitest::Test
       { content: "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d" },
     ],
   )
-  cat_mojo = item_data(
+  cat_mojo = item_hash(
     rating: 2,
     title: "Total Cat Mojo",
     variants:    [{ format: :audiobook,
@@ -710,7 +710,7 @@ class CSVParseTest < Minitest::Test
     genres: %w[cats],
     notes: [{ private?: true, content: "I would've felt bad if I hadn't tried." }],
   )
-  podcast_1 = item_data(
+  podcast_1 = item_hash(
     rating: 1,
     title: "FiveThirtyEight Politics",
     variants:    [{ format: :audio,
@@ -723,7 +723,7 @@ class CSVParseTest < Minitest::Test
   )
   podcast_2 = podcast_1.merge(title: "The NPR Politics Podcast")
   podcast_3 = podcast_1.merge(title: "Pod Save America")
-  what_if = item_data(
+  what_if = item_hash(
     rating: 5,
     author: "Randall Munroe",
     title: "What If?: Serious Scientific Answers to Absurd Hypothetical Questions",
@@ -753,7 +753,7 @@ class CSVParseTest < Minitest::Test
   @items[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
 
 
-  nero = item_data(
+  nero = item_hash(
     author: "Tom Holt",
     title: "A Song for Nero",
     variants:    [{ format: :ebook,
@@ -763,34 +763,34 @@ class CSVParseTest < Minitest::Test
   )
   @items[:examples][:"planned"] = [nero]
 
-  nero = item_data(
+  nero = item_hash(
     author: "Tom Holt",
     title: "A Song for Nero",
     variants:  [{ format: :ebook }],
     genres: ["historical fiction"],
   )
-  true_grit = item_data(
+  true_grit = item_hash(
     title: "True Grit",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Little Library" },
                             { name: "Hoopla" }] }],
     genres: ["historical fiction"],
   )
-  lebowski = item_data(
+  lebowski = item_hash(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
                   sources: [{ name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
     genres: ["historical fiction"],
   )
-  how_to = item_data(
+  how_to = item_hash(
     author: "Randall Munroe",
     title: "How To",
     variants:  [{ format: :print,
                   sources: [{ name: "Lexpub" }] }],
     genres: %w[science],
   )
-  weird_earth = item_data(
+  weird_earth = item_hash(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
                   sources: [{ name: "Hoopla" },
@@ -827,43 +827,32 @@ class CSVParseTest < Minitest::Test
   # template in config. Data in items must already be complete, i.e. merged with
   # the item template in config.
   def tidy(items)
-    items.map { |data|
-      without_blank_hashes(data).to_struct
+    items.map { |item_hash|
+      without_blank_hashes(item_hash).to_struct
     }
   end
 
-  def without_blank_hashes(item_data)
+  def without_blank_hashes(item_hash)
     template = base_config.deep_fetch(:item, :template)
 
     %i[series variants experiences notes].each do |attribute|
-      item_data[attribute] =
-        item_data[attribute].reject { |value| value == template[attribute].first }
+      item_hash[attribute] =
+        item_hash[attribute].reject { |value| value == template[attribute].first }
     end
 
     # Same for inner hash array at [:variants][:sources].
-    item_data[:variants].each do |variant|
+    item_hash[:variants].each do |variant|
       variant[:sources] =
         variant[:sources].reject { |value| value == template.deep_fetch(:variants, 0, :sources).first }
     end
 
     # Same for inner hash array at [:experiences][:spans].
-    item_data[:experiences].each do |variant|
+    item_hash[:experiences].each do |variant|
       variant[:spans] =
         variant[:spans].reject { |value| value == template.deep_fetch(:experiences, 0, :spans).first }
     end
 
-    item_data
-  end
-
-  def with_reread(data, date_started, date_finished, **other_attributes)
-    data.dup.then { |dup|
-      new_experience = dup[:experiences].first.merge(date_started:, date_finished:)
-      other_attributes.each do |attribute, value|
-        new_experience[attribute] = value
-      end
-      dup[:experiences] += [new_experience]
-      dup
-    }
+    item_hash
   end
 
   def parse(string)
