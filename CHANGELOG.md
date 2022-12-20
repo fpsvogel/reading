@@ -7,7 +7,7 @@
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
 - Added support for one planned item per row.
 - Made emojis be ignored in compact planned items, other than format emojis.
-- Improve date validation. A dateless date entry now raises an error.
+- Improved date validation. A dateless date entry now raises an error.
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
 
 ## [0.7.0] - 2022-12-18

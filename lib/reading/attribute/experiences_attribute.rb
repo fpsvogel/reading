@@ -85,11 +85,12 @@ module Reading
       def date_started(date_entry)
         dates = date_entry.scan(config.deep_fetch(:csv, :regex, :date))
         raise InvalidDateError, "Conjoined dates" if dates.count > 1
+        raise InvalidDateError, "Missing or incomplete date" if date_entry.present? && dates.empty?
 
         date_str = dates.first
         Date.parse(date_str) if date_str
       rescue Date::Error
-        raise InvalidDateError, "Unparsable dates"
+        raise InvalidDateError, "Unparsable date"
       end
 
       def date_finished(dates_finished, date_index)
@@ -98,7 +99,11 @@ module Reading
         date_str = dates_finished[date_index]&.presence
         Date.parse(date_str) if date_str
       rescue Date::Error
-        raise InvalidDateError, "Date cannot be parsed"
+        if date_str.match?(config.deep_fetch(:csv, :regex, :date))
+          raise InvalidDateError, "Unparsable date"
+        else
+          raise InvalidDateError, "Missing or incomplete date"
+        end
       end
 
       def progress(str, ignore_if_no_dnf: false)

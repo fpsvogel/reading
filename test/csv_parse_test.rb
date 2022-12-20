@@ -318,6 +318,12 @@ class CSVParseTest < Minitest::Test
   @files[:errors] = {}
   @files[:errors][Reading::InvalidDateError] =
   {
+  :"date started content without a date" =>
+    "|Sapiens||no date here|2019/01/01",
+  :"date finished content without a date" =>
+    "|Sapiens||2020/01/01|no date here",
+  :"incomplete date is the same as no date" =>
+    "|Sapiens||2020/01|2019/01/01",
   :"conjoined dates" =>
     "|Sapiens||2020/01/01 2019/01/01",
   :"unparsable date" =>
