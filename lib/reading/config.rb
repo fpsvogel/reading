@@ -148,8 +148,8 @@ module Reading
             group_emoji:              "🤝🏼",
             blurb_emoji:              "💬",
             private_emoji:            "🔒",
-            compact_planned_source_prefix: "@",
-            skip_compact_planned:     false,
+            multi_planned_source_prefix: "@",
+            skip_multi_planned:     false,
           },
       }
     end
@@ -167,8 +167,8 @@ module Reading
 
       {
         comment_escaped: comment_character,
-        compact_planned_row_start: /\A\s*#{comment_character}(?<genre>[^a-z:,\|]+):\s*(?=#{formats})/,
-        compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
+        multi_planned_row_start: /\A\s*#{comment_character}(?<genre>[^a-z:,\|]+):\s*(?=#{formats})/,
+        multi_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
         formats: formats,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
         series_volume: /,\s*#(\d+)\z/,

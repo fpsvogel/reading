@@ -63,7 +63,7 @@ items = csv.parse
 To use custom configuration, pass a config hash when initializing:
 
 ```ruby
-custom_config = { csv: { skip_compact_planned: true } }
+custom_config = { csv: { skip_multi_planned: true } }
 csv = Reading::CSV.new(path: file_path, config: custom_config)
 items = csv.parse
 ```
