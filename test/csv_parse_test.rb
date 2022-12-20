@@ -235,9 +235,9 @@ class CSVParseTest < Minitest::Test
     "Sapiens|DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15",
   }
 
-  # The multi_planned part (unlike in other :features_x) is merely semantic;
+  # The compact_planned part (unlike in other :features_x) is merely semantic;
   # it has no effect in set_columns below.
-  @files[:features_multi_planned] =
+  @files[:features_compact_planned] =
   {
   :"title only" =>
     "\\HISTORICAL FICTION: ⚡A Song for Nero",
@@ -292,7 +292,7 @@ class CSVParseTest < Minitest::Test
     \\------ PLANNED
     |⚡Tom Holt - A Song for Nero|B00GW4U2TM|||historical fiction|580
   EOM
-  @files[:examples][:"multi planned"] = <<~EOM.freeze
+  @files[:examples][:"compact planned"] = <<~EOM.freeze
     \\------ PLANNED
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero, 🔊True Grit @Little Library @Hoopla, 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE: 📕Randall Munroe - How To @Lexpub 🔊Weird Earth @Hoopla @Lexpub
@@ -607,19 +607,19 @@ class CSVParseTest < Minitest::Test
 
 
 
-  @items[:features_multi_planned] = {}
+  @items[:features_compact_planned] = {}
   a = item_hash(title: "A Song for Nero",
                 genres: ["historical fiction"],
                 variants: [{ format: :ebook }])
-  @items[:features_multi_planned][:"title only"] = [a]
+  @items[:features_compact_planned][:"title only"] = [a]
 
   a_author = a.merge(author: "Tom Holt")
-  @items[:features_multi_planned][:"author"] = [a_author]
+  @items[:features_compact_planned][:"author"] = [a_author]
 
   little_and_hoopla = [{ name: "Little Library", url: nil },
                        { name: "Hoopla", url: nil }]
   a_sources = a.deep_merge(variants: [{ sources: little_and_hoopla }])
-  @items[:features_multi_planned][:"sources"] = [a_sources]
+  @items[:features_compact_planned][:"sources"] = [a_sources]
 
 
 
@@ -797,7 +797,7 @@ class CSVParseTest < Minitest::Test
                             { name: "Lexpub" }] }],
     genres: %w[science],
   )
-  @items[:examples][:"multi planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
+  @items[:examples][:"compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 
 
 

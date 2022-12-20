@@ -4,8 +4,9 @@ require_relative "../errors"
 require_relative "row"
 
 module Reading
-  # Parses a row of multiple planned items into an array of hashes of item data.
-  class MultiPlannedRow < Row
+  # Parses a row of compactly listed planned items into an array of hashes of
+  # item data.
+  class CompactPlannedRow < Row
     using Util::DeepMerge
     using Util::DeepFetch
 
@@ -13,17 +14,17 @@ module Reading
       comment_char = line.csv.config.deep_fetch(:csv, :comment_character)
 
       line.string.strip.start_with?(comment_char) &&
-        line.string.match?(line.csv.config.deep_fetch(:csv, :regex, :multi_planned_row_start))
+        line.string.match?(line.csv.config.deep_fetch(:csv, :regex, :compact_planned_row_start))
     end
 
     private
 
     def skip?
-      config.deep_fetch(:csv, :skip_multi_planned)
+      config.deep_fetch(:csv, :skip_compact_planned)
     end
 
     def before_parse
-      list_start = string.match(config.deep_fetch(:csv, :regex, :multi_planned_row_start))
+      list_start = string.match(config.deep_fetch(:csv, :regex, :compact_planned_row_start))
       @genre = list_start[:genre].downcase
       @row_without_genre = string.sub(list_start.to_s, "")
     end
@@ -33,9 +34,9 @@ module Reading
     end
 
     def item_hash(item_head)
-      item_match = item_head.match(config.deep_fetch(:csv, :regex, :multi_planned_item))
+      item_match = item_head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
       unless item_match
-        raise InvalidItemError, "Title missing after #{item_head} in multi planned row"
+        raise InvalidItemError, "Title missing after #{item_head} in compact planned row"
       end
 
       author = AuthorAttribute.new(item_head: item_match[:author_title], config:).parse
@@ -72,7 +73,7 @@ module Reading
       return [] if sources_str.nil?
 
       sources_str
-        .split(config.deep_fetch(:csv, :multi_planned_source_prefix))
+        .split(config.deep_fetch(:csv, :compact_planned_source_prefix))
         .map { |source| source.sub(/\s*,\s*/, "") }
         .map(&:strip)
         .reject(&:empty?)

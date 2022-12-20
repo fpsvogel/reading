@@ -1,4 +1,4 @@
-require_relative "row/multi_planned_row"
+require_relative "row/compact_planned_row"
 require_relative "row/blank_row"
 require_relative "row/regular_row"
 
@@ -15,7 +15,7 @@ module Reading
     end
 
     def to_row
-      return MultiPlannedRow.new(self) if MultiPlannedRow.match?(self)
+      return CompactPlannedRow.new(self) if CompactPlannedRow.match?(self)
       return BlankRow.new(self) if BlankRow.match?(self)
       RegularRow.new(self)
     end
