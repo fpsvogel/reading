@@ -42,11 +42,16 @@ module Reading
     def item_hash(item_head)
       item_match = item_head.match(config.deep_fetch(:csv, :regex, :compact_planned_item))
       unless item_match
-        raise InvalidItemError, "Title missing after #{item_head} in compact planned row"
+        raise InvalidHeadError, "Title missing after #{item_head} in compact planned row"
       end
 
       author = AuthorAttribute.new(item_head: item_match[:author_title], config:).parse
-      title = TitleAttribute.new(item_head: item_match[:author_title], config:).parse
+
+      begin
+        title = TitleAttribute.new(item_head: item_match[:author_title], config:).parse
+      rescue InvalidHeadError
+        raise InvalidHeadError, "Title missing after #{item_head} in compact planned row"
+      end
 
       template.deep_merge(
         author: author || template.fetch(:author),

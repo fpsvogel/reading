@@ -27,9 +27,7 @@ class CSVParseTest < Minitest::Test
     {
       errors:
         {
-          handle_error: lambda do |error|
-              raise error
-            end
+          handle_error: ->(error) { raise error }
         }
     }
   @base_config = Reading::Config.new(custom_config).hash
@@ -340,6 +338,19 @@ class CSVParseTest < Minitest::Test
     "|Sapiens|https://www.sapiens.org - https://www.ynharari.com/book/sapiens-2",
   :"OK: multiple URLs but different sources" =>
     "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
+  }
+  @files[:errors][Reading::InvalidHeadError] =
+  {
+  :"blank Head column" =>
+    "|",
+  :"missing title" =>
+    "|📕",
+  :"missing title after author" =>
+    "|📕Mark Twain - ",
+  :"missing title in compact planned row" =>
+    "\\📕",
+  :"missing title after author in compact planned row" =>
+    "\\📕Mark Twain - ",
   }
 
 

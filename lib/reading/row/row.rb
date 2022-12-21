@@ -30,13 +30,13 @@ module Reading
 
       items
 
-    rescue InvalidItemError, StandardError => e
+    rescue Reading::Error, StandardError => e
       # TODO instead of rescuing StandardError here, test missing
       # initial/middle columns in ParseRegularRow#set_columns, and raise
       # appropriate errors if possible.
-      unless e.is_a? InvalidItemError
+      unless e.is_a? Reading::Error
         if config.deep_fetch(:errors, :catch_all_errors)
-          e = InvalidItemError.new("A row could not be parsed. Check this row")
+          e = Reading::Error.new("A row could not be parsed. Check this row")
         else
           raise e
         end

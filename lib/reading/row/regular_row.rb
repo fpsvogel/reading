@@ -74,7 +74,7 @@ module Reading
 
     def ensure_head_column_present
       if columns[:head].nil? || columns[:head].strip.empty?
-        raise InvalidItemError, "The Head column must not be blank"
+        raise InvalidHeadError, "The Head column must not be blank"
       end
     end
 

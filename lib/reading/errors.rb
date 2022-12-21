@@ -2,7 +2,7 @@ require "pastel"
 
 module Reading
   # The base error class, which provides flexible error handling.
-  class AppError < StandardError
+  class Error < StandardError
     using Util::StringTruncate
 
     # Handles this error based on config settings, and augments the error message
@@ -51,16 +51,19 @@ module Reading
   # FILE # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   # Means there was a problem accessing a file.
-  class FileError < AppError; end
+  class FileError < Reading::Error; end
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
-  # General error meaning a CSV row is invalid.
-  class InvalidItemError < AppError; end
+  # Means a CSV row is malformed.
+  class InvalidRowError < Reading::Error; end
 
   # Means a date is unparsable, or a set of dates does not make logical sense.
-  class InvalidDateError < InvalidItemError; end
+  class InvalidDateError < Reading::Error; end
 
   # Means something in the Source column is invalid.
-  class InvalidSourceError < InvalidItemError; end
+  class InvalidSourceError < Reading::Error; end
+
+  # Means something in the Head column (author, title, etc.) is invalid.
+  class InvalidHeadError < Reading::Error; end
 end
