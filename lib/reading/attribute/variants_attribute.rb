@@ -54,7 +54,7 @@ module Reading
       def isbn(str)
         isbns = str.scan(config.deep_fetch(:csv, :regex, :isbn))
         if isbns.count > 1
-          raise InvalidItemError, "Only one ISBN/ASIN is allowed per item variant"
+          raise InvalidSourceError, "Only one ISBN/ASIN is allowed per item variant"
         end
         isbns[0]&.to_s
       end
@@ -87,7 +87,7 @@ module Reading
       end
 
       def sources(str)
-        (sources_urls(str) + sources_names(str).map { |name| [name]})
+        (sources_urls(str) + sources_names(str).map { |name| [name] })
           .map { |source_array| source_array_to_hash(source_array) }
           .compact.presence
       end
@@ -126,11 +126,9 @@ module Reading
 
         if valid_url?(array[0])
           if valid_url?(array[1])
-            raise InvalidItemError, "Each Source must have only one one URL"
+            raise InvalidSourceError, "Each Source must have only one one URL"
           end
           array = array.reverse
-        elsif !valid_url?(array[1]) && !array[1].nil?
-          raise InvalidItemError, "Invalid URL, or each Source must have only one one name"
         end
 
         url = array[1]

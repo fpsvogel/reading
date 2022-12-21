@@ -60,4 +60,7 @@ module Reading
 
   # Means a date is unparsable, or a set of dates does not make logical sense.
   class InvalidDateError < InvalidItemError; end
+
+  # Means something in the Source column is invalid.
+  class InvalidSourceError < InvalidItemError; end
 end

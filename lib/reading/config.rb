@@ -161,9 +161,9 @@ module Reading
       dnf_string = Regexp.escape(@hash.deep_fetch(:csv, :dnf_string))
       time_length = /(\d+:\d\d)/
       pages_length = /p?(\d+)p?/
+      url = /(https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+)/
 
       {
-        comment_escaped: comment_character,
         compact_planned_row_start: /\A\s*#{comment_character}(?:(?<genre>[^a-z:,\|]+):)?\s*(?=#{formats})/,
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
         formats: /#{formats}/,
@@ -171,7 +171,8 @@ module Reading
         unrecognized_emojis: /(?!#{formats})\p{Emoji}/,
         series_volume: /,\s*#(\d+)\z/,
         isbn: isbn_regex,
-        sources: sources_regex,
+        url: url,
+        sources: sources_regex(url),
         dnf: /\A\s*(#{dnf_string})/,
         progress: /(?<=#{dnf_string}|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
@@ -197,16 +198,16 @@ module Reading
 
     # Builds the Regexp for item sources.
     # @return [Regexp]
-    def sources_regex
+    def sources_regex(url_regex)
       return @sources_regex unless @sources_regex.nil?
 
       isbn = "(#{isbn_regex.source})"
       url_name = "([^#{@hash.deep_fetch(:csv, :separator)}]+)"
-      url = "(https?://[^\\s#{@hash.deep_fetch(:csv, :separator)}]+)"
-      url_prename = "#{url_name}#{@hash.deep_fetch(:csv, :short_separator)}#{url}"
-      url_postname = "#{url}#{@hash.deep_fetch(:csv, :short_separator)}#{url_name}"
+      url_prename = "#{url_name}#{@hash.deep_fetch(:csv, :short_separator)}#{url_regex}"
+      url_postname = "#{url_regex}#{@hash.deep_fetch(:csv, :short_separator)}#{url_name}"
+      url_noname = url_regex
 
-      @sources_regex = /#{isbn}|#{url_prename}|#{url_postname}|#{url}/
+      @sources_regex = /#{isbn}|#{url_prename}|#{url_postname}|#{url_noname}/
     end
   end
 end

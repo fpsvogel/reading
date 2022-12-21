@@ -332,6 +332,15 @@ class CSVParseTest < Minitest::Test
   :"OK: end date after the next start date for different variants" =>
     "|Sapiens||2020/01/01, 2020/02/01 v2|2020/03/01, ",
   }
+  @files[:errors][Reading::InvalidSourceError] =
+  {
+  :"multiple ISBNs or ASINs for the same variant" =>
+    "|Sapiens|0062316117 B00ICN066A",
+  :"multiple URLs for the same source" =>
+    "|Sapiens|https://www.sapiens.org - https://www.ynharari.com/book/sapiens-2",
+  :"OK: multiple URLs but different sources" =>
+    "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
+  }
 
 
 
