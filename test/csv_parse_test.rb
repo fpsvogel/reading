@@ -312,23 +312,23 @@ class CSVParseTest < Minitest::Test
   @files[:errors][Reading::InvalidDateError] =
   {
   :"date started content without a date" =>
-    "|Sapiens||no date here|2019/01/01",
+    "|Sapiens||no date here|2020/01/01",
   :"date finished content without a date" =>
-    "|Sapiens||2020/01/01|no date here",
+    "|Sapiens||2019/01/01|no date here",
   :"incomplete date is the same as no date" =>
-    "|Sapiens||2020/01|2019/01/01",
+    "|Sapiens||2019/01|2020/01/01",
   :"conjoined dates" =>
-    "|Sapiens||2020/01/01 2019/01/01",
+    "|Sapiens||2019/01/01 2020/01/01",
   :"unparsable date" =>
-    "|Sapiens||2020/01/32|2019/01/01",
+    "|Sapiens||2019/01/32|2020/01/01",
   :"end date before start date" =>
     "|Sapiens||2020/01/01|2019/01/01",
   :"start dates out of order" =>
-    "|Sapiens||2020/01/01, 2019/01/01",
+    "|Sapiens||2019/01/01, 2018/01/01",
   :"end date after the next start date for the same variant" =>
-    "|Sapiens||2020/01/01, 2020/02/01|2020/03/01, ",
+    "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
   :"OK: end date after the next start date for different variants" =>
-    "|Sapiens||2020/01/01, 2020/02/01 v2|2020/03/01, ",
+    "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
   }
   @files[:errors][Reading::InvalidSourceError] =
   {
