@@ -1,4 +1,5 @@
 require_relative "date_validator"
+require "date"
 
 module Reading
   class Row

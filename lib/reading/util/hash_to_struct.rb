@@ -19,11 +19,11 @@ module Reading
 
           struct_class.new(*struct_values)
         end
-
-        private
-
-        MEMOIZED_STRUCTS = {}
       end
+
+      private
+
+      MEMOIZED_STRUCTS = {}
     end
   end
 end

@@ -18,11 +18,11 @@ module Reading
         def remove_all!(pattern)
           gsub!(pattern, EMPTY_STRING)
         end
-
-        private
-
-        EMPTY_STRING = "".freeze
       end
+
+      private
+
+      EMPTY_STRING = "".freeze
     end
   end
 end

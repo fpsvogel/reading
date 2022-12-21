@@ -77,10 +77,6 @@ module Reading
           pages_regex: config.deep_fetch(:csv, :regex, :pages_length),
         )
 
-        # pages_regex = config.deep_fetch(:csv, :regex, :pages_length)
-        # test = columns[:length].strip.match(pages_regex)
-        # debugger if columns[:head] == "50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1"
-
         in_variant || in_length ||
           (raise InvalidLengthError, "Missing length" unless columns[:length].blank?)
       end

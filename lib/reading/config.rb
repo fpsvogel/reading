@@ -146,6 +146,7 @@ module Reading
             blurb_emoji:              "💬",
             private_emoji:            "🔒",
             compact_planned_source_prefix: "@",
+            compact_planned_ignored:  "✅💲❓⏳",
             skip_compact_planned:     false,
           },
       }
@@ -159,6 +160,9 @@ module Reading
       comment_character = Regexp.escape(@hash.deep_fetch(:csv, :comment_character))
       formats = @hash.deep_fetch(:item, :formats).values.join("|")
       dnf_string = Regexp.escape(@hash.deep_fetch(:csv, :dnf_string))
+      compact_planned_ignored = (
+        @hash.deep_fetch(:csv, :compact_planned_ignored).chars - [" "]
+      ).join("|")
       time_length = /(?<time>\d+:\d\d)/
       pages_length = /p?(?<pages>\d+)p?/
       url = /(https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+)/
@@ -168,7 +172,7 @@ module Reading
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
         formats: /#{formats}/,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
-        unrecognized_emojis: /(?!#{formats})\p{Emoji}/,
+        compact_planned_ignored: /#{compact_planned_ignored}/,
         series_volume: /,\s*#(\d+)\z/,
         isbn: isbn_regex,
         url: url,
@@ -178,9 +182,9 @@ module Reading
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
         variant_index: /\s+v(\d+)/,
         date: /\d{4}\/\d?\d\/\d?\d/,
-        time_length: /\A#{time_length}\z/,
+        time_length: /\A#{time_length}(?<each>\s+each)?\z/,
         time_length_in_variant: time_length,
-        pages_length: /\A#{pages_length}\z/,
+        pages_length: /\A#{pages_length}(?<each>\s+each)?\z/,
         pages_length_in_variant: /(?:\A|\s+|p)(?<pages>\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13
       }
     end

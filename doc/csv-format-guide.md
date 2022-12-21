@@ -134,7 +134,7 @@ If you have a group of related planned items, you can list them after a genre li
 - The all-caps genre is changed to lowercase by the parser. So the items after "SCIENCE" here will have the genre "science".
 - Commas between items (before format emojis) are optional.
 
-In a row of compact planned items, emojis (other than the format emojis) are ignored. This makes it easier to manage lists of planned items using emojis as visual markers. For example, here's the previous example with a couple of emojis added in: `❓`, `💲`, and `⏳`. Maybe they mean "maybe not interested", "will have to buy" and  "requested at the library". But their meaning is not important for this example; in fact, to the parser they're meaningless and they're not parsed, so this example produces the same data as the one above.
+In a row of compact planned items, certain emojis are ignored: for the default list, see `default_config[:csv][:compact_planned_ignored]` in `config.rb`. This makes it easier to manage lists of planned items using emojis as visual markers. For example, here's the previous example with some emojis added in: `❓`, `💲`, and `⏳`. Maybe they mean "maybe not interested", "will have to buy" and  "requested at the library". But their meaning is not important for this example; in fact, to the parser they're meaningless and they're not parsed, so this example produces the same data as the one above.
 
 ```
 \❓HISTORICAL FICTION: ⚡💲Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊💲Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/

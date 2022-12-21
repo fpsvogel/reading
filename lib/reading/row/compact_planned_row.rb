@@ -1,4 +1,5 @@
 require_relative "row"
+require "debug"
 
 module Reading
   # Parses a row of compactly listed planned items into an array of hashes of
@@ -25,14 +26,14 @@ module Reading
     end
 
     def before_parse
-      emojis = config.deep_fetch(:csv, :regex, :unrecognized_emojis)
+      to_ignore = config.deep_fetch(:csv, :regex, :compact_planned_ignored)
       start_regex = config.deep_fetch(:csv, :regex, :compact_planned_row_start)
 
-      string_without_emojis = string.remove_all(emojis)
-      start = string_without_emojis.match(start_regex)
+      string_without_ignored = string.remove_all(to_ignore)
+      start = string_without_ignored.match(start_regex)
 
       @genre = start[:genre]&.downcase
-      @row_without_genre = string_without_emojis.remove(start.to_s)
+      @row_without_genre = string_without_ignored.remove(start.to_s)
     end
 
     def string_to_be_split_by_format_emojis
