@@ -27,11 +27,11 @@ module Reading
       emojis = config.deep_fetch(:csv, :regex, :unrecognized_emojis)
       start_regex = config.deep_fetch(:csv, :regex, :compact_planned_row_start)
 
-      string_without_emojis = string.gsub(emojis, "")
+      string_without_emojis = string.remove_all(emojis)
       start = string_without_emojis.match(start_regex)
 
       @genre = start[:genre]&.downcase
-      @row_without_genre = string_without_emojis.sub(start.to_s, "")
+      @row_without_genre = string_without_emojis.remove(start.to_s)
     end
 
     def string_to_be_split_by_format_emojis
@@ -79,7 +79,7 @@ module Reading
 
       sources_str
         .split(config.deep_fetch(:csv, :compact_planned_source_prefix))
-        .map { |source| source.sub(/\s*,\s*/, "") }
+        .map { |source| source.remove(/\s*,\s*/) }
         .map(&:strip)
         .reject(&:empty?)
         .map { |source_name|

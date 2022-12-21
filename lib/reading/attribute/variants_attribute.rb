@@ -112,14 +112,14 @@ module Reading
             name.match?(config.deep_fetch(:csv, :regex, :time_length)) ||
               name.match?(config.deep_fetch(:csv, :regex, :pages_length_in_variant))
           }
-          .map { |name| name.sub(/\A\s*#{config.deep_fetch(:csv, :regex, :formats)}\s*/, "") }
+          .map { |name| name.remove(/\A\s*#{config.deep_fetch(:csv, :regex, :formats)}\s*/) }
           .map(&:strip)
           .reject(&:empty?)
       end
 
       def sources_with_commas_around_length(str)
         str.sub(config.deep_fetch(:csv, :regex, :time_length), ", \\1, ")
-            .sub(config.deep_fetch(:csv, :regex, :pages_length_in_variant), ", \\1, ")
+          .sub(config.deep_fetch(:csv, :regex, :pages_length_in_variant), ", \\1, ")
       end
 
       def source_array_to_hash(array)

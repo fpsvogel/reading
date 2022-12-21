@@ -70,8 +70,8 @@ module Reading
       string_to_be_split_by_format_emojis
         .split(config.deep_fetch(:csv, :regex, :formats_split))
         .tap { |item_heads|
-          item_heads.first.sub!(config.deep_fetch(:csv, :regex, :dnf), "")
-          item_heads.first.sub!(config.deep_fetch(:csv, :regex, :progress), "")
+          item_heads.first.remove!(config.deep_fetch(:csv, :regex, :dnf))
+          item_heads.first.remove!(config.deep_fetch(:csv, :regex, :progress))
         }
         .map { |item_head| item_head.strip }
         .partition { |item_head| item_head.match?(/\A#{config.deep_fetch(:csv, :regex, :formats)}/) }

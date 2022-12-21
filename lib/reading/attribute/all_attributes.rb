@@ -27,7 +27,7 @@ module Reading
     class AuthorAttribute < Attribute
       def parse
         item_head
-          .sub(/\A#{config.deep_fetch(:csv, :regex, :formats)}/, "")
+          .remove(/\A#{config.deep_fetch(:csv, :regex, :formats)}/)
           .match(/.+(?=#{config.deep_fetch(:csv, :short_separator)})/)
           &.to_s
           &.strip
@@ -37,9 +37,9 @@ module Reading
     class TitleAttribute < Attribute
       def parse
         item_head
-          .sub(/\A#{config.deep_fetch(:csv, :regex, :formats)}/, "")
-          .sub(/.+#{config.deep_fetch(:csv, :short_separator)}/, "")
-          .sub(/#{config.deep_fetch(:csv, :long_separator)}.+\z/, "")
+          .remove(/\A#{config.deep_fetch(:csv, :regex, :formats)}/)
+          .remove(/.+#{config.deep_fetch(:csv, :short_separator)}/)
+          .remove(/#{config.deep_fetch(:csv, :long_separator)}.+\z/)
           .strip
           .presence
       end
@@ -94,7 +94,7 @@ module Reading
         columns[:public_notes]
           .presence
           &.chomp
-          &.sub(/#{config.deep_fetch(:csv, :long_separator).rstrip}\s*\z/, "")
+          &.remove(/#{config.deep_fetch(:csv, :long_separator).rstrip}\s*\z/)
           &.split(config.deep_fetch(:csv, :long_separator))
           &.map { |string|
             {

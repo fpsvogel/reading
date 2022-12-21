@@ -1,3 +1,4 @@
+require_relative "util/remove"
 require_relative "util/deep_merge"
 require_relative "util/deep_fetch"
 require_relative "util/to_struct"
