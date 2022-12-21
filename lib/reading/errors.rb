@@ -55,9 +55,6 @@ module Reading
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
-  # Means a CSV row is malformed.
-  class InvalidRowError < Reading::Error; end
-
   # Means a date is unparsable, or a set of dates does not make logical sense.
   class InvalidDateError < Reading::Error; end
 
