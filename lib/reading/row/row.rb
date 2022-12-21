@@ -7,7 +7,7 @@ module Reading
 
     private attr_reader :line
 
-    # @param line [Line] the Line that this Row represents.
+    # @param line [Reading::Line] the Line that this Row represents.
     def initialize(line)
       @line = line
 

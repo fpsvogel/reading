@@ -1,6 +1,6 @@
 require_relative "attribute"
 require_relative "variants_attribute"
-require_relative "experiences_attribute"
+require_relative "experiences/experiences_attribute"
 
 module Reading
   class Row

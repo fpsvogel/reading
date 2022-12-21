@@ -8,6 +8,9 @@ module Reading
     using Util::HashDeepMerge
     using Util::HashArrayDeepFetch
 
+    # Whether the given CSV line is a compact planned row.
+    # @param line [Reading::Line]
+    # @return [Boolean]
     def self.match?(line)
       comment_char = line.csv.config.deep_fetch(:csv, :comment_character)
 
