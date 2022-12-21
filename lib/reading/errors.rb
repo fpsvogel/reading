@@ -1,5 +1,4 @@
 require "pastel"
-require_relative "util/deep_fetch"
 
 module Reading
   using Util::DeepFetch

@@ -1,7 +1,9 @@
 require_relative "util/remove"
+require_relative "util/blank"
 require_relative "util/deep_merge"
 require_relative "util/deep_fetch"
 require_relative "util/to_struct"
+require_relative "errors"
 require_relative "config"
 require_relative "line"
 

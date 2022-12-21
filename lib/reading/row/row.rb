@@ -1,5 +1,3 @@
-require_relative "../errors"
-require_relative "../util/deep_fetch"
 require_relative "../util/compact_by_template"
 
 module Reading

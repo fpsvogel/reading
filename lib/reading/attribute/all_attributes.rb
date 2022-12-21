@@ -1,6 +1,3 @@
-require_relative "../errors"
-require_relative "../util/blank"
-require_relative "../util/deep_fetch"
 require_relative "attribute"
 require_relative "variants_attribute"
 require_relative "experiences_attribute"

@@ -1,6 +1,3 @@
-require_relative "../util/deep_merge"
-require_relative "../util/deep_fetch"
-require_relative "../errors"
 require_relative "row"
 
 module Reading

@@ -1,7 +1,3 @@
-require_relative "../errors"
-require_relative "../util/blank"
-require_relative "../util/deep_fetch"
-
 module Reading
   class Row
     class VariantsAttribute < Attribute

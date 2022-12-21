@@ -17,5 +17,3 @@ module Minitest
     include PrettyDiffs
   end
 end
-
-require "reading/errors"

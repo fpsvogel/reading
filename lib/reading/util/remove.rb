@@ -1,4 +1,4 @@
-# Shortcuts for String#sub and String#gsub replacing with an empty string.
+# Shortcuts for String#sub and String#gsub when replacing with an empty string.
 class String
   def remove(pattern)
     sub(pattern, "")

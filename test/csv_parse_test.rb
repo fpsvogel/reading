@@ -2,12 +2,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative "test_helper"
 
-require "reading/config"
 require "reading/csv"
-require "reading/errors"
-require "reading/util/deep_merge"
-require "reading/util/deep_fetch"
-require "reading/util/to_struct"
 
 class CSVParseTest < Minitest::Test
   using Reading::Util::DeepMerge

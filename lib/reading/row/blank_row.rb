@@ -1,5 +1,3 @@
-require_relative "../util/deep_fetch"
-require_relative "../util/blank"
 require_relative "row"
 
 module Reading
