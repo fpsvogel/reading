@@ -2,7 +2,7 @@ module Reading
   module Util
     # Utility method for a hash containing parsed item data, structured as the
     # template in config.rb.
-    module CompactByTemplate
+    module HashCompactByTemplate
       refine Hash do
         # Removes blank arrays of hashes from the given item hash, e.g. series,
         # variants, variants[:sources], and experiences in the template in config.rb.

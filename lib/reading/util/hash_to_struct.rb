@@ -1,7 +1,7 @@
 module Reading
   module Util
-    # Converts a Hash to a Struct.
-    module ToStruct
+    # Converts a Hash to a Struct. Converts inner hashes (and inner arrays of hashes) as well.
+    module HashToStruct
       refine Hash do
         def to_struct
           MEMOIZED_STRUCTS[keys] ||= Struct.new(*keys)

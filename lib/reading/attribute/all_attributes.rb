@@ -4,7 +4,8 @@ require_relative "experiences_attribute"
 
 module Reading
   class Row
-    using Util::DeepFetch
+    using Util::StringRemove
+    using Util::HashArrayDeepFetch
 
     # The simpler attributes are collected below. The more complex attributes
     # are separated into their own files.

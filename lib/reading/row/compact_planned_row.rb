@@ -4,8 +4,9 @@ module Reading
   # Parses a row of compactly listed planned items into an array of hashes of
   # item data.
   class CompactPlannedRow < Row
-    using Util::DeepMerge
-    using Util::DeepFetch
+    using Util::StringRemove
+    using Util::HashDeepMerge
+    using Util::HashArrayDeepFetch
 
     def self.match?(line)
       comment_char = line.csv.config.deep_fetch(:csv, :comment_character)

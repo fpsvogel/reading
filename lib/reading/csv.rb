@@ -1,17 +1,22 @@
-require_relative "util/remove"
+# Used throughout, in other files.
 require_relative "util/blank"
-require_relative "util/deep_merge"
-require_relative "util/deep_fetch"
-require_relative "util/to_struct"
+require_relative "util/string_remove"
+require_relative "util/string_truncate"
+require_relative "util/hash_to_struct"
+require_relative "util/hash_deep_merge"
+require_relative "util/hash_array_deep_fetch"
+require_relative "util/hash_compact_by_template"
 require_relative "errors"
+
+# Used just here.
 require_relative "config"
 require_relative "line"
 
 module Reading
   class CSV
-    using Util::DeepMerge
-    using Util::DeepFetch
-    using Util::ToStruct
+    using Util::HashDeepMerge
+    using Util::HashArrayDeepFetch
+    using Util::HashToStruct
 
     attr_reader :config
 

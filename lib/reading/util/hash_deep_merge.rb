@@ -4,7 +4,7 @@ module Reading
     # https://github.com/rails/rails/blob/main/activesupport/lib/active_support/core_ext/hash/deep_merge.rb
     #
     # This deep_merge also iterates through arrays of hashes and merges them.
-    module DeepMerge
+    module HashDeepMerge
       refine Hash do
         def deep_merge(other_hash, &block)
           dup.deep_merge!(other_hash, &block)

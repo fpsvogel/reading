@@ -3,7 +3,7 @@ require_relative "../test_helper"
 require "reading/util/deep_fetch"
 
 class DeepFetchTest < Minitest::Test
-  using Reading::Util::DeepFetch
+  using Reading::Util::HashDeepMerge
 
   def test_array_deep_fetch
     array = ["a", ["ba", "bb"], "c"]

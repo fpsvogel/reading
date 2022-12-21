@@ -5,9 +5,9 @@ require_relative "test_helper"
 require "reading/csv"
 
 class CSVParseTest < Minitest::Test
-  using Reading::Util::DeepMerge
-  using Reading::Util::DeepFetch
-  using Reading::Util::ToStruct
+  using Reading::Util::HashDeepMerge
+  using Reading::Util::HashArrayDeepFetch
+  using Reading::Util::HashToStruct
 
   self.class.attr_reader :files, :items, :base_config
 
@@ -339,7 +339,7 @@ class CSVParseTest < Minitest::Test
   # The results of parsing the above Files are expected to equal these hashes.
 
   def self.item_hash(**partial_hash)
-    # This merge is not the same as Reading::Util::DeepMerge. This one uses the
+    # This merge is not the same as Reading::Util::HashDeepMerge. This one uses the
     # first (empty) subhashes in the item template, for example in :variants and
     # :experiences in the item template.
     base_config.deep_fetch(:item, :template).merge(partial_hash) do |key, old_value, new_value|

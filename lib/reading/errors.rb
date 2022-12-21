@@ -1,53 +1,56 @@
 require "pastel"
 
 module Reading
-  using Util::DeepFetch
-
-  Colors = Pastel.new
-
+  # The base error class, which provides flexible error handling.
   class AppError < StandardError
-    def handle(line:)
-      handle = line.csv.config.deep_fetch(:errors, :handle_error)
-      styled_error = styled_with_line(line)
+    using Util::StringTruncate
 
+    # Handles this error based on config settings, and augments the error message
+    # with styling and the line from the file. All this is handled here so that
+    # the parser doesn't have to know all these things at the error's point of origin.
+    # @param line [Reading::Line] the CSV line, through which the CSV config and
+    #   line string are accessed.
+    def handle(line:)
+      errors_config = line.csv.config.fetch(:errors)
+      styled_error = styled_with_line(line.string, errors_config)
+
+      handle = errors_config.fetch(:handle_error)
       handle.call(styled_error)
     end
 
     protected
 
+    # Can be overridden in subclasses, e.g. yellow for a warning.
     def color
       :red
     end
 
-    def styled_with_line(line)
-      truncated_line =
-        truncate(
-          line.string,
-          line.csv.config.deep_fetch(:errors, :max_length),
-          padding: message.length,
-        )
-      self.class.new("#{styled(message, line.csv.config)}: #{truncated_line}")
+    # Creates a new error having a message augmented with styling and the line string.
+    # @return [AppError]
+    def styled_with_line(line_string, errors_config)
+      truncated_line = line_string.truncate(
+        errors_config.fetch(:max_length),
+        padding: message.length,
+      )
+
+      styled_message = case errors_config.fetch(:styling)
+        when :terminal
+          COLORS.send("bright_#{color}").bold(message)
+        when :html
+          "<rl-error class=\"#{color}\">#{message}</rl-error>"
+        end
+
+      self.class.new("#{styled_message}: #{truncated_line}")
     end
 
-    def truncate(str, max, padding: 0, min: 30)
-      end_index = max - padding
-      end_index = min if end_index < min
-      str.length + padding > max ? "#{str[0...end_index]}..." : str
-    end
+    private
 
-    def styled(str, config)
-      case config.deep_fetch(:errors, :styling)
-      when :terminal
-        Colors.send("bright_#{color}").bold(str)
-      when :html
-        "<rl-error class=\"#{color}\">#{str}</rl-error>"
-      end
-    end
+    COLORS = Pastel.new
   end
 
   # FILE # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-  # Indicates that there was a problem accessing a file.
+  # Means there was a problem accessing a file.
   class FileError < AppError; end
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #

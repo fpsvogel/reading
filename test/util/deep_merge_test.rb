@@ -3,7 +3,7 @@ require_relative "../test_helper"
 require "reading/util/deep_merge"
 
 class DeepMergeTest < Minitest::Test
-  using Reading::Util::DeepMerge
+  using Reading::Util::HashDeepMerge
 
   def test_deep_merge_pure_hashes_like_active_support
     hash_1 = { a: { aa: 1 } }

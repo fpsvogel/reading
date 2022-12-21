@@ -1,11 +1,8 @@
-require_relative "util/deep_fetch"
-require_relative "util/deep_merge"
-
 module Reading
   # Builds a hash config.
   class Config
-    using Util::DeepFetch
-    using Util::DeepMerge
+    using Util::HashDeepMerge
+    using Util::HashArrayDeepFetch
 
     attr_reader :hash
 

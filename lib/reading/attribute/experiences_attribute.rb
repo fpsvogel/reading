@@ -1,7 +1,7 @@
 module Reading
   class Row
     class ExperiencesAttribute < Attribute
-      using Util::DeepFetch
+      using Util::HashArrayDeepFetch
 
       def parse
         started, finished = dates_split(columns)

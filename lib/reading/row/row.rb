@@ -1,10 +1,9 @@
-require_relative "../util/compact_by_template"
-
 module Reading
   # A base class that contains behaviors common to ___Row classes.
   class Row
-    using Util::DeepFetch
-    using Util::CompactByTemplate
+    using Util::StringRemove
+    using Util::HashArrayDeepFetch
+    using Util::HashCompactByTemplate
 
     private attr_reader :line
 

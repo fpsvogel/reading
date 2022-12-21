@@ -1,7 +1,8 @@
 module Reading
   class Row
     class VariantsAttribute < Attribute
-      using Util::DeepFetch
+      using Util::StringRemove
+      using Util::HashArrayDeepFetch
 
       def parse
         format_in_head = format(item_head)

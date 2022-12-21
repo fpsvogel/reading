@@ -10,7 +10,7 @@ module Reading
     #
     # See performance comparisons:
     # https://fpsvogel.com/posts/2022/ruby-hash-dot-syntax-deep-fetch
-    module DeepFetch
+    module HashArrayDeepFetch
       def deep_fetch(*keys)
         case keys.length
         when 1
@@ -25,15 +25,13 @@ module Reading
           raise FetchDepthExceededError, "#deep_fetch can't fetch that deep!"
         end
       end
-    end
 
-    module DeepFetch
       refine Hash do
-        import_methods DeepFetch
+        import_methods HashArrayDeepFetch
       end
 
       refine Array do
-        import_methods DeepFetch
+        import_methods HashArrayDeepFetch
       end
     end
   end
