@@ -352,6 +352,11 @@ class CSVParseTest < Minitest::Test
   :"missing title after author in compact planned row" =>
     "\\📕Mark Twain - ",
   }
+  @files[:errors][Reading::InvalidRatingError] =
+  {
+  :"non-numeric rating" =>
+    "a|Sapiens",
+  }
 
 
 

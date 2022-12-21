@@ -18,7 +18,8 @@ module Reading
         return nil if rating.empty?
 
         Integer(rating, exception: false) ||
-          Float(rating, exception: false)
+          Float(rating, exception: false) ||
+          (raise InvalidRatingError, "Invalid rating")
       end
     end
 

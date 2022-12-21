@@ -66,4 +66,7 @@ module Reading
 
   # Means something in the Head column (author, title, etc.) is invalid.
   class InvalidHeadError < Reading::Error; end
+
+  # Means the Rating column can't be parsed as a number.
+  class InvalidRatingError < Reading::Error; end
 end
