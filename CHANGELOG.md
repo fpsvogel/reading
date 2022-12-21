@@ -1,6 +1,7 @@
 ## [0.9.0] - upcoming
 
 - Add parsing of the History column.
+- Simplify the Source column.
 
 ## [0.8.0] - upcoming
 
@@ -8,8 +9,6 @@
 - Added support for one planned item per row.
 - Made emojis be ignored in compact planned items, other than format emojis.
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
-- Improved date validation. A dateless date entry now raises an error.
-- Improved errors for malformed CSV rows.
 
 ## [0.7.0] - 2022-12-18
 

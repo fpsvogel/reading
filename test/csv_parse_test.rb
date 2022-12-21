@@ -363,7 +363,7 @@ class CSVParseTest < Minitest::Test
   # for VS Code). Even so, I'm documenting these odd cases here.
   @files[:errors][Reading::Error] =
   {
-  :"OK: missing Rating column (no InvalidRatingError raised if the Head column is numeric)" =>
+  :"OK: missing Rating column if the title is numeric (no InvalidRatingError is raised)" =>
     "1984|https://www.george-orwell.org/1984",
   :"OK: missing Head column (the date is parsed as the title)" =>
     "|2019/01/01",
@@ -371,8 +371,6 @@ class CSVParseTest < Minitest::Test
     "|Sapiens|2019/01/01",
   :"OK: missing Genres column (the length is parsed as a genre)" =>
     "|Sapiens||2019/01/01|2020/01/01|15:17",
-  :"OK: missing Length column (a note is parsed as the length)" =>
-    "|Sapiens||||history|History with a sociological bent.",
   :"OK: missing Notes column (History is parsed as Notes)" =>
     "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
   }

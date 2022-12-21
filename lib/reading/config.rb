@@ -159,8 +159,8 @@ module Reading
       comment_character = Regexp.escape(@hash.deep_fetch(:csv, :comment_character))
       formats = @hash.deep_fetch(:item, :formats).values.join("|")
       dnf_string = Regexp.escape(@hash.deep_fetch(:csv, :dnf_string))
-      time_length = /(\d+:\d\d)/
-      pages_length = /p?(\d+)p?/
+      time_length = /(?<time>\d+:\d\d)/
+      pages_length = /p?(?<pages>\d+)p?/
       url = /(https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+)/
 
       {
@@ -174,13 +174,14 @@ module Reading
         url: url,
         sources: sources_regex(url),
         dnf: /\A\s*(#{dnf_string})/,
-        progress: /(?<=#{dnf_string}|\A)\s*((\d?\d)%|#{time_length}|#{pages_length})\s+/,
+        progress: /(?<=#{dnf_string}|\A)\s*(?:(?<percent>\d?\d)%|#{time_length}|#{pages_length})\s+/,
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
         variant_index: /\s+v(\d+)/,
         date: /\d{4}\/\d?\d\/\d?\d/,
-        time_length: time_length,
-        pages_length: pages_length,
-        pages_length_in_variant: /(?:\A|\s+|p)(\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13
+        time_length: /\A#{time_length}\z/,
+        time_length_in_variant: time_length,
+        pages_length: /\A#{pages_length}\z/,
+        pages_length_in_variant: /(?:\A|\s+|p)(?<pages>\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13
       }
     end
 

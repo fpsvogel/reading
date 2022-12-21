@@ -96,13 +96,13 @@ module Reading
         dnf = str.match(config.deep_fetch(:csv, :regex, :dnf))&.captures&.first
 
         if dnf || !ignore_if_no_dnf
-          captures = str.match(config.deep_fetch(:csv, :regex, :progress))&.captures
-          if captures
-            if prog_percent = captures[1]&.to_i
+          match = str.match(config.deep_fetch(:csv, :regex, :progress))
+          if match
+            if prog_percent = match[:percent]&.to_i
               return prog_percent / 100.0
-            elsif prog_time = captures[2]
+            elsif prog_time = match[:time]
               return prog_time
-            elsif prog_pages = captures[3]&.to_i
+            elsif prog_pages = match[:pages]&.to_i
               return prog_pages
             end
           end

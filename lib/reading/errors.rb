@@ -66,4 +66,7 @@ module Reading
 
   # Means the Rating column can't be parsed as a number.
   class InvalidRatingError < Reading::Error; end
+
+  # Means a valid length is missing.
+  class InvalidLengthError < Reading::Error; end
 end

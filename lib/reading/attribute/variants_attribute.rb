@@ -5,9 +5,6 @@ module Reading
       using Util::HashArrayDeepFetch
 
       def parse
-        format_in_head = format(item_head)
-        length_in_length = length(columns[:length])
-        extra_info_in_head = extra_info(item_head).presence
         sources_str = columns[:sources]&.presence || " "
 
         separator =
@@ -23,13 +20,13 @@ module Reading
 
           variant =
             {
-              format: format(variant_str) || format_in_head || template.fetch(:format),
-              sources: sources(variant_str)                 || template.fetch(:sources),
-              isbn: isbn(variant_str)                       || template.fetch(:isbn),
-              length: length(variant_str,
-                      in_variant: true) || length_in_length || template.fetch(:length),
-              extra_info: extra_info(variant_with_extra_info).presence ||
-                                        extra_info_in_head || template.fetch(:extra_info)
+              format: format(variant_str) ||
+                        format(item_head)               || template.fetch(:format),
+              sources: sources(variant_str)             || template.fetch(:sources),
+              isbn: isbn(variant_str)                   || template.fetch(:isbn),
+              length: length(variant_str)               || template.fetch(:length),
+              extra_info: extra_info(variant_with_extra_info) ||
+                            extra_info(item_head)       || template.fetch(:extra_info)
             }
 
           if variant != template
@@ -59,22 +56,33 @@ module Reading
         isbns[0]&.to_s
       end
 
-      def length(str, in_variant: false)
-        return nil if str.nil?
+      def length_in(str, time_regex:, pages_regex:)
+        return nil if str.blank?
 
-        len = str.strip
-        time_length = len
-          .match(config.deep_fetch(:csv, :regex, :time_length))&.captures&.first
+        time_length = str.strip.match(time_regex)&.captures&.first
         return time_length unless time_length.nil?
 
-        pages_length_regex =
-          if in_variant
-            config.deep_fetch(:csv, :regex, :pages_length_in_variant)
-          else
-            config.deep_fetch(:csv, :regex, :pages_length)
-          end
+        str.strip.match(pages_regex)&.captures&.first&.to_i
+      end
 
-        len.match(pages_length_regex)&.captures&.first&.to_i
+      def length(variant_str)
+        in_variant = length_in(
+          variant_str,
+          time_regex: config.deep_fetch(:csv, :regex, :time_length_in_variant),
+          pages_regex: config.deep_fetch(:csv, :regex, :pages_length_in_variant),
+        )
+        in_length = length_in(
+          columns[:length],
+          time_regex: config.deep_fetch(:csv, :regex, :time_length),
+          pages_regex: config.deep_fetch(:csv, :regex, :pages_length),
+        )
+
+        # pages_regex = config.deep_fetch(:csv, :regex, :pages_length)
+        # test = columns[:length].strip.match(pages_regex)
+        # debugger if columns[:head] == "50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1"
+
+        in_variant || in_length ||
+          (raise InvalidLengthError, "Missing length" unless columns[:length].blank?)
       end
 
       def extra_info(str)
@@ -83,7 +91,7 @@ module Reading
         separated.reject { |str|
           str.start_with?("#{config.deep_fetch(:csv, :series_prefix)} ") ||
             str.match(config.deep_fetch(:csv, :regex, :series_volume))
-        }
+        }.presence
       end
 
       def sources(str)
@@ -106,7 +114,7 @@ module Reading
           .gsub(config.deep_fetch(:csv, :regex, :sources), config.deep_fetch(:csv, :separator))
           .split(config.deep_fetch(:csv, :separator))
           .reject { |name|
-            name.match?(config.deep_fetch(:csv, :regex, :time_length)) ||
+            name.match?(config.deep_fetch(:csv, :regex, :time_length_in_variant)) ||
               name.match?(config.deep_fetch(:csv, :regex, :pages_length_in_variant))
           }
           .map { |name| name.remove(/\A\s*#{config.deep_fetch(:csv, :regex, :formats)}\s*/) }
@@ -115,7 +123,7 @@ module Reading
       end
 
       def sources_with_commas_around_length(str)
-        str.sub(config.deep_fetch(:csv, :regex, :time_length), ", \\1, ")
+        str.sub(config.deep_fetch(:csv, :regex, :time_length_in_variant), ", \\1, ")
           .sub(config.deep_fetch(:csv, :regex, :pages_length_in_variant), ", \\1, ")
       end
 
