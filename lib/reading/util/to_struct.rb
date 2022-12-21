@@ -3,8 +3,6 @@ module Reading
     # Converts a Hash to a Struct.
     module ToStruct
       refine Hash do
-        MEMOIZED_STRUCTS = {}
-
         def to_struct
           MEMOIZED_STRUCTS[keys] ||= Struct.new(*keys)
           struct_class = MEMOIZED_STRUCTS[keys]
@@ -21,6 +19,10 @@ module Reading
 
           struct_class.new(*struct_values)
         end
+
+        private
+
+        MEMOIZED_STRUCTS = {}
       end
     end
   end
