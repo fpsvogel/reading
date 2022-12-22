@@ -32,8 +32,8 @@ module Reading
       string_without_ignored = string.remove_all(to_ignore)
       start = string_without_ignored.match(start_regex)
 
-      @genre = start[:genre]&.downcase&.remove(/:\s*\z/)&.strip
-      @sources = sources(start[:sources]&.remove(/:\s*\z/))
+      @genres = Array(start[:genres]&.downcase&.strip&.split(",")&.map(&:strip))
+      @sources = sources(start[:sources])
       @row_without_genre = string_without_ignored.remove(start.to_s)
     end
 
@@ -58,7 +58,7 @@ module Reading
       template.deep_merge(
         author: author || template.fetch(:author),
         title: title,
-        genres: [@genre].compact || template.fetch(:genres),
+        genres: @genres.presence || template.fetch(:genres),
         variants: [parse_variant(item_match)],
       )
     end

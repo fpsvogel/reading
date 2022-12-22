@@ -242,6 +242,8 @@ class CSVParseTest < Minitest::Test
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
   :"multiple with genre" =>
     "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
+  :"multiple with multiple genres" =>
+    "\\HISTORICAL FICTION, FAVES: ⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
   :"multiple with genre plus source" =>
     "\\HISTORICAL FICTION @Lexpub: ⚡Tom Holt - A Song for Nero @Hoopla 🔊True Grit",
   :"duplicate sources are ignored" =>
@@ -305,7 +307,7 @@ class CSVParseTest < Minitest::Test
   @files[:examples][:"multi compact planned"] = <<~EOM.freeze
     \\------ PLANNED
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
-    \\SCIENCE: 📕Randall Munroe - How To @Lexpub 🔊Weird Earth @Hoopla @Lexpub
+    \\SCIENCE, WEIRD @Lexpub: 📕Randall Munroe - How To 🔊Weird Earth @Hoopla
   EOM
 
 
@@ -689,6 +691,10 @@ class CSVParseTest < Minitest::Test
   b_genre = b_sources.merge(genres: ["historical fiction"])
   @items[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
 
+  a_multi_genre = a_sources.merge(genres: ["historical fiction", "faves"])
+  b_multi_genre = b_sources.merge(genres: ["historical fiction", "faves"])
+  @items[:features_compact_planned][:"multiple with multiple genres"] = [a_multi_genre, b_multi_genre]
+
   @items[:features_compact_planned][:"multiple with genre plus source"] = [a_genre, b_genre]
 
   @items[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
@@ -881,14 +887,14 @@ class CSVParseTest < Minitest::Test
     title: "How To",
     variants:  [{ format: :print,
                   sources: [{ name: "Lexpub" }] }],
-    genres: %w[science],
+    genres: %w[science weird],
   )
   weird_earth = item_hash(
     title: "Weird Earth",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: "Hoopla" },
-                            { name: "Lexpub" }] }],
-    genres: %w[science],
+                  sources: [{ name: "Lexpub" },
+                            { name: "Hoopla" }] }],
+    genres: %w[science weird],
   )
   @items[:examples][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 

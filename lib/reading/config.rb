@@ -168,7 +168,7 @@ module Reading
       url = /(https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+)/
 
       {
-        compact_planned_row_start: /\A\s*#{comment_character}\s*(?:(?<genre>[^a-z@:\|]+)\s*(?<sources>@[^\|]+)?\s*:)?\s*(?=#{formats})/,
+        compact_planned_row_start: /\A\s*#{comment_character}\s*(?:(?<genres>[^a-z@:\|]+)\s*(?<sources>@[^\|]+)?\s*:)?\s*(?=#{formats})/,
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
         formats: /#{formats}/,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,

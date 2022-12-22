@@ -6,10 +6,12 @@
 ## [0.8.0] - upcoming
 
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
-- Added single-item compact planned rows.
-- Added naming a source at the beginning of a compact planned row.
-- Made some emojis (defined in config) be ignored in compact planned items.
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
+- Added features to compact planned rows:
+  - Single-item compact planned rows.
+  - Naming a source at the beginning of the row.
+  - Multiple genres at the beginning of the row.
+  - Certain config-defined emojis are ignored.
 
 ## [0.7.0] - 2022-12-18
 

@@ -124,16 +124,16 @@ You can include one or more sources after the title, each preceded by `@`:
 \🔊Trevor Noah - Born a Crime @Lexpub @Jeffco
 ```
 
-If you have a group of related planned items, you can list them after a genre like this:
+If you have a group of related planned items, you can list them after one or more genres like this:
 
 ```
 \HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
-\SCIENCE: 📕Randall Munroe - How To @Lexpub 🔊Weird Earth @Hoopla @Lexpub
+\SCIENCE, WEIRD @Lexpub: 📕Randall Munroe - How To 🔊Weird Earth @Hoopla
 ```
 
-- The all-caps genre is changed to lowercase by the parser. So the items after "SCIENCE" here will have the genre "science".
+- The all-caps genres are changed to lowercase by the parser. So the items after "SCIENCE, WEIRD" here will have the genres "science" and "weird".
 - Commas between items (before format emojis) are optional.
-- If there are one or more sources that all the items in a list have in common, you can move them to the beginning just after the genre(s) like this: `HISTORICAL FICTION @Lexpub @http://www.listmuse.com/best-historical-novels-time.php: ⚡Tom Holt - A Song for Nero` and so on.
+- If there are one or more sources that all the items in a list have in common, you can move them to the beginning just after the genre(s) as in the second example.
 
 In a row of compact planned items, certain emojis are ignored: for the default list, see `default_config[:csv][:compact_planned_ignored]` in `config.rb`. This makes it easier to manage lists of planned items using emojis as visual markers. For example, here's the previous example with some emojis added in: `❓`, `💲`, and `⏳`. Maybe they mean "maybe not interested", "will have to buy" and  "requested at the library". But their meaning is not important for this example; in fact, to the parser they're meaningless and they're not parsed, so this example produces the same data as the one above.
 
