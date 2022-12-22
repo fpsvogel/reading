@@ -165,7 +165,12 @@ module Reading
       ).join("|")
       time_length = /(?<time>\d+:\d\d)/
       pages_length = /p?(?<pages>\d+)p?/
-      url = /(https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+)/
+      url = /https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+/
+
+      isbn_lookbehind = "(?<=\\A|\\s|#{@hash.deep_fetch(:csv, :separator)})"
+      isbn_lookahead = "(?=\\z|\\s|#{@hash.deep_fetch(:csv, :separator)})"
+      isbn_bare_regex = /(?:\d{3}[-\s]?)?[A-Z\d]{10}/ # also includes ASIN
+      isbn = /#{isbn_lookbehind}#{isbn_bare_regex.source}#{isbn_lookahead}/
 
       {
         compact_planned_row_start: /\A\s*#{comment_character}\s*(?:(?<genres>[^a-z@:\|]+)\s*(?<sources>@[^\|]+)?\s*:)?\s*(?=#{formats})/,
@@ -174,9 +179,8 @@ module Reading
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
         compact_planned_ignored: /#{compact_planned_ignored}/,
         series_volume: /,\s*#(\d+)\z/,
-        isbn: isbn_regex,
+        isbn: isbn,
         url: url,
-        sources: sources_regex(url),
         dnf: /\A\s*(#{dnf_string})/,
         progress: /(?<=#{dnf_string}|\A)\s*(?:(?<percent>\d?\d)%|#{time_length}|#{pages_length})\s+/,
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
@@ -187,32 +191,6 @@ module Reading
         pages_length: /\A#{pages_length}(?<each>\s+each)?\z/,
         pages_length_in_variant: /(?:\A|\s+|p)(?<pages>\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13
       }
-    end
-
-    # Builds the Regexp for item ISBN/ASIN.
-    # @return [Regexp]
-    def isbn_regex
-      return @isbn_regex unless @isbn_regex.nil?
-
-      isbn_lookbehind = "(?<=\\A|\\s|#{@hash.deep_fetch(:csv, :separator)})"
-      isbn_lookahead = "(?=\\z|\\s|#{@hash.deep_fetch(:csv, :separator)})"
-      isbn_bare_regex = /(?:\d{3}[-\s]?)?[A-Z\d]{10}/ # also includes ASIN
-
-      @isbn_regex = /#{isbn_lookbehind}#{isbn_bare_regex.source}#{isbn_lookahead}/
-    end
-
-    # Builds the Regexp for item sources.
-    # @return [Regexp]
-    def sources_regex(url_regex)
-      return @sources_regex unless @sources_regex.nil?
-
-      isbn = "(#{isbn_regex.source})"
-      url_name = "([^#{@hash.deep_fetch(:csv, :separator)}]+)"
-      url_prename = "#{url_name}#{@hash.deep_fetch(:csv, :short_separator)}#{url_regex}"
-      url_postname = "#{url_regex}#{@hash.deep_fetch(:csv, :short_separator)}#{url_name}"
-      url_noname = url_regex
-
-      @sources_regex = /#{isbn}|#{url_prename}|#{url_postname}|#{url_noname}/
     end
   end
 end

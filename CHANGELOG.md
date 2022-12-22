@@ -1,12 +1,12 @@
 ## [0.9.0] - upcoming
 
 - Add parsing of the History column.
-- Simplify the Source column.
 
 ## [0.8.0] - upcoming
 
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
+- Simplified the Source column by removing custom URL names.
 - Added features to compact planned rows:
   - Single-item compact planned rows.
   - Naming a source at the beginning of the row.

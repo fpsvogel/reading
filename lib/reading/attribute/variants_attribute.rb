@@ -7,16 +7,12 @@ module Reading
       def parse
         sources_str = columns[:sources]&.presence || " "
 
-        separator =
-          if sources_str.match(config.deep_fetch(:csv, :regex, :formats))
-            config.deep_fetch(:csv, :regex, :formats_split)
-          else
-            config.deep_fetch(:csv, :long_separator)
-          end
+        format_as_separator = config.deep_fetch(:csv, :regex, :formats_split)
 
-        sources_str.split(separator).map { |variant_with_extra_info|
+        sources_str.split(format_as_separator).map { |variant_with_extra_info|
           variant_str = variant_with_extra_info
-            .split(config.deep_fetch(:csv, :long_separator)).first
+            .split(config.deep_fetch(:csv, :long_separator))
+            .first
 
           variant =
             {
@@ -91,72 +87,54 @@ module Reading
       end
 
       def sources(str)
-        (sources_urls(str) + sources_names(str).map { |name| [name] })
-          .map { |source_array| source_array_to_hash(source_array) }
-          .compact.presence
+        urls = sources_urls(str).map { |url|
+          {
+            name: url_name(url) || template.deep_fetch(:sources, 0, :name),
+            url: url,
+          }
+        }
+
+        names = sources_names(str).map { |name|
+          {
+            name: name,
+            url: template.deep_fetch(:sources, 0, :url),
+          }
+        }
+
+        (urls + names).presence
       end
 
       def sources_urls(str)
-        str
-          .scan(config.deep_fetch(:csv, :regex, :sources))
-          .map(&:compact)
-          .reject { |source|
-            source.first.match?(config.deep_fetch(:csv, :regex, :isbn))
-          }
+        str.scan(config.deep_fetch(:csv, :regex, :url))
       end
 
+      # Turns everything that is not a source name (ISBN, source URL, length) into
+      # a separator, then splits by that separator and removes empty elements
+      # and format emojis. What's left is source names.
       def sources_names(str)
-        sources_with_commas_around_length(str)
-          .gsub(config.deep_fetch(:csv, :regex, :sources), config.deep_fetch(:csv, :separator))
+        not_names = [:isbn, :url, :time_length_in_variant, :pages_length_in_variant]
+        names_and_separators = str
+
+        not_names.each do |regex_type|
+          names_and_separators = names_and_separators.gsub(
+            config.deep_fetch(:csv, :regex, regex_type),
+            config.deep_fetch(:csv, :separator),
+          )
+        end
+
+        names_and_separators
           .split(config.deep_fetch(:csv, :separator))
-          .reject { |name|
-            name.match?(config.deep_fetch(:csv, :regex, :time_length_in_variant)) ||
-              name.match?(config.deep_fetch(:csv, :regex, :pages_length_in_variant))
-          }
           .map { |name| name.remove(/\A\s*#{config.deep_fetch(:csv, :regex, :formats)}\s*/) }
           .map(&:strip)
           .reject(&:empty?)
       end
 
-      def sources_with_commas_around_length(str)
-        str.sub(config.deep_fetch(:csv, :regex, :time_length_in_variant), ", \\1, ")
-          .sub(config.deep_fetch(:csv, :regex, :pages_length_in_variant), ", \\1, ")
-      end
-
-      def source_array_to_hash(array)
-        return nil if array.nil? || array.empty?
-
-        array = [array[0].strip, array[1]&.strip]
-
-        if valid_url?(array[0])
-          if valid_url?(array[1])
-            raise InvalidSourceError, "Each Source must have only one one URL"
-          end
-          array = array.reverse
-        end
-
-        url = array[1]
-        url.chop! if url&.chars&.last == "/"
-        name = array[0] || auto_name_from_url(url)
-
-        {
-          name: name || template.deep_fetch(:sources, 0, :name),
-          url: url   || template.deep_fetch(:sources, 0, :url),
-        }
-      end
-
-      def valid_url?(str)
-        str&.match?(/http[^\s,]+/)
-      end
-
-      def auto_name_from_url(url)
-        return nil if url.nil?
-
+      def url_name(url)
         config
           .deep_fetch(:item, :sources, :names_from_urls)
-          .each do |url_part, auto_name|
+          .each do |url_part, name|
             if url.include?(url_part)
-              return auto_name
+              return name
             end
           end
 

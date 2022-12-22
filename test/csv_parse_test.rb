@@ -164,38 +164,32 @@ class CSVParseTest < Minitest::Test
     "Goatsong|Little Library",
   :"URL source" =>
     "Goatsong|https://www.edlin.org/holt",
-  :"URL source with name" =>
-    "Goatsong|about Tom Holt - https://www.edlin.org/holt",
-  :"URL source with name after" =>
-    "Goatsong|https://www.edlin.org/holt - about Tom Holt",
-  :"URL source with auto name" =>
+  :"URL source with a name from config" =>
     "Goatsong|https://archive.org/details/walledorchard0000holt",
   :"sources" =>
     "Goatsong|Little Library https://www.edlin.org/holt Lexpub",
-  :"sources commas" =>
-    "Goatsong|Little Library, https://www.edlin.org/holt - about Tom Holt, Lexpub",
+  :"sources separated by commas" =>
+    "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub",
   :"source with ISBN" =>
     "Goatsong|Little Library 0312038380",
-  :"source with ISBN reversed" =>
+  :"source with ISBN in reverse order" =>
     "Goatsong|0312038380 Little Library",
   :"sources with ISBN" =>
     "Goatsong|Little Library 0312038380 https://www.edlin.org/holt",
-  :"sources with ISBN commas" =>
-    "Goatsong|Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub",
+  :"sources with ISBN separated by commas" =>
+    "Goatsong|Little Library, 0312038380, https://www.edlin.org/holt, Lexpub",
   :"simple variants" =>
-    "Goatsong|Little Library -- Lexpub",
-  :"extra info can be included if format is specified" =>
-    "Goatsong|📕Little Library -- unabridged -- 1990",
-  :"formats can delimit variants" =>
-    "Goatsong|📕Little Library -- unabridged -- 1990, 🔊Lexpub",
-  :"formats can omit the preceding comma" =>
+    "Goatsong|📕Little Library 📕Lexpub",
+  :"variant with extra info" =>
     "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
-  :"formats can be preceded by a long separator" =>
-    "Goatsong|📕Little Library -- unabridged -- 1990 -- 🔊Lexpub",
+  :"optional long separator can be added between variants" =>
+    "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
   :"length after sources ISBN and before extra info" =>
-    "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
-    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt - about Tom Holt, Lexpub, 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library 0312038380 https://www.edlin.org/holt Lexpub 247 -- unabridged -- 1990 🔊Lexpub 7:03",
+  :"optional commas can be added within and between variants" =>
+    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt, Lexpub, 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
   }
 
   @files[:features_dates_started] =
@@ -340,8 +334,6 @@ class CSVParseTest < Minitest::Test
   {
   :"multiple ISBNs or ASINs for the same variant" =>
     "|Sapiens|0062316117 B00ICN066A",
-  :"multiple URLs for the same source" =>
-    "|Sapiens|https://www.sapiens.org - https://www.ynharari.com/book/sapiens-2",
   :"OK: multiple URLs but different sources" =>
     "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
   }
@@ -439,7 +431,7 @@ class CSVParseTest < Minitest::Test
   @items[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
   a_sources = a.deep_merge(variants: [{ isbn: "B00ICN066A",
-                              sources: [{ name: "Vail Library", url: nil }] }])
+                              sources: [{ name: "Vail Library" }] }])
   b_sources = b.deep_merge(variants: [{ isbn: "0312038380" }])
   @items[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
@@ -547,7 +539,8 @@ class CSVParseTest < Minitest::Test
   a = a_basic.deep_merge(variants: [{ sources: [site] }])
   @items[:features_sources][:"URL source"] = [a]
 
-  site_named = { name: "about Tom Holt", url: "https://www.edlin.org/holt" }
+  default_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
+  site_named = { name: default_name, url: "https://www.edlin.org/holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site_named] }])
   @items[:features_sources][:"URL source with name"] = [a]
 
@@ -556,7 +549,7 @@ class CSVParseTest < Minitest::Test
   site_auto_named = { name: "Internet Archive",
                       url: "https://archive.org/details/walledorchard0000holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site_auto_named] }])
-  @items[:features_sources][:"URL source with auto name"] = [a]
+  @items[:features_sources][:"URL source with a name from config"] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
@@ -565,13 +558,13 @@ class CSVParseTest < Minitest::Test
 
   three_sources_with_name = [site_named, library, lexpub]
   a = a_basic.deep_merge(variants: [{ sources: three_sources_with_name }])
-  @items[:features_sources][:"sources commas"] = [a]
+  @items[:features_sources][:"sources separated by commas"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: [library],
                                         isbn: isbn }])
   @items[:features_sources][:"source with ISBN"] = [a]
 
-  @items[:features_sources][:"source with ISBN reversed"] = [a]
+  @items[:features_sources][:"source with ISBN in reverse order"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: [site, library],
                                         isbn: isbn }])
@@ -579,28 +572,22 @@ class CSVParseTest < Minitest::Test
 
   a = a_basic.deep_merge(variants: [{ sources: three_sources_with_name,
                                         isbn: isbn }])
-  @items[:features_sources][:"sources with ISBN commas"] = [a]
+  @items[:features_sources][:"sources with ISBN separated by commas"] = [a]
 
   a = item_hash(title:,
-                variants: [{ sources: [library] },
-                           { sources: [lexpub] }])
+                variants: [{ format: :print, sources: [library] },
+                           { format: :print, sources: [lexpub] }])
   @items[:features_sources][:"simple variants"] = [a]
 
   a = item_hash(title:,
                 variants: [{ format: :print,
                              sources: [library],
-                             extra_info: extra_info }])
-  @items[:features_sources][:"extra info can be included if format is specified"] = [a]
+                             extra_info: extra_info },
+                           { format: :audiobook,
+                             sources: [lexpub] }])
+  @items[:features_sources][:"variant with extra info"] = [a]
 
-  a = item_hash(title:,
-                variants: [a[:variants].first,
-                              { format: :audiobook,
-                                sources: [lexpub] }])
-  @items[:features_sources][:"formats can delimit variants"] = [a]
-
-  @items[:features_sources][:"formats can omit the preceding comma"] = [a]
-
-  @items[:features_sources][:"formats can be preceded by a long separator"] = [a]
+  @items[:features_sources][:"optional long separator can be added between variants"] = [a]
 
   a = item_hash(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
@@ -611,6 +598,8 @@ class CSVParseTest < Minitest::Test
                 variants: [a[:variants].first.merge(sources: three_sources_with_name),
                            a[:variants].last])
   @items[:features_sources][:"multiple sources allowed in variant"] = [a]
+
+  @items[:features_sources][:"optional commas can be added within and between variants"] = [a]
 
 
 
@@ -684,7 +673,7 @@ class CSVParseTest < Minitest::Test
 
   b_sources = item_hash(title: "True Grit",
                         variants: [{ format: :audiobook,
-                                    sources: [{ name: "Lexpub", url: nil }] }])
+                                    sources: [{ name: "Lexpub" }] }])
   @items[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 
   a_genre = a_sources.merge(genres: ["historical fiction"])
@@ -699,9 +688,9 @@ class CSVParseTest < Minitest::Test
 
   @items[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
 
-  site_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
-  multi_source = [{ sources: [{ name: "Lexpub", url: nil },
-                              { name: site_name, url: "https://www.lexpublib.org" }]}]
+  default_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
+  multi_source = [{ sources: [{ name: "Lexpub" },
+                              { name: default_name, url: "https://www.lexpublib.org" }]}]
   a_multi_source = a_genre.deep_merge(variants: multi_source)
   b_multi_source = b_genre.deep_merge(variants: multi_source)
   @items[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
