@@ -32,7 +32,8 @@ module Reading
       string_without_ignored = string.remove_all(to_ignore)
       start = string_without_ignored.match(start_regex)
 
-      @genre = start[:genre]&.downcase
+      @genre = start[:genre]&.downcase&.remove(/:\s*\z/)&.strip
+      @sources = sources(start[:sources]&.remove(/:\s*\z/))
       @row_without_genre = string_without_ignored.remove(start.to_s)
     end
 
@@ -67,10 +68,9 @@ module Reading
     end
 
     def parse_variant(item_match)
-      format_emoji = item_match[:format_emoji]
       {
-        format: format(format_emoji),
-        sources: sources(item_match[:sources]) || template.deep_fetch(:variants, 0, :sources),
+        format: format(item_match[:format_emoji]),
+        sources: (@sources + sources(item_match[:sources])).uniq.presence || template.deep_fetch(:variants, 0, :sources),
         isbn: template.deep_fetch(:variants, 0, :isbn),
         length: template.deep_fetch(:variants, 0, :length),
         extra_info: template.deep_fetch(:variants, 0, :extra_info),

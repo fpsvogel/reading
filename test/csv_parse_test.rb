@@ -237,15 +237,19 @@ class CSVParseTest < Minitest::Test
   :"with author" =>
     "\\⚡Tom Holt - A Song for Nero",
   :"with sources" =>
-    "\\⚡A Song for Nero @Little Library @Hoopla",
-  :"with genre" =>
-    "\\HISTORICAL FICTION: ⚡A Song for Nero",
-  :"emojis are ignored" =>
-    "\\❓HISTORICAL FICTION:⚡💲A Song for Nero ✅@Little Library @Hoopla",
-  :"multiple, titles only" =>
-    "\\⚡A Song for Nero 🔊True Grit",
-  :"multiple, everything" =>
-    "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero @Little Library @Hoopla 🔊True Grit @Lexpub",
+    "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla",
+  :"multiple" =>
+    "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
+  :"multiple with genre" =>
+    "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
+  :"multiple with genre plus source" =>
+    "\\HISTORICAL FICTION @Lexpub: ⚡Tom Holt - A Song for Nero @Hoopla 🔊True Grit",
+  :"duplicate sources are ignored" =>
+    "\\HISTORICAL FICTION @Lexpub: ⚡Tom Holt - A Song for Nero @Hoopla @Lexpub @Hoopla 🔊True Grit @Lexpub",
+  :"multiple sources at the beginning" =>
+    "\\HISTORICAL FICTION @Lexpub @https://www.lexpublib.org: ⚡Tom Holt - A Song for Nero 🔊True Grit",
+  :"config-defined emojis are ignored" =>
+    "\\❓HISTORICAL FICTION @Lexpub:⚡💲Tom Holt - A Song for Nero ✅@Hoopla ✅🔊True Grit",
   }
 
   @files[:features_history] =
@@ -664,34 +668,39 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:features_compact_planned] = {}
-  a = item_hash(title: "A Song for Nero",
-                variants: [{ format: :ebook }])
-  @items[:features_compact_planned][:"title only"] = [a]
+  a_title = item_hash(title: "A Song for Nero",
+                      variants: [{ format: :ebook }])
+  @items[:features_compact_planned][:"title only"] = [a_title]
 
-  a_author = a.merge(author: "Tom Holt")
+  a_author = a_title.merge(author: "Tom Holt")
   @items[:features_compact_planned][:"with author"] = [a_author]
 
-  little_and_hoopla = [{ name: "Little Library", url: nil },
+  lexpub_and_hoopla = [{ name: "Lexpub", url: nil },
                        { name: "Hoopla", url: nil }]
-  a_sources = a.deep_merge(variants: [{ sources: little_and_hoopla }])
+  a_sources = a_author.deep_merge(variants: [{ sources: lexpub_and_hoopla }])
   @items[:features_compact_planned][:"with sources"] = [a_sources]
 
-  a_genre = a.merge(genres: ["historical fiction"])
-  @items[:features_compact_planned][:"with genre"] = [a_genre]
+  b_sources = item_hash(title: "True Grit",
+                        variants: [{ format: :audiobook,
+                                    sources: [{ name: "Lexpub", url: nil }] }])
+  @items[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 
-  a_emojis_ignored = a_sources.merge(genres: ["historical fiction"])
-  @items[:features_compact_planned][:"emojis are ignored"] = [a_emojis_ignored]
+  a_genre = a_sources.merge(genres: ["historical fiction"])
+  b_genre = b_sources.merge(genres: ["historical fiction"])
+  @items[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
 
-  b = item_hash(title: "True Grit",
-                variants: [{ format: :audiobook }])
-  @items[:features_compact_planned][:"multiple, titles only"] = [a, b]
+  @items[:features_compact_planned][:"multiple with genre plus source"] = [a_genre, b_genre]
 
-  a_all = a_author
-    .deep_merge(variants: a_sources[:variants])
-    .merge(genres: ["historical fiction"])
-  b_all = b.deep_merge(genres: ["historical fiction"],
-                       variants: [{ sources: [{ name: "Lexpub", url: nil }] }])
-  @items[:features_compact_planned][:"multiple, everything"] = [a_all, b_all]
+  @items[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
+
+  site_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
+  multi_source = [{ sources: [{ name: "Lexpub", url: nil },
+                              { name: site_name, url: "https://www.lexpublib.org" }]}]
+  a_multi_source = a_genre.deep_merge(variants: multi_source)
+  b_multi_source = b_genre.deep_merge(variants: multi_source)
+  @items[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
+
+  @items[:features_compact_planned][:"config-defined emojis are ignored"] = [a_genre, b_genre]
 
 
 
