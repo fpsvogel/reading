@@ -19,11 +19,11 @@ module Reading
       private
 
       def dates_started_column?(config)
-        config.deep_fetch(:csv, :columns, :dates_started)
+        config.deep_fetch(:csv, :enabled_columns).include?(:dates_started)
       end
 
       def dates_finished_column?(config)
-        config.deep_fetch(:csv, :columns, :dates_finished)
+        config.deep_fetch(:csv, :enabled_columns).include?(:dates_finished)
       end
 
       def both_date_columns?(config)

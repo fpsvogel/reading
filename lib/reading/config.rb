@@ -27,8 +27,11 @@ module Reading
         @hash[:item][:formats] = @custom_config.dig(:item, :formats)
       end
 
-      # Head column can't be disabled.
-      @hash.deep_fetch(:csv, :columns)[:head] = true
+      # Validate enabled_columns
+      enabled_columns = @hash.deep_fetch(:csv, :enabled_columns)
+      enabled_columns << :head
+      enabled_columns.uniq!
+      enabled_columns.sort_by! { |col| default_config.deep_fetch(:csv, :enabled_columns).index(col) }
 
       # Add the Regex config, which is built based on the config so far.
       @hash[:csv][:regex] = build_regex_config
@@ -118,20 +121,22 @@ module Reading
           },
         csv:
           {
-            columns:
-              {
-                rating:         true,
-                head:           true, # always enabled
-                sources:        true,
-                dates_started:  true,
-                dates_finished: true,
-                genres:         true,
-                length:         true,
-                public_notes:   true,
-                blurb:          true,
-                private_notes:  true,
-                history:        true,
-              },
+            # The Head column is always enabled; the others can be disabled by
+            # using a custom config that omits columns from this array.
+            enabled_columns:
+              %i[
+                rating
+                head
+                sources
+                dates_started
+                dates_finished
+                genres
+                length
+                public_notes
+                blurb
+                private_notes
+                history
+              ],
             # Custom columns are listed in a hash with default values, like simple columns in item[:template] above.
             custom_numeric_columns:   {}, # e.g. { family_friendliness: 5, surprise_factor: nil }
             custom_text_columns:      {}, # e.g. { mood: nil, rec_by: nil, will_reread: "no" }

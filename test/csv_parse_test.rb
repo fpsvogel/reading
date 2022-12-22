@@ -442,9 +442,9 @@ class CSVParseTest < Minitest::Test
 
 
   @items[:custom_columns] = {}
-  a_custom_numeric = a.merge(surprise_factor: 6,
+  a_custom_numeric = a.merge(surprise_factor: 6.0,
                             family_friendliness: 3.9)
-  b_custom_numeric = b.merge(surprise_factor: 9,
+  b_custom_numeric = b.merge(surprise_factor: 9.0,
                             family_friendliness: 5)
   c_custom_numeric = c.merge(surprise_factor: nil,
                             family_friendliness: 5)
@@ -891,14 +891,12 @@ class CSVParseTest < Minitest::Test
 
   # ==== UTILITY METHODS
 
-  NO_COLUMNS = base_config.deep_fetch(:csv, :columns).keys.map { |col| [col, false] }.to_h
-
-  def set_columns(*columns, custom_numeric_columns: nil, custom_text_columns: nil)
-    if columns.empty? || columns.first == :all
+  def set_columns(columns, custom_numeric_columns: nil, custom_text_columns: nil)
+    if columns.empty? || columns == :all
       this_config = base_config
     else
-      this_columns = { columns: NO_COLUMNS.merge(columns.map { |col| [col, true] }.to_h) }
-      this_config = base_config.merge(csv: base_config[:csv].merge(this_columns))
+      columns.delete(:compact_planned)
+      this_config = base_config.merge(csv: { enabled_columns: columns})
     end
 
     unless custom_numeric_columns.nil?
@@ -959,7 +957,7 @@ class CSVParseTest < Minitest::Test
   files[:enabled_columns].each do |set_name, file_str|
     columns = set_name.to_s.split(", ").map(&:to_sym)
     define_method("test_enabled_columns_#{columns.join("_")}") do
-      set_columns(*columns)
+      set_columns(columns)
       exp = tidy(items[:enabled_columns][set_name])
       act = parse(file_str)
       # debugger unless exp == act
@@ -970,7 +968,7 @@ class CSVParseTest < Minitest::Test
 
   ## TESTS: CUSTOM COLUMNS
   def test_custom_numeric_columns
-    set_columns(*%i[rating head sources dates_started dates_finished length],
+    set_columns(%i[rating head sources dates_started dates_finished length],
                 custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
     exp = tidy(items[:custom_columns][:numeric])
     act = parse(files[:custom_columns][:numeric])
@@ -979,7 +977,7 @@ class CSVParseTest < Minitest::Test
   end
 
   def test_custom_text_columns
-    set_columns(*%i[rating head sources dates_started dates_finished length],
+    set_columns(%i[rating head sources dates_started dates_finished length],
                 custom_text_columns: { mood: nil, will_reread: "no" })
     exp = tidy(items[:custom_columns][:text])
     act = parse(files[:custom_columns][:text])
@@ -994,7 +992,7 @@ class CSVParseTest < Minitest::Test
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
       define_method("test_#{columns_sym}_feature_#{feat}") do
-        set_columns(*columns)
+        set_columns(columns + [:head])
         exp = tidy(items[group_name][feat])
         act = parse(file_str)
         # debugger unless exp == act

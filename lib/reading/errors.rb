@@ -53,6 +53,11 @@ module Reading
   # Means there was a problem accessing a file.
   class FileError < Reading::Error; end
 
+  # MISC # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+  # Means the user-supplied custom config is invalid.
+  class ConfigError < Reading::Error; end
+
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
   # Means a date is unparsable, or a set of dates does not make logical sense.

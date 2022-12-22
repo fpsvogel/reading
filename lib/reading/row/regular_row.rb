@@ -62,12 +62,11 @@ module Reading
     end
 
     def set_columns
-      @columns = config
-        .deep_fetch(:csv, :columns)
-        .select { |_head, enabled| enabled }
-        .keys
-        .concat(config.deep_fetch(:csv, :custom_numeric_columns).keys)
-        .concat(config.deep_fetch(:csv, :custom_text_columns).keys)
+      @columns = (
+        config.deep_fetch(:csv, :enabled_columns) +
+          config.deep_fetch(:csv, :custom_numeric_columns).keys +
+          config.deep_fetch(:csv, :custom_text_columns).keys
+        )
         .zip(string.split(config.deep_fetch(:csv, :column_separator)))
         .to_h
     end

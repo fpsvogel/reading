@@ -4,6 +4,7 @@
 
 ## [0.8.0] - upcoming
 
+- Improved the docs.
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
 - Simplified the Source column by removing custom URL names.
@@ -16,8 +17,8 @@
 ## [0.7.0] - 2022-12-18
 
 - Added docs.
-- Added basic date validation.
-- Removed unused features.
+- Added date validations.
+- Removed unused features: date added, visibility, multiple format emojis in compact planned items.
 - Removed two little-used columns, Blurb and Private Notes, making them specially-marked Notes instead. Notes are now structured as an array of hashes rather than a simple array of strings.
 
 ## [0.6.0] - 2022-11-22

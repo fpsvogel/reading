@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # How to format your CSV file
 
-Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv), which includes the examples below, and you can refer to the notes below as needed. Then see [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage) for how to parse the CSV file.
+Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv), which includes the examples below, and you can refer to the notes below as needed. Then see [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage) for how to use the gem to parse the CSV file.
 
 ### Table of contents
 - [Basics](#basics)
@@ -14,8 +14,7 @@ Welcome! This is a guide to setting up your own CSV reading log to be parsed by 
 Here is the beginning of a minimal CSV reading log:
 
   ```
-  \Author - Title|Dates finished
-  \------ IN PROGRESS
+  \Author, Title|Dates finished
   Sapiens: A Brief History of Humankind
   Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06/18, 2020/5/8
   ```
@@ -26,33 +25,13 @@ Here is the beginning of a minimal CSV reading log:
   - This means you *must not* use the pipe character anywhere except to divide columns (or in comments).
   - Columns may be omitted from the right, as in the first item.
   - The author is optional. The first item omits it.
-  - You're currently re-reading the second item: it has two Dates Finished, making this your third time reading it. Nice!
+- To sum up these two rows: you haven't read *Sapiens* yet, and you've read *Goatsong* twice. Nice!
 
-If this minimal kind of reading log is what you want, be sure to initialize a `Reading::CSV` with unwanted columns disabled:
+If this minimal kind of reading log is what you want, see the README section ["Example custom config: disabling columns"](https://github.com/fpsvogel/reading/blob/main/README.md#example-custom-config-disabling-columns).
 
-  ```
-  custom_config = {
-    csv: {
-      columns: {
-        # Disables all columns except head and dates_finished.
-        rating:         false,
-        sources:        false,
-        dates_started:  false,
-        genres:         false,
-        length:         false,
-        public_notes:   false,
-        blurb:          false,
-        private_notes:  false,
-        history:        false,
-      }
-    }
-  }
-  csv = Reading::CSV.new(path: file_path, config: custom_config)
-  ```
+You could go even more minimalist and disable the Dates Finished column if you just want to keep a list of books you've read.
 
-You could go even more minimalist and disable the Dates Finished column if you just want to keep a list of titles of books you've read.
-
-But by default, all columns are enabled. Here are those same two items, but now with all columns:
+By default, all columns are enabled. We'll learn about each column, but first here are those same two items, but now with all columns:
 
 ```
 \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
@@ -61,8 +40,9 @@ But by default, all columns are enabled. Here are those same two items, but now 
 5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
 ```
 
-- Wow. That's a lot. But again, you can disable whichever columns you don't want.
-- And even when they are all enabled, you don't *have* to fill in every column every time. For example, the first item above omits the contents of the first column, and it omits the last column entirely. The second item omits the last two columns.
+Before we dive into each column, here are some general observations:
+
+- As we saw in our minimal example, you don't *have* to fill in every column every time. For example, the first item above omits the contents of the first column, and it omits the last column entirely. The second item omits the last two columns.
 - The title is the only piece of information that's required on every line. Everything else is optional.
 - Pro tip: entering a row is much less cumbersome if you set up a keyboard shortcut that pastes a row template. I myself use [an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.rb) for this.
 

@@ -7,6 +7,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 - [Why am I building this?](#why-am-i-building-this)
 - [Installation](#installation)
 - [Usage](#usage)
+  - [Example custom config: disabling columns](#example-custom-config-disabling-columns)
 - [CSV documentation](#csv-documentation)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
 - [Contributing](#contributing)
@@ -68,9 +69,25 @@ csv = Reading::CSV.new(path: file_path, config: custom_config)
 items = csv.parse
 ```
 
+### Example custom config: disabling columns
+
+If you don't want to use all the columns (as in [the basic example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.md)), you'll need to initialize a `Reading::CSV` with a config that has unwanted columns disabled:
+
+```ruby
+custom_config = {
+  csv: {
+    enabled_columns: %i[
+      head
+      dates_finished
+    ]
+  }
+}
+csv = Reading::CSV.new(path: file_path, config: custom_config)
+```
+
 ## CSV documentation
 
-The [CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.rb) shows by example how to set up a CSV reading log of your own. The parsing features are documented more comprehensively in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
+The [CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.md) shows by example how to set up a CSV reading log of your own. The parsing features are documented more comprehensively in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
 
 ## How to add a reading page to your site
 
