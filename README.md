@@ -71,7 +71,7 @@ items = csv.parse
 
 ### Example custom config: disabling columns
 
-If you don't want to use all the columns (as in [the basic example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.md)), you'll need to initialize a `Reading::CSV` with a config that has unwanted columns disabled:
+If you don't want to use all the columns (as in [the basic example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.md#a-minimal-reading-log)), you'll need to initialize a `Reading::CSV` with a config that has unwanted columns disabled:
 
 ```ruby
 custom_config = {

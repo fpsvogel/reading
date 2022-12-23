@@ -10,12 +10,11 @@
 \ You can edit this file in any spreadsheet app or text editor.
 \ When you open the file, be sure to select the pipe character (|) as the column separator.
 
-\ If you use VS Code, try the Rainbow CSV extension: https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv
+\ I highly recommend the Rainbow CSV extension for VS Code: https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv
 \ Be sure to set VS Code's Language Mode to "CSV (pipe)".
 
-\ For editing in VS Code or other text editors, you might want to make a hotkey to set up a new column instantly.
-\ This way you won't have to type out all the column dividers and today's date.
-\ For more on that, see https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.ahk
+\ Entering a row is much less cumbersome if you set up a keyboard shortcut that pastes a row template.
+\ I myself use an AutoHotkey script: https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.ahk
 
 
 
