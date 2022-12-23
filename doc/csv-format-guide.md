@@ -82,10 +82,10 @@ NOTE: Parsing of the History column is TBIS (To Be Implemented Soon).
 
 The History column is handy for podcasts. Here's a common scenario: you discover a good podcast, you listen to a bunch of previous episodes until you're caught up, and then you listen to each new episode as they're released.
 
-```
-\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
-3|🎤Flightless Bird -- with David Farrier|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- x1/week
-```
+  ```
+  \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
+  3|🎤Flightless Bird -- with David Farrier|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- x1/week
+  ```
 
 - In plain English this means "Each episode is 50 minutes long. From the 6th to the 12th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
 - Notice that the Dates Started and Dates Finished columns are empty. These columns are not parsed if the History column is filled in.
@@ -93,9 +93,7 @@ The History column is handy for podcasts. Here's a common scenario: you discover
 
 But that's not the only way to listen to a podcast, and so the History column is flexible. For example, what if you stopped listening to that podcast after a while?
 
-```
-3|🎤Flightless Bird -- with David Farrier|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week
-```
+> ```3|🎤Flightless Bird -- with David Farrier|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week```
 
 - This adds, in plain English, "I stopped listening on December 14, and then on March 1 I started listening again, but now I'm listening to two episodes per week."
 - If one side of a date range is omitted (here `-12/14` and `2023/3/1-`), that date is inferred from the previous/next date, or if there is no next date then it means "up to the present".
@@ -103,9 +101,7 @@ But that's not the only way to listen to a podcast, and so the History column is
 
 What about a podcast that you listen to only occasionally? You may want to keep track of which episodes you've listened to.
 
-```
-4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
-```
+> ```4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible```
 
 - Here's the format of each entry: `[date] [h:mm] [star if favorite] #[episode number] [creator or interviewee] [title]`
 - But as you can see, not every piece of information is spelled out in every entry. Wherever a length (duration) is omitted, the length from the previous entry is used, or the "each" length in the Length column if there is one (see the next example below). Wherever a date is omitted, the date from the previous entry is used if that was a single date, or (as in the above Flightless Bird example) the date after the previous entry is used if that was a date range.
