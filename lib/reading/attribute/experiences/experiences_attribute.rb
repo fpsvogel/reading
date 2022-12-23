@@ -1,11 +1,9 @@
-require_relative "date_validator"
+require_relative "dates_validator"
 require "date"
 
 module Reading
   class Row
     class ExperiencesAttribute < Attribute
-      include DateValidator
-
       using Util::HashArrayDeepFetch
 
       def parse
@@ -23,7 +21,9 @@ module Reading
         }.presence
 
         if experiences_with_dates
-          DateValidator.validate(experiences_with_dates, config)
+          # Raises an error if any sequence of dates does not make sense.
+          DatesValidator.validate(experiences_with_dates, config)
+
           return experiences_with_dates
         else
           if prog = progress(columns[:head])

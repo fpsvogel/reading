@@ -1,7 +1,7 @@
 module Reading
   # Methods to validate dates. This does not cover all the ways dates can be
   # invalid, just the ones not covered by ExperiencesAttribute during parsing.
-  module DateValidator
+  module DatesValidator
     using Util::HashArrayDeepFetch
 
     class << self
