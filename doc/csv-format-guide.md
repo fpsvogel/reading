@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # How to format your CSV file
 
-Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv), which includes the examples below, and you can refer to the notes below as needed. Then see [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage) for how to use the gem to parse the CSV file.
+Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv) and refer to the sections below as needed. Then see [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage) for how to use the gem to parse the CSV file.
 
 ### Table of contents
 - [Preliminaries: how to edit a CSV file pleasantly](#preliminaries-how-to-edit-a-csv-file-pleasantly)
@@ -15,6 +15,10 @@ Welcome! This is a guide to setting up your own CSV reading log to be parsed by 
   - [Length column](#length-column)
   - [Notes column](#notes-column)
 - [Advanced](#advanced)
+  - [Head column: extra info](#head-column-extra-info)
+  - [Sources column: variants](#sources-column-variants)
+  - [Dates Started column: progress](#dates-started-column-progress)
+  - [Notes column: special notes](#notes-column-special-notes)
   - [History column](#history-column)
   - [Misc. advanced](#misc-advanced)
 
@@ -60,21 +64,137 @@ Before we dive into each column, here are some general observations:
 
 ## Basics
 
+Here are the features of each column that you'll most often use. To keep the examples below as concise as possible, not all the columns will be shown at once.
+
 ### Rating column
+
+The Rating column can be any number. Your rating scale is up to you.
+
+```
+\Rating|Title
+3.5|Hamlet
+5|Cosmos
+|Utopia
+9001|Goku's Power Level
+```
 
 ### Head column (format, author, title)
 
+The second column is the Head column. Since it contains the format, author, and title, that's how I prefer to label it.
+
+Only the title is always required. The format and author are optional.
+
+```
+\Format, Author, Title
+Hamlet
+Carl Sagan - Cosmos
+📕Utopia
+🔊R. J. Palacio - Wonder
+```
+
 ### Sources column
+
+The Sources column is for a few different pieces of information. Here are a few things it can include.
+
+An ISBN-10, ISBN-13, or ASIN number:
+
+```
+\Title|Sources, ISBN/ASIN
+Hamlet|0141396504
+Cosmos|978-0345539434
+Utopia|B078Y97W7D
+```
+
+The source where you got the item. This can be either a name or a URL:
+
+```
+\Title|Sources, ISBN/ASIN
+Hamlet|Lexington Public Library
+Utopia|https://www.gutenberg.org/ebooks/2130
+```
+
+And you can mix them together, one number plus one or more sources:
+
+```
+\Title|Sources, ISBN/ASIN
+Hamlet|Lexington Public Library 0141396504
+Cosmos|Hoopla 978-0345539434 recommended by Sam
+Utopia|B078Y97W7D https://www.gutenberg.org/ebooks/2130
+```
+
+If two name sources are adjacent, separate them with commas:
+
+```
+\Title|Sources, ISBN/ASIN
+Cosmos|Hoopla, recommended by Sam 978-0345539434
+```
 
 ### Dates Started and Dates Finished columns
 
+These two columns can be used separately (you can disable one or the other), but they're similar so let's look at both.
+
+Dates must be in the format `yyyy/mm/dd`, with zeroes either included or omitted:
+
+```
+\Title|Dates started|Dates finished
+Hamlet|2020/05/01|2020/5/9
+```
+
+Use commas to separate multiple dates:
+
+```
+\Title|Dates started|Dates finished
+Cosmos|2019/11/22, 2020/07/17, 2022/10/05|2019/12/10, 2020/08/15
+```
+
+The above example means that you started and finished the book in 2019 and again in 2020. In 2022 you've started it but haven't yet finished it (since there isn't a third date finished to match that date started).
+
+The examples above are done and in progress, respectively, but what about a *planned* item, something on your "to read" list? Just omit the dates entirely:
+
+```
+\Title|Dates started|Dates finished
+Utopia
+```
+
 ### Genres column
+
+Genres are just a list, all in lowercase:
+
+```
+\Title|Genres
+Hamlet|classic, elizabethan drama
+Cosmos|science, astronomy, classic|
+Utopia|latin
+```
 
 ### Length column
 
+A length can be a whole number (for pages) or in `hh:mm` format for time:
+
+```
+\Title|Length
+Hamlet|400
+Cosmos|14:07
+```
+
 ### Notes column
 
+Notes are separated by ` -- ` (two hyphens surrounded by spaces):
+
+```
+\Title|Notes
+Hamlet|In modern English: https://nosweatshakespeare.com/plays/modern-hamlet -- I.2: Claudius' speech full of contradictory images. -- I.3: Laertes' speech to Ophelia is creepy…
+```
+
 ## Advanced
+
+### Head column: extra info
+
+### Sources column: variants
+
+### Dates Started column: progress
+
+### Notes column: special notes
 
 ### History column
 
@@ -84,7 +204,7 @@ The History column is handy for podcasts. Here's a common scenario: you discover
 
 ```
 \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
-3|🎤Flightless Bird|Spotify|||podcast|0:50 each||2022/10/06-10/11 x23 -- x1/week
+3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06-10/11 x23 -- x1/week
 ```
 
 - In plain English this means "Each episode is 50 minutes long. From the 6th to the 12th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
@@ -94,7 +214,7 @@ The History column is handy for podcasts. Here's a common scenario: you discover
 But that's not the only way to listen to a podcast, and so the History column is flexible. For example, what if you stopped listening to that podcast after a while?
 
 ```
-3|🎤Flightless Bird|Spotify|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week
+3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week
 ```
 
 - This adds, in plain English, "I stopped listening on December 14, and then on March 1 I started listening again, but now I'm listening to two episodes per week."
@@ -104,7 +224,7 @@ But that's not the only way to listen to a podcast, and so the History column is
 What about a podcast that you listen to only occasionally? You may want to keep track of which episodes you've listened to.
 
 ```
-4|🎤The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
+4|🎤The Bible for Normal People||||podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
 ```
 
 - Here's the format of each entry: `[date] [h:mm] [star if favorite] #[episode number] [creator or interviewee] [title]`
@@ -114,7 +234,7 @@ What about a podcast that you listen to only occasionally? You may want to keep 
 OK, but what if you want to write down episode titles without having to write down every date? There's a shortcut for that too: you can have entries for the episodes sandwiched between two halves of a date range, like this:
 
 ```
-4|🎤Escriba Café||||portuguese,podcast|0:30 each||2021/04/16- Amor -- Diabolus -- Máfia -- Piratas -- 2:00 Trilogia História do Brasil -- Rapa-Nui -- Espíritos -- Inferno -- -4/30 Pompeia
+4|🎤Escriba Café||||podcast|0:30 each||2021/04/16- Amor -- Diabolus -- Máfia -- Piratas -- 2:00 Trilogia História do Brasil -- Rapa-Nui -- Espíritos -- Inferno -- -4/30 Pompeia
 ```
 
 - In plain English: "From the 16th to the 30th of April, 2021, I listened to a bunch of episodes, starting with `Amor` and ending with `Pompeia`."
@@ -131,7 +251,7 @@ If you've planned out which episodes you want to listen to, you can mark them do
 But then what if you don't like that podcast and you end up DNF'ing parts of it? Here's how to record that:
 
 ```
-2|DNF 🎤Pray as you go||||religion,podcast|||2022/07/12-17 1:39 Imaginative Contemplation -- 8/29-9/7 1:04 Acts -- DNF 30% -9/17 2:13 God with Us -- DNF @0:15 2:01 God's Grandeur -- DNF 1:17 Way of the Cross
+2|DNF 🎤Pray as you go||||podcast|||2022/07/12-17 1:39 Imaginative Contemplation -- 8/29-9/7 1:04 Acts -- DNF 30% -9/17 2:13 God with Us -- DNF @0:15 2:01 God's Grandeur -- DNF 1:17 Way of the Cross
 ```
 
 - As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%. The only difference is that in the History column, lengths for DNFs need to be preceded by `@` (such as `DNF @0:15` in this example) because otherwise it would be hard to distinguish the DNF length from the length of the episode.

@@ -169,7 +169,7 @@ class CSVParseTest < Minitest::Test
   :"sources" =>
     "Goatsong|Little Library https://www.edlin.org/holt Lexpub",
   :"sources separated by commas" =>
-    "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub",
+    "Goatsong|Little Library https://www.edlin.org/holt Lexpub, rec. by Sam",
   :"source with ISBN" =>
     "Goatsong|Little Library 0312038380",
   :"source with ISBN in reverse order" =>
@@ -177,7 +177,7 @@ class CSVParseTest < Minitest::Test
   :"sources with ISBN" =>
     "Goatsong|Little Library 0312038380 https://www.edlin.org/holt",
   :"sources with ISBN separated by commas" =>
-    "Goatsong|Little Library, 0312038380, https://www.edlin.org/holt, Lexpub",
+    "Goatsong|Little Library 0312038380 https://www.edlin.org/holt Lexpub, rec. by Sam",
   :"simple variants" =>
     "Goatsong|📕Little Library 📕Lexpub",
   :"variant with extra info" =>
@@ -311,6 +311,8 @@ class CSVParseTest < Minitest::Test
   @files[:errors] = {}
   @files[:errors][Reading::InvalidDateError] =
   {
+  :"date not in yyyy/mm/dd format" =>
+    "|Sapiens||2019-01-01|2020/01/01",
   :"date started content without a date" =>
     "|Sapiens||no date here|2020/01/01",
   :"date finished content without a date" =>
@@ -556,8 +558,8 @@ class CSVParseTest < Minitest::Test
   a = a_basic.deep_merge(variants: [{ sources: three_sources }])
   @items[:features_sources][:"sources"] = [a]
 
-  three_sources_with_name = [site_named, library, lexpub]
-  a = a_basic.deep_merge(variants: [{ sources: three_sources_with_name }])
+  four_sources = three_sources + [{ name: "rec. by Sam", url: nil }]
+  a = a_basic.deep_merge(variants: [{ sources: four_sources }])
   @items[:features_sources][:"sources separated by commas"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: [library],
@@ -570,7 +572,7 @@ class CSVParseTest < Minitest::Test
                                         isbn: isbn }])
   @items[:features_sources][:"sources with ISBN"] = [a]
 
-  a = a_basic.deep_merge(variants: [{ sources: three_sources_with_name,
+  a = a_basic.deep_merge(variants: [{ sources: four_sources,
                                         isbn: isbn }])
   @items[:features_sources][:"sources with ISBN separated by commas"] = [a]
 
@@ -595,7 +597,7 @@ class CSVParseTest < Minitest::Test
   @items[:features_sources][:"length after sources ISBN and before extra info"] = [a]
 
   a = item_hash(title:,
-                variants: [a[:variants].first.merge(sources: three_sources_with_name),
+                variants: [a[:variants].first.merge(sources: three_sources),
                            a[:variants].last])
   @items[:features_sources][:"multiple sources allowed in variant"] = [a]
 
