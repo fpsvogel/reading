@@ -27,7 +27,7 @@ Welcome! This is a guide to setting up your own CSV reading log to be parsed by 
 
 Here is the beginning of a minimal CSV reading log:
 
-```csv
+```
 \Author, Title|Dates finished
 Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06/18, 2020/5/8
@@ -41,13 +41,13 @@ Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06
 - The author is optional. The first item omits it.
 - To sum up these two rows: you haven't read *Sapiens* yet, and you've read *Goatsong* twice. Nice!
 
-If this minimal kind of reading log is what you want, see the README section ["Example custom config: disabling columns"](https://github.com/fpsvogel/reading/blob/main/README.md#example-custom-config-disabling-columns).
+If this minimal kind of reading log is what you want, see example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
 
 You could go even more minimalist and disable the Dates Finished column if you just want to keep a list of books you've read.
 
 By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns:
 
-```csv
+```
 \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
 |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20||history, wisdom|15:17|💬History with a sociological bent, with special attention paid to human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
 5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
