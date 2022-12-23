@@ -30,7 +30,7 @@ Here is the beginning of a minimal CSV reading log:
 ```
 \Author, Title|Dates finished
 Sapiens: A Brief History of Humankind
-Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|2019/06/18, 2020/5/8
+Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
 
 - The first line (containing headers) is a comment because it starts with a backslash (`\`). Comments are ignored by the parser. The header comment is not special; you can put whatever you want in it, or you can omit it altogether.
@@ -45,17 +45,17 @@ If this minimal kind of reading log is what you want, see example in the ["Custo
 
 You could go even more minimalist and disable the Dates Finished column if you just want to keep a list of books you've read.
 
-By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns:
+By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns, so that you can get an idea of what a full item looks like:
 
 ```
 \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
-|🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20||history, wisdom|15:17|💬History with a sociological bent, with special attention paid to human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
-5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
+|🔊Sapiens: A Brief History of Humankind|Hoopla B00ICN066A|2021/09/20||history, wisdom|15:17|Easy to criticize, but I like the emphasis on human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
+5|50% 📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
 ```
 
 Before we dive into each column, here are some general observations:
 
-- As we saw in our minimal example, you don't *have* to fill in every column every time. For example, the first item above omits the contents of the Rating and Dates Finished columns. Both items omit the History (rightmost) column entirely, and the second item omits the column before that as well.
+- As we've already seen in the minimal version, you don't *have* to fill in every column every time. For example, the first item above omits the contents of the Rating and Dates Finished columns. Both items omit the History (rightmost) column entirely, and the second item omits the Notes column as well.
 - The title is the only piece of information that's required on every line. Everything else is optional.
 
 ## Basics
@@ -82,10 +82,10 @@ NOTE: Parsing of the History column is TBIS (To Be Implemented Soon).
 
 The History column is handy for podcasts. Here's a common scenario: you discover a good podcast, you listen to a bunch of previous episodes until you're caught up, and then you listen to each new episode as they're released.
 
-  ```
-  \Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
-  3|🎤Flightless Bird -- with David Farrier|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- x1/week
-  ```
+```
+\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started|Dates finished|Genres|Length|Notes|History
+3|🎤Flightless Bird|Spotify|||podcast|0:50 each||2022/10/06-10/11 x23 -- x1/week
+```
 
 - In plain English this means "Each episode is 50 minutes long. From the 6th to the 12th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
 - Notice that the Dates Started and Dates Finished columns are empty. These columns are not parsed if the History column is filled in.
@@ -93,7 +93,9 @@ The History column is handy for podcasts. Here's a common scenario: you discover
 
 But that's not the only way to listen to a podcast, and so the History column is flexible. For example, what if you stopped listening to that podcast after a while?
 
-> ```3|🎤Flightless Bird -- with David Farrier|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week```
+```
+3|🎤Flightless Bird|Spotify|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week
+```
 
 - This adds, in plain English, "I stopped listening on December 14, and then on March 1 I started listening again, but now I'm listening to two episodes per week."
 - If one side of a date range is omitted (here `-12/14` and `2023/3/1-`), that date is inferred from the previous/next date, or if there is no next date then it means "up to the present".
@@ -101,7 +103,9 @@ But that's not the only way to listen to a podcast, and so the History column is
 
 What about a podcast that you listen to only occasionally? You may want to keep track of which episodes you've listened to.
 
-> ```4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible```
+```
+4|🎤The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
+```
 
 - Here's the format of each entry: `[date] [h:mm] [star if favorite] #[episode number] [creator or interviewee] [title]`
 - But as you can see, not every piece of information is spelled out in every entry. Wherever a length (duration) is omitted, the length from the previous entry is used, or the "each" length in the Length column if there is one (see the next example below). Wherever a date is omitted, the date from the previous entry is used if that was a single date, or (as in the above Flightless Bird example) the date after the previous entry is used if that was a date range.
@@ -110,50 +114,54 @@ What about a podcast that you listen to only occasionally? You may want to keep 
 OK, but what if you want to write down episode titles without having to write down every date? There's a shortcut for that too: you can have entries for the episodes sandwiched between two halves of a date range, like this:
 
 ```
-4|🎤Escriba Café|https://www.escribacafe.com|||portuguese,history,podcast|0:30 each|💬Most Portuguese podcasts are annoyingly chatty, but this one is the opposite: stories from history with high production value. Love it.|2021/04/16- Até que a morte nos separe -- Bella Luna -- Experiências -- Teorias das Conspiração -- Os tempos estão mudando -- Os Pobres Cavaleiros -- A Colônia de Roanoke -- O Legado Grego -- 2:00 Trilogia História do Brasil -- A Franco-Maçonaria -- Diabolus -- Máfia -- -4/30 William Shakespeare
+4|🎤Escriba Café||||portuguese,podcast|0:30 each||2021/04/16- Amor -- Diabolus -- Máfia -- Piratas -- 2:00 Trilogia História do Brasil -- Rapa-Nui -- Espíritos -- Inferno -- -4/30 Pompeia
 ```
 
-- In plain English: "From the 16th to the 30th of April, 2021, I listened to a bunch of episodes, starting with `Até que a morte nos separe` and ending with `William Shakespeare`."
+- In plain English: "From the 16th to the 30th of April, 2021, I listened to a bunch of episodes, starting with `Amor` and ending with `Pompeia`."
 - `0:30 each` in the Length column is the default length, applied to all entries where it's omitted, but the episode `Trilogia História do Brasil` is longer and overrides that default.
 
 If you've planned out which episodes you want to listen to, you can mark them down as planned simply by a question mark (`?`) in place of the date.
 
 ```
-|🎤Pray as you go|https://soundcloud.com/pray-as-you-go/sets|||religion,podcast|||2022/07/12-17 1:39 Imaginative Contemplation -- 8/29-9/7 1:04 Acts of the Apostles -- ? 2:13 All the Generations -- 2:01 Dwelling with God -- 2:29 God with Us -- 1:34 God's Grandeur
+|🎤Pray as you go||||religion,podcast|||2022/07/12-17 1:39 Imaginative Contemplation -- 8/29-9/7 1:04 Acts -- ? 2:29 God with Us -- 1:34 God's Grandeur -- DNF 1:17 Way of the Cross
 ```
 
-- As with a date, the question mark carries over to omitted dates in subsequent entries, so only the first planned item (`All the Generations`) needs a question mark.
+- As with a date, the question mark carries over to omitted dates in subsequent entries, so only the first planned item (`God with Us`) needs a question mark.
 
 But then what if you don't like that podcast and you end up DNF'ing parts of it? Here's how to record that:
 
 ```
-2|DNF 🎤Pray as you go|https://soundcloud.com/pray-as-you-go/sets|||religion,podcast|||2022/07/12-17 1:39 Imaginative Contemplation -- 8/29-9/7 1:04 Acts of the Apostles -- DNF 30% -9/17 2:13 All the Generations -- DNF (0:15) 2:01 Dwelling with God -- DNF 2:29 God with Us -- DNF 1:34 God's Grandeur
+2|DNF 🎤Pray as you go||||religion,podcast|||2022/07/12-17 1:39 Imaginative Contemplation -- 8/29-9/7 1:04 Acts -- DNF 30% -9/17 2:13 God with Us -- DNF @0:15 2:01 God's Grandeur -- DNF 1:17 Way of the Cross
 ```
 
-- As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%. The only difference is that in the History column, lengths for DNFs need to be in parentheses (such as `DNF (0:15)` in this example) because otherwise it would be hard to distinguish the DNF length from the length of the episode.
+- As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%. The only difference is that in the History column, lengths for DNFs need to be preceded by `@` (such as `DNF @0:15` in this example) because otherwise it would be hard to distinguish the DNF length from the length of the episode.
 - The `DNF` near the beginning of the row, just before the title, actually has no meaning whenever the History column is filled in; it's just a handy visual marker.
 
 Thus far we've been talking about podcasts, but you can use the History column to track any kind of item. Here's a TV show, for example:
 
 ```
-\------ DONE
-4|🎞️Eyes on the Prize: America's Civil Rights Movement|https://worldchannel.org/show/eyes-on-the-prize|||history|1:00 each x14||2021/1/28-2/1 x4 -- -2/3 x5 -- 2/7 -- 2/9 x4 ---- 11/1 -- 11/2
+4|🎞️Eyes on the Prize||||history|1:00 each x14||2021/1/28-2/1 x4 -- -2/3 x5 -- 2/7 -- 2/9 x4 ---- 11/1 -- 11/2
 ```
 
 - `x14` in the Length column means "There are 14 episodes in total." This gives the item a definite length. It has the same effect as writing `14:00` in the Length column and `1:00 x4` in the first entry, to make all the other entries default to one hour. A third equivalent would be to have just `1:00 each` in the Length column, have `1:00 x4` in the first entry, and then make the last entry of the first watching `2/9 x4 done`, meaning you were done after that one.
 - ` ---- ` indicates a re-watching of the show.
 - So in plain English: "Each episode is an hour long, and there are 14 episodes. From the 28th of January to the 1st of February, 2021, I watched 4 episodes. From the 2nd to the 3rd of February I watched 5 episodes. On the 7th I watched another episode, and on the 9th I watched four more. In November I started the series over, watching an episode on the 1st and another on the 2nd."
 
-Using the History column you can even track your progress in a book.
+Books work with the History column, too.
 
 ```
-5|📕John Green - The Anthropocene Reviewed|Lexpub B08GJVLGGX|||essays|293||2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done
+3|📕Cultish||||religion|319||2022/5/1 @31p -- 5/2 @54p -- 5/6-15 10p -- 5/20 @200p -- 5/21-23 done
 ```
 
-- Length can be in pages, such as `5/1 p31` meaning "On 5/1 I read through page 31."
-- To do the same with times (e.g. for an audiobook), use a leading hyphen: `5/1 -1:00` means "On the 1st of May I listened/watched up to the one-hour mark."
-- But in another entry, `5/6-15 10p`, the "p" comes after the number. This means "Between 5/6 and 5/15 I read 10 pages per day."
-- This example means, in plain English: "The book is 293 pages long. On the 1st of March, 2022, I read up to page 31. On the 2nd I read up to page 54. From the 6th through the 15th I read 10 pages per day. Then on the 20th, I read up to page 200, and from the 21st to the 23rd I finished the book."
+- `@` means "I stopped at", such as `5/1 @31p` meaning "On 5/1 I stopped at page 31."
+- Contrast that with the entry `5/6-15 10p`, without the `@`. Here the page count is an amount read, not a stopping point. This entry means "Between 5/6 and 5/15 I read 10 pages per day."
+- The whole example means, in plain English: "The book is 319 pages long. On the 1st of March, 2022, I read up to page 31. On the 2nd I read up to page 54. From the 6th through the 15th I read 10 pages per day. Then on the 20th, I read up to page 200, and from the 21st to the 23rd I finished the book."
+
+And here's an audiobook with a History column similar to the last example:
+
+```
+4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6-15 0:30 -- 5/20 @6:50 -- 5/21-23 done
+```
 
 ### Misc. advanced
 
