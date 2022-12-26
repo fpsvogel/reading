@@ -16,13 +16,12 @@ module Reading
 
           variant =
             {
-              format: format(variant_str) ||
-                        format(item_head)               || template.fetch(:format),
-              sources: sources(variant_str)             || template.fetch(:sources),
-              isbn: isbn(variant_str)                   || template.fetch(:isbn),
-              length: length(variant_str)               || template.fetch(:length),
+              format: format(variant_str) || format(item_head)  || template.fetch(:format),
+              sources: sources(variant_str)                     || template.fetch(:sources),
+              isbn: isbn(variant_str)                           || template.fetch(:isbn),
+              length: length_in_variant_or_length(variant_str)  || template.fetch(:length),
               extra_info: extra_info(variant_with_extra_info) ||
-                            extra_info(item_head)       || template.fetch(:extra_info)
+                                          extra_info(item_head) || template.fetch(:extra_info)
             }
 
           if variant != template
@@ -61,7 +60,7 @@ module Reading
         str.strip.match(pages_regex)&.captures&.first&.to_i
       end
 
-      def length(variant_str)
+      def length_in_variant_or_length(variant_str)
         in_variant = length_in(
           variant_str,
           time_regex: config.deep_fetch(:csv, :regex, :time_length_in_variant),

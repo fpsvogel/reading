@@ -6,6 +6,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 
 - [Why am I building this?](#why-am-i-building-this)
 - [Installation](#installation)
+- [Docs](#docs)
 - [Usage](#usage)
   - [Custom config](#custom-config)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
@@ -17,7 +18,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 Because I love reading and keeping track of my reading, but I don't like the limitations of Goodreads and similar sites. In particular:
 
 - I don't like going into a site or app every time I want to make a small change such as adding a note. I find it much faster to edit a plain text file which I always have open on my computer, or which I can quickly pull up on my phone via a Dropbox-syncing text editor (I use the Android app [Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox)).
-- I don't like being limited to a database of existing book metadata. In Goodreads you can add new titles to their database, but it's cumbersome. Plus, it's nice to be able to track items other than books.
+- I don't like being limited to a database of existing book metadata. In Goodreads you can add new titles to their database, but it's cumbersome. Plus, it's nice to be able to track items other than books, such podcasts.
 - On Goodreads, my reading data is theirs, not mine.
 
 So I started tracking my reading and notes directly in a CSV file. Then a problem arose: how to share my reading log with friends? I'm sure they wouldn't want to wade through my massive CSV file.
@@ -40,9 +41,15 @@ Or install it yourself as:
 
     $ gem install reading
 
-## Usage
+## Docs
 
-This section is about how to use the gem. For how to set up your own CSV reading log, see the [CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.md). The CSV parsing features are also documented ad nauseam in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
+For how to set up your own CSV reading log, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md).
+
+Then for more on the structure into which the Reading gem parses the CSV rows, see the [Parsed Output Guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md).
+
+The CSV features are also documented ad nauseam in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
+
+## Usage
 
 The most basic usage of the gem is simply to specify the path to your CSV reading log, and it will be parsed with the default configuration. See [CSV documentation](#csv-documentation) below to learn about the expected format of the CSV file.
 
@@ -70,7 +77,7 @@ items = csv.parse
 
 To use custom configuration, pass a config hash when initializing.
 
-Here's an example. If you don't want to use all the columns (as in [the basic example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format-guide.md#a-minimal-reading-log)), you'll need to initialize a `Reading::CSV` with a config including only the desired columns, like this:
+Here's an example. If you don't want to use all the columns (as in [the basic example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)), you'll need to initialize a `Reading::CSV` with a config including only the desired columns, like this:
 
 ```ruby
 require "reading/csv"

@@ -65,7 +65,8 @@ module Reading
         [{
           dates: started..finished,
           amount: nil,
-          description: nil,
+          name: nil,
+          favorite?: false,
         }]
       end
 

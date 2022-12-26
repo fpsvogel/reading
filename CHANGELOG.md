@@ -5,11 +5,15 @@
 ## [0.8.0] - upcoming
 
 - Improved the docs.
+  - Expanded the CSV Format Guide.
+  - Added a Parsed Item Guide.
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
 - Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
+- Moved `progress` from `experiences` down into `spans`.
+- Made `progress` default to `1.0` for `spans` with an end date.
 - Simplified the Source column by removing custom URL names.
 - Added features to compact planned rows:
-  - Single-item compact planned rows.
+  - Single-item compact planned rows (optionally with Sources column).
   - Naming a source at the beginning of the row.
   - Multiple genres at the beginning of the row.
   - Certain config-defined emojis are ignored.
@@ -18,6 +22,7 @@
 
 - Added docs.
 - Added date validations.
+- Parse each date string into a `Date`.
 - Removed unused features: date added, visibility, multiple format emojis in compact planned items.
 - Removed two little-used columns, Blurb and Private Notes, making them specially-marked Notes instead. Notes are now structured as an array of hashes rather than a simple array of strings.
 

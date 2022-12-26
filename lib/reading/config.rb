@@ -81,6 +81,7 @@ module Reading
                 rating: nil,
                 author: nil,
                 title: nil,
+                genres: [],
                 series:
                   [{
                     name: nil,
@@ -104,13 +105,13 @@ module Reading
                       [{
                         dates: nil,
                         amount: nil,
-                        description: nil,
+                        name: nil,
+                        favorite?: false,
                       }],
                     progress: nil,
                     group: nil,
                     variant_index: 0,
                   }],
-                genres: [],
                 notes:
                   [{
                     blurb?: false,
@@ -151,7 +152,7 @@ module Reading
             blurb_emoji:              "💬",
             private_emoji:            "🔒",
             compact_planned_source_prefix: "@",
-            compact_planned_ignored:  "✅💲❓⏳",
+            compact_planned_ignored:  "✅💲❓⏳⭐",
             skip_compact_planned:     false,
           },
       }
@@ -178,7 +179,7 @@ module Reading
       isbn = /#{isbn_lookbehind}#{isbn_bare_regex.source}#{isbn_lookahead}/
 
       {
-        compact_planned_row_start: /\A\s*#{comment_character}\s*(?:(?<genres>[^a-z@:\|]+)\s*(?<sources>@[^\|]+)?\s*:)?\s*(?=#{formats})/,
+        compact_planned_row_start: /\A\s*#{comment_character}\s*(?:(?<genres>[^a-z@:\|]+)?\s*(?<sources>@[^\|]+)?\s*:)?\s*(?=#{formats})/,
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
         formats: /#{formats}/,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,

@@ -5,17 +5,17 @@
 ; You will probably want to customize the hotkeys.
 ; See https://www.autohotkey.com/docs/Hotkeys.htm
 
-; today's date
+; Today's date
 !\::
   SendInput %A_YYYY%/%A_MM%/%A_DD%
   Sleep 50
   ReleaseAlt()
 return
 
-; create a row
-; uses the text in the current line (if any) as the title and source columns.
-; the title can optionally be followed by a semicolon and then an ISBN/link.
-; if a comment character (\) starts the line, delete it.
+; Create a row
+; Uses the text in the current line (if any) as the Head and Sources columns.
+; The head (title) can optionally be followed by a pipe character and then a Sources column.
+; If a comment character (\) starts the line, delete it.
 !b::
   oCB := ClipboardAll
   Clipboard := ""

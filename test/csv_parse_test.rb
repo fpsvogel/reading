@@ -234,6 +234,8 @@ class CSVParseTest < Minitest::Test
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla",
   :"multiple" =>
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
+  :"multiple with source" =>
+    "\\@Lexpub: ⚡Tom Holt - A Song for Nero @Hoopla 🔊True Grit",
   :"multiple with genre" =>
     "\\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
   :"multiple with multiple genres" =>
@@ -678,6 +680,8 @@ class CSVParseTest < Minitest::Test
                                     sources: [{ name: "Lexpub" }] }])
   @items[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 
+  @items[:features_compact_planned][:"multiple with source"] = [a_sources, b_sources]
+
   a_genre = a_sources.merge(genres: ["historical fiction"])
   b_genre = b_sources.merge(genres: ["historical fiction"])
   @items[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
@@ -706,13 +710,13 @@ class CSVParseTest < Minitest::Test
     title: "Fullstack Ruby",
     experiences: [{ spans: [
       { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
-        description: "#1 Why Ruby2JS is a Game Changer" },
+        name: "#1 Why Ruby2JS is a Game Changer" },
       { dates: Date.parse("2021/12/21")..Date.parse("2021/12/21"),
-        description: "#2 Componentized View Architecture FTW!" },
+        name: "#2 Componentized View Architecture FTW!" },
       { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
-        description: "#3 String-Based Templates vs. DSLs" }] }],
+        name: "#3 String-Based Templates vs. DSLs" }] }],
   )
-  @items[:features_history][:"dates and descriptions"] = [a]
+  @items[:features_history][:"dates and names"] = [a]
 
   a = a.merge(
     experiences: [{ spans: [
