@@ -11,12 +11,13 @@ module Reading
 
         format_as_separator = config.deep_fetch(:csv, :regex, :formats_split)
 
-        sources_str.split(format_as_separator).map { |variant_with_extra_info|
-          bare_variant = variant_with_extra_info
+        sources_str.split(format_as_separator).map { |variant_with_extras|
+          # without extra info or series
+          bare_variant = variant_with_extras
             .split(config.deep_fetch(:csv, :long_separator))
             .first
 
-          series = SeriesSubattribute.new(item_head:, variant_with_extra_info:, config:)
+          series = SeriesSubattribute.new(item_head:, variant_with_extras:, config:)
           sources = SourcesSubattribute.new(bare_variant:, config:)
 
           variant =
@@ -26,7 +27,7 @@ module Reading
               sources: sources.parse                            || template.fetch(:sources),
               isbn: isbn(bare_variant)                          || template.fetch(:isbn),
               length: length_in_variant_or_length(bare_variant) || template.fetch(:length),
-              extra_info: extra_info(variant_with_extra_info) ||
+              extra_info: extra_info(variant_with_extras) ||
                                           extra_info(item_head) || template.fetch(:extra_info)
             }
 

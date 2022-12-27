@@ -113,17 +113,17 @@ Only the title is always required. The format and author are optional.
 
 These are the formats and their corresponding emojis, defined in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb):
 
-Format     |Emoji
------------|-----
-`print`    |📕
-`ebook`    |⚡
-`audiobook`|🔊
-`pdf`      |📄
-`audio`    |🎤
-`video`    |🎞️
-`course`   |🏫
-`piece`    |✏️
-`website`  |🌐
+Emoji|Format
+-----|------
+📕  |`print`
+⚡  |`ebook`
+🔊  |`audiobook`
+📄  |`pdf`
+🎤  |`audio`
+🎞️  |`video`
+🏫  |`course`
+✏️  |`piece`
+🌐  |`website`
 
 You can define your own formats via a custom config, similar to the example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
 
@@ -392,15 +392,15 @@ Utopia|📕039393246X 🔊https://librivox.org/utopia-by-thomas-more
 Hamlet|📕own 0141396504 📕Lexpub B07C8956BH
 ```
 
-But variants can specify more than just format and sources. They can specify extra info as well. Earlier we saw these in the Head column, but if they are specific to a variant then they should be in the Sources column instead (but if any extra info should apply to all variants, then keep it in the Head column):
+But variants can specify more than just format and sources. They can specify extra info and series as well. Earlier we saw these in the Head column, but if they are specific to a variant then they should be in the Sources column instead (but if any extra info should apply to all variants, then keep it in the Head column):
 
 ```
 \Title|Sources
 Utopia|📕039393246X -- trans. Robert Adams -- ed. George Logan 🔊https://librivox.org/utopia-by-thomas-more
-Hamlet -- paperback|📕own 0141396504 📕Lexpub B07C8956BH -- No Fear translation
+Hamlet -- paperback|📕own 0141396504 📕Lexpub B07C8956BH -- in No Fear Shakespeare
 ```
 
-An item's length also probably belongs with a specific variant. You can specify the length at the end of the main part of the variant string, just before any extra info:
+An item's length also probably belongs with a specific variant. You can specify the length at the end of the main part of the variant string, just before any series or extra info:
 
 ```
 \Title|Sources
@@ -575,10 +575,10 @@ And here's an audiobook with a History column similar to the last example:
 4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6-15 0:30 -- 5/20 @6:50 -- 5/21-23 done
 ```
 
-A variant can be specified similar to how we've seen in the Dates Started column. For example, if you start re-reading Born a Crime but this time in print:
+A variant and group can be specified similar to how we've seen in the Dates Started column. For example, if you start re-reading Born a Crime but this time in print, and with a friend:
 
 ```
-4|Born a Crime|🔊📕|||memoir|8:44||2021/5/1-5/23 done ---- v2 2022/7/1 @p50 -- 7/2 @p90
+4|Born a Crime|🔊📕|||memoir|8:44||2021/5/1-5/23 done ---- v2 🤝🏼with Jane 2022/7/1 @p50 -- 7/2 @p90
 ```
 
 So the history column is not limited to one particular format. I myself find it most useful for podcasts, but the parser is flexible enough that it can apply History entries to any kind of item.

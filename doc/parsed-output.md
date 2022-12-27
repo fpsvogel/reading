@@ -2,6 +2,7 @@
 # Parsed Output Guide
 
 // TODO:
+- Make amount default to length.
 - Make progress default to 1.0 if there is a date finished, by replacing experiences_attribute.rb:16-17 with:
               progress(columns[:head], ignore_if_no_dnf: i < started.count - 1) ||
               (1.0 if date_finished(finished, i))         || template.fetch(:progress),
@@ -17,7 +18,6 @@ Hello! This is a guide to the output of the Reading gem after it parses a CSV re
   - [`author` attribute](#author-attribute)
   - [`title` attribute](#title-attribute)
   - [`genres` attribute](#genres-attribute)
-  - [`series` attribute](#series-attribute)
   - [`notes` attribute](#notes-attribute)
   - [`variants` attribute](#variants-attribute)
   - [`experiences` attribute](#experiences-attribute)
@@ -51,7 +51,6 @@ parsed_items = [
     author: nil, # Head ("Title") column
     title: "Sapiens: A Brief History of Humankind", # Head
     genres: [], # Genres
-    series: [], # Head
     variants: [], # Head, Sources, Length
     experiences: [], # Dates Started, Dates Finished, History, Head
     notes: [], # Notes
@@ -61,7 +60,6 @@ parsed_items = [
     author: "Tom Holt",
     title: "Goatsong",
     genres: [],
-    series: [],
     variants: [],
     experiences:
       [{
@@ -152,23 +150,6 @@ item = {
 }
 ```
 
-### `series` attribute
-
-CSV column: [**Head**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-series-and-volume)
-
-```ruby
-item = {
-  series:
-    [
-      {
-        name: "Discworld",
-        volume: 21,
-      },
-    ],
-  # ...
-}
-```
-
 ### `notes` attribute
 
 CSV column: **Notes**:
@@ -198,10 +179,11 @@ CSV columns:
 
 - **Head**:
   - [for `format`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title)
+  - [for `series`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-series-and-volume)
   - [for `extra_info`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-extra-info)
 - **Sources**:
   - [for `isbn`, `sources`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column)
-  - [for `format`, `extra_info`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants)
+  - [for `format`, `series`, `extra_info`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants)
 - [**Length**](#length-column)
 
 `format` is also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-genres).
@@ -212,6 +194,13 @@ item = {
     [
       {
         format: :book,
+        series:
+          [
+            {
+              name: "Macmillan Early Modern Latin",
+              volume: nil,
+            },
+          ],
         sources:
           [
             {
@@ -240,7 +229,7 @@ CSV columns:
   - [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-column-progress)
   - [for `group`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-column-group-experience)
 - **Head** [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-dnf)
-- [**History**](#history-column)
+- [**History**](#history-column) for everything
 
 ```ruby
 item = {
@@ -293,14 +282,14 @@ parsed_items = [{
   author: "J. R. R. Tolkien",
   title: "The Fellowship of the Ring",
   genres: ["fiction"],
-  series:
-    [{
-      name: "The Lord of the Rings",
-      volume: 1,
-    }],
   variants:
     [{
       format: :book,
+      series:
+        [{
+          name: "The Lord of the Rings",
+          volume: 1,
+        }],
       sources:
         [{
           name: "own",
@@ -316,6 +305,11 @@ parsed_items = [{
     },
     {
       format: :audiobook,
+      series:
+        [{
+          name: "The Lord of the Rings",
+          volume: 1,
+        }],
       sources:
         [{
           name: "Internet Archive", # see default_config[:item][:sources][:names_from_urls]
@@ -392,12 +386,11 @@ parsed_items = [{
   author: nil,
   title: "Flightless Bird",
   genres: ["podcast"],
-  series: [],
   variants:
     [{
       format: :audio,
-      sources:
-        [],
+      series: [],
+      sources: [],
       isbn: nil,
       length: nil,
       extra_info: [],

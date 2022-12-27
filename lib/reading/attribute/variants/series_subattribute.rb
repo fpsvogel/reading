@@ -3,19 +3,19 @@ module Reading
     class SeriesSubattribute
       using Util::HashArrayDeepFetch
 
-      private attr_reader :item_head, :variant_with_extra_info, :config
+      private attr_reader :item_head, :variant_with_extras, :config
 
       # @param item_head [String] see Row#item_heads for a definition.
-      # @param variant_with_extra_info [String] the full variant string.
+      # @param variant_with_extras [String] the full variant string.
       # @param config [Hash]
-      def initialize(item_head:, variant_with_extra_info:, config:)
+      def initialize(item_head:, variant_with_extras:, config:)
         @item_head = item_head
-        @variant_with_extra_info = variant_with_extra_info
+        @variant_with_extras = variant_with_extras
         @config = config
       end
 
       def parse
-        separated = [item_head, variant_with_extra_info].map { |str|
+        separated = [item_head, variant_with_extras].map { |str|
           str.split(config.deep_fetch(:csv, :long_separator))
             .map(&:strip)
             .map(&:presence)
