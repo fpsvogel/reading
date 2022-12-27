@@ -296,6 +296,8 @@ In these cases, I like putting each planned item on its own line with a Sources 
 
 This will be parsed as normal Head and Sources columns. If you want more columns than that, then just change it to a non-compact item by removing the comment character and adding in all the missing columns.
 
+One reason I like this form is that [an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.rb) recognizes a compact planned item and incorporates it into the new row, and having a Sources column ready to go means less work changing the planned item into a regular row.
+
 ### Compact planned items: ignored emojis
 
 In a row of compact planned items, certain emojis are ignored. For the default list, see `default_config[:csv][:compact_planned_ignored_chars]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
