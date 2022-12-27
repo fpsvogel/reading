@@ -111,6 +111,22 @@ Carl Sagan - Cosmos
 
 Only the title is always required. The format and author are optional.
 
+These are the formats and their corresponding emojis, defined in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb):
+
+Format     |Emoji
+-----------|-----
+`print`    |📕
+`ebook`    |⚡
+`audiobook`|🔊
+`pdf`      |📄
+`audio`    |🎤
+`video`    |🎞️
+`course`   |🏫
+`piece`    |✏️
+`website`  |🌐
+
+You can define your own formats via a custom config, similar to the example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
+
 ### Sources column
 
 The Sources column is for a few different pieces of information. Here are a few things it can include.
