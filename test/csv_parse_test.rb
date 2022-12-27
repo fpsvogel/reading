@@ -290,7 +290,7 @@ class CSVParseTest < Minitest::Test
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20||history, wisdom|15:17|💬History with a sociological bent, with special attention paid to human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.
-    5|50% 📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
+    5|📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 50% 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
   @files[:examples][:"done"] = <<~EOM.freeze
     \\------ DONE
@@ -507,26 +507,26 @@ class CSVParseTest < Minitest::Test
 
   @items[:features_head][:"multi items with a long separator"] = [a_with_format, b]
 
-  half_progress = { experiences: [{ progress: 0.5 }] }
+  half_progress = { experiences: [{ spans: [{ progress: 0.5 }] }] }
   a = item_hash(title: "Goatsong", **half_progress)
   @items[:features_head][:"progress"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ progress: 220 }])
+  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 220 }] }])
   @items[:features_head][:"progress pages"] = [a]
 
   @items[:features_head][:"progress pages without p"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ progress: "2:30" }])
+  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: "2:30" }] }])
   @items[:features_head][:"progress time"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ progress: 0 }])
+  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 0 }] }])
   @items[:features_head][:"dnf"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ progress: 0.5 }])
+  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 0.5 }] }])
   @items[:features_head][:"dnf with progress"] = [a]
 
-  a = a_with_format.deep_merge(experiences: [{ progress: 0 }])
-  b = b.deep_merge(experiences: [{ progress: 0 }])
+  a = a_with_format.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
+  b = b.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
   @items[:features_head][:"dnf with multi items"] = [a, b]
 
   full_variants = variants_with_extra_info.deep_merge(variants: [series_with_volume])
@@ -642,7 +642,7 @@ class CSVParseTest < Minitest::Test
   z = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
   @items[:features_dates_started][:"dates started in any order"] = [z]
 
-  exp_progress = ->(amount) { { experiences: [{ progress: amount }] } }
+  exp_progress = ->(amount) { { experiences: [{ spans: [{ progress: amount }] }] } }
   a_halfway = a_started.deep_merge(exp_progress.call(0.5))
   @items[:features_dates_started][:"progress"] = [a_halfway]
 
@@ -673,9 +673,9 @@ class CSVParseTest < Minitest::Test
   @items[:features_dates_started][:"other text before or after dates is ignored"] = [a_started]
 
   a_many = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
-  a = a_many.deep_merge(experiences: [{ progress: 0.5,
+  a = a_many.deep_merge(experiences: [{ spans: [{ progress: 0.5 }],
                                         variant_index: 1 },
-                                      { progress: "2:30" }])
+                                      { spans: [{ progress: "2:30" }] }])
   @items[:features_dates_started][:"all features"] = [a]
 
 
@@ -787,8 +787,8 @@ class CSVParseTest < Minitest::Test
                   { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23"),
                               amount: 247 }] },
                   { spans: [{ dates: Date.parse("2021/08/17")..,
-                              amount: 247 }],
-                    progress: 0.5 }],
+                              amount: 247,
+                              progress: 0.5 }] }],
     genres: ["historical fiction"],
   )
   @items[:examples][:"in progress"] = [sapiens, goatsong]
@@ -819,11 +819,11 @@ class CSVParseTest < Minitest::Test
                     isbn: "B01NCYY3BV",
                     length: "10:13" }],
     experiences: [{ spans: [{ dates: Date.parse("2020/03/21")..Date.parse("2020/04/01"),
-                              amount: "10:13" }],
-                    progress: 0.5 },
+                              amount: "10:13",
+                              progress: 0.5 }] },
                   { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11"),
-                              amount: "10:13" }],
-                    progress: "4:45" }],
+                              amount: "10:13",
+                              progress: "4:45" }] }],
     genres: %w[cats],
     notes: [{ private?: true, content: "I would've felt bad if I hadn't tried." }],
   )
@@ -833,8 +833,8 @@ class CSVParseTest < Minitest::Test
     variants:    [{ format: :audio,
                     length: "0:30" }],
     experiences: [{ spans: [{ dates: Date.parse("2021/08/02")..Date.parse("2021/08/02"),
-                              amount: "0:30" }],
-                    progress: 0,
+                              amount: "0:30",
+                              progress: 0 }],
                     variant_index: 0 }],
     genres: %w[politics podcast],
     notes: [{ content: "Not very deep. Disappointing." }],

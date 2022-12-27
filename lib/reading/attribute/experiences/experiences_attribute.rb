@@ -1,4 +1,5 @@
 require_relative "spans_subattribute"
+require_relative "progress_subattribute"
 require_relative "dates_validator"
 require "date"
 
@@ -6,6 +7,7 @@ module Reading
   class Row
     class ExperiencesAttribute < Attribute
       using Util::HashArrayDeepFetch
+      using Util::HashDeepMerge
 
       def parse
         started, finished = dates_split(columns)
@@ -15,10 +17,7 @@ module Reading
           spans_attr = SpansSubattribute.new(date_entry: entry, dates_finished: finished, date_index: i, variant_index:, columns:, config:)
 
           {
-            spans: spans_attr.parse                            || template.fetch(:spans),
-            progress: progress(entry) ||
-              progress(columns[:head],
-                  ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
+            spans: spans_attr.parse                       || template.fetch(:spans),
             group: group(entry)                           || template.fetch(:group),
             variant_index: variant_index                  || template.fetch(:variant_index)
           }
@@ -30,8 +29,8 @@ module Reading
 
           return experiences_with_dates
         else
-          if prog = progress(columns[:head])
-            return [template.merge(progress: prog)]
+          if prog = ProgressSubattribute.new(columns:, config:).parse_head_only
+            return [template.deep_merge(spans: [{ progress: prog }] )]
           else
             return nil
           end
@@ -59,26 +58,6 @@ module Reading
           end
 
         [dates_started, dates_finished]
-      end
-
-      def progress(str, ignore_if_no_dnf: false)
-        dnf = str.match(config.deep_fetch(:csv, :regex, :dnf))&.captures&.first
-
-        if dnf || !ignore_if_no_dnf
-          match = str.match(config.deep_fetch(:csv, :regex, :progress))
-          if match
-            if prog_percent = match[:percent]&.to_i
-              return prog_percent / 100.0
-            elsif prog_time = match[:time]
-              return prog_time
-            elsif prog_pages = match[:pages]&.to_i
-              return prog_pages
-            end
-          end
-        end
-
-        return 0 if dnf
-        nil
       end
 
       def group(entry)

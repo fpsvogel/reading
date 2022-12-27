@@ -2,6 +2,7 @@
 # Parsed Output Guide
 
 // TODO:
+- make subattributes default to template
 - Make progress default to 1.0 if there is a date finished, by replacing experiences_attribute.rb:16-17 with:
               progress(columns[:head], ignore_if_no_dnf: i < started.count - 1) ||
               (1.0 if date_finished(finished, i))         || template.fetch(:progress),

@@ -37,10 +37,13 @@ module Reading
         [{
           dates: started..finished,
           amount: length,
+          progress: ProgressSubattribute.new(date_entry:, variant_index:, columns:, config:).parse,
           name: nil,
           favorite?: false,
         }]
       end
+
+      private
 
       def date_started(date_entry)
         dates = date_entry.scan(config.deep_fetch(:csv, :regex, :date))

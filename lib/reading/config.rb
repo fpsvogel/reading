@@ -105,10 +105,10 @@ module Reading
                       [{
                         dates: nil,
                         amount: nil,
+                        progress: nil,
                         name: nil,
                         favorite?: false,
                       }],
-                    progress: nil,
                     group: nil,
                     variant_index: 0,
                   }],
