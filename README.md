@@ -49,11 +49,11 @@ $ gem install reading
 
 ## Docs
 
-On how to set up your own CSV reading log: [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md).
+[CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md) on how to set up your own CSV reading log.
 
-On the structure into which the Reading gem parses the CSV rows: [Parsed Output Guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md).
+[Parsed Output Guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md) on the structure into which the Reading gem parses the CSV rows.
 
-The CSV features are also documented with examples in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
+[`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb) also documents the CSV features via examples.
 
 ## Usage
 
@@ -106,10 +106,7 @@ require "reading/csv"
 
 custom_config = {
   csv: {
-    enabled_columns: %i[
-      head
-      dates_finished
-    ]
+    enabled_columns: [:head, :dates_finished]
   }
 }
 file_path = "/home/user/reading.csv"
@@ -119,7 +116,9 @@ items = csv.parse
 
 ## How to add a reading page to your site
 
-After Reading parses your CSV reading log, it's up to you to display that parsed information on a webpage. I've set up my personal site so that it automatically parses my reading log during site generation, and it's even automatically generated every week to update my reading page. I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-bridgetown), which may give you ideas even if you don't use [Bridgetown](https://www.bridgetownrb.com/) to build your site… but you should use Bridgetown, it's great 😉
+After Reading parses your CSV reading log, it's up to you to display that parsed information on a webpage. I've set up my personal site so that it automatically parses my reading log during site generation, and it's even automatically generated every week. That means my site's Reading page automatically syncs to my reading log on a weekly basis.
+
+I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-bridgetown), which may give you ideas even if you don't use [Bridgetown](https://www.bridgetownrb.com/) to build your site… but you should use Bridgetown, it's great 😉
 
 ## Contributing
 

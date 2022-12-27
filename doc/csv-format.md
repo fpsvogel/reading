@@ -44,6 +44,7 @@ This guide is written to show you what your reading log CSV file should look lik
 
 - I highly recommend the [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) for VS Code. It's perfect for editing CSV files with potentially long columns, as your reading log is likely to have.
 - Entering a row is much less cumbersome if you set up keyboard shortcuts for a row template and for today's date. I myself use [an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.rb) for this.
+- To edit your reading log on mobile devices, you can save the CSV file in the cloud and use a cloud-syncing text editor mobile app. I use the Android app [Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox), which syncs to Dropbox.
 
 ## A minimal reading log
 

@@ -2,7 +2,7 @@
 
 - Add parsing of the History column.
 
-## [0.6.0] - upcoming
+## [0.6.0] - 2022-12-27
 
 - Improved the docs.
   - Expanded the CSV Format Guide.
