@@ -1,5 +1,5 @@
 require_relative "attribute"
-require_relative "variants_attribute"
+require_relative "variants/variants_attribute"
 require_relative "experiences/experiences_attribute"
 
 module Reading
@@ -45,36 +45,6 @@ module Reading
           .remove(/#{config.deep_fetch(:csv, :long_separator)}.+\z/)
           .strip
           .presence || (raise InvalidHeadError, "Missing title")
-      end
-    end
-
-    class SeriesAttribute < Attribute
-      def parse
-        separated = item_head
-          .split(config.deep_fetch(:csv, :long_separator))
-          .map(&:strip)
-          .map(&:presence)
-          .compact
-
-        separated.delete_at(0) # everything before the series/extra info
-
-        separated.map { |str|
-          volume = str.match(config.deep_fetch(:csv, :regex, :series_volume))
-          prefix = "#{config.deep_fetch(:csv, :series_prefix)} "
-
-          if volume || str.start_with?(prefix)
-            {
-              name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
-              volume: volume&.captures&.first&.to_i                      || default[:volume],
-            }
-          end
-        }.compact.presence
-      end
-
-      private
-
-      def default
-        config.deep_fetch(:item, :template, :series).first
       end
     end
 

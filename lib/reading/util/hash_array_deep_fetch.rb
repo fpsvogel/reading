@@ -21,6 +21,8 @@ module Reading
           fetch(keys[0]).fetch(keys[1]).fetch(keys[2])
         when 4
           fetch(keys[0]).fetch(keys[1]).fetch(keys[2]).fetch(keys[3])
+        when 5
+          fetch(keys[0]).fetch(keys[1]).fetch(keys[2]).fetch(keys[3]).fetch(keys[4])
         else
           raise FetchDepthExceededError, "#deep_fetch can't fetch that deep!"
         end

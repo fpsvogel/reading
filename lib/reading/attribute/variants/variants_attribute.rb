@@ -1,3 +1,5 @@
+require_relative "series_subattribute"
+
 module Reading
   class Row
     class VariantsAttribute < Attribute
@@ -10,16 +12,19 @@ module Reading
         format_as_separator = config.deep_fetch(:csv, :regex, :formats_split)
 
         sources_str.split(format_as_separator).map { |variant_with_extra_info|
-          variant_str = variant_with_extra_info
+          bare_variant = variant_with_extra_info
             .split(config.deep_fetch(:csv, :long_separator))
             .first
 
+          series = SeriesSubattribute.new(item_head:, variant_with_extra_info:, config:)
+
           variant =
             {
-              format: format(variant_str) || format(item_head)  || template.fetch(:format),
-              sources: sources(variant_str)                     || template.fetch(:sources),
-              isbn: isbn(variant_str)                           || template.fetch(:isbn),
-              length: length_in_variant_or_length(variant_str)  || template.fetch(:length),
+              format: format(bare_variant) || format(item_head) || template.fetch(:format),
+              series: series.parse                              || template.fetch(:series),
+              sources: sources(bare_variant)                    || template.fetch(:sources),
+              isbn: isbn(bare_variant)                          || template.fetch(:isbn),
+              length: length_in_variant_or_length(bare_variant) || template.fetch(:length),
               extra_info: extra_info(variant_with_extra_info) ||
                                           extra_info(item_head) || template.fetch(:extra_info)
             }

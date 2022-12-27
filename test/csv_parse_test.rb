@@ -184,6 +184,8 @@ class CSVParseTest < Minitest::Test
     "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
   :"optional long separator can be added between variants" =>
     "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
+  :"variant with extra info and series" =>
+    "Goatsong|📕Little Library -- unabridged -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
   :"length after sources ISBN and before extra info" =>
     "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
@@ -476,11 +478,11 @@ class CSVParseTest < Minitest::Test
   a_basic = item_hash(author: "Tom Holt", title: "Goatsong")
   @items[:features_head][:"author"] = [a_basic]
 
-  a = a_basic.deep_merge(series: [{ name: "The Walled Orchard" }])
+  a = a_basic.deep_merge(variants: [{ series: [{ name: "The Walled Orchard" }] }])
   @items[:features_head][:"series"] = [a]
 
-  a = a.deep_merge(series: [{ volume: 1 }])
-  series_with_volume = a.slice(:series)
+  a = a.deep_merge(variants: [{ series: [{ volume: 1 }] }])
+  series_with_volume = a[:variants].first.slice(:series)
   @items[:features_head][:"series with volume"] = [a]
 
   extra_info = %w[unabridged 1990]
@@ -488,7 +490,7 @@ class CSVParseTest < Minitest::Test
   a = a_basic.deep_merge(variants_with_extra_info)
   @items[:features_head][:"extra info"] = [a]
 
-  a = a.merge(series_with_volume)
+  a = a.deep_merge(variants: [series_with_volume])
   @items[:features_head][:"extra info and series"] = [a]
 
   a_with_format = a_basic.deep_merge(variants: [{ format: :print }])
@@ -523,7 +525,8 @@ class CSVParseTest < Minitest::Test
   b = b.deep_merge(experiences: [{ progress: 0 }])
   @items[:features_head][:"dnf with multi items"] = [a, b]
 
-  a = a.merge(series_with_volume).deep_merge(variants_with_extra_info).deep_merge(half_progress)
+  full_variants = variants_with_extra_info.deep_merge(variants: [series_with_volume])
+  a = a.deep_merge(full_variants).deep_merge(half_progress)
   b = b.deep_merge(half_progress)
   @items[:features_head][:"all features"] = [a, b]
 
@@ -600,6 +603,9 @@ class CSVParseTest < Minitest::Test
   @items[:features_sources][:"variant with extra info"] = [a]
 
   @items[:features_sources][:"optional long separator can be added between variants"] = [a]
+
+  a_with_series = a.deep_merge(variants: [{ series: [{ name: "The Walled Orchard", volume: 1 }] }])
+  @items[:features_sources][:"variant with extra info and series"] = [a_with_series]
 
   a = item_hash(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
@@ -765,9 +771,9 @@ class CSVParseTest < Minitest::Test
     rating: 5,
     author: "Tom Holt",
     title: "Goatsong: A Novel of Ancient Athens",
-    series: [{ name: "The Walled Orchard",
-               volume: 1 }],
     variants:    [{ format: :print,
+                    series: [{ name: "The Walled Orchard",
+                              volume: 1 }],
                     isbn: "0312038380",
                     length: 247 }],
     experiences: [{ spans: [{ dates: Date.parse("2019/05/28")..Date.parse("2019/06/13") }] },
@@ -782,8 +788,8 @@ class CSVParseTest < Minitest::Test
     rating: 4,
     author: "Robert Louis Stevenson",
     title: "Insula Thesauraria",
-    series: [{ name: "Mount Hope Classics" }],
     variants:    [{ format: :print,
+                    series: [{ name: "Mount Hope Classics" }],
                     isbn: "1533694567",
                     length: "8:18",
                     extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
@@ -944,13 +950,15 @@ class CSVParseTest < Minitest::Test
   def without_blank_hashes(item_hash)
     template = base_config.deep_fetch(:item, :template)
 
-    %i[series variants experiences notes].each do |attribute|
+    %i[variants experiences notes].each do |attribute|
       item_hash[attribute] =
         item_hash[attribute].reject { |value| value == template[attribute].first }
     end
 
-    # Same for inner hash array at [:variants][:sources].
+    # Same for inner hashes arrays at [:variants][:series] and [:variants][:sources].
     item_hash[:variants].each do |variant|
+      variant[:series] =
+        variant[:series].reject { |value| value == template.deep_fetch(:variants, 0, :series).first }
       variant[:sources] =
         variant[:sources].reject { |value| value == template.deep_fetch(:variants, 0, :sources).first }
     end

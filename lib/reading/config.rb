@@ -82,14 +82,14 @@ module Reading
                 author: nil,
                 title: nil,
                 genres: [],
-                series:
-                  [{
-                    name: nil,
-                    volume: nil,
-                  }],
                 variants:
                   [{
                     format: nil,
+                    series:
+                      [{
+                        name: nil,
+                        volume: nil,
+                      }],
                     sources:
                       [{
                         name: nil,
