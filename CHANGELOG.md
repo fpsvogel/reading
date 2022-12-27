@@ -8,9 +8,13 @@
   - Expanded the CSV Format Guide.
   - Added a Parsed Item Guide.
 - Changed `CSV#parse` to return Structs instead of Hashes, for more convenient dot access.
-- Added a question mark to the end of two Note attributes: `#private?` and `#blurb?`.
-- Moved `progress` from `experiences` down into `spans`.
-- Made `progress` default to `1.0` for `spans` with an end date.
+- Added a `reading` executable for testing CSV lines.
+- Changes to output structure and default values:
+  - Added a question mark to the end of two `note` sub-attributes: `#private?` and `#blurb?`.
+  - Moved `progress` from `experiences` down into `spans`.
+  - Moved `series` down into `variants`.
+  - Made `progress` default to `1.0` for `spans` with an end date.
+  - Made `amount` default to `length`.
 - Simplified the Source column by removing custom URL names.
 - Added features to compact planned rows:
   - Single-item compact planned rows (optionally with Sources column).

@@ -1,12 +1,10 @@
 <!-- omit in toc -->
 # Parsed Output Guide
 
-// TODO:
-- Make a `reading` executable, delete try.rb
-
 Hello! This is a guide to the output of the Reading gem after it parses a CSV reading log. To learn what the CSV file should look like in the first place, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md), relevant sections of which are linked below for convenience.
 
 ### Table of contents
+- [Testing CSV strings with the `reading` command](#testing-csv-strings-with-the-reading-command)
 - [Output from a minimal CSV reading log](#output-from-a-minimal-csv-reading-log)
 - [The attributes](#the-attributes)
   - [`rating` attribute](#rating-attribute)
@@ -19,6 +17,20 @@ Hello! This is a guide to the output of the Reading gem after it parses a CSV re
 - [Examples](#examples)
   - [Example: book](#example-book)
   - [Example: podcast](#example-podcast)
+
+## Testing CSV strings with the `reading` command
+
+The Reading gem provides the `reading` command which parses CSV strings and shows the output. To try it out for yourself, run this on the command line:
+
+```
+reading '3|📕Trying|Lexpub 1970147288'
+```
+
+An optional second argument can be included to specify which columns should be enabled. In this next example, the Rating column is omitted:
+
+```
+reading '📕Trying|Lexpub 1970147288' 'head, sources'
+```
 
 ## Output from a minimal CSV reading log
 

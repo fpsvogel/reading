@@ -8,6 +8,8 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 - [Installation](#installation)
 - [Docs](#docs)
 - [Usage](#usage)
+  - [Try out a CSV string](#try-out-a-csv-string)
+  - [Real usage](#real-usage)
   - [Custom config](#custom-config)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
 - [Contributing](#contributing)
@@ -51,7 +53,23 @@ The CSV features are also documented ad nauseam in [`test/csv_parse_test.rb`](ht
 
 ## Usage
 
-The most basic usage of the gem is simply to specify the path to your CSV reading log, and it will be parsed with the default configuration. See [CSV documentation](#csv-documentation) below to learn about the expected format of the CSV file.
+### Try out a CSV string
+
+To quickly see the output from a CSV string, the Reading gem provides the `reading` command. To try it out for yourself, run this on the command line:
+
+```
+reading '3|📕Trying|Lexpub 1970147288'
+```
+
+An optional second argument can be included to specify which columns should be enabled. In this next example, the Rating column is omitted:
+
+```
+reading '📕Trying|Lexpub 1970147288' 'head, sources'
+```
+
+### Real usage
+
+The most basic usage of the gem is simply to specify the path to your CSV reading log, and it will be parsed with the default configuration.
 
 ```ruby
 require "reading/csv"
