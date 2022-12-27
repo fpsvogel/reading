@@ -180,7 +180,7 @@ module Reading
 
       {
         compact_planned_row_start: /\A\s*#{comment_character}\s*(?:(?<genres>[^a-z@:\|]+)?\s*(?<sources>@[^\|]+)?\s*:)?\s*(?=#{formats})/,
-        compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@]+)(?<sources>@.+)?\z/,
+        compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@\|]+)(?<sources>@.+)?(?:\|(?<sources_column>.+))?\z/,
         formats: /#{formats}/,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
         compact_planned_ignored: /#{compact_planned_ignored}/,

@@ -266,6 +266,13 @@ You can include one or more sources after the title, each preceded by `@`:
 \🔊Kindred @Lexpub
 ```
 
+If you prefer, you can use a Sources column instead (but no other columns):
+
+```
+\📕Beloved|Lexpub, Jeffco
+\🔊Kindred|Lexpub
+```
+
 You can group the items with one or more common sources:
 
 ```

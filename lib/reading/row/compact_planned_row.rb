@@ -55,11 +55,27 @@ module Reading
         raise InvalidHeadError, "Title missing after #{item_head} in compact planned row"
       end
 
+      if item_match[:sources_column]
+        if item_match[:sources_column].include?(config.deep_fetch(:csv, :column_separator))
+          raise InvalidSourceError, "Too many columns (only Sources allowed) " \
+            "after #{item_head} in compact planned row"
+        end
+
+        attribute = VariantsAttribute.new(
+          item_head: "#{item_match[:format_emoji]}#{item_match[:author_title]}",
+          columns: { sources: item_match[:sources_column], length: nil },
+          config:,
+        )
+        variants = attribute.parse
+      else
+        variants = [parse_variant(item_match)]
+      end
+
       template.deep_merge(
         author: author || template.fetch(:author),
         title: title,
         genres: @genres.presence || template.fetch(:genres),
-        variants: [parse_variant(item_match)],
+        variants:,
       )
     end
 

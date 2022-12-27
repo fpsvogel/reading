@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    reading (0.8.0)
+    reading (0.6.0)
       pastel (~> 0.8)
 
 GEM
