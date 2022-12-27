@@ -20,16 +20,16 @@ Hello! This is a guide to the output of the Reading gem after it parses a CSV re
 
 ## Testing CSV strings with the `reading` command
 
-The Reading gem provides the `reading` command which parses CSV strings and shows the output. To try it out for yourself, run this on the command line:
+To quickly see the output from a CSV string, use the `reading` command:
 
 ```
-reading '3|📕Trying|Lexpub 1970147288'
+$ reading '3|📕Trying|Lexpub 1970147288'
 ```
 
-An optional second argument can be included to specify which columns should be enabled. In this next example, the Rating column is omitted:
+An optional second argument specifies enabled columns. To omit the Rating column from the example above:
 
 ```
-reading '📕Trying|Lexpub 1970147288' 'head, sources'
+$ reading '📕Trying|Lexpub 1970147288' 'head, sources'
 ```
 
 ## Output from a minimal CSV reading log

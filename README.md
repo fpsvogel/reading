@@ -37,34 +37,38 @@ gem 'reading'
 
 And then execute:
 
-    $ bundle install
+```
+$ bundle install
+```
 
 Or install it yourself as:
 
-    $ gem install reading
+```
+$ gem install reading
+```
 
 ## Docs
 
-For how to set up your own CSV reading log, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md).
+On how to set up your own CSV reading log: [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md).
 
-Then for more on the structure into which the Reading gem parses the CSV rows, see the [Parsed Output Guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md).
+On the structure into which the Reading gem parses the CSV rows: [Parsed Output Guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md).
 
-The CSV features are also documented ad nauseam in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
+The CSV features are also documented with examples in [`test/csv_parse_test.rb`](https://github.com/fpsvogel/reading/blob/main/test/csv_parse_test.rb).
 
 ## Usage
 
 ### Try out a CSV string
 
-To quickly see the output from a CSV string, the Reading gem provides the `reading` command. To try it out for yourself, run this on the command line:
+To quickly see the output from a CSV string, use the `reading` command:
 
 ```
-reading '3|📕Trying|Lexpub 1970147288'
+$ reading '3|📕Trying|Lexpub 1970147288'
 ```
 
-An optional second argument can be included to specify which columns should be enabled. In this next example, the Rating column is omitted:
+An optional second argument specifies enabled columns. To omit the Rating column from the example above:
 
 ```
-reading '📕Trying|Lexpub 1970147288' 'head, sources'
+$ reading '📕Trying|Lexpub 1970147288' 'head, sources'
 ```
 
 ### Real usage
@@ -95,7 +99,7 @@ items = csv.parse
 
 To use custom configuration, pass a config hash when initializing.
 
-Here's an example. If you don't want to use all the columns (as in [the basic example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)), you'll need to initialize a `Reading::CSV` with a config including only the desired columns, like this:
+Here's an example. If you don't want to use all the columns (as in [the minimal example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)), you'll need to initialize a `Reading::CSV` with a config including only the desired columns, like this:
 
 ```ruby
 require "reading/csv"

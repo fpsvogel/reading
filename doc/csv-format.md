@@ -63,11 +63,11 @@ Tom Holt - Goatsong|2019/06/18, 2020/5/8
 
 If this minimal kind of reading log is what you want, see example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
 
-You could go even more minimalist and disable the Dates Finished column if you just want to keep a list of books you've read. (But in that case, why not just use a text file?)
+You could go *even more* minimalist and disable the Dates Finished column if you just want to keep a list of books you've read. (But in that case, why not just use a text file?)
 
 By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns, so that you can get an idea of what a full item looks like. Here's a screenshot from VS Code using the above-mentioned Rainbow CSV extension:
 
-![example reading log in Rainbow CSV](/rainbow-csv-example.png)
+![example reading log in Rainbow CSV](/doc/rainbow-csv-example.png)
 
 And here are those same rows in a code snippet:
 
