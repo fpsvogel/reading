@@ -236,10 +236,10 @@ class CSVParseTest < Minitest::Test
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla",
   :"with sources in the Sources column" =>
     "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla",
-  :"with fuller Head and Sources columns" =>
-    "\\⚡Tom Holt - A Song for Nero -- unabridged|Lexpub, Hoopla B00GW4U2TM",
-  :"multiple with with Head and Sources columns (unlikely though)" =>
-    "\\⚡Tom Holt - A Song for Nero -- unabridged|Lexpub, Hoopla B00GW4U2TM 🔊True Grit|Lexpub",
+  :"with fuller Head and Sources columns (unlikely)" =>
+    "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM",
+  :"multiple with with Head and Sources columns (very unlikely)" =>
+    "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM 🔊True Grit|Lexpub",
   :"multiple" =>
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
   :"multiple with source" =>
@@ -692,14 +692,15 @@ class CSVParseTest < Minitest::Test
   @items[:features_compact_planned][:"with sources in the Sources column"] = [a_sources]
 
   a_full_sources = a_sources.deep_merge(variants: [{ isbn: "B00GW4U2TM",
-                                                    extra_info: ["unabridged"] }])
-  @items[:features_compact_planned][:"with fuller Head and Sources columns"] = [a_full_sources]
+                                                    extra_info: ["unabridged"],
+                                                    series: [{ name: "Holt's Classical Novels", volume: nil }] }])
+  @items[:features_compact_planned][:"with fuller Head and Sources columns (unlikely)"] = [a_full_sources]
 
   b_sources = item_hash(title: "True Grit",
                         variants: [{ format: :audiobook,
                                     sources: [{ name: "Lexpub" }] }])
 
-  @items[:features_compact_planned][:"multiple with with Head and Sources columns (unlikely though)"] = [a_full_sources, b_sources]
+  @items[:features_compact_planned][:"multiple with with Head and Sources columns (very unlikely)"] = [a_full_sources, b_sources]
 
   @items[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 
