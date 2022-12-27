@@ -3,10 +3,6 @@
 
 // TODO:
 - make subattributes default to template
-- Make progress default to 1.0 if there is a date finished, by replacing experiences_attribute.rb:16-17 with:
-              progress(columns[:head], ignore_if_no_dnf: i < started.count - 1) ||
-              (1.0 if date_finished(finished, i))         || template.fetch(:progress),
-- Move progress down into spans
 - Make a `reading` executable, delete try.rb
 
 Hello! This is a guide to the output of the Reading gem after it parses a CSV reading log. To learn what the CSV file should look like in the first place, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md), relevant sections of which are linked below for convenience.

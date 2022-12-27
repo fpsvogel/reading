@@ -34,10 +34,13 @@ module Reading
         length_attr = LengthSubattribute.new(bare_variant:, columns:, config:)
         length = length_attr.parse
 
+        progress_attr = ProgressSubattribute.new(date_entry:, variant_index:, columns:, config:)
+        progress = progress_attr.parse
+
         [{
           dates: started..finished,
           amount: length,
-          progress: ProgressSubattribute.new(date_entry:, variant_index:, columns:, config:).parse,
+          progress: progress || (1.0 if finished),
           name: nil,
           favorite?: false,
         }]

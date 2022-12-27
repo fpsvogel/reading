@@ -421,7 +421,8 @@ class CSVParseTest < Minitest::Test
   c = item_hash(title: "How To")
   @items[:enabled_columns][:"head"] = [a, b, c]
 
-  b_finished_inner = { experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30") }] }] }
+  b_finished_inner = { experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30"),
+                                                 progress: 1.0}] }] }
   b_finished = b.deep_merge(b_finished_inner)
   @items[:enabled_columns][:"head, dates_finished"] = [a, b_finished, c]
 
@@ -432,7 +433,8 @@ class CSVParseTest < Minitest::Test
   a = a_started
   b = item_hash(
     title: "Goatsong",
-    experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30") }] }],
+    experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30"),
+                              progress: 1.0}] }],
   )
   @items[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
 
@@ -783,9 +785,11 @@ class CSVParseTest < Minitest::Test
                     isbn: "0312038380",
                     length: 247 }],
     experiences: [{ spans: [{ dates: Date.parse("2019/05/28")..Date.parse("2019/06/13"),
-                              amount: 247 }] },
+                              amount: 247,
+                              progress: 1.0 }] },
                   { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23"),
-                              amount: 247 }] },
+                              amount: 247,
+                              progress: 1.0 }] },
                   { spans: [{ dates: Date.parse("2021/08/17")..,
                               amount: 247,
                               progress: 0.5 }] }],
@@ -803,7 +807,8 @@ class CSVParseTest < Minitest::Test
                     length: "8:18",
                     extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
     experiences: [{ spans: [{ dates: Date.parse("2020/10/20")..Date.parse("2021/08/31"),
-                              amount: "8:18" }],
+                              amount: "8:18",
+                              progress: 1.0 }],
                     group: "weekly Latin reading with Sean and Dennis" }],
     genres: %w[latin novel],
     notes: [
@@ -856,14 +861,17 @@ class CSVParseTest < Minitest::Test
                     length: 320,
                     extra_info: ["published 2014"] }],
     experiences: [{ spans: [{ dates: Date.parse("2021/08/01")..Date.parse("2021/08/15"),
-                              amount: "6:36" }],
+                              amount: "6:36",
+                              progress: 1.0 }],
                     variant_index: 0 },
                   { spans: [{ dates: Date.parse("2021/08/16")..Date.parse("2021/08/28"),
-                              amount: 320 }],
+                              amount: 320,
+                              progress: 1.0 }],
                     group: "with Sam",
                     variant_index: 1 },
                   { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10"),
-                              amount: "6:36" }],
+                              amount: "6:36",
+                              progress: 1.0 }],
                     variant_index: 0 }],
     genres: %w[science],
     notes: [
