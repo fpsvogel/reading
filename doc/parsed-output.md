@@ -24,13 +24,13 @@ Hello! This is a guide to the output of the Reading gem after it parses a CSV re
 To quickly see the output from a CSV string, use the `reading` command:
 
 ```
-$ reading '3|📕Trying|Lexpub 1970147288'
+$ reading '3|📕Trying|Little Library 1970147288'
 ```
 
 An optional second argument specifies enabled columns. To omit the Rating column from the example above:
 
 ```
-$ reading '📕Trying|Lexpub 1970147288' 'head, sources'
+$ reading '📕Trying|Little Library 1970147288' 'head, sources'
 ```
 
 ## Output from a minimal CSV reading log

@@ -62,13 +62,15 @@ $ gem install reading
 To quickly see the output from a CSV string, use the `reading` command:
 
 ```
-$ reading '3|📕Trying|Lexpub 1970147288'
+$ reading '3|📕Trying|Little Library 1970147288'
 ```
+
+The pipe character (`|`) is the column separator. The above example includes the first three columns (Rating, Head, and Sources) which contain a rating, format (book), title, source, and ISBN. You'll see all those reflected in the parsed data that is output to the console after you run the command.
 
 An optional second argument specifies enabled columns. To omit the Rating column from the example above:
 
 ```
-$ reading '📕Trying|Lexpub 1970147288' 'head, sources'
+$ reading '📕Trying|Little Library 1970147288' 'head, sources'
 ```
 
 ### Real usage

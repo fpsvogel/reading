@@ -7,8 +7,8 @@
 #   reading "<CSV string>" "<optional comma-separated names of enabled columns>`
 #
 # Examples:
-#   reading '3|📕Trying|Lexpub 1970147288'
-#   reading '📕Trying|Lexpub 1970147288' 'head, sources'
+#   reading '3|📕Trying|Little Library 1970147288'
+#   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
 
 require_relative "../lib/reading/csv"
@@ -16,7 +16,7 @@ require "amazing_print"
 
 input = ARGV[0]
 unless input
-  raise ArgumentError, "CSV string argument required, such as '3|📕Trying|Lexpub 1970147288'"
+  raise ArgumentError, "CSV string argument required, such as '3|📕Trying|Little Library 1970147288'"
 end
 
 config = {}
