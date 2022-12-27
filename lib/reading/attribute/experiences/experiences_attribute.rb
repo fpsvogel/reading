@@ -1,3 +1,4 @@
+require_relative "spans_subattribute"
 require_relative "dates_validator"
 require "date"
 
@@ -10,8 +11,10 @@ module Reading
         started, finished = dates_split(columns)
 
         experiences_with_dates = started.map.with_index { |entry, i|
+          spans = SpansSubattribute.new(date_entry: entry, dates_finished: finished, date_index: i, config:)
+
           {
-            spans: spans(entry, finished, i)              || template.fetch(:spans),
+            spans: spans.parse                            || template.fetch(:spans),
             progress: progress(entry) ||
               progress(columns[:head],
                   ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
@@ -55,43 +58,6 @@ module Reading
           end
 
         [dates_started, dates_finished]
-      end
-
-      def spans(date_entry, dates_finished, date_index)
-        started = date_started(date_entry)
-        finished = date_finished(dates_finished, date_index)
-        return [] if started.nil? && finished.nil?
-
-        [{
-          dates: started..finished,
-          amount: nil,
-          name: nil,
-          favorite?: false,
-        }]
-      end
-
-      def date_started(date_entry)
-        dates = date_entry.scan(config.deep_fetch(:csv, :regex, :date))
-        raise InvalidDateError, "Conjoined dates" if dates.count > 1
-        raise InvalidDateError, "Missing or incomplete date" if date_entry.present? && dates.empty?
-
-        date_str = dates.first
-        Date.parse(date_str) if date_str
-      rescue Date::Error
-        raise InvalidDateError, "Unparsable date"
-      end
-
-      def date_finished(dates_finished, date_index)
-        return nil if dates_finished.nil?
-
-        date_str = dates_finished[date_index]&.presence
-        Date.parse(date_str) if date_str
-      rescue Date::Error
-        if date_str.match?(config.deep_fetch(:csv, :regex, :date))
-          raise InvalidDateError, "Unparsable date"
-        else
-          raise InvalidDateError, "Missing or incomplete date"
-        end
       end
 
       def progress(str, ignore_if_no_dnf: false)

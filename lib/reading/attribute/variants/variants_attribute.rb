@@ -1,9 +1,9 @@
 require_relative "series_subattribute"
+require_relative "sources_subattribute"
 
 module Reading
   class Row
     class VariantsAttribute < Attribute
-      using Util::StringRemove
       using Util::HashArrayDeepFetch
 
       def parse
@@ -17,12 +17,13 @@ module Reading
             .first
 
           series = SeriesSubattribute.new(item_head:, variant_with_extra_info:, config:)
+          sources = SourcesSubattribute.new(bare_variant:, config:)
 
           variant =
             {
               format: format(bare_variant) || format(item_head) || template.fetch(:format),
               series: series.parse                              || template.fetch(:series),
-              sources: sources(bare_variant)                    || template.fetch(:sources),
+              sources: sources.parse                            || template.fetch(:sources),
               isbn: isbn(bare_variant)                          || template.fetch(:isbn),
               length: length_in_variant_or_length(bare_variant) || template.fetch(:length),
               extra_info: extra_info(variant_with_extra_info) ||
@@ -88,61 +89,6 @@ module Reading
           str.start_with?("#{config.deep_fetch(:csv, :series_prefix)} ") ||
             str.match(config.deep_fetch(:csv, :regex, :series_volume))
         }.presence
-      end
-
-      def sources(str)
-        urls = sources_urls(str).map { |url|
-          {
-            name: url_name(url) || template.deep_fetch(:sources, 0, :name),
-            url: url,
-          }
-        }
-
-        names = sources_names(str).map { |name|
-          {
-            name: name,
-            url: template.deep_fetch(:sources, 0, :url),
-          }
-        }
-
-        (urls + names).presence
-      end
-
-      def sources_urls(str)
-        str.scan(config.deep_fetch(:csv, :regex, :url))
-      end
-
-      # Turns everything that is not a source name (ISBN, source URL, length) into
-      # a separator, then splits by that separator and removes empty elements
-      # and format emojis. What's left is source names.
-      def sources_names(str)
-        not_names = [:isbn, :url, :time_length_in_variant, :pages_length_in_variant]
-        names_and_separators = str
-
-        not_names.each do |regex_type|
-          names_and_separators = names_and_separators.gsub(
-            config.deep_fetch(:csv, :regex, regex_type),
-            config.deep_fetch(:csv, :separator),
-          )
-        end
-
-        names_and_separators
-          .split(config.deep_fetch(:csv, :separator))
-          .map { |name| name.remove(/\A\s*#{config.deep_fetch(:csv, :regex, :formats)}\s*/) }
-          .map(&:strip)
-          .reject(&:empty?)
-      end
-
-      def url_name(url)
-        config
-          .deep_fetch(:item, :sources, :names_from_urls)
-          .each do |url_part, name|
-            if url.include?(url_part)
-              return name
-            end
-          end
-
-        config.deep_fetch(:item, :sources, :default_name_for_url)
       end
     end
   end
