@@ -38,15 +38,19 @@ module Reading
         progress = progress_attr.parse
 
         [{
-          dates: started..finished,
-          amount: length,
-          progress: progress || (1.0 if finished),
-          name: nil,
-          favorite?: false,
+          dates: started..finished                || template.fetch(:dates),
+          amount: length                          || template.fetch(:amount),
+          progress: progress || (1.0 if finished) || template.fetch(:progress),
+          name:                                   template.fetch(:name),
+          favorite?:                              template.fetch(:favorite?),
         }]
       end
 
       private
+
+      def template
+        @template ||= config.deep_fetch(:item, :template, :experiences, 0, :spans).first
+      end
 
       def date_started(date_entry)
         dates = date_entry.scan(config.deep_fetch(:csv, :regex, :date))

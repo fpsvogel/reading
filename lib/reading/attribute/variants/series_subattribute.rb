@@ -34,8 +34,8 @@ module Reading
 
           if volume || str.start_with?(prefix)
             {
-              name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || default[:name],
-              volume: volume&.captures&.first&.to_i                      || default[:volume],
+              name: str.delete_suffix(volume.to_s).delete_prefix(prefix) || template[:name],
+              volume: volume&.captures&.first&.to_i                      || template[:volume],
             }
           end
         }.compact.presence
@@ -43,7 +43,7 @@ module Reading
 
       private
 
-      def default
+      def template
         config.deep_fetch(:item, :template, :variants, 0, :series).first
       end
     end

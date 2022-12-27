@@ -2,7 +2,6 @@
 # Parsed Output Guide
 
 // TODO:
-- make subattributes default to template
 - Make a `reading` executable, delete try.rb
 
 Hello! This is a guide to the output of the Reading gem after it parses a CSV reading log. To learn what the CSV file should look like in the first place, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md), relevant sections of which are linked below for convenience.
