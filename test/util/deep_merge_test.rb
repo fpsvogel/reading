@@ -1,6 +1,6 @@
 require_relative "../test_helper"
 
-require "reading/util/deep_merge"
+require_relative "../../lib/reading/util/hash_deep_merge"
 
 class DeepMergeTest < Minitest::Test
   using Reading::Util::HashDeepMerge

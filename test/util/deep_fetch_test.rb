@@ -1,9 +1,9 @@
 require_relative "../test_helper"
 
-require "reading/util/deep_fetch"
+require_relative "../../lib/reading/util/hash_array_deep_fetch"
 
 class DeepFetchTest < Minitest::Test
-  using Reading::Util::HashDeepMerge
+  using Reading::Util::HashArrayDeepFetch
 
   def test_array_deep_fetch
     array = ["a", ["ba", "bb"], "c"]
@@ -43,7 +43,7 @@ class DeepFetchTest < Minitest::Test
     hash = { one: { two: { three: { four: { five: "too deep" } } } } }
 
     assert_raises(Reading::Util::FetchDepthExceededError) do
-      hash.deep_fetch(:one, :two, :three, :four, :five)
+      hash.deep_fetch(:one, :two, :three, :four, :five, :six)
     end
   end
 end

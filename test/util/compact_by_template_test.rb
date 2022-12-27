@@ -1,10 +1,10 @@
 require_relative "../test_helper"
 
-require "reading/util/compact_by_template"
-require "reading/config"
+require_relative "../../lib/reading/util/hash_compact_by_template"
+require_relative "../../lib/reading/config"
 
 class CompactByTemplateTest < Minitest::Test
-  using Reading::Util::CompactByTemplate
+  using Reading::Util::HashCompactByTemplate
 
   # Cases where a hash IS compacted:
 
@@ -18,7 +18,7 @@ class CompactByTemplateTest < Minitest::Test
 
   def test_compacted_template_has_arrays_of_hashes_emptied
     template = Reading::Config.new.hash[:item][:template]
-    compacted = template.merge({ series: [], variants: [], experiences: [] })
+    compacted = template.merge({ variants: [], experiences: [], notes: [] })
 
     assert_equal compacted, template.compact_by(template:)
   end

@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest-reporters", "~> 1.0"
   spec.add_development_dependency "pretty-diffs"
   spec.add_development_dependency "amazing_print"
+  spec.add_development_dependency "rubycritic"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
