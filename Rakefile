@@ -1,6 +1,7 @@
 require "bundler/gem_tasks"
 require "rake/testtask"
 require "rubycritic/rake_task"
+require_relative "lib/reading/version"
 
 task default: :test
 
@@ -21,4 +22,26 @@ RubyCritic::RakeTask.new(:crit) do |t|
   t.paths = FileList["lib/*.rb",
                      "lib/*/*.rb"]
   t.options = "--no-browser"
+end
+
+GEM_NAME = "reading"
+
+task :build do
+  system "gem build #{GEM_NAME}.gemspec"
+end
+
+task :install => :build do
+  system "gem install #{GEM_NAME}-#{Reading::VERSION}.gem"
+end
+
+task :publish => :build do
+  system "gem push #{GEM_NAME}-#{Reading::VERSION}.gem"
+end
+
+task :clean do
+  system "rm *.gem"
+end
+
+task :yank do
+  systm "gem yank #{GEM_NAME} -v #{ARGV[0]}"
 end
