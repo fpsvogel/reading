@@ -41,7 +41,3 @@ end
 task :clean do
   system "rm *.gem"
 end
-
-task :yank do
-  systm "gem yank #{GEM_NAME} -v #{ARGV[0]}"
-end
