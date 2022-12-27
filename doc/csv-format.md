@@ -287,7 +287,7 @@ Or with genres and source:
 
 ### Compact planned items: ignored emojis
 
-In a row of compact planned items, certain emojis are ignored. For the default list, see `default_config[:csv][:compact_planned_ignored]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+In a row of compact planned items, certain emojis are ignored. For the default list, see `default_config[:csv][:compact_planned_ignored_chars]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 This makes it easier to manage lists of planned items using emojis as visual markers. Here's an example which produces the exact same output as the previous example, because the extra emojis (`❓`, `💲`, and `⏳`) are ignored:
 

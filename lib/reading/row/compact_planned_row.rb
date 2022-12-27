@@ -26,15 +26,15 @@ module Reading
     end
 
     def before_parse
-      to_ignore = config.deep_fetch(:csv, :regex, :compact_planned_ignored)
+      to_ignore = config.deep_fetch(:csv, :regex, :compact_planned_ignored_chars)
       start_regex = config.deep_fetch(:csv, :regex, :compact_planned_row_start)
 
-      string_without_ignored = string.remove_all(to_ignore)
-      start = string_without_ignored.match(start_regex)
+      string_without_ignored_chars = string.remove_all(to_ignore)
+      start = string_without_ignored_chars.match(start_regex)
 
       @genres = Array(start[:genres]&.downcase&.strip&.split(",")&.map(&:strip))
       @sources = sources(start[:sources])
-      @row_without_genre = string_without_ignored.remove(start.to_s)
+      @row_without_genre = string_without_ignored_chars.remove(start.to_s)
     end
 
     def string_to_be_split_by_format_emojis

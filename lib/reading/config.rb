@@ -152,7 +152,7 @@ module Reading
             blurb_emoji:              "💬",
             private_emoji:            "🔒",
             compact_planned_source_prefix: "@",
-            compact_planned_ignored:  "✅💲❓⏳⭐",
+            compact_planned_ignored_chars: "✅💲❓⏳⭐",
             skip_compact_planned:     false,
           },
       }
@@ -166,8 +166,8 @@ module Reading
       comment_character = Regexp.escape(@hash.deep_fetch(:csv, :comment_character))
       formats = @hash.deep_fetch(:item, :formats).values.join("|")
       dnf_string = Regexp.escape(@hash.deep_fetch(:csv, :dnf_string))
-      compact_planned_ignored = (
-        @hash.deep_fetch(:csv, :compact_planned_ignored).chars - [" "]
+      compact_planned_ignored_chars = (
+        @hash.deep_fetch(:csv, :compact_planned_ignored_chars).chars - [" "]
       ).join("|")
       time_length = /(?<time>\d+:\d\d)/
       pages_length = /p?(?<pages>\d+)p?/
@@ -183,7 +183,7 @@ module Reading
         compact_planned_item: /\A(?<format_emoji>(?:#{formats}))(?<author_title>[^@\|]+)(?<sources>@.+)?(?:\|(?<sources_column>.+))?\z/,
         formats: /#{formats}/,
         formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
-        compact_planned_ignored: /#{compact_planned_ignored}/,
+        compact_planned_ignored_chars: /#{compact_planned_ignored_chars}/,
         series_volume: /,\s*#(\d+)\z/,
         isbn: isbn,
         url: url,
