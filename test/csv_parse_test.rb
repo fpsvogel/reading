@@ -440,17 +440,21 @@ class CSVParseTest < Minitest::Test
   b = b.merge(rating: 5)
   @items[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a, b, c]
 
-  a_length = a.deep_merge(variants: [{ length: "15:17" }])
-  b_length = b.deep_merge(variants: [{ length: 247 }])
+  a_length_and_amount = { variants: [{ length: "15:17" }],
+                          experiences: [{ spans: [{ amount: "15:17" }] }] }
+  b_length_and_amount = { variants: [{ length: 247 }],
+                          experiences: [{ spans: [{ amount: 247 }] }] }
+  a_length = a.deep_merge(a_length_and_amount)
+  b_length = b.deep_merge(b_length_and_amount)
   @items[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
   a_sources = a.deep_merge(variants: [{ isbn: "B00ICN066A",
-                              sources: [{ name: "Vail Library" }] }])
+                          sources: [{ name: "Vail Library" }] }])
   b_sources = b.deep_merge(variants: [{ isbn: "0312038380" }])
   @items[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
-  a = a_sources.deep_merge(variants: [{ length: "15:17" }])
-  b = b_sources.deep_merge(variants: [{ length: 247 }])
+  a = a_sources.deep_merge(a_length_and_amount)
+  b = b_sources.deep_merge(b_length_and_amount)
   @items[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a, b, c]
 
 
@@ -759,7 +763,8 @@ class CSVParseTest < Minitest::Test
                     sources: [{ name: "Vail Library" }],
                     isbn: "B00ICN066A",
                     length: "15:17" }],
-    experiences: [{ spans: [{ dates: Date.parse("2021/09/20").. }] }],
+    experiences: [{ spans: [{ dates: Date.parse("2021/09/20")..,
+                              amount: "15:17" }] }],
     genres: %w[history wisdom],
     notes: [
       { blurb?: true, content: "History with a sociological bent, with special attention paid to human happiness." },
@@ -777,9 +782,12 @@ class CSVParseTest < Minitest::Test
                               volume: 1 }],
                     isbn: "0312038380",
                     length: 247 }],
-    experiences: [{ spans: [{ dates: Date.parse("2019/05/28")..Date.parse("2019/06/13") }] },
-                  { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23") }] },
-                  { spans: [{ dates: Date.parse("2021/08/17").. }],
+    experiences: [{ spans: [{ dates: Date.parse("2019/05/28")..Date.parse("2019/06/13"),
+                              amount: 247 }] },
+                  { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23"),
+                              amount: 247 }] },
+                  { spans: [{ dates: Date.parse("2021/08/17")..,
+                              amount: 247 }],
                     progress: 0.5 }],
     genres: ["historical fiction"],
   )
@@ -794,7 +802,8 @@ class CSVParseTest < Minitest::Test
                     isbn: "1533694567",
                     length: "8:18",
                     extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
-    experiences: [{ spans: [{ dates: Date.parse("2020/10/20")..Date.parse("2021/08/31") }],
+    experiences: [{ spans: [{ dates: Date.parse("2020/10/20")..Date.parse("2021/08/31"),
+                              amount: "8:18" }],
                     group: "weekly Latin reading with Sean and Dennis" }],
     genres: %w[latin novel],
     notes: [
@@ -809,9 +818,11 @@ class CSVParseTest < Minitest::Test
                     sources: [{ name: "gift from neighbor Edith" }],
                     isbn: "B01NCYY3BV",
                     length: "10:13" }],
-    experiences: [{ spans: [{ dates: Date.parse("2020/03/21")..Date.parse("2020/04/01") }],
+    experiences: [{ spans: [{ dates: Date.parse("2020/03/21")..Date.parse("2020/04/01"),
+                              amount: "10:13" }],
                     progress: 0.5 },
-                  { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11") }],
+                  { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11"),
+                              amount: "10:13" }],
                     progress: "4:45" }],
     genres: %w[cats],
     notes: [{ private?: true, content: "I would've felt bad if I hadn't tried." }],
@@ -821,7 +832,8 @@ class CSVParseTest < Minitest::Test
     title: "FiveThirtyEight Politics",
     variants:    [{ format: :audio,
                     length: "0:30" }],
-    experiences: [{ spans: [{ dates: Date.parse("2021/08/02")..Date.parse("2021/08/02") }],
+    experiences: [{ spans: [{ dates: Date.parse("2021/08/02")..Date.parse("2021/08/02"),
+                              amount: "0:30" }],
                     progress: 0,
                     variant_index: 0 }],
     genres: %w[politics podcast],
@@ -843,12 +855,15 @@ class CSVParseTest < Minitest::Test
                     isbn: "B00IYUYF4A",
                     length: 320,
                     extra_info: ["published 2014"] }],
-    experiences: [{ spans: [{ dates: Date.parse("2021/08/01")..Date.parse("2021/08/15") }],
+    experiences: [{ spans: [{ dates: Date.parse("2021/08/01")..Date.parse("2021/08/15"),
+                              amount: "6:36" }],
                     variant_index: 0 },
-                  { spans: [{ dates: Date.parse("2021/08/16")..Date.parse("2021/08/28") }],
+                  { spans: [{ dates: Date.parse("2021/08/16")..Date.parse("2021/08/28"),
+                              amount: 320 }],
                     group: "with Sam",
                     variant_index: 1 },
-                  { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10") }],
+                  { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10"),
+                              amount: "6:36" }],
                     variant_index: 0 }],
     genres: %w[science],
     notes: [

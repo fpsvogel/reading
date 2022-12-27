@@ -11,15 +11,16 @@ module Reading
         started, finished = dates_split(columns)
 
         experiences_with_dates = started.map.with_index { |entry, i|
-          spans = SpansSubattribute.new(date_entry: entry, dates_finished: finished, date_index: i, config:)
+          variant_index = variant_index(entry)
+          spans_attr = SpansSubattribute.new(date_entry: entry, dates_finished: finished, date_index: i, variant_index:, columns:, config:)
 
           {
-            spans: spans.parse                            || template.fetch(:spans),
+            spans: spans_attr.parse                            || template.fetch(:spans),
             progress: progress(entry) ||
               progress(columns[:head],
                   ignore_if_no_dnf: i < started.count - 1) || template.fetch(:progress),
             group: group(entry)                           || template.fetch(:group),
-            variant_index: variant_index(entry)           || template.fetch(:variant_index)
+            variant_index: variant_index                  || template.fetch(:variant_index)
           }
         }.presence
 

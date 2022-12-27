@@ -2,7 +2,6 @@
 # Parsed Output Guide
 
 // TODO:
-- Make amount default to length.
 - Make progress default to 1.0 if there is a date finished, by replacing experiences_attribute.rb:16-17 with:
               progress(columns[:head], ignore_if_no_dnf: i < started.count - 1) ||
               (1.0 if date_finished(finished, i))         || template.fetch(:progress),
@@ -325,7 +324,7 @@ parsed_items = [{
         [{
           dates: Date.new(2018,5,1)..Date.new(2018,8,10),
           progress: 1.0,
-          amount: nil,
+          amount: 480,
           name: nil,
           favorite?: false,
         }],
@@ -360,7 +359,7 @@ parsed_items = [{
 
 ### Example: podcast
 
-In the example above, a confusing bit that we haven't talked about yet is `spans`, inside `experiences`. What is a "span", and why not put the `dates`, `amount`, and `progress` up one level in `experiences`, if there's only one span to contain them anyway? And why does a span have an `amount`, when there's already a `length` in each of the `variants`?
+In the example above, a confusing bit that we haven't talked about yet is `spans`, inside `experiences`. What is a "span", why not put the `dates`, `amount`, and `progress` up one level in `experiences`, if in that example there's only one span to contain them anyway? And why does a span have an `amount`, when there's already a `length` up one level in `variants`?
 
 This example will shed light on these questions. Being a podcast, it doesn't have a total length, so it has no `length` in `variants`. Instead, it defines `amount` in its `spans`, and each span represents an episode. Different episodes can of course be listened to on different days, and an episode can be DNF'ed (abandoned) partway through, which is why each span has its own `dates` and `progress`.
 

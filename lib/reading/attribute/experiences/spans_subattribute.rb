@@ -3,16 +3,20 @@ module Reading
     class SpansSubattribute
       using Util::HashArrayDeepFetch
 
-      private attr_reader :date_entry, :dates_finished, :date_index, :config
+      private attr_reader :date_entry, :dates_finished, :date_index, :variant_index, :columns, :config
 
       # @param date_entry [String] the entry in Dates Started.
       # @param dates_finished [Array<String>] the entries in Dates Finished.
       # @param date_index [Integer] the index of the entry.
+      # @param variant_index [Integer] the variant index, for getting length for default amount.
+      # @param columns [Array<String>]
       # @param config [Hash]
-      def initialize(date_entry:, dates_finished:, date_index:, config:)
+      def initialize(date_entry:, dates_finished:, date_index:, variant_index:, columns:, config:)
         @date_entry = date_entry
         @dates_finished = dates_finished
         @date_index = date_index
+        @variant_index = variant_index
+        @columns = columns
         @config = config
       end
 
@@ -21,9 +25,18 @@ module Reading
         finished = date_finished(dates_finished, date_index)
         return [] if started.nil? && finished.nil?
 
+        sources_str = columns[:sources]&.presence || " "
+        bare_variant = sources_str
+          .split(config.deep_fetch(:csv, :regex, :formats_split))
+          .dig(variant_index)
+          &.split(config.deep_fetch(:csv, :long_separator))
+          &.first
+        length_attr = LengthSubattribute.new(bare_variant:, columns:, config:)
+        length = length_attr.parse
+
         [{
           dates: started..finished,
-          amount: nil,
+          amount: length,
           name: nil,
           favorite?: false,
         }]

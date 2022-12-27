@@ -1,5 +1,6 @@
 require_relative "series_subattribute"
 require_relative "sources_subattribute"
+require_relative "length_subattribute"
 
 module Reading
   class Row
@@ -17,16 +18,21 @@ module Reading
             .split(config.deep_fetch(:csv, :long_separator))
             .first
 
-          series = SeriesSubattribute.new(item_head:, variant_with_extras:, config:)
-          sources = SourcesSubattribute.new(bare_variant:, config:)
+          series_attr = SeriesSubattribute.new(item_head:, variant_with_extras:, config:)
+          sources_attr = SourcesSubattribute.new(bare_variant:, config:)
+          # Length, despite not being very complex, is still split out into a
+          # subattribute because it needs to be accessible to
+          # ExperiencesAttribute (more specifically SpansSubattribute) which
+          # uses length as a default value for amount.
+          length_attr = LengthSubattribute.new(bare_variant:, columns:, config:)
 
           variant =
             {
               format: format(bare_variant) || format(item_head) || template.fetch(:format),
-              series: series.parse                              || template.fetch(:series),
-              sources: sources.parse                            || template.fetch(:sources),
+              series: series_attr.parse                         || template.fetch(:series),
+              sources: sources_attr.parse                       || template.fetch(:sources),
               isbn: isbn(bare_variant)                          || template.fetch(:isbn),
-              length: length_in_variant_or_length(bare_variant) || template.fetch(:length),
+              length: length_attr.parse                         || template.fetch(:length),
               extra_info: extra_info(variant_with_extras) ||
                                           extra_info(item_head) || template.fetch(:extra_info)
             }
@@ -56,31 +62,6 @@ module Reading
           raise InvalidSourceError, "Only one ISBN/ASIN is allowed per item variant"
         end
         isbns[0]&.to_s
-      end
-
-      def length_in(str, time_regex:, pages_regex:)
-        return nil if str.blank?
-
-        time_length = str.strip.match(time_regex)&.captures&.first
-        return time_length unless time_length.nil?
-
-        str.strip.match(pages_regex)&.captures&.first&.to_i
-      end
-
-      def length_in_variant_or_length(variant_str)
-        in_variant = length_in(
-          variant_str,
-          time_regex: config.deep_fetch(:csv, :regex, :time_length_in_variant),
-          pages_regex: config.deep_fetch(:csv, :regex, :pages_length_in_variant),
-        )
-        in_length = length_in(
-          columns[:length],
-          time_regex: config.deep_fetch(:csv, :regex, :time_length),
-          pages_regex: config.deep_fetch(:csv, :regex, :pages_length),
-        )
-
-        in_variant || in_length ||
-          (raise InvalidLengthError, "Missing length" unless columns[:length].blank?)
       end
 
       def extra_info(str)
