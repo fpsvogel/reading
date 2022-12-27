@@ -121,9 +121,9 @@ class CSVParseTest < Minitest::Test
   :"series with volume" =>
     "Tom Holt - Goatsong -- The Walled Orchard, #1",
   :"extra info" =>
-    "Tom Holt - Goatsong -- unabridged -- 1990",
+    "Tom Holt - Goatsong -- paperback -- 1990",
   :"extra info and series" =>
-    "Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990",
+    "Tom Holt - Goatsong -- paperback -- The Walled Orchard, #1 -- 1990",
   :"format" =>
     "📕Tom Holt - Goatsong",
   :"multi items" =>
@@ -147,7 +147,7 @@ class CSVParseTest < Minitest::Test
   :"dnf with multi items" =>
     "DNF 📕Tom Holt - Goatsong, 🔊Sapiens",
   :"all features" =>
-    "DNF 50% 📕Tom Holt - Goatsong -- unabridged -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
+    "DNF 50% 📕Tom Holt - Goatsong -- paperback -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
   }
 
   # The Head column is enabled by default, so the strings for other single
@@ -181,17 +181,19 @@ class CSVParseTest < Minitest::Test
   :"simple variants" =>
     "Goatsong|📕Little Library 📕Lexpub",
   :"variant with extra info" =>
-    "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
+    "Goatsong|📕Little Library -- paperback -- 1990 🔊Lexpub",
   :"optional long separator can be added between variants" =>
-    "Goatsong|📕Little Library -- unabridged -- 1990 🔊Lexpub",
+    "Goatsong|📕Little Library -- paperback -- 1990 🔊Lexpub",
   :"variant with extra info and series" =>
-    "Goatsong|📕Little Library -- unabridged -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
+    "Goatsong|📕Little Library -- paperback -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
+  :"variant with extra info and series from Head also" =>
+    "Goatsong -- in Holt's Classical Novels -- unabridged|📕Little Library -- paperback -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
   :"length after sources ISBN and before extra info" =>
-    "Goatsong|📕Little Library 0312038380 247 -- unabridged -- 1990 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
-    "Goatsong|📕Little Library 0312038380 https://www.edlin.org/holt Lexpub 247 -- unabridged -- 1990 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library 0312038380 https://www.edlin.org/holt Lexpub 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"optional commas can be added within and between variants" =>
-    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt, Lexpub, 247 -- unabridged -- 1990, 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt, Lexpub, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
   }
 
   @files[:features_dates_started] =
@@ -493,7 +495,7 @@ class CSVParseTest < Minitest::Test
   series_with_volume = a[:variants].first.slice(:series)
   @items[:features_head][:"series with volume"] = [a]
 
-  extra_info = %w[unabridged 1990]
+  extra_info = %w[paperback 1990]
   variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
   a = a_basic.deep_merge(variants_with_extra_info)
   @items[:features_head][:"extra info"] = [a]
@@ -614,6 +616,15 @@ class CSVParseTest < Minitest::Test
 
   a_with_series = a.deep_merge(variants: [{ series: [{ name: "The Walled Orchard", volume: 1 }] }])
   @items[:features_sources][:"variant with extra info and series"] = [a_with_series]
+
+  a_with_head_extras = a.deep_merge(
+    variants: [{ series: [{ name: "Holt's Classical Novels", volume: nil },
+                          { name: "The Walled Orchard", volume: 1 }],
+                 extra_info: ["unabridged"] + extra_info},
+               { series: [{ name: "Holt's Classical Novels", volume: nil }],
+                 extra_info: ["unabridged"] }]
+  )
+  @items[:features_sources][:"variant with extra info and series from Head also"] = [a_with_head_extras]
 
   a = item_hash(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),

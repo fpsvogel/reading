@@ -15,7 +15,10 @@ module Reading
       end
 
       def parse
-        extra_info(variant_with_extras) || extra_info(item_head)
+        (
+          Array(extra_info(item_head)) +
+            Array(extra_info(variant_with_extras))
+        ).presence
       end
 
       def parse_head

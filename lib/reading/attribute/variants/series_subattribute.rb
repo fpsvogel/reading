@@ -15,7 +15,10 @@ module Reading
       end
 
       def parse
-        series(variant_with_extras) || series(item_head)
+        (
+          Array(series(item_head)) +
+            Array(series(variant_with_extras))
+        ).presence
       end
 
       def parse_head
