@@ -17,6 +17,7 @@ Hello! This is a guide to the output of the Reading gem after it parses a CSV re
 - [Examples](#examples)
   - [Example: book](#example-book)
   - [Example: podcast](#example-podcast)
+- [Next steps](#next-steps)
 
 ## Testing CSV strings with the `reading` command
 
@@ -490,3 +491,8 @@ parsed_items = [{
   notes: [],
 }]
 ```
+
+## Next steps
+
+- Start your own reading log by downloading and editing [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv).
+- See how to use the gem to parse your reading log in [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage).
