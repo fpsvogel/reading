@@ -8,25 +8,34 @@ module Reading
       # @param item_head [String] see Row#item_heads for a definition.
       # @param variant_with_extras [String] the full variant string.
       # @param config [Hash]
-      def initialize(item_head:, variant_with_extras:, config:)
+      def initialize(item_head:, variant_with_extras: nil, config:)
         @item_head = item_head
         @variant_with_extras = variant_with_extras
         @config = config
       end
 
       def parse
-        separated = [item_head, variant_with_extras].map { |str|
-          str.split(config.deep_fetch(:csv, :long_separator))
-            .map(&:strip)
-            .map(&:presence)
-            .compact
-        }
+        series(variant_with_extras) || series(item_head)
+      end
 
-        separated.each do |str|
-          str.delete_at(0) # everything before the series/extra info
-        end
+      def parse_head
+        series(item_head)
+      end
 
-        separated.flatten!
+      private
+
+      def template
+        config.deep_fetch(:item, :template, :variants, 0, :series).first
+      end
+
+      def series(str)
+        separated = str
+          .split(config.deep_fetch(:csv, :long_separator))
+          .map(&:strip)
+          .map(&:presence)
+          .compact
+
+        separated.delete_at(0) # everything before the series/extra info
 
         separated.map { |str|
           volume = str.match(config.deep_fetch(:csv, :regex, :series_volume))
@@ -39,12 +48,6 @@ module Reading
             }
           end
         }.compact.presence
-      end
-
-      private
-
-      def template
-        config.deep_fetch(:item, :template, :variants, 0, :series).first
       end
     end
   end

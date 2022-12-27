@@ -240,6 +240,8 @@ class CSVParseTest < Minitest::Test
     "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM",
   :"multiple with with Head and Sources columns (very unlikely)" =>
     "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM 🔊True Grit|Lexpub",
+  :"with sources and extra info" =>
+    "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels @Lexpub @Hoopla",
   :"multiple" =>
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
   :"multiple with source" =>
@@ -707,6 +709,9 @@ class CSVParseTest < Minitest::Test
                                     sources: [{ name: "Lexpub" }] }])
 
   @items[:features_compact_planned][:"multiple with with Head and Sources columns (very unlikely)"] = [a_full_sources, b_sources]
+
+  a_full_sources_minus_isbn = a_full_sources.deep_merge(variants: [{ isbn: nil }])
+  @items[:features_compact_planned][:"with sources and extra info"] = [a_full_sources_minus_isbn]
 
   @items[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 

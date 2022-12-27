@@ -61,12 +61,12 @@ module Reading
             "after #{item_head} in compact planned row"
         end
 
-        attribute = VariantsAttribute.new(
-          item_head: "#{item_match[:format_emoji]}#{item_match[:author_title]}",
+        variants_attr = VariantsAttribute.new(
+          item_head: item_match[:format_emoji] + item_match[:author_title],
           columns: { sources: item_match[:sources_column], length: nil },
           config:,
         )
-        variants = attribute.parse
+        variants = variants_attr.parse
       else
         variants = [parse_variant(item_match)]
       end
@@ -84,12 +84,18 @@ module Reading
     end
 
     def parse_variant(item_match)
+      item_head = item_match[:format_emoji] + item_match[:author_title]
+      series_attr = SeriesSubattribute.new(item_head:, config:)
+      extra_info_attr = ExtraInfoSubattribute.new(item_head:, config:)
+      sources = (@sources + sources(item_match[:sources])).uniq.presence
+
       {
         format: format(item_match[:format_emoji]),
-        sources: (@sources + sources(item_match[:sources])).uniq.presence || template.deep_fetch(:variants, 0, :sources),
-        isbn: template.deep_fetch(:variants, 0, :isbn),
-        length: template.deep_fetch(:variants, 0, :length),
-        extra_info: template.deep_fetch(:variants, 0, :extra_info),
+        series: series_attr.parse_head          || template.deep_fetch(:variants, 0, :series),
+        sources: sources                        || template.deep_fetch(:variants, 0, :sources),
+        isbn:                                   template.deep_fetch(:variants, 0, :isbn),
+        length:                                 template.deep_fetch(:variants, 0, :length),
+        extra_info: extra_info_attr.parse_head  || template.deep_fetch(:variants, 0, :extra_info),
       }
     end
 

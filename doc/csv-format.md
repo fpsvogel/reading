@@ -17,8 +17,10 @@ This guide is written to show you what your reading log CSV file should look lik
   - [Length column](#length-column)
   - [Notes column](#notes-column)
 - [Planned items](#planned-items)
+  - [Compact planned items](#compact-planned-items)
   - [Compact planned items: genres](#compact-planned-items-genres)
   - [Compact planned items: sources](#compact-planned-items-sources)
+  - [Compact planned items: single line with Sources column](#compact-planned-items-single-line-with-sources-column)
   - [Compact planned items: ignored emojis](#compact-planned-items-ignored-emojis)
 - [Advanced](#advanced)
   - [Head column: DNF](#head-column-dnf)
@@ -230,66 +232,74 @@ One way to track this is to have normal items, but without a date started.
 ```
 \Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
 \------ PLANNED
-|📕Beloved||||fiction, history
-|🔊Kindred||||fiction, history
+|📕Beloved
+|🔊Kindred
+|⚡Beowulf
 ```
 
-### Compact planned items: genres
+That looks OK. But if you're like me and you make huge lists of planned items, before long your `reading.csv` file will be mostly empty space to the right of hundreds of planned items, each one on its own line.
 
-But if you use all the columns (as in the above example), then this is quite verbose for keeping track of books that you just *might* read. Here is a quicker and more compact way to jot down planned items:
+### Compact planned items
+
+To avoid that wasted space, here's a more compact way to jot down planned items:
 
 ```
-\------ PLANNED
-\FICTION, HISTORY: 📕Beloved 🔊Kindred
+\📕Beloved 🔊Kindred ⚡Beowulf
 ```
 
 There are two requirements for a compact planned item to be parsed:
 
 - The line *must* start with a comment character (`\`).
-- The format emoji *must* be present.
+- The format emoji *must* be included for each item.
 
-The genres are optional, but they're included they *must be in all-caps*. The all-caps genres are changed to lowercase by the parser. So the items in the example above will have the genres "fiction" and "history".
-
-Or you can omit genres, and the planned items will still be parsed. This is handy if you want to quickly save an individual title on its own line which you'll start reading soon:
+You can also add other elements normally found in the Head column:
 
 ```
-\📕Beloved
-\🔊Kindred
+\📕Beloved 🔊Octavia Butler - Kindred -- in Beacon Sci Fi Classics ⚡Beowulf
 ```
+
+### Compact planned items: genres
+
+At some point you may want to group different lists of planned items. You can do that by starting each list with one or more genres in all-caps:
+
+```
+\FICTION, HISTORY: 📕Beloved 🔊Kindred ⚡Beowulf
+```
+
+The all-caps genres are changed to lowercase by the parser. So the items in the example above will have the genres "fiction" and "history".
 
 ### Compact planned items: sources
 
 You can include one or more sources after the title, each preceded by `@`:
 
 ```
-\📕Beloved @Lexpub @Jeffco
-\🔊Kindred @Lexpub
+\FICTION, HISTORY: 📕Beloved @Lexpub @Jeffco 🔊Kindred @Lexpub ⚡Beowulf @Lexpub
 ```
 
-If you prefer, you can use a Sources column instead (but no other columns):
+You can group the items with one or more common sources:
+
+```
+\FICTION, HISTORY @Lexpub: 📕Beloved @Jeffco 🔊Kindred ⚡Beowulf
+```
+
+### Compact planned items: single line with Sources column
+
+When I know I'm going to read something very soon, I like to put it near my in-progress items at the top of my CSV file, rather than in my lists of planned items at the bottom of the file.
+
+In these cases, I like putting each planned item on its own line with a Sources column:
 
 ```
 \📕Beloved|Lexpub, Jeffco
 \🔊Kindred|Lexpub
 ```
 
-You can group the items with one or more common sources:
-
-```
-\@Lexpub: 📕Beloved @Jeffco 🔊Kindred
-```
-
-Or with genres and source:
-
-```
-\HISTORY, FICTION @Lexpub: 📕Beloved @Jeffco 🔊Kindred
-```
+This will be parsed as normal Head and Sources columns. If you want more columns than that, then just change it to a non-compact item by removing the comment character and adding in all the missing columns.
 
 ### Compact planned items: ignored emojis
 
 In a row of compact planned items, certain emojis are ignored. For the default list, see `default_config[:csv][:compact_planned_ignored_chars]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
-This makes it easier to manage lists of planned items using emojis as visual markers. Here's an example which produces the exact same output as the previous example, because the extra emojis (`❓`, `💲`, and `⏳`) are ignored:
+This makes it easier to manage lists of planned items using emojis as visual markers. Here's an example which produces the exact same output as the previous example, because the extra emojis (`❓`, `💲`, and `⏳`) are in the default ignore list:
 
 ```
 \❓HISTORY, FICTION @Lexpub: 📕Beloved ⏳@Jeffco 💲🔊Kindred

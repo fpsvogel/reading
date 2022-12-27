@@ -29,7 +29,7 @@ module Reading
 
           return experiences_with_dates
         else
-          if prog = ProgressSubattribute.new(columns:, config:).parse_head_only
+          if prog = ProgressSubattribute.new(columns:, config:).parse_head
             return [template.deep_merge(spans: [{ progress: prog }] )]
           else
             return nil

@@ -20,7 +20,7 @@ module Reading
         progress(date_entry) || progress(columns[:head])
       end
 
-      def parse_head_only
+      def parse_head
         progress(columns[:head])
       end
 

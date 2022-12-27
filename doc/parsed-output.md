@@ -122,7 +122,7 @@ item = {
 
 CSV column: [**Head**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title).
 
-Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-genres).
+Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items).
 
 ```ruby
 item = {
@@ -135,7 +135,7 @@ item = {
 
 CSV column: [**Head**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title).
 
-Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-genres).
+Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items).
 
 ```ruby
 item = {
@@ -193,7 +193,7 @@ CSV columns:
   - [for `format`, `series`, `extra_info`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants)
 - [**Length**](#length-column)
 
-`format` is also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-genres).
+Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-sources).
 
 ```ruby
 item = {
