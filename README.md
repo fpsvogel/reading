@@ -1,6 +1,6 @@
 <h1 align="center">Reading</h1>
 
-Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading page](https://fpsvogel.com/reading/) is built with the help of this gem.
+Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading page](https://fpsvogel.com/reading/) and [a reading statistics CLI app](https://github.com/fpsvogel/readstat) are built with the help of this gem.
 
 ### Table of Contents
 
@@ -20,7 +20,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 Because I love reading and keeping track of my reading, but I don't like the limitations of Goodreads and similar sites. In particular:
 
 - I don't like going into a site or app every time I want to make a small change such as adding a note. I find it much faster to edit a plain text file which I always have open on my computer, or which I can quickly pull up on my phone via a Dropbox-syncing text editor (I use the Android app [Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox)).
-- I don't like being limited to a database of existing book metadata. In Goodreads you can add new titles to their database, but it's cumbersome. Plus, it's nice to be able to track items other than books, such podcasts.
+- I don't like being limited to a database of existing book metadata. In Goodreads you can add new titles to their database, but it's cumbersome. Plus, it's nice to be able to track items other than books, such as podcasts.
 - On Goodreads, my reading data is theirs, not mine.
 
 So I started tracking my reading and notes directly in a CSV file. Then a problem arose: how to share my reading log with friends? I'm sure they wouldn't want to wade through my massive CSV file.
