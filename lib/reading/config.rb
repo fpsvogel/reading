@@ -144,6 +144,8 @@ module Reading
             separator:                ",",
             short_separator:          " - ",
             long_separator:           " -- ",
+            date_separator:           "/",
+            date_range_separator:     "-",
             dnf_string:               "DNF",
             series_prefix:            "in",
             group_emoji:              "🤝🏼",
@@ -170,6 +172,7 @@ module Reading
       time_length = /(?<time>\d+:\d\d)/
       pages_length = /p?(?<pages>\d+)p?/
       url = /https?:\/\/[^\s#{@hash.deep_fetch(:csv, :separator)}]+/
+      date_sep = @hash.deep_fetch(:csv, :date_separator)
 
       isbn_lookbehind = "(?<=\\A|\\s|#{@hash.deep_fetch(:csv, :separator)})"
       isbn_lookahead = "(?=\\z|\\s|#{@hash.deep_fetch(:csv, :separator)})"
@@ -189,7 +192,7 @@ module Reading
         progress: /(?<=#{dnf_string}|\A)\s*(?:(?<percent>\d?\d)%|#{time_length}|#{pages_length})\s+/,
         group_experience: /#{@hash.deep_fetch(:csv, :group_emoji)}\s*(.*)\s*\z/,
         variant_index: /\s+v(\d+)/,
-        date: /\d{4}\/\d?\d\/\d?\d/,
+        date: /\d{4}#{date_sep}\d?\d#{date_sep}\d?\d/,
         time_length: /\A#{time_length}(?<each>\s+each)?\z/,
         time_length_in_variant: time_length,
         pages_length: /\A#{pages_length}(?<each>\s+each)?\z/,
