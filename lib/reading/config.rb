@@ -133,9 +133,7 @@ module Reading
                 dates_finished
                 genres
                 length
-                public_notes
-                blurb
-                private_notes
+                notes
                 history
               ],
             # Custom columns are listed in a hash with default values, like simple columns in item[:template] above.

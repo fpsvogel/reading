@@ -60,6 +60,9 @@ module Reading
 
   # VALIDATION # # # # # # # # # # # # # # # # # # # # # # #
 
+  # Means there are too many columns in a row.
+  class TooManyColumnsError < Reading::Error; end
+
   # Means a date is unparsable, or a set of dates does not make logical sense.
   class InvalidDateError < Reading::Error; end
 

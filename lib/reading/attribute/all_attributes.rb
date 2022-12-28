@@ -63,9 +63,9 @@ module Reading
 
     class NotesAttribute < Attribute
       def parse
-        return nil unless columns[:public_notes]
+        return nil unless columns[:notes]
 
-        columns[:public_notes]
+        columns[:notes]
           .presence
           &.chomp
           &.remove(/#{config.deep_fetch(:csv, :long_separator).rstrip}\s*\z/)

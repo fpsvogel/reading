@@ -352,8 +352,6 @@ class CSVParseTest < Minitest::Test
     "|Sapiens|0062316117 B00ICN066A",
   :"OK: multiple URLs but different sources" =>
     "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
-  :"multiple other columns in a compact planned item when only Sources is allowed" =>
-    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
   }
   @files[:errors][Reading::InvalidHeadError] =
   {
@@ -372,6 +370,15 @@ class CSVParseTest < Minitest::Test
   {
   :"non-numeric rating" =>
     "a|Sapiens",
+  }
+  @files[:errors][Reading::TooManyColumnsError] =
+  {
+  :"column beyond the number of enabled columns" =>
+    "|Sapiens||||||||something",
+  :"empty column beyond the number of enabled columns" =>
+    "|Sapiens||||||||",
+  :"multiple other columns in a compact planned item when only Sources is allowed" =>
+    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
   }
   # These are examples of missing columns that do NOT raise an error during parsing.
   # I *could* add more validations to avoid these, but for me these never happen

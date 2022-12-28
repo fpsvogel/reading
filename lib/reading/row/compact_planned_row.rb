@@ -57,7 +57,7 @@ module Reading
 
       if item_match[:sources_column]
         if item_match[:sources_column].include?(config.deep_fetch(:csv, :column_separator))
-          raise InvalidSourceError, "Too many columns (only Sources allowed) " \
+          raise TooManyColumnsError, "Too many columns (only Sources allowed) " \
             "after #{item_head} in compact planned row"
         end
 

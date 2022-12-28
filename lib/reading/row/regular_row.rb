@@ -62,13 +62,18 @@ module Reading
     end
 
     def set_columns
-      @columns = (
-        config.deep_fetch(:csv, :enabled_columns) +
-          config.deep_fetch(:csv, :custom_numeric_columns).keys +
-          config.deep_fetch(:csv, :custom_text_columns).keys
-        )
-        .zip(string.split(config.deep_fetch(:csv, :column_separator)))
-        .to_h
+      column_names = config.deep_fetch(:csv, :enabled_columns) +
+        config.deep_fetch(:csv, :custom_numeric_columns).keys +
+        config.deep_fetch(:csv, :custom_text_columns).keys
+
+      columns_count = string.count(config.deep_fetch(:csv, :column_separator))
+      if columns_count >= column_names.count
+        raise TooManyColumnsError, "Too many columns"
+      end
+
+      column_contents = string.split(config.deep_fetch(:csv, :column_separator))
+
+      @columns = column_names.zip(column_contents).to_h
     end
 
     def ensure_head_column_present
