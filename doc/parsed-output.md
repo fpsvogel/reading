@@ -378,7 +378,7 @@ Without further ado, here's a podcast example, one that is more complex than usu
 
 ```
 \Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
-3|🎤Flightless Bird||||podcast|1:00 each||2022/10/06-10/10 x8 --  -11/12 x1/week -- 11/14 0:50 ⭐#30 Leaf Blowers -- 11/15 DNF @0:15 Baseball -- x3 -- ? #32 Soft Drinks -- Christmas
+3|🎤Flightless Bird||||podcast|1:00 each||2022/10/06..10/10 x8 --  ..11/12 x1/week -- 11/14 0:50 ⭐#30 Leaf Blowers -- 11/15 DNF @0:15 Baseball -- x3 -- ? #32 Soft Drinks -- Christmas
 ```
 
 That's parsed to the following:

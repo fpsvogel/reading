@@ -145,7 +145,7 @@ module Reading
             short_separator:          " - ",
             long_separator:           " -- ",
             date_separator:           "/",
-            date_range_separator:     "-",
+            date_range_separator:     "..",
             dnf_string:               "DNF",
             series_prefix:            "in",
             group_emoji:              "🤝🏼",
