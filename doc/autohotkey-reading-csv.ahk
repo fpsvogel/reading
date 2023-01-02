@@ -22,7 +22,7 @@ return
   Send ^x
   Sleep 50
   beforeText = |
-  afterText = |%A_YYYY%/%A_MM%/%A_DD%| ||0
+  afterText = |%A_YYYY%/%A_MM%/%A_DD%|||0
   Clipboard := A_Space . beforeText . Trim(Clipboard, "`r`n\ ") . (InStr(Clipboard, "|") ? "" : "| ") . afterText . "`r`n"
   Send ^v
   Sleep 100

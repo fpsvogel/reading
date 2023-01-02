@@ -26,17 +26,7 @@ module Reading
     # @param config [Hash] a custom config which overrides the defaults,
     #   e.g. { errors: { styling: :html } }
     def initialize(feed = nil, path: nil, config: {})
-      if feed.nil? && path.nil?
-        raise ArgumentError, "No file given to load."
-      end
-
-      if path
-        if !File.exist?(path)
-          raise FileError, "File not found! #{@path}"
-        elsif File.directory?(path)
-          raise FileError, "The reading log must be a file, but the path given is a directory: #{@path}"
-        end
-      end
+      validate_feed_or_path(feed, path)
 
       @feed = feed
       @path = path
@@ -62,6 +52,25 @@ module Reading
       items.map(&:to_struct)
     ensure
       feed&.close if feed.respond_to?(:close)
+    end
+
+    private
+
+    # Checks on the given feed and path (arguments to #initialize).
+    # @raise [FileError] if the given path is invalid.
+    # @raise [ArgumentError] if both feed and path are nil.
+    def validate_feed_or_path(feed, path)
+      return true if feed
+
+      if path
+        if !File.exist?(path)
+          raise FileError, "File not found! #{path}"
+        elsif File.directory?(path)
+          raise FileError, "The reading log must be a file, but the path given is a directory: #{path}"
+        end
+      else
+        raise ArgumentError, "Either a feed (String, File, etc.) or a file path must be provided."
+      end
     end
   end
 end

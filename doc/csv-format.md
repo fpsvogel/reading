@@ -563,7 +563,7 @@ But then what if you don't like that podcast and you end up DNF'ing parts of it?
 Thus far we've been talking about podcasts, but you can use the History column to track any kind of item. Here's a TV show, for example:
 
 ```
-4|🎞️Eyes on the Prize||||history|1:00 each x14||2021/1/28..2/1 x4 -- ..2/3 x5 -- 2/7 -- 2/9 x4 ---- 11/1 -- 11/2
+4|🎞️Eyes on the Prize||||history|1:00 x14||2021/1/28..2/1 x4 -- ..2/3 x5 -- 2/7 -- 2/9 x4 ---- 11/1 -- 11/2
 ```
 
 - `x14` in the Length column means "There are 14 episodes in total." This gives the item a definite length. It has the same effect as writing `14:00` in the Length column and `1:00 x4` in the first entry, to make all the other entries default to one hour. A third equivalent would be to have just `1:00 each` in the Length column, have `1:00 x4` in the first entry, and then make the last entry of the first watching `2/9 x4 done`, meaning you were done after that one.
