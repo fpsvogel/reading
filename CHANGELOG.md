@@ -2,6 +2,10 @@
 
 - Add parsing of the History column.
 
+## [0.6.1] - 2023-01-01
+
+- Fixed a bug in cases where `CSV` is initialized with a `feed` and invalid `path`. (The `path` is now ignored.)
+
 ## [0.6.0] - 2022-12-27
 
 - Improved the docs.
