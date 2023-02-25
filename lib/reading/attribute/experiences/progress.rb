@@ -1,6 +1,6 @@
 module Reading
-  class Row
-    class ProgressSubattribute
+  class Experiences < Attribute
+    class Progress
       using Util::HashArrayDeepFetch
 
       private attr_reader :date_entry, :variant_index, :columns, :config

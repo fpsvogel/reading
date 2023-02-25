@@ -1,5 +1,11 @@
 require_relative "row"
-require_relative "../attribute/all_attributes"
+require_relative "../attribute/rating"
+require_relative "../attribute/author"
+require_relative "../attribute/title"
+require_relative "../attribute/genres"
+require_relative "../attribute/notes"
+require_relative "../attribute/variants"
+require_relative "../attribute/experiences"
 
 module Reading
   # Parses a normal CSV row into an array of hashes of item data. Typically
@@ -28,8 +34,7 @@ module Reading
     def set_attribute_classes
       @attribute_classes ||= config.deep_fetch(:item, :template).map { |attribute_name, _default|
         attribute_name_camelcase = attribute_name.to_s.split("_").map(&:capitalize).join
-        attribute_class_name = "#{attribute_name_camelcase}Attribute"
-        attribute_class = self.class.const_get(attribute_class_name)
+        attribute_class = Reading.const_get(attribute_name_camelcase)
 
         [attribute_name, attribute_class]
       }.to_h

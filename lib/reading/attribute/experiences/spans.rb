@@ -1,6 +1,9 @@
+require_relative "progress"
+require_relative "../variants/length"
+
 module Reading
-  class Row
-    class SpansSubattribute
+  class Experiences < Attribute
+    class Spans
       using Util::HashArrayDeepFetch
 
       private attr_reader :date_entry, :dates_finished, :date_index, :variant_index, :columns, :config
@@ -25,7 +28,7 @@ module Reading
         finished = date_finished(dates_finished, date_index)
         return [] if started.nil? && finished.nil?
 
-        progress_attr = ProgressSubattribute.new(date_entry:, variant_index:, columns:, config:)
+        progress_attr = Experiences::Progress.new(date_entry:, variant_index:, columns:, config:)
         progress = progress_attr.parse
 
         [{
@@ -74,7 +77,7 @@ module Reading
           .dig(variant_index)
           &.split(config.deep_fetch(:csv, :long_separator))
           &.first
-        length_attr = LengthSubattribute.new(bare_variant:, columns:, config:)
+        length_attr = Variants::Length.new(bare_variant:, columns:, config:)
         length_attr.parse
       end
     end

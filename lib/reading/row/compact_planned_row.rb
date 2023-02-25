@@ -1,5 +1,5 @@
 require_relative "row"
-require "debug"
+require_relative "../attribute/variants"
 
 module Reading
   # Parses a row of compactly listed planned items into an array of hashes of
@@ -47,10 +47,10 @@ module Reading
         raise InvalidHeadError, "Title missing after #{item_head} in compact planned row"
       end
 
-      author = AuthorAttribute.new(item_head: item_match[:author_title], config:).parse
+      author = Author.new(item_head: item_match[:author_title], config:).parse
 
       begin
-        title = TitleAttribute.new(item_head: item_match[:author_title], config:).parse
+        title = Title.new(item_head: item_match[:author_title], config:).parse
       rescue InvalidHeadError
         raise InvalidHeadError, "Title missing after #{item_head} in compact planned row"
       end
@@ -61,7 +61,7 @@ module Reading
             "after #{item_head} in compact planned row"
         end
 
-        variants_attr = VariantsAttribute.new(
+        variants_attr = Variants.new(
           item_head: item_match[:format_emoji] + item_match[:author_title],
           columns: { sources: item_match[:sources_column], length: nil },
           config:,
@@ -85,8 +85,8 @@ module Reading
 
     def parse_variant(item_match)
       item_head = item_match[:format_emoji] + item_match[:author_title]
-      series_attr = SeriesSubattribute.new(item_head:, config:)
-      extra_info_attr = ExtraInfoSubattribute.new(item_head:, config:)
+      series_attr = Variants::Series.new(item_head:, config:)
+      extra_info_attr = Variants::ExtraInfo.new(item_head:, config:)
       sources = (@sources + sources(item_match[:sources])).uniq.presence
 
       {

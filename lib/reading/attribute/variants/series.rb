@@ -1,6 +1,6 @@
 module Reading
-  class Row
-    class SeriesSubattribute
+  class Variants < Attribute
+    class Series
       using Util::HashArrayDeepFetch
 
       private attr_reader :item_head, :variant_with_extras, :config

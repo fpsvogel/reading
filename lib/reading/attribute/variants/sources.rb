@@ -1,6 +1,6 @@
 module Reading
-  class Row
-    class SourcesSubattribute
+  class Variants < Attribute
+    class Sources
       using Util::StringRemove
       using Util::HashArrayDeepFetch
 

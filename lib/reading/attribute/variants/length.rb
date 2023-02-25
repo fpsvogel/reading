@@ -1,6 +1,6 @@
 module Reading
-  class Row
-    class LengthSubattribute
+  class Variants < Attribute
+    class Length
       using Util::HashArrayDeepFetch
 
       private attr_reader :item_head, :bare_variant, :columns, :config
