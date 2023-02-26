@@ -2,7 +2,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative "test_helper"
 
-require "reading/csv"
+require "reading/parser/csv"
 
 class CSVParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge
@@ -1020,7 +1020,7 @@ class CSVParseTest < Minitest::Test
   end
 
   def parse(string)
-    csv = Reading::CSV.new(
+    csv = Reading::Parser::CSV.new(
       string,
       config: @this_config,
     )
