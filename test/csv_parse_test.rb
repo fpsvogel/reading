@@ -2,7 +2,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative "test_helper"
 
-require "reading/parser/csv"
+require "reading/shortcuts"
 
 class CSVParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge
@@ -967,22 +967,22 @@ class CSVParseTest < Minitest::Test
 
   # ==== UTILITY METHODS
 
-  def set_columns(columns, custom_numeric_columns: nil, custom_text_columns: nil)
+  def with_columns(columns, custom_numeric_columns: nil, custom_text_columns: nil)
     if columns.empty? || columns == :all
-      this_config = base_config
+      config = base_config
     else
       columns.delete(:compact_planned)
-      this_config = base_config.merge(csv: { enabled_columns: columns})
+      config = base_config.merge(csv: { enabled_columns: columns})
     end
 
     unless custom_numeric_columns.nil?
-      this_config.deep_merge!(csv: { custom_numeric_columns: })
+      config.deep_merge!(csv: { custom_numeric_columns: })
     end
     unless custom_text_columns.nil?
-      this_config.deep_merge!(csv: { custom_text_columns: })
+      config.deep_merge!(csv: { custom_text_columns: })
     end
 
-    @this_config = this_config
+    config
   end
 
   # Removes any blank hashes in arrays, i.e. any that are the same as in the
@@ -1019,14 +1019,6 @@ class CSVParseTest < Minitest::Test
     item_hash
   end
 
-  def parse(string)
-    csv = Reading::Parser::CSV.new(
-      string,
-      config: @this_config,
-    )
-    csv.parse
-  end
-
 
 
   # ==== THE ACTUAL TESTS
@@ -1035,9 +1027,9 @@ class CSVParseTest < Minitest::Test
   files[:enabled_columns].each do |set_name, file_str|
     columns = set_name.to_s.split(", ").map(&:to_sym)
     define_method("test_enabled_columns_#{columns.join("_")}") do
-      set_columns(columns)
+      config = with_columns(columns)
       exp = tidy(items[:enabled_columns][set_name])
-      act = parse(file_str)
+      act = Reading.parse(file_str, config: config)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse with these columns enabled: #{set_name}"
@@ -1046,19 +1038,19 @@ class CSVParseTest < Minitest::Test
 
   ## TESTS: CUSTOM COLUMNS
   def test_custom_numeric_columns
-    set_columns(%i[rating head sources dates_started dates_finished length],
+    config = with_columns(%i[rating head sources dates_started dates_finished length],
                 custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
     exp = tidy(items[:custom_columns][:numeric])
-    act = parse(files[:custom_columns][:numeric])
+    act = Reading.parse(files[:custom_columns][:numeric], config: config)
     # debugger unless exp == act
     assert_equal exp, act
   end
 
   def test_custom_text_columns
-    set_columns(%i[rating head sources dates_started dates_finished length],
+    config = with_columns(%i[rating head sources dates_started dates_finished length],
                 custom_text_columns: { mood: nil, will_reread: "no" })
     exp = tidy(items[:custom_columns][:text])
-    act = parse(files[:custom_columns][:text])
+    act = Reading.parse(files[:custom_columns][:text], config: config)
     # debugger unless exp == act
     assert_equal exp, act
   end
@@ -1070,9 +1062,9 @@ class CSVParseTest < Minitest::Test
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
       define_method("test_#{columns_sym}_feature_#{feat}") do
-        set_columns(columns + [:head])
+        config = with_columns(columns + [:head])
         exp = tidy(items[group_name][feat])
-        act = parse(file_str)
+        act = Reading.parse(file_str, config: config)
         # debugger unless exp == act
         assert_equal exp, act,
           "Failed to parse this #{main_column_humanized} column feature: #{feat}"
@@ -1083,9 +1075,9 @@ class CSVParseTest < Minitest::Test
   ## TESTS: EXAMPLES
   files[:examples].each do |set_name, file_str|
     define_method("test_example_#{set_name}") do
-      set_columns(:all)
+      config = with_columns(:all)
       exp = tidy(items[:examples][set_name])
-      act = parse(file_str)
+      act = Reading.parse(file_str, config: config)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this set of examples: #{set_name}"
@@ -1096,12 +1088,12 @@ class CSVParseTest < Minitest::Test
   files[:errors].each do |error, files_hash|
     files_hash.each do |name, file_str|
       define_method("test_example_#{name}") do
-        set_columns(:all)
+        config = with_columns(:all)
         if name.start_with? "OK: "
-          refute_nil parse(file_str) # Should not raise an error.
+          refute_nil Reading.parse(file_str, config: config) # Should not raise an error.
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            parse(file_str)
+            Reading.parse(file_str, config: config)
           end
         end
       end

@@ -11,7 +11,7 @@
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
 
-require_relative "../lib/reading/csv"
+require_relative "../lib/reading/shortcuts"
 require "amazing_print"
 
 input = ARGV[0]
@@ -25,7 +25,6 @@ if ARGV[1]
   config[:csv] = { enabled_columns: }
 end
 
-csv = Reading::CSV.new(input, config:)
-items = csv.parse
+items = Reading.parse(input, config:)
 
 ap items
