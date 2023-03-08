@@ -19,8 +19,7 @@ Rake::TestTask.new(:warn) do |t|
 end
 
 RubyCritic::RakeTask.new(:crit) do |t|
-  t.paths = FileList["lib/*.rb",
-                     "lib/*/*.rb"]
+  t.paths = FileList["lib/reading/**/*.rb"]
   t.options = "--no-browser"
 end
 
