@@ -11,11 +11,11 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
-  spec.add_runtime_dependency "pastel", "~> 0.8"
+  spec.add_runtime_dependency "pastel"
 
-  spec.add_development_dependency "debug", ">= 1.0.0"
-  spec.add_development_dependency "minitest", "~> 5.0"
-  spec.add_development_dependency "minitest-reporters", "~> 1.0"
+  spec.add_development_dependency "debug"
+  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "minitest-reporters"
   spec.add_development_dependency "pretty-diffs"
   spec.add_development_dependency "amazing_print"
   spec.add_development_dependency "rubycritic"

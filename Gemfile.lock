@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     reading (0.6.1)
-      pastel (~> 0.8)
+      pastel
 
 GEM
   remote: https://rubygems.org/
@@ -20,8 +20,6 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     debug (1.7.1)
-      irb (>= 1.5.0)
-      reline (>= 0.3.1)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     docile (1.4.0)
@@ -37,19 +35,16 @@ GEM
       ruby_parser (~> 3.1, > 3.1.0)
       sexp_processor (~> 4.8)
     ice_nine (0.11.2)
-    io-console (0.6.0)
-    irb (1.6.2)
-      reline (>= 0.3.0)
     kwalify (0.7.2)
-    launchy (2.5.0)
-      addressable (~> 2.7)
-    minitest (5.16.3)
-    minitest-reporters (1.5.0)
+    launchy (2.5.2)
+      addressable (~> 2.8)
+    minitest (5.18.0)
+    minitest-reporters (1.6.0)
       ansi
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    parser (3.1.3.0)
+    parser (3.2.1.1)
       ast (~> 2.4.1)
     pastel (0.8.0)
       tty-color (~> 0.5)
@@ -57,14 +52,12 @@ GEM
     pretty-diffs (1.0.2)
     public_suffix (5.0.1)
     rainbow (3.1.1)
-    reek (6.1.2)
+    reek (6.1.4)
       kwalify (~> 0.7.0)
-      parser (~> 3.1.0)
+      parser (~> 3.2.0)
       rainbow (>= 2.0, < 4.0)
-    reline (0.3.2)
-      io-console (~> 0.5)
-    ruby-progressbar (1.11.0)
-    ruby_parser (3.19.2)
+    ruby-progressbar (1.13.0)
+    ruby_parser (3.20.0)
       sexp_processor (~> 4.16)
     rubycritic (4.7.0)
       flay (~> 2.8)
@@ -98,12 +91,12 @@ PLATFORMS
 
 DEPENDENCIES
   amazing_print
-  debug (>= 1.0.0)
-  minitest (~> 5.0)
-  minitest-reporters (~> 1.0)
+  debug
+  minitest
+  minitest-reporters
   pretty-diffs
   reading!
   rubycritic
 
 BUNDLED WITH
-   2.4.1
+   2.4.7
