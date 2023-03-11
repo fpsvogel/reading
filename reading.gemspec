@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Felipe Vogel"]
   spec.email         = ["fps.vogel@gmail.com"]
 
-  spec.summary       = "reading parses a CSV reading log."
+  spec.summary       = "Parses a CSV reading log."
   spec.homepage      = "https://github.com/fpsvogel/reading"
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
