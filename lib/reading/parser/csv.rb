@@ -21,15 +21,15 @@ module Reading
 
       attr_reader :config
 
-      # @param feed [Object] the input source, which must respond to #each_line;
+      # @param string [Object] the input source, which must respond to #each_line;
       #   if nil, the file at the given path is used.
       # @param path [String] the path of the source file.
       # @param config [Hash] a custom config which overrides the defaults,
       #   e.g. { errors: { styling: :html } }
-      def initialize(feed = nil, path: nil, config: {})
-        validate_feed_or_path(feed, path)
+      def initialize(string = nil, path: nil, config: {})
+        validate_string_or_path(string, path)
 
-        @feed = feed
+        @string = string
         @path = path
         @config ||= Config.new(config).hash
       end
@@ -40,10 +40,10 @@ module Reading
       # every inner Hash replaced with a Struct).
       # @return [Array<Struct>] an array of Structs like the template in config.rb
       def parse
-        feed = @feed || File.open(@path)
+        input = @string || File.open(@path)
         items = []
 
-        feed.each_line do |string|
+        input.each_line do |string|
           line = Line.new(string, self)
           row = line.to_row
 
@@ -52,16 +52,16 @@ module Reading
 
         items.map(&:to_struct)
       ensure
-        feed&.close if feed.respond_to?(:close)
+        input&.close if input.respond_to?(:close)
       end
 
       private
 
-      # Checks on the given feed and path (arguments to #initialize).
+      # Checks on the given string and path (arguments to #initialize).
       # @raise [FileError] if the given path is invalid.
-      # @raise [ArgumentError] if both feed and path are nil.
-      def validate_feed_or_path(feed, path)
-        return true if feed
+      # @raise [ArgumentError] if both string and path are nil.
+      def validate_string_or_path(string, path)
+        return true if string && string.respond_to?(:each_line)
 
         if path
           if !File.exist?(path)
@@ -70,7 +70,7 @@ module Reading
             raise FileError, "The reading log must be a file, but the path given is a directory: #{path}"
           end
         else
-          raise ArgumentError, "Either a feed (String, File, etc.) or a file path must be provided."
+          raise ArgumentError, "Either a string or a file path must be provided."
         end
       end
     end
