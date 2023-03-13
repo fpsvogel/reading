@@ -11,7 +11,7 @@
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
 
-require_relative "../lib/reading/shortcuts"
+require_relative "../lib/reading/reading"
 require "amazing_print"
 
 input = ARGV[0]

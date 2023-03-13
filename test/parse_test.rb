@@ -2,9 +2,9 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative "test_helper"
 
-require "reading/shortcuts"
+require "reading/reading"
 
-class CSVParseTest < Minitest::Test
+class ParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge
   using Reading::Util::HashArrayDeepFetch
   using Reading::Util::HashToStruct
@@ -1021,7 +1021,7 @@ class CSVParseTest < Minitest::Test
 
 
 
-  # ==== THE ACTUAL TESTS
+  # ==== TESTS
 
   ## TESTS: ENABLING COLUMNS
   files[:enabled_columns].each do |set_name, file_str|
