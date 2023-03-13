@@ -2,7 +2,7 @@ require_relative "../test_helper"
 
 require_relative "../../lib/reading/util/hash_array_deep_fetch"
 
-class DeepFetchTest < Minitest::Test
+class HashArrayDeepFetchTest < Minitest::Test
   using Reading::Util::HashArrayDeepFetch
 
   def test_array_deep_fetch

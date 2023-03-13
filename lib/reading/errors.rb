@@ -30,7 +30,6 @@ module Reading
     def styled_with_line(line_string, errors_config)
       truncated_line = line_string.truncate(
         errors_config.fetch(:max_length),
-        padding: message.length,
       )
 
       styled_message = case errors_config.fetch(:styling)
