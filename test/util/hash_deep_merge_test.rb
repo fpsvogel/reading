@@ -2,7 +2,7 @@ require_relative "../test_helper"
 
 require_relative "../../lib/reading/util/hash_deep_merge"
 
-class DeepMergeTest < Minitest::Test
+class HashDeepMergeTest < Minitest::Test
   using Reading::Util::HashDeepMerge
 
   def test_deep_merge_pure_hashes_like_active_support

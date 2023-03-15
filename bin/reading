@@ -4,7 +4,7 @@
 #
 # Usage:
 # Run on the command line:
-#   reading "<CSV string>" "<optional comma-separated names of enabled columns>`
+#   reading "<CSV string>" "<optional comma-separated names of enabled columns>"
 #
 # Examples:
 #   reading '3|📕Trying|Little Library 1970147288'

@@ -4,7 +4,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 
 ### Table of Contents
 
-- [Why am I building this?](#why-am-i-building-this)
+- [Why?](#why)
 - [Installation](#installation)
 - [Docs](#docs)
 - [Usage](#usage)
@@ -15,7 +15,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 - [Contributing](#contributing)
 - [License](#license)
 
-## Why am I building this?
+## Why?
 
 Because I love reading and keeping track of my reading, but I don't like the limitations of Goodreads and similar sites. In particular:
 

@@ -67,7 +67,7 @@ module Reading
           if !File.exist?(path)
             raise FileError, "File not found! #{path}"
           elsif File.directory?(path)
-            raise FileError, "The reading log must be a file, but the path given is a directory: #{path}"
+            raise FileError, "A file is expected, but the path given is a directory: #{path}"
           end
         else
           raise ArgumentError, "Either a string or a file path must be provided."
