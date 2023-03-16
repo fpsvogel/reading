@@ -9,14 +9,18 @@ class ParseTest < Minitest::Test
   using Reading::Util::HashArrayDeepFetch
   using Reading::Util::HashToStruct
 
-  self.class.attr_reader :inputs, :outputs, :base_config
+  self.class.attr_reader :inputs, :parsed, :transformed, :base_config
 
   def inputs
     self.class.inputs
   end
 
-  def outputs
-    self.class.outputs
+  def parsed
+    self.class.parsed
+  end
+
+  def transformed
+    self.class.transformed
   end
 
   def base_config
@@ -425,21 +429,21 @@ class ParseTest < Minitest::Test
     end
   end
 
-  @outputs = {}
-  @outputs[:enabled_columns] = {}
+  @parsed = {}
+  @parsed[:enabled_columns] = {}
   a = item_hash(title: "Sapiens")
   b = item_hash(title: "Goatsong")
   c = item_hash(title: "How To")
-  @outputs[:enabled_columns][:"head"] = [a, b, c]
+  @parsed[:enabled_columns][:"head"] = [a, b, c]
 
   b_finished_inner = { experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30"),
                                                  progress: 1.0}] }] }
   b_finished = b.deep_merge(b_finished_inner)
-  @outputs[:enabled_columns][:"head, dates_finished"] = [a, b_finished, c]
+  @parsed[:enabled_columns][:"head, dates_finished"] = [a, b_finished, c]
 
   a_started = a.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2021/9/1").. }] }])
   b_started = b.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2020/5/1").. }] }])
-  @outputs[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
+  @parsed[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
 
   a = a_started
   b = item_hash(
@@ -447,11 +451,11 @@ class ParseTest < Minitest::Test
     experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30"),
                               progress: 1.0}] }],
   )
-  @outputs[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
+  @parsed[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
 
   a = a.merge(rating: nil)
   b = b.merge(rating: 5)
-  @outputs[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a, b, c]
+  @parsed[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a, b, c]
 
   a_length_and_amount = { variants: [{ length: "15:17" }],
                           experiences: [{ spans: [{ amount: "15:17" }] }] }
@@ -459,27 +463,27 @@ class ParseTest < Minitest::Test
                           experiences: [{ spans: [{ amount: 247 }] }] }
   a_length = a.deep_merge(a_length_and_amount)
   b_length = b.deep_merge(b_length_and_amount)
-  @outputs[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
+  @parsed[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
   a_sources = a.deep_merge(variants: [{ isbn: "B00ICN066A",
                           sources: [{ name: "Vail Library" }] }])
   b_sources = b.deep_merge(variants: [{ isbn: "0312038380" }])
-  @outputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
+  @parsed[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
   a = a_sources.deep_merge(a_length_and_amount)
   b = b_sources.deep_merge(b_length_and_amount)
-  @outputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a, b, c]
+  @parsed[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a, b, c]
 
 
 
-  @outputs[:custom_columns] = {}
+  @parsed[:custom_columns] = {}
   a_custom_numeric = a.merge(surprise_factor: 6.0,
                             family_friendliness: 3.9)
   b_custom_numeric = b.merge(surprise_factor: 9.0,
                             family_friendliness: 5)
   c_custom_numeric = c.merge(surprise_factor: nil,
                             family_friendliness: 5)
-  @outputs[:custom_columns][:numeric] = [a_custom_numeric, b_custom_numeric, c_custom_numeric]
+  @parsed[:custom_columns][:numeric] = [a_custom_numeric, b_custom_numeric, c_custom_numeric]
 
   a_custom_text = a.merge(mood: "apprehensive",
                           will_reread: "yes")
@@ -487,129 +491,129 @@ class ParseTest < Minitest::Test
                           will_reread: "no")
   c_custom_text = c.merge(mood: nil,
                           will_reread: "no")
-  @outputs[:custom_columns][:text] = [a_custom_text, b_custom_text, c_custom_text]
+  @parsed[:custom_columns][:text] = [a_custom_text, b_custom_text, c_custom_text]
 
 
 
-  @outputs[:features_head] = {}
+  @parsed[:features_head] = {}
   a_basic = item_hash(author: "Tom Holt", title: "Goatsong")
-  @outputs[:features_head][:"author"] = [a_basic]
+  @parsed[:features_head][:"author"] = [a_basic]
 
   a = a_basic.deep_merge(variants: [{ series: [{ name: "The Walled Orchard" }] }])
-  @outputs[:features_head][:"series"] = [a]
+  @parsed[:features_head][:"series"] = [a]
 
   a = a.deep_merge(variants: [{ series: [{ volume: 1 }] }])
   series_with_volume = a[:variants].first.slice(:series)
-  @outputs[:features_head][:"series with volume"] = [a]
+  @parsed[:features_head][:"series with volume"] = [a]
 
   extra_info = %w[paperback 1990]
   variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
   a = a_basic.deep_merge(variants_with_extra_info)
-  @outputs[:features_head][:"extra info"] = [a]
+  @parsed[:features_head][:"extra info"] = [a]
 
   a = a.deep_merge(variants: [series_with_volume])
-  @outputs[:features_head][:"extra info and series"] = [a]
+  @parsed[:features_head][:"extra info and series"] = [a]
 
   a_with_format = a_basic.deep_merge(variants: [{ format: :print }])
-  @outputs[:features_head][:"format"] = [a_with_format]
+  @parsed[:features_head][:"format"] = [a_with_format]
 
   b = item_hash(title: "Sapiens", variants: [{ format: :audiobook }])
-  @outputs[:features_head][:"multi items"] = [a_with_format, b]
+  @parsed[:features_head][:"multi items"] = [a_with_format, b]
 
-  @outputs[:features_head][:"multi items without a comma"] = [a_with_format, b]
+  @parsed[:features_head][:"multi items without a comma"] = [a_with_format, b]
 
-  @outputs[:features_head][:"multi items with a long separator"] = [a_with_format, b]
+  @parsed[:features_head][:"multi items with a long separator"] = [a_with_format, b]
 
   half_progress = { experiences: [{ spans: [{ progress: 0.5 }] }] }
   a = item_hash(title: "Goatsong", **half_progress)
-  @outputs[:features_head][:"progress"] = [a]
+  @parsed[:features_head][:"progress"] = [a]
 
   a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 220 }] }])
-  @outputs[:features_head][:"progress pages"] = [a]
+  @parsed[:features_head][:"progress pages"] = [a]
 
-  @outputs[:features_head][:"progress pages without p"] = [a]
+  @parsed[:features_head][:"progress pages without p"] = [a]
 
   a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: "2:30" }] }])
-  @outputs[:features_head][:"progress time"] = [a]
+  @parsed[:features_head][:"progress time"] = [a]
 
   a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 0 }] }])
-  @outputs[:features_head][:"dnf"] = [a]
+  @parsed[:features_head][:"dnf"] = [a]
 
   a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 0.5 }] }])
-  @outputs[:features_head][:"dnf with progress"] = [a]
+  @parsed[:features_head][:"dnf with progress"] = [a]
 
   a = a_with_format.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
   b = b.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
-  @outputs[:features_head][:"dnf with multi items"] = [a, b]
+  @parsed[:features_head][:"dnf with multi items"] = [a, b]
 
   full_variants = variants_with_extra_info.deep_merge(variants: [series_with_volume])
   a = a.deep_merge(full_variants).deep_merge(half_progress)
   b = b.deep_merge(half_progress)
-  @outputs[:features_head][:"all features"] = [a, b]
+  @parsed[:features_head][:"all features"] = [a, b]
 
 
 
-  @outputs[:features_sources] = {}
+  @parsed[:features_sources] = {}
   title = "Goatsong"
   a_basic = item_hash(title:)
   isbn = "0312038380"
   a = a_basic.deep_merge(variants: [{ isbn: isbn }])
-  @outputs[:features_sources][:"ISBN-10"] = [a]
+  @parsed[:features_sources][:"ISBN-10"] = [a]
 
   a = a_basic.deep_merge(variants: [{ isbn: "978-0312038380" }])
-  @outputs[:features_sources][:"ISBN-13"] = [a]
+  @parsed[:features_sources][:"ISBN-13"] = [a]
 
   a = a_basic.deep_merge(variants: [{ isbn: "B00GVG01HE" }])
-  @outputs[:features_sources][:"ASIN"] = [a]
+  @parsed[:features_sources][:"ASIN"] = [a]
 
   library = { name: "Little Library", url: nil }
   a = a_basic.deep_merge(variants: [{ sources: [library] }])
-  @outputs[:features_sources][:"source"] = [a]
+  @parsed[:features_sources][:"source"] = [a]
 
   site = { name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
            url: "https://www.edlin.org/holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site] }])
-  @outputs[:features_sources][:"URL source"] = [a]
+  @parsed[:features_sources][:"URL source"] = [a]
 
   default_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
   site_named = { name: default_name, url: "https://www.edlin.org/holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site_named] }])
-  @outputs[:features_sources][:"URL source with name"] = [a]
+  @parsed[:features_sources][:"URL source with name"] = [a]
 
-  @outputs[:features_sources][:"URL source with name after"] = [a]
+  @parsed[:features_sources][:"URL source with name after"] = [a]
 
   site_auto_named = { name: "Internet Archive",
                       url: "https://archive.org/details/walledorchard0000holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site_auto_named] }])
-  @outputs[:features_sources][:"URL source with a name from config"] = [a]
+  @parsed[:features_sources][:"URL source with a name from config"] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [site, library, lexpub]
   a = a_basic.deep_merge(variants: [{ sources: three_sources }])
-  @outputs[:features_sources][:"sources"] = [a]
+  @parsed[:features_sources][:"sources"] = [a]
 
   four_sources = three_sources + [{ name: "rec. by Sam", url: nil }]
   a = a_basic.deep_merge(variants: [{ sources: four_sources }])
-  @outputs[:features_sources][:"sources separated by commas"] = [a]
+  @parsed[:features_sources][:"sources separated by commas"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: [library],
                                         isbn: isbn }])
-  @outputs[:features_sources][:"source with ISBN"] = [a]
+  @parsed[:features_sources][:"source with ISBN"] = [a]
 
-  @outputs[:features_sources][:"source with ISBN in reverse order"] = [a]
+  @parsed[:features_sources][:"source with ISBN in reverse order"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: [site, library],
                                         isbn: isbn }])
-  @outputs[:features_sources][:"sources with ISBN"] = [a]
+  @parsed[:features_sources][:"sources with ISBN"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: four_sources,
                                         isbn: isbn }])
-  @outputs[:features_sources][:"sources with ISBN separated by commas"] = [a]
+  @parsed[:features_sources][:"sources with ISBN separated by commas"] = [a]
 
   a = item_hash(title:,
                 variants: [{ format: :print, sources: [library] },
                            { format: :print, sources: [lexpub] }])
-  @outputs[:features_sources][:"simple variants"] = [a]
+  @parsed[:features_sources][:"simple variants"] = [a]
 
   a = item_hash(title:,
                 variants: [{ format: :print,
@@ -617,12 +621,12 @@ class ParseTest < Minitest::Test
                              extra_info: extra_info },
                            { format: :audiobook,
                              sources: [lexpub] }])
-  @outputs[:features_sources][:"variant with extra info"] = [a]
+  @parsed[:features_sources][:"variant with extra info"] = [a]
 
-  @outputs[:features_sources][:"optional long separator can be added between variants"] = [a]
+  @parsed[:features_sources][:"optional long separator can be added between variants"] = [a]
 
   a_with_series = a.deep_merge(variants: [{ series: [{ name: "The Walled Orchard", volume: 1 }] }])
-  @outputs[:features_sources][:"variant with extra info and series"] = [a_with_series]
+  @parsed[:features_sources][:"variant with extra info and series"] = [a_with_series]
 
   a_with_head_extras = a.deep_merge(
     variants: [{ series: [{ name: "Holt's Classical Novels", volume: nil },
@@ -631,134 +635,134 @@ class ParseTest < Minitest::Test
                { series: [{ name: "Holt's Classical Novels", volume: nil }],
                  extra_info: ["unabridged"] }]
   )
-  @outputs[:features_sources][:"variant with extra info and series from Head also"] = [a_with_head_extras]
+  @parsed[:features_sources][:"variant with extra info and series from Head also"] = [a_with_head_extras]
 
   a = item_hash(title:,
                 variants: [a[:variants].first.merge(isbn: isbn, length: 247),
                            a[:variants].last.merge(length: "7:03")])
-  @outputs[:features_sources][:"length after sources ISBN and before extra info"] = [a]
+  @parsed[:features_sources][:"length after sources ISBN and before extra info"] = [a]
 
   a = item_hash(title:,
                 variants: [a[:variants].first.merge(sources: three_sources),
                            a[:variants].last])
-  @outputs[:features_sources][:"multiple sources allowed in variant"] = [a]
+  @parsed[:features_sources][:"multiple sources allowed in variant"] = [a]
 
-  @outputs[:features_sources][:"optional commas can be added within and between variants"] = [a]
+  @parsed[:features_sources][:"optional commas can be added within and between variants"] = [a]
 
 
 
-  @outputs[:features_dates_started] = {}
+  @parsed[:features_dates_started] = {}
   a_basic = item_hash(title: "Sapiens")
   exp_started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
   a_started = a_basic.deep_merge(exp_started)
-  @outputs[:features_dates_started][:"date started"] = [a_started]
+  @parsed[:features_dates_started][:"date started"] = [a_started]
 
   exp_second_started = { experiences: [{},
                                        { spans: [{ dates: Date.parse("2021/07/15").. }] }] }
   a = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
-  @outputs[:features_dates_started][:"dates started"] = [a]
+  @parsed[:features_dates_started][:"dates started"] = [a]
 
   exp_third_started = { experiences: [{},
                                       {},
                                       { spans: [{ dates: Date.parse("2022/01/01").. }] }] }
   z = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
-  @outputs[:features_dates_started][:"dates started in any order"] = [z]
+  @parsed[:features_dates_started][:"dates started in any order"] = [z]
 
   exp_progress = ->(amount) { { experiences: [{ spans: [{ progress: amount }] }] } }
   a_halfway = a_started.deep_merge(exp_progress.call(0.5))
-  @outputs[:features_dates_started][:"progress"] = [a_halfway]
+  @parsed[:features_dates_started][:"progress"] = [a_halfway]
 
   a = a_started.deep_merge(exp_progress.call(220))
-  @outputs[:features_dates_started][:"progress pages"] = [a]
+  @parsed[:features_dates_started][:"progress pages"] = [a]
 
-  @outputs[:features_dates_started][:"progress pages without p"] = [a]
+  @parsed[:features_dates_started][:"progress pages without p"] = [a]
 
   a = a_started.deep_merge(exp_progress.call("2:30"))
-  @outputs[:features_dates_started][:"progress time"] = [a]
+  @parsed[:features_dates_started][:"progress time"] = [a]
 
   a = a_started.deep_merge(exp_progress.call(0))
-  @outputs[:features_dates_started][:"dnf"] = [a]
+  @parsed[:features_dates_started][:"dnf"] = [a]
 
-  @outputs[:features_dates_started][:"dnf with progress"] = [a_halfway]
+  @parsed[:features_dates_started][:"dnf with progress"] = [a_halfway]
 
   exp_v2 = { experiences: [{ variant_index: 1 }] }
   a_variant = a_started.deep_merge(exp_v2)
-  @outputs[:features_dates_started][:"variant"] = [a_variant]
+  @parsed[:features_dates_started][:"variant"] = [a_variant]
 
   a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
-  @outputs[:features_dates_started][:"group can be indicated at the very end"] = [a]
+  @parsed[:features_dates_started][:"group can be indicated at the very end"] = [a]
 
   a = a_variant.deep_merge(experiences: [{ group: "" }])
-  @outputs[:features_dates_started][:"group can be without text"] = [a]
+  @parsed[:features_dates_started][:"group can be without text"] = [a]
 
 
-  @outputs[:features_dates_started][:"other text before or after dates is ignored"] = [a_started]
+  @parsed[:features_dates_started][:"other text before or after dates is ignored"] = [a_started]
 
   a_many = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   a = a_many.deep_merge(experiences: [{ spans: [{ progress: 0.5 }],
                                         variant_index: 1 },
                                       { spans: [{ progress: "2:30" }] }])
-  @outputs[:features_dates_started][:"all features"] = [a]
+  @parsed[:features_dates_started][:"all features"] = [a]
 
 
 
-  @outputs[:features_compact_planned] = {}
+  @parsed[:features_compact_planned] = {}
   a_title = item_hash(title: "A Song for Nero",
                       variants: [{ format: :ebook }])
-  @outputs[:features_compact_planned][:"title only"] = [a_title]
+  @parsed[:features_compact_planned][:"title only"] = [a_title]
 
   a_author = a_title.merge(author: "Tom Holt")
-  @outputs[:features_compact_planned][:"with author"] = [a_author]
+  @parsed[:features_compact_planned][:"with author"] = [a_author]
 
   lexpub_and_hoopla = [{ name: "Lexpub", url: nil },
                        { name: "Hoopla", url: nil }]
   a_sources = a_author.deep_merge(variants: [{ sources: lexpub_and_hoopla }])
-  @outputs[:features_compact_planned][:"with sources"] = [a_sources]
+  @parsed[:features_compact_planned][:"with sources"] = [a_sources]
 
-  @outputs[:features_compact_planned][:"with sources in the Sources column"] = [a_sources]
+  @parsed[:features_compact_planned][:"with sources in the Sources column"] = [a_sources]
 
   a_full_sources = a_sources.deep_merge(variants: [{ isbn: "B00GW4U2TM",
                                                     extra_info: ["unabridged"],
                                                     series: [{ name: "Holt's Classical Novels", volume: nil }] }])
-  @outputs[:features_compact_planned][:"with fuller Head and Sources columns (unlikely)"] = [a_full_sources]
+  @parsed[:features_compact_planned][:"with fuller Head and Sources columns (unlikely)"] = [a_full_sources]
 
   b_sources = item_hash(title: "True Grit",
                         variants: [{ format: :audiobook,
                                     sources: [{ name: "Lexpub" }] }])
 
-  @outputs[:features_compact_planned][:"multiple with with Head and Sources columns (very unlikely)"] = [a_full_sources, b_sources]
+  @parsed[:features_compact_planned][:"multiple with with Head and Sources columns (very unlikely)"] = [a_full_sources, b_sources]
 
   a_full_sources_minus_isbn = a_full_sources.deep_merge(variants: [{ isbn: nil }])
-  @outputs[:features_compact_planned][:"with sources and extra info"] = [a_full_sources_minus_isbn]
+  @parsed[:features_compact_planned][:"with sources and extra info"] = [a_full_sources_minus_isbn]
 
-  @outputs[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
+  @parsed[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 
-  @outputs[:features_compact_planned][:"multiple with source"] = [a_sources, b_sources]
+  @parsed[:features_compact_planned][:"multiple with source"] = [a_sources, b_sources]
 
   a_genre = a_sources.merge(genres: ["historical fiction"])
   b_genre = b_sources.merge(genres: ["historical fiction"])
-  @outputs[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
+  @parsed[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
 
   a_multi_genre = a_sources.merge(genres: ["historical fiction", "faves"])
   b_multi_genre = b_sources.merge(genres: ["historical fiction", "faves"])
-  @outputs[:features_compact_planned][:"multiple with multiple genres"] = [a_multi_genre, b_multi_genre]
+  @parsed[:features_compact_planned][:"multiple with multiple genres"] = [a_multi_genre, b_multi_genre]
 
-  @outputs[:features_compact_planned][:"multiple with genre plus source"] = [a_genre, b_genre]
+  @parsed[:features_compact_planned][:"multiple with genre plus source"] = [a_genre, b_genre]
 
-  @outputs[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
+  @parsed[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
 
   default_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
   multi_source = [{ sources: [{ name: "Lexpub" },
                               { name: default_name, url: "https://www.lexpublib.org" }]}]
   a_multi_source = a_genre.deep_merge(variants: multi_source)
   b_multi_source = b_genre.deep_merge(variants: multi_source)
-  @outputs[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
+  @parsed[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
 
-  @outputs[:features_compact_planned][:"config-defined emojis are ignored"] = [a_genre, b_genre]
+  @parsed[:features_compact_planned][:"config-defined emojis are ignored"] = [a_genre, b_genre]
 
 
 
-  @outputs[:features_history] = {}
+  @parsed[:features_history] = {}
   a = item_hash(
     title: "Fullstack Ruby",
     experiences: [{ spans: [
@@ -769,7 +773,7 @@ class ParseTest < Minitest::Test
       { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
         name: "#3 String-Based Templates vs. DSLs" }] }],
   )
-  @outputs[:features_history][:"dates and names"] = [a]
+  @parsed[:features_history][:"dates and names"] = [a]
 
   a = a.merge(
     experiences: [{ spans: [
@@ -777,11 +781,11 @@ class ParseTest < Minitest::Test
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" ),
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" )] }],
   )
-  @outputs[:features_history][:"time amounts"] = [a]
+  @parsed[:features_history][:"time amounts"] = [a]
 
 
 
-  @outputs[:examples] = {}
+  @parsed[:examples] = {}
   sapiens = item_hash(
     title: "Sapiens: A Brief History of Humankind",
     variants:    [{ format: :audiobook,
@@ -818,7 +822,7 @@ class ParseTest < Minitest::Test
                               progress: 0.5 }] }],
     genres: ["historical fiction"],
   )
-  @outputs[:examples][:"in progress"] = [sapiens, goatsong]
+  @parsed[:examples][:"in progress"] = [sapiens, goatsong]
 
   insula = item_hash(
     rating: 4,
@@ -902,7 +906,7 @@ class ParseTest < Minitest::Test
       { blurb?: true, content: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist." },
     ],
   )
-  @outputs[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
+  @parsed[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
 
 
   nero = item_hash(
@@ -913,7 +917,7 @@ class ParseTest < Minitest::Test
                     length: 580 }],
     genres: ["historical fiction"],
   )
-  @outputs[:examples][:"planned"] = [nero]
+  @parsed[:examples][:"planned"] = [nero]
 
   emperor = item_hash(
     title: "How to Think Like a Roman Emperor",
@@ -926,7 +930,7 @@ class ParseTest < Minitest::Test
                   sources: [{ name: "Lexpub" },
                             { name: "Jeffco" }] }],
   )
-  @outputs[:examples][:"single compact planned"] = [emperor, born_crime]
+  @parsed[:examples][:"single compact planned"] = [emperor, born_crime]
 
   nero = item_hash(
     author: "Tom Holt",
@@ -961,7 +965,7 @@ class ParseTest < Minitest::Test
                             { name: "Hoopla" }] }],
     genres: %w[science weird],
   )
-  @outputs[:examples][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
+  @parsed[:examples][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 
 
 
@@ -1028,7 +1032,7 @@ class ParseTest < Minitest::Test
     columns = set_name.to_s.split(", ").map(&:to_sym)
     define_method("test_enabled_columns_#{columns.join("_")}") do
       config = with_columns(columns)
-      exp = tidy(outputs[:enabled_columns][set_name])
+      exp = tidy(parsed[:enabled_columns][set_name])
       act = Reading.parse(file_str, config: config)
       # debugger unless exp == act
       assert_equal exp, act,
@@ -1040,7 +1044,7 @@ class ParseTest < Minitest::Test
   def test_custom_numeric_columns
     config = with_columns(%i[rating head sources dates_started dates_finished length],
                 custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
-    exp = tidy(outputs[:custom_columns][:numeric])
+    exp = tidy(parsed[:custom_columns][:numeric])
     act = Reading.parse(inputs[:custom_columns][:numeric], config: config)
     # debugger unless exp == act
     assert_equal exp, act
@@ -1049,7 +1053,7 @@ class ParseTest < Minitest::Test
   def test_custom_text_columns
     config = with_columns(%i[rating head sources dates_started dates_finished length],
                 custom_text_columns: { mood: nil, will_reread: "no" })
-    exp = tidy(outputs[:custom_columns][:text])
+    exp = tidy(parsed[:custom_columns][:text])
     act = Reading.parse(inputs[:custom_columns][:text], config: config)
     # debugger unless exp == act
     assert_equal exp, act
@@ -1063,7 +1067,7 @@ class ParseTest < Minitest::Test
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
       define_method("test_#{columns_sym}_feature_#{feat}") do
         config = with_columns(columns + [:head])
-        exp = tidy(outputs[group_name][feat])
+        exp = tidy(parsed[group_name][feat])
         act = Reading.parse(file_str, config: config)
         # debugger unless exp == act
         assert_equal exp, act,
@@ -1076,7 +1080,7 @@ class ParseTest < Minitest::Test
   inputs[:examples].each do |set_name, file_str|
     define_method("test_example_#{set_name}") do
       config = with_columns(:all)
-      exp = tidy(outputs[:examples][set_name])
+      exp = tidy(parsed[:examples][set_name])
       act = Reading.parse(file_str, config: config)
       # debugger unless exp == act
       assert_equal exp, act,

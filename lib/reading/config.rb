@@ -35,6 +35,9 @@ module Reading
 
       # Add the Regex config, which is built based on the config so far.
       @hash[:csv][:regex] = build_regex_config
+
+      # Add the Regex config, which is built based on the config so far.
+      @hash[:regex] = build_regex_config_new
     end
 
     # The default config, excluding Regex config (see further down).
@@ -197,6 +200,19 @@ module Reading
         time_length_in_variant: time_length,
         pages_length: /\A#{pages_length}(?<each>\s+each)?\z/,
         pages_length_in_variant: /(?:\A|\s+|p)(?<pages>\d{1,9})(?:p|\s+|\z)/, # to exclude ISBN-10 and ISBN-13
+      }
+    end
+
+    # Builds the Regex portion of the config, based on the given config.
+    # @return [Hash]
+    def build_regex_config_new
+      return @hash[:regex] if @hash.has_key?(:regex)
+
+      formats = @hash.deep_fetch(:item, :formats).values.join("|")
+
+      {
+        formats: /#{formats}/,
+        formats_split: /\s*(?:,|--)?\s*(?=#{formats})/,
       }
     end
   end
