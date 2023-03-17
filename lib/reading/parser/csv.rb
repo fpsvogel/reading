@@ -7,10 +7,12 @@ require_relative "../util/hash_deep_merge"
 require_relative "../util/hash_array_deep_fetch"
 require_relative "../util/hash_compact_by_template"
 require_relative "../errors"
+require_relative "../new_errors"
 
 # Used just here.
 require_relative "../config"
-require_relative "line"
+# require_relative "line"
+require_relative "row"
 
 module Reading
   module Parser

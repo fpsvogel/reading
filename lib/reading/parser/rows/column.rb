@@ -1,14 +1,38 @@
 module Reading
   module Parser
     class Column
+      def self.column_name
+        class_name = name.split("::").last
+        class_name.gsub(/(.)([A-Z])/,'\1 \2')
+      end
+
+      def self.to_sym
+        class_name = name.split("::").last
+        class_name
+          .gsub(/(.)([A-Z])/,'\1_\2')
+          .downcase
+          .to_sym
+      end
+
       def self.split_by_format?
         false
+      end
+
+      def self.split_by_segment?
+        !!segment_separator
       end
 
       def self.segment_separator
         nil
       end
 
+      def self.transforms
+        {}
+      end
+
+      # Keys in the parsed output hash that should be converted to an array, even
+      # if only one value was in the input, e.g. { ... extra_info: ["ed. Jane Doe"] }
+      # @return [Array<Symbol>]
       def self.array_keys
         []
       end
@@ -23,17 +47,17 @@ module Reading
 
       SHARED_REGEXES = {
         progress: %r{
-          # DNF percent
+          # percent
           (DNF\s+)?(?<progress_percent>\d\d?)%
           |
-          # DNF page
+          # page
           (DNF\s+)?p(?<progress_page>\d+)
           |
-          # DNF time
+          # time
           (DNF\s+)?(?<progress_time>\d+:\d\d)
           |
           # just DNF
-          DNF
+          (?<progress_dnf>DNF)
         }x,
         series_and_extra_info: [
           # just series
