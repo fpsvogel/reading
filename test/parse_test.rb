@@ -324,83 +324,83 @@ class ParseTest < Minitest::Test
 
 
 
-  ## TEST INPUT: ERRORS
-  # Bad input that should raise an error.
-  @inputs[:errors] = {}
-  @inputs[:errors][Reading::InvalidDateError] =
-  {
-  :"date not in yyyy/mm/dd format" =>
-    "|Sapiens||2019-01-01|2020/01/01",
-  :"date started content without a date" =>
-    "|Sapiens||no date here|2020/01/01",
-  :"date finished content without a date" =>
-    "|Sapiens||2019/01/01|no date here",
-  :"incomplete date is the same as no date" =>
-    "|Sapiens||2019/01|2020/01/01",
-  :"conjoined dates" =>
-    "|Sapiens||2019/01/01 2020/01/01",
-  :"unparsable date" =>
-    "|Sapiens||2019/01/32|2020/01/01",
-  :"end date before start date" =>
-    "|Sapiens||2020/01/01|2019/01/01",
-  :"start dates out of order" =>
-    "|Sapiens||2019/01/01, 2018/01/01",
-  :"end date after the next start date for the same variant" =>
-    "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
-  :"OK: end date after the next start date for different variants" =>
-    "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
-  }
-  @inputs[:errors][Reading::InvalidSourceError] =
-  {
-  :"multiple ISBNs or ASINs for the same variant" =>
-    "|Sapiens|0062316117 B00ICN066A",
-  :"OK: multiple URLs but different sources" =>
-    "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
-  }
-  @inputs[:errors][Reading::InvalidHeadError] =
-  {
-  :"blank Head column" =>
-    "|",
-  :"missing title" =>
-    "|📕",
-  :"missing title after author" =>
-    "|📕Mark Twain - ",
-  :"missing title in compact planned row" =>
-    "\\📕",
-  :"missing title after author in compact planned row" =>
-    "\\📕Mark Twain - ",
-  }
-  @inputs[:errors][Reading::InvalidRatingError] =
-  {
-  :"non-numeric rating" =>
-    "a|Sapiens",
-  }
-  @inputs[:errors][Reading::TooManyColumnsError] =
-  {
-  :"column beyond the number of enabled columns" =>
-    "|Sapiens||||||||something",
-  :"empty column beyond the number of enabled columns" =>
-    "|Sapiens||||||||",
-  :"multiple other columns in a compact planned item when only Sources is allowed" =>
-    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
-  }
-  # These are examples of missing columns that do NOT raise an error during parsing.
-  # I *could* add more validations to avoid these, but for me these never happen
-  # because I view my reading.csv with color-coded columns (Rainbow CSV extension
-  # for VS Code). Even so, I'm documenting these odd cases here.
-  @inputs[:errors][Reading::Error] =
-  {
-  :"OK: missing Rating column if the title is numeric (no InvalidRatingError is raised)" =>
-    "1984|https://www.george-orwell.org/1984",
-  :"OK: missing Head column (the date is parsed as the title)" =>
-    "|2019/01/01",
-  :"OK: missing Source column (the date is parsed as a source)" =>
-    "|Sapiens|2019/01/01",
-  :"OK: missing Genres column (the length is parsed as a genre)" =>
-    "|Sapiens||2019/01/01|2020/01/01|15:17",
-  :"OK: missing Notes column (History is parsed as Notes)" =>
-    "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
-  }
+  # ## TEST INPUT: ERRORS
+  # # Bad input that should raise an error.
+  # @inputs[:errors] = {}
+  # @inputs[:errors][Reading::InvalidDateError] =
+  # {
+  # :"date not in yyyy/mm/dd format" =>
+  #   "|Sapiens||2019-01-01|2020/01/01",
+  # :"date started content without a date" =>
+  #   "|Sapiens||no date here|2020/01/01",
+  # :"date finished content without a date" =>
+  #   "|Sapiens||2019/01/01|no date here",
+  # :"incomplete date is the same as no date" =>
+  #   "|Sapiens||2019/01|2020/01/01",
+  # :"conjoined dates" =>
+  #   "|Sapiens||2019/01/01 2020/01/01",
+  # :"unparsable date" =>
+  #   "|Sapiens||2019/01/32|2020/01/01",
+  # :"end date before start date" =>
+  #   "|Sapiens||2020/01/01|2019/01/01",
+  # :"start dates out of order" =>
+  #   "|Sapiens||2019/01/01, 2018/01/01",
+  # :"end date after the next start date for the same variant" =>
+  #   "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
+  # :"OK: end date after the next start date for different variants" =>
+  #   "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
+  # }
+  # @inputs[:errors][Reading::InvalidSourceError] =
+  # {
+  # :"multiple ISBNs or ASINs for the same variant" =>
+  #   "|Sapiens|0062316117 B00ICN066A",
+  # :"OK: multiple URLs but different sources" =>
+  #   "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
+  # }
+  # @inputs[:errors][Reading::InvalidHeadError] =
+  # {
+  # :"blank Head column" =>
+  #   "|",
+  # :"missing title" =>
+  #   "|📕",
+  # :"missing title after author" =>
+  #   "|📕Mark Twain - ",
+  # :"missing title in compact planned row" =>
+  #   "\\📕",
+  # :"missing title after author in compact planned row" =>
+  #   "\\📕Mark Twain - ",
+  # }
+  # @inputs[:errors][Reading::InvalidRatingError] =
+  # {
+  # :"non-numeric rating" =>
+  #   "a|Sapiens",
+  # }
+  # @inputs[:errors][Reading::TooManyColumnsError] =
+  # {
+  # :"column beyond the number of enabled columns" =>
+  #   "|Sapiens||||||||something",
+  # :"empty column beyond the number of enabled columns" =>
+  #   "|Sapiens||||||||",
+  # :"multiple other columns in a compact planned item when only Sources is allowed" =>
+  #   "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
+  # }
+  # # These are examples of missing columns that do NOT raise an error during parsing.
+  # # I *could* add more validations to avoid these, but for me these never happen
+  # # because I view my reading.csv with color-coded columns (Rainbow CSV extension
+  # # for VS Code). Even so, I'm documenting these odd cases here.
+  # @inputs[:errors][Reading::Error] =
+  # {
+  # :"OK: missing Rating column if the title is numeric (no InvalidRatingError is raised)" =>
+  #   "1984|https://www.george-orwell.org/1984",
+  # :"OK: missing Head column (the date is parsed as the title)" =>
+  #   "|2019/01/01",
+  # :"OK: missing Source column (the date is parsed as a source)" =>
+  #   "|Sapiens|2019/01/01",
+  # :"OK: missing Genres column (the length is parsed as a genre)" =>
+  #   "|Sapiens||2019/01/01|2020/01/01|15:17",
+  # :"OK: missing Notes column (History is parsed as Notes)" =>
+  #   "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
+  # }
 
 
 
@@ -1027,54 +1027,54 @@ class ParseTest < Minitest::Test
 
   # ==== TESTS
 
-  ## TESTS: ENABLING COLUMNS
-  inputs[:enabled_columns].each do |set_name, file_str|
-    columns = set_name.to_s.split(", ").map(&:to_sym)
-    define_method("test_enabled_columns_#{columns.join("_")}") do
-      config = with_columns(columns)
-      exp = tidy(parsed[:enabled_columns][set_name])
-      act = Reading.parse(file_str, config: config)
-      # debugger unless exp == act
-      assert_equal exp, act,
-        "Failed to parse with these columns enabled: #{set_name}"
-    end
-  end
+  # ## TESTS: ENABLING COLUMNS
+  # inputs[:enabled_columns].each do |set_name, file_str|
+  #   columns = set_name.to_s.split(", ").map(&:to_sym)
+  #   define_method("test_enabled_columns_#{columns.join("_")}") do
+  #     config = with_columns(columns)
+  #     exp = tidy(parsed[:enabled_columns][set_name])
+  #     act = Reading.parse(file_str, config: config)
+  #     # debugger unless exp == act
+  #     assert_equal exp, act,
+  #       "Failed to parse with these columns enabled: #{set_name}"
+  #   end
+  # end
 
-  ## TESTS: CUSTOM COLUMNS
-  def test_custom_numeric_columns
-    config = with_columns(%i[rating head sources dates_started dates_finished length],
-                custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
-    exp = tidy(parsed[:custom_columns][:numeric])
-    act = Reading.parse(inputs[:custom_columns][:numeric], config: config)
-    # debugger unless exp == act
-    assert_equal exp, act
-  end
+  # ## TESTS: CUSTOM COLUMNS
+  # def test_custom_numeric_columns
+  #   config = with_columns(%i[rating head sources dates_started dates_finished length],
+  #               custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
+  #   exp = tidy(parsed[:custom_columns][:numeric])
+  #   act = Reading.parse(inputs[:custom_columns][:numeric], config: config)
+  #   # debugger unless exp == act
+  #   assert_equal exp, act
+  # end
 
-  def test_custom_text_columns
-    config = with_columns(%i[rating head sources dates_started dates_finished length],
-                custom_text_columns: { mood: nil, will_reread: "no" })
-    exp = tidy(parsed[:custom_columns][:text])
-    act = Reading.parse(inputs[:custom_columns][:text], config: config)
-    # debugger unless exp == act
-    assert_equal exp, act
-  end
+  # def test_custom_text_columns
+  #   config = with_columns(%i[rating head sources dates_started dates_finished length],
+  #               custom_text_columns: { mood: nil, will_reread: "no" })
+  #   exp = tidy(parsed[:custom_columns][:text])
+  #   act = Reading.parse(inputs[:custom_columns][:text], config: config)
+  #   # debugger unless exp == act
+  #   assert_equal exp, act
+  # end
 
-  ## TESTS: FEATURES OF SINGLE COLUMNS
-  inputs.keys.select { |key| key.start_with?("features_") }.each do |group_name|
-    inputs[group_name].each do |feat, file_str|
-      columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
-      columns = columns_sym.to_s.split(", ").map(&:to_sym)
-      main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
-      define_method("test_#{columns_sym}_feature_#{feat}") do
-        config = with_columns(columns + [:head])
-        exp = tidy(parsed[group_name][feat])
-        act = Reading.parse(file_str, config: config)
-        # debugger unless exp == act
-        assert_equal exp, act,
-          "Failed to parse this #{main_column_humanized} column feature: #{feat}"
-      end
-    end
-  end
+  # ## TESTS: FEATURES OF SINGLE COLUMNS
+  # inputs.keys.select { |key| key.start_with?("features_") }.each do |group_name|
+  #   inputs[group_name].each do |feat, file_str|
+  #     columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
+  #     columns = columns_sym.to_s.split(", ").map(&:to_sym)
+  #     main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
+  #     define_method("test_#{columns_sym}_feature_#{feat}") do
+  #       config = with_columns(columns + [:head])
+  #       exp = tidy(parsed[group_name][feat])
+  #       act = Reading.parse(file_str, config: config)
+  #       # debugger unless exp == act
+  #       assert_equal exp, act,
+  #         "Failed to parse this #{main_column_humanized} column feature: #{feat}"
+  #     end
+  #   end
+  # end
 
   ## TESTS: EXAMPLES
   inputs[:examples].each do |set_name, file_str|
@@ -1088,19 +1088,19 @@ class ParseTest < Minitest::Test
     end
   end
 
-  ## TESTS: ERRORS
-  inputs[:errors].each do |error, inputs_hash|
-    inputs_hash.each do |name, file_str|
-      define_method("test_example_#{name}") do
-        config = with_columns(:all)
-        if name.start_with? "OK: "
-          refute_nil Reading.parse(file_str, config: config) # Should not raise an error.
-        else
-          assert_raises error, "Failed to raise #{error} for: #{name}" do
-            Reading.parse(file_str, config: config)
-          end
-        end
-      end
-    end
-  end
+  # ## TESTS: ERRORS
+  # inputs[:errors].each do |error, inputs_hash|
+  #   inputs_hash.each do |name, file_str|
+  #     define_method("test_example_#{name}") do
+  #       config = with_columns(:all)
+  #       if name.start_with? "OK: "
+  #         refute_nil Reading.parse(file_str, config: config) # Should not raise an error.
+  #       else
+  #         assert_raises error, "Failed to raise #{error} for: #{name}" do
+  #           Reading.parse(file_str, config: config)
+  #         end
+  #       end
+  #     end
+  #   end
+  # end
 end

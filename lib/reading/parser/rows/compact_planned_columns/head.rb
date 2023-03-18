@@ -7,7 +7,7 @@ module Reading
             true
           end
 
-          def self.transforms
+          def self.tweaks
             {
               genres: -> { _1.downcase.split(/\s*,\s*/) },
               sources: -> { _1.split(/\s*@/).map(&:presence).compact }
@@ -15,19 +15,16 @@ module Reading
           end
 
           def self.regex_before_formats
-            [
-              :genres_sources,
-              %r{\A
-                \\ # comment character
+            %r{\A
+              \\ # comment character
+              \s*
+              (
+                (?<genres>[^a-z]+)?
                 \s*
-                (
-                  (?<genres>[^a-z]+)?
-                  \s*
-                  (?<sources>@.+)?
-                  \s*:
-                )?
-              \z}x,
-            ]
+                (?<sources>@.+)?
+                \s*:
+              )?
+            \z}x
           end
 
           def self.regexes(segment_index)

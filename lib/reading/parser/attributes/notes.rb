@@ -1,23 +1,13 @@
 module Reading
   module Parser
     module Attributes
-      class Notes < Attribute
-        using Util::StringRemove
-        using Util::HashArrayDeepFetch
-
-        def parse
-          return nil unless columns[:notes]
-
-          columns[:notes]
-            .presence
-            &.chomp
-            &.remove(/#{config.deep_fetch(:csv, :long_separator).rstrip}\s*\z/)
-            &.split(config.deep_fetch(:csv, :long_separator))
-            &.map { |string|
+      class Notes
+        def self.extract(parsed, head_index, _config)
+          parsed[:notes].map { |note_type, note_string|
               {
-                blurb?: !!string.delete!(config.deep_fetch(:csv, :blurb_emoji)),
-                private?: !!string.delete!(config.deep_fetch(:csv, :private_emoji)),
-                content: string.strip,
+                blurb?: note_type == :note_blurb,
+                private?: note_type == :note_private,
+                content: note_string,
               }
             }
         end

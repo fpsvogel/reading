@@ -26,7 +26,7 @@ module Reading
         nil
       end
 
-      def self.transforms
+      def self.tweaks
         {}
       end
 

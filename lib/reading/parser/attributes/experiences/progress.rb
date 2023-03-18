@@ -1,7 +1,7 @@
 module Reading
   module Parser
     module Attributes
-      class Experiences < Attribute
+      class Experiences
         class Progress
           using Util::HashArrayDeepFetch
 

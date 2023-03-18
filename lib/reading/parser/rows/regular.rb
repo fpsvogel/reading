@@ -1,17 +1,18 @@
-require_relative "regular/rating"
-require_relative "regular/head"
-require_relative "regular/sources"
-require_relative "regular/dates_started"
-require_relative "regular/dates_finished"
-require_relative "regular/genres"
-require_relative "regular/length"
-require_relative "regular/notes"
+require_relative "column"
+require_relative "regular_columns/rating"
+require_relative "regular_columns/head"
+require_relative "regular_columns/sources"
+require_relative "regular_columns/dates_started"
+require_relative "regular_columns/dates_finished"
+require_relative "regular_columns/genres"
+require_relative "regular_columns/length"
+require_relative "regular_columns/notes"
 
 module Reading
   module Parser
     module Rows
       module Regular
-        def self.columns
+        def self.column_classes
           [Rating, Head, Sources, DatesStarted, DatesFinished, Genres, Length, Notes]
         end
 

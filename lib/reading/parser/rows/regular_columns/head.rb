@@ -12,8 +12,7 @@ module Reading
           end
 
           def self.regex_before_formats
-            [:progress,
-              /\A#{SHARED_REGEXES[:progress]}\z/]
+            /\A#{SHARED_REGEXES[:progress]}\z/
           end
 
           def self.array_keys

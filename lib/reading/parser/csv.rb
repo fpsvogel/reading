@@ -6,19 +6,16 @@ require_relative "../util/hash_to_struct"
 require_relative "../util/hash_deep_merge"
 require_relative "../util/hash_array_deep_fetch"
 require_relative "../util/hash_compact_by_template"
-require_relative "../errors"
 require_relative "../new_errors"
 
 # Used just here.
 require_relative "../config"
-# require_relative "line"
 require_relative "row"
 
 module Reading
   module Parser
     class CSV
       using Util::HashDeepMerge
-      using Util::HashArrayDeepFetch
       using Util::HashToStruct
 
       attr_reader :config
@@ -37,18 +34,15 @@ module Reading
       end
 
       # Parses a CSV reading log into item data (an array of Structs).
-      # For what the Structs look like, see the Hash at @default_config[:item][:template]
-      # in config.rb. The Structs are identical in structure to that Hash (with
-      # every inner Hash replaced with a Struct).
-      # @return [Array<Struct>] an array of Structs like the template in config.rb
+      # @return [Array<Struct>] an array of Structs like the template in
+      #   Config#default_config[:item][:template]. The Structs are identical in
+      #   structure to that Hash (with every inner Hash replaced by a Struct).
       def parse
         input = @string || File.open(@path)
         items = []
 
         input.each_line do |string|
-          line = Line.new(string, self)
-          row = line.to_row
-
+          row = Row.new(string, config)
           items += row.parse
         end
 

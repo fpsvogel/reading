@@ -1,69 +1,69 @@
-require_relative "variants/series"
-require_relative "variants/sources"
-require_relative "variants/length"
-require_relative "variants/extra_info"
-
 module Reading
   module Parser
     module Attributes
-      class Variants < Attribute
+      class Variants
         using Util::HashArrayDeepFetch
 
-        def parse
-          sources_str = columns[:sources]&.presence || " "
+        class << self
+          private attr_reader :config
 
-          format_as_separator = config.deep_fetch(:csv, :regex, :formats_split)
+          def extract(parsed, head_index, config)
+            @config = config
 
-          sources_str.split(format_as_separator).map { |variant_with_extras|
-            # without extra info or series
-            bare_variant = variant_with_extras
-              .split(config.deep_fetch(:csv, :long_separator))
-              .first
+            head = parsed[:head][head_index]
 
-            series_attr = Variants::Series.new(item_head:, variant_with_extras:, config:)
-            sources_attr = Variants::Sources.new(bare_variant:, config:)
-            # Length, despite not being very complex, is still split out into a
-            # subattribute because it needs to be accessible to Experiences
-            # (specifically Experiences::Spans) which uses length as a default
-            # value for amount.
-            length_attr = Variants::Length.new(bare_variant:, columns:, config:)
-            extra_info_attr = Variants::ExtraInfo.new(item_head:, variant_with_extras:, config:)
-
-            variant =
+            parsed[:sources].map { |variant|
               {
-                format: format(bare_variant) || format(item_head) || template.fetch(:format),
-                series: series_attr.parse                         || template.fetch(:series),
-                sources: sources_attr.parse                       || template.fetch(:sources),
-                isbn: isbn(bare_variant)                          || template.fetch(:isbn),
-                length: length_attr.parse                         || template.fetch(:length),
-                extra_info: extra_info_attr.parse                 || template.fetch(:extra_info)
-              }
-
-            if variant != template
-              variant
-            else
-              nil
-            end
-          }.compact.presence
-        end
-
-        private
-
-        def template
-          @template ||= config.deep_fetch(:item, :template, :variants).first
-        end
-
-        def format(str)
-          emoji = str.match(/^#{config.deep_fetch(:csv, :regex, :formats)}/).to_s
-          config.deep_fetch(:item, :formats).key(emoji)
-        end
-
-        def isbn(str)
-          isbns = str.scan(config.deep_fetch(:csv, :regex, :isbn))
-          if isbns.count > 1
-            raise InvalidSourceError, "Only one ISBN/ASIN is allowed per item variant"
+                format: variant[:format] || head[:format],
+                series: series(variant) || series(head),
+                sources: sources(variant),
+                isbn: variant[:isbn],
+                length: length(variant) || length(parsed[:length]),
+                extra_info: variant[:extra_info] || head[:extra_info],
+              }.map { |k, v| [k, v || template.fetch(k)] }.to_h
+            }.compact.presence
           end
-          isbns[0]&.to_s
+
+          def template
+            config.deep_fetch(:item, :template, :variants).first
+          end
+
+          def series(hash)
+            (hash[:series_names] || [])
+              .zip(hash[:series_volumes] || [])
+              .map { |name, volume|
+                { name:, volume: }
+              }
+          end
+
+          def sources(hash)
+            default_name_for_url = config.deep_fetch(:item, :sources, :default_name_for_url)
+
+            hash[:sources].map { |source|
+              if source.match?(/\Ahttps?:\/\//)
+                { name: url_name(source), url: source }
+              else
+                { name: source, url: nil }
+              end
+            }
+          end
+
+          def url_name(url)
+            config
+              .deep_fetch(:item, :sources, :names_from_urls)
+              .each do |url_part, name|
+                if url.include?(url_part)
+                  return name
+                end
+              end
+
+            config.deep_fetch(:item, :sources, :default_name_for_url)
+          end
+
+          def length(hash)
+            hash[:length_time] ||
+              hash[:length_pages]&.to_i
+          end
         end
       end
     end

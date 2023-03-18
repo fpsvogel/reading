@@ -15,9 +15,9 @@ module Reading
             %i[extra_info series_names series_volumes]
           end
 
-          def self.transforms
+          def self.tweaks
             {
-              source_names: -> { _1.split(/\s*,\s*/) },
+              sources: -> { _1.split(/\s*,\s*/) },
             }
           end
 
@@ -26,7 +26,7 @@ module Reading
               # sources, ISBN/ASIN, length
               (%r{\A
                 (
-                  (?<source_names>.+?)
+                  (?<sources>.+?)
                   ,?(\s+|\z)
                 )?
                 (

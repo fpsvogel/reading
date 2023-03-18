@@ -1,36 +1,40 @@
 module Reading
   module Parser
     module Attributes
-      class Experiences < Attribute
+      class Experiences
         # Methods to validate dates. This does not cover all the ways dates can be
         # invalid, just the ones not covered by ExperiencesAttribute during parsing.
         module DatesValidator
           using Util::HashArrayDeepFetch
 
           class << self
+            private attr_reader :config
+
             # Checks the dates in the given experiences hash, and raises an error at
             # the first invalid date found.
             # @param experiences [Array<Hash>]
             # @param config [Hash]
             def validate(experiences, config)
-              validate_dates_started_are_in_order(experiences) if dates_started_column?(config)
-              validate_dates_finished_are_in_order(experiences) if dates_finished_column?(config)
-              validate_experiences_of_same_variant_do_not_overlap(experiences) if both_date_columns?(config)
+              @config = config
+
+              validate_dates_started_are_in_order(experiences) if dates_started_column?
+              validate_dates_finished_are_in_order(experiences) if dates_finished_column?
+              validate_experiences_of_same_variant_do_not_overlap(experiences) if both_date_columns?
               validate_spans_are_in_order_and_not_overlapping(experiences)
             end
 
             private
 
-            def dates_started_column?(config)
+            def dates_started_column?
               config.deep_fetch(:csv, :enabled_columns).include?(:dates_started)
             end
 
-            def dates_finished_column?(config)
+            def dates_finished_column?
               config.deep_fetch(:csv, :enabled_columns).include?(:dates_finished)
             end
 
-            def both_date_columns?(config)
-              dates_started_column?(config) && dates_finished_column?(config)
+            def both_date_columns?
+              dates_started_column? && dates_finished_column?
             end
 
             def validate_dates_started_are_in_order(experiences)

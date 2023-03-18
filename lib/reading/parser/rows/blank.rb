@@ -4,7 +4,7 @@ module Reading
       module Blank
         using Util::HashArrayDeepFetch
 
-        def self.columns
+        def self.column_classes
           []
         end
 

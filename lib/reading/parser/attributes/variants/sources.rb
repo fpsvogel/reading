@@ -1,7 +1,7 @@
 module Reading
   module Parser
     module Attributes
-      class Variants < Attribute
+      class Variants
         class Sources
           using Util::StringRemove
           using Util::HashArrayDeepFetch

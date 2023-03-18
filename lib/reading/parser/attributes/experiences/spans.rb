@@ -4,7 +4,7 @@ require_relative "../variants/length"
 module Reading
   module Parser
     module Attributes
-      class Experiences < Attribute
+      class Experiences
         class Spans
           using Util::HashArrayDeepFetch
 
