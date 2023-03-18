@@ -26,7 +26,7 @@ module Reading
 
       def extract_columns(string)
         clean_string = string.dup.force_encoding(Encoding::UTF_8).strip
-        column_strings = clean_string.split(config.deep_fetch(:csv, :column_separator))
+        column_strings = clean_string.split(config.fetch(:column_separator))
 
         row_types = [Rows::Regular, Rows::CompactPlanned, Rows::Blank]
         column_classes = row_types
@@ -39,33 +39,38 @@ module Reading
       end
 
       def parse_column(column_class, column_string)
-        if column_class.split_by_format? && column_string.match?(config.deep_fetch(:regex, :formats))
-          formats = column_string.split(config.deep_fetch(:regex, :formats_split))
+        if column_class.split_by_format?
+          if column_string.match?(config.deep_fetch(:regex, :formats))
+            formats = column_string.split(config.deep_fetch(:regex, :formats_split))
 
-          # If there's a string before the first format.
-          unless formats.first.match?(config.deep_fetch(:regex, :formats))
-            regex = column_class.regex_before_formats
-            before_formats = parse_string(formats.shift, regex, column_class.tweaks)
-          end
-
-          heads = formats.map { |string|
-            format_emoji = string[config.deep_fetch(:regex, :formats)]
-            string.remove!(format_emoji)
-            format = config.deep_fetch(:item, :formats).key(format_emoji)
-
-            parse_segments(column_class, string)
-              .merge(format: format)
-          }
-
-          if before_formats
-            heads.each do |head|
-              head.merge!(before_formats)
+            # If there's a string before the first format.
+            unless formats.first.match?(config.deep_fetch(:regex, :formats))
+              regex = column_class.regex_before_formats
+              before_formats = parse_string(formats.shift, regex, column_class.tweaks)
             end
-          end
 
-          [column_class.to_sym, heads]
+            heads = formats.map { |string|
+              format_emoji = string[config.deep_fetch(:regex, :formats)]
+              string.remove!(format_emoji)
+              format = config.fetch(:formats).key(format_emoji)
+
+              parse_segments(column_class, string)
+                .merge(format: format)
+            }
+
+            if before_formats
+              heads.each do |head|
+                head.merge!(before_formats)
+              end
+            end
+
+            return [column_class.to_sym, heads]
+          else
+            # Wrap the value in an array so that e.g. a head without emojis is still an array.
+            return [column_class.to_sym, [parse_segments(column_class, column_string)]]
+          end
         else
-          [column_class.to_sym, parse_segments(column_class, column_string)]
+          return [column_class.to_sym, parse_segments(column_class, column_string)]
         end
       end
 
@@ -115,7 +120,10 @@ module Reading
       end
 
       def parse_string(string, regex, tweaks)
-        hash = string.strip.match(regex)
+        hash = string
+          .tr(config.fetch(:ignored_chars), "")
+          .strip
+          .match(regex)
           &.named_captures
           &.compact
           &.transform_keys(&:to_sym)

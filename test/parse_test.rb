@@ -411,7 +411,7 @@ class ParseTest < Minitest::Test
     # This merge is not the same as Reading::Util::HashDeepMerge. This one uses the
     # first (empty) subhashes in the item template, for example in :variants and
     # :experiences in the item template.
-    base_config.deep_fetch(:item, :template).merge(partial_hash) do |key, old_value, new_value|
+    base_config.fetch(:item_template).merge(partial_hash) do |key, old_value, new_value|
       item_template_merge(key, old_value, new_value)
     end
   end
@@ -570,12 +570,12 @@ class ParseTest < Minitest::Test
   a = a_basic.deep_merge(variants: [{ sources: [library] }])
   @parsed[:features_sources][:"source"] = [a]
 
-  site = { name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
+  site = { name: base_config.deep_fetch(:sources, :default_name_for_url),
            url: "https://www.edlin.org/holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site] }])
   @parsed[:features_sources][:"URL source"] = [a]
 
-  default_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
+  default_name = base_config.deep_fetch(:sources, :default_name_for_url)
   site_named = { name: default_name, url: "https://www.edlin.org/holt" }
   a = a_basic.deep_merge(variants: [{ sources: [site_named] }])
   @parsed[:features_sources][:"URL source with name"] = [a]
@@ -751,7 +751,7 @@ class ParseTest < Minitest::Test
 
   @parsed[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
 
-  default_name = base_config.deep_fetch(:item, :sources, :default_name_for_url)
+  default_name = base_config.deep_fetch(:sources, :default_name_for_url)
   multi_source = [{ sources: [{ name: "Lexpub" },
                               { name: default_name, url: "https://www.lexpublib.org" }]}]
   a_multi_source = a_genre.deep_merge(variants: multi_source)
@@ -947,7 +947,7 @@ class ParseTest < Minitest::Test
   lebowski = item_hash(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: base_config.deep_fetch(:item, :sources, :default_name_for_url),
+                  sources: [{ name: base_config.deep_fetch(:sources, :default_name_for_url),
                               url: "https://www.runleiarun.com/lebowski" }] }],
     genres: ["historical fiction"],
   )
@@ -999,7 +999,7 @@ class ParseTest < Minitest::Test
   end
 
   def without_blank_hashes(item_hash)
-    template = base_config.deep_fetch(:item, :template)
+    template = base_config.fetch(:item_template)
 
     %i[variants experiences notes].each do |attribute|
       item_hash[attribute] =

@@ -8,6 +8,9 @@ module Reading
           private attr_reader :config
 
           def extract(parsed, head_index, config)
+            return nil if parsed[:sources].blank?
+
+            # TODO make attributes into instances, and subclasses of Attribute
             @config = config
 
             head = parsed[:head][head_index]
@@ -15,7 +18,7 @@ module Reading
             parsed[:sources].map { |variant|
               {
                 format: variant[:format] || head[:format],
-                series: series(variant) || series(head),
+                series: series(variant).presence || series(head).presence,
                 sources: sources(variant),
                 isbn: variant[:isbn],
                 length: length(variant) || length(parsed[:length]),
@@ -25,7 +28,7 @@ module Reading
           end
 
           def template
-            config.deep_fetch(:item, :template, :variants).first
+            config.deep_fetch(:item_template, :variants).first
           end
 
           def series(hash)
@@ -37,7 +40,7 @@ module Reading
           end
 
           def sources(hash)
-            default_name_for_url = config.deep_fetch(:item, :sources, :default_name_for_url)
+            default_name_for_url = config.deep_fetch(:sources, :default_name_for_url)
 
             hash[:sources].map { |source|
               if source.match?(/\Ahttps?:\/\//)
@@ -50,14 +53,14 @@ module Reading
 
           def url_name(url)
             config
-              .deep_fetch(:item, :sources, :names_from_urls)
+              .deep_fetch(:sources, :names_from_urls)
               .each do |url_part, name|
                 if url.include?(url_part)
                   return name
                 end
               end
 
-            config.deep_fetch(:item, :sources, :default_name_for_url)
+            config.deep_fetch(:sources, :default_name_for_url)
           end
 
           def length(hash)

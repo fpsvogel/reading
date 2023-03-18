@@ -12,6 +12,8 @@ module Reading
           private attr_reader :config
 
           def extract(parsed, head_index, config)
+            return nil if parsed[:dates_started].blank? && parsed[:dates_started].blank?
+
             @config = config
 
             head = parsed[:head][head_index]
@@ -24,7 +26,7 @@ module Reading
               {
                 spans: spans(started, finished, head, parsed),
                 group: started[:group],
-                variant_index: started[:variant].to_i - 1,
+                variant_index: (started[:variant] || 1).to_i - 1,
               }.map { |k, v| [k, v || template.fetch(k)] }.to_h
             }.presence
 
@@ -45,11 +47,11 @@ module Reading
           private
 
           def template
-            config.deep_fetch(:item, :template, :experiences).first
+            config.deep_fetch(:item_template, :experiences).first
           end
 
           def spans_template
-            config.deep_fetch(:item, :template, :experiences, 0, :spans).first
+            config.deep_fetch(:item_template, :experiences, 0, :spans).first
           end
 
           def dates_started_and_finished(parsed)
