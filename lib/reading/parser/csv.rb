@@ -15,7 +15,6 @@ require_relative "row"
 module Reading
   module Parser
     class CSV
-      using Util::HashDeepMerge
       using Util::HashToStruct
 
       attr_reader :config
