@@ -2,7 +2,10 @@ module Reading
   module Parser
     module Attributes
       class Notes
-        def self.extract(parsed, head_index, _config)
+        def initialize(_config)
+        end
+
+        def extract(parsed, _head_index)
           parsed[:notes]&.map { |note|
             {
               blurb?: note.has_key?(:note_blurb),

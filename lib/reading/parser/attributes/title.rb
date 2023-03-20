@@ -2,8 +2,17 @@ module Reading
   module Parser
     module Attributes
       class Title
-        def self.extract(parsed, head_index, _config)
-          parsed[:head][head_index][:title]
+        def initialize(_config)
+        end
+
+        def extract(parsed, head_index)
+          title = parsed[:head][head_index][:title]
+
+          if title.nil? || title.end_with?(" -")
+            raise InvalidHeadError, "Missing title"
+          end
+
+          title
         end
       end
     end

@@ -7,13 +7,6 @@ module Reading
             true
           end
 
-          def self.tweaks
-            {
-              genres: -> { _1.downcase.split(/\s*,\s*/) },
-              sources: -> { _1.split(/\s*@/).map(&:presence).compact }
-            }
-          end
-
           def self.regex_before_formats
             %r{\A
               \\ # comment character
@@ -27,15 +20,34 @@ module Reading
             \z}x
           end
 
+          def self.segment_separator
+            /\s*--\s*/
+          end
+
+          def self.array_keys
+            %i[extra_info series_names series_volumes]
+          end
+
+          def self.tweaks
+            {
+              genres: -> { _1.downcase.split(/\s*,\s*/) },
+              sources: -> { _1.split(/\s*@/).map(&:presence).compact }
+            }
+          end
+
           def self.regexes(segment_index)
-            [%r{\A
-              (
-                (?<author>[^@]+?)
-                \s+-\s+
-              )?
-              (?<title>[^@]+)
-              (?<sources>@.+)?
-            \z}x]
+            [
+              # author, title, sources
+              (%r{\A
+                (
+                  (?<author>[^@]+?)
+                  \s+-\s+
+                )?
+                (?<title>[^@]+)
+                (?<sources>@.+)?
+              \z}x if  segment_index.zero?),
+              *SHARED_REGEXES[:series_and_extra_info],
+            ].compact
           end
         end
       end

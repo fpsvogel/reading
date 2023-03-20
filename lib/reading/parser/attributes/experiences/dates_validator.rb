@@ -15,7 +15,7 @@ module Reading
             def validate(experiences, config)
               validate_dates_started_are_in_order(experiences) if dates_started_column?(config)
               validate_dates_finished_are_in_order(experiences) if dates_finished_column?(config)
-              validate_experiences_of_same_variant_do_not_overlap(experiences) if both_date_columns?(config)
+              validate_experiences_of_same_variant_do_not_overlap(experiences)  if both_date_columns?(config)
               validate_spans_are_in_order_and_not_overlapping(experiences)
             end
 
@@ -35,7 +35,7 @@ module Reading
 
             def validate_dates_started_are_in_order(experiences)
               experiences
-                .filter { |exp| exp[:spans].any? }
+                .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| exp[:spans].first[:dates].begin }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
@@ -46,7 +46,7 @@ module Reading
 
             def validate_dates_finished_are_in_order(experiences)
               experiences
-                .filter { |exp| exp[:spans].any? }
+                .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| exp[:spans].last[:dates].end }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
@@ -72,7 +72,7 @@ module Reading
 
             def validate_spans_are_in_order_and_not_overlapping(experiences)
               experiences
-                .filter { |exp| exp[:spans].any? }
+                .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .each do |exp|
                   exp[:spans]
                     .map { |span| span[:dates] }

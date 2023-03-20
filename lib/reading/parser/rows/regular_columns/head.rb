@@ -7,12 +7,12 @@ module Reading
             true
           end
 
-          def self.segment_separator
-            /\s*--\s*/
-          end
-
           def self.regex_before_formats
             /\A#{SHARED_REGEXES[:progress]}\z/
+          end
+
+          def self.segment_separator
+            /\s*--\s*/
           end
 
           def self.array_keys
@@ -28,7 +28,7 @@ module Reading
                   \s+-\s+
                 )?
                 (?<title>.+)
-              \z}x if  segment_index.zero?),
+              \z}x if segment_index.zero?),
               *SHARED_REGEXES[:series_and_extra_info],
             ].compact
           end

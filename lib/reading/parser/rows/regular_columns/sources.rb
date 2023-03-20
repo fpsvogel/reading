@@ -23,6 +23,18 @@ module Reading
 
           def self.regexes(segment_index)
             [
+              # ISBN/ASIN and length (without sources)
+              (%r{\A
+                (
+                  (?<isbn>(\d{3}[-\s]?)?[A-Z\d]{10})
+                  ,?(\s+|\z)
+                )?
+                (
+                  (?<length_pages>\d+)p?
+                  |
+                  (?<length_time>\d+:\d\d)
+                )?
+              \z}x if  segment_index.zero?),
               # sources, ISBN/ASIN, length
               (%r{\A
                 (

@@ -2,7 +2,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative "test_helper"
 
-require "reading/reading"
+require "reading"
 
 class ParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge
@@ -27,18 +27,11 @@ class ParseTest < Minitest::Test
     self.class.base_config
   end
 
-  custom_config =
-    {
-      errors:
-        {
-          handle_error: ->(error) { raise error }
-        }
-    }
-  @base_config = Reading::Config.new(custom_config).hash
-
-  @inputs = {}
+  @base_config = Reading::Config.new.hash
 
   # ==== TEST INPUT
+
+  @inputs = {}
 
   ## TEST INPUT: ENABLING COLUMNS
   # In the columns tests, the input in the heredocs below are each parsed with
@@ -93,24 +86,6 @@ class ParseTest < Minitest::Test
 
 
 
-  ## TEST INPUT: CUSTOM COLUMNS
-  # The type of the custom column is indicated by the hash key.
-  @inputs[:custom_columns] = {}
-  @inputs[:custom_columns][:numeric] = <<~EOM.freeze
-    \\Rating|Head|Sources|Dates started|Dates finished|Length|Surprise factor|Family friendliness
-    |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|6|3.9
-    5|Goatsong|0312038380|2020/5/1|2020/5/30|247|9
-    |How To
-  EOM
-  @inputs[:custom_columns][:text] = <<~EOM.freeze
-    \\Rating|Head|Sources|Dates started|Dates finished|Length|Mood|Will reread?
-    |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17|apprehensive|yes
-    5|Goatsong|0312038380|2020/5/1|2020/5/30|247|tragicomic
-    |How To
-  EOM
-
-
-
   ## TEST INPUT: FEATURES OF SINGLE COLUMNS
   # In each the features tests, a single column is enabled (specified in the
   # hash key) and a bunch of possible content for that column is tested. These
@@ -137,17 +112,17 @@ class ParseTest < Minitest::Test
   :"multi items with a long separator" =>
     "📕Tom Holt - Goatsong -- 🔊Sapiens",
   :"progress" =>
-    "50% Goatsong",
+    "50% 📕Tom Holt - Goatsong",
   :"progress pages" =>
-    "p220 Goatsong",
+    "p220 📕Tom Holt - Goatsong",
   :"progress pages without p" =>
-    "220 Goatsong",
+    "220 📕Tom Holt - Goatsong",
   :"progress time" =>
-    "2:30 Goatsong",
+    "2:30 📕Tom Holt - Goatsong",
   :"dnf" =>
-    "DNF Goatsong",
+    "DNF 📕Tom Holt - Goatsong",
   :"dnf with progress" =>
-    "DNF 50% Goatsong",
+    "DNF 50% 📕Tom Holt - Goatsong",
   :"dnf with multi items" =>
     "DNF 📕Tom Holt - Goatsong, 🔊Sapiens",
   :"all features" =>
@@ -170,18 +145,12 @@ class ParseTest < Minitest::Test
     "Goatsong|https://www.edlin.org/holt",
   :"URL source with a name from config" =>
     "Goatsong|https://archive.org/details/walledorchard0000holt",
-  :"sources" =>
-    "Goatsong|Little Library https://www.edlin.org/holt Lexpub",
-  :"sources separated by commas" =>
-    "Goatsong|Little Library https://www.edlin.org/holt Lexpub, rec. by Sam",
+  :"multiple sources must be separated with commas" =>
+    "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub",
   :"source with ISBN" =>
     "Goatsong|Little Library 0312038380",
-  :"source with ISBN in reverse order" =>
-    "Goatsong|0312038380 Little Library",
   :"sources with ISBN" =>
-    "Goatsong|Little Library 0312038380 https://www.edlin.org/holt",
-  :"sources with ISBN separated by commas" =>
-    "Goatsong|Little Library 0312038380 https://www.edlin.org/holt Lexpub, rec. by Sam",
+    "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub 0312038380",
   :"simple variants" =>
     "Goatsong|📕Little Library 📕Lexpub",
   :"variant with extra info" =>
@@ -195,9 +164,9 @@ class ParseTest < Minitest::Test
   :"length after sources ISBN and before extra info" =>
     "Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
-    "Goatsong|📕Little Library 0312038380 https://www.edlin.org/holt Lexpub 247 -- paperback -- 1990 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library, https://www.edlin.org/holt, Lexpub 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"optional commas can be added within and between variants" =>
-    "Goatsong|📕Little Library, 0312038380, https://www.edlin.org/holt, Lexpub, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library, https://www.edlin.org/holt, Lexpub, 0312038380, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
   }
 
   @inputs[:features_dates_started] =
@@ -222,16 +191,12 @@ class ParseTest < Minitest::Test
     "Sapiens|2020/09/01 v2",
   :"group can be indicated at the very end" =>
     "Sapiens|2020/09/01 v2 🤝🏼 county book club",
-  :"group can be without text" =>
-    "Sapiens|2020/09/01 v2 🤝🏼",
-  :"other text before or after dates is ignored" =>
-    "Sapiens|instantly hooked 2020/09/01 at the beach",
   :"all features" =>
-    "Sapiens|DNF 50% instantly hooked 2020/09/01 at the beach v2, 2:30 2021/07/15",
+    "Sapiens|DNF 50% 2020/09/01 v2, 2:30 2021/07/15",
   }
 
   # The compact_planned part (unlike in other :features_x) is merely semantic;
-  # it has no effect in set_columns below.
+  # it has no effect in with_columns below.
   @inputs[:features_compact_planned] =
   {
   :"title only" =>
@@ -242,12 +207,10 @@ class ParseTest < Minitest::Test
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla",
   :"with sources in the Sources column" =>
     "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla",
-  :"with fuller Head and Sources columns (unlikely)" =>
+  :"with fuller Head and Sources columns" =>
     "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM",
-  :"multiple with with Head and Sources columns (very unlikely)" =>
-    "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM 🔊True Grit|Lexpub",
   :"with sources and extra info" =>
-    "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels @Lexpub @Hoopla",
+    "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla -- unabridged -- in Holt's Classical Novels",
   :"multiple" =>
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla 🔊True Grit @Lexpub",
   :"multiple with source" =>
@@ -290,33 +253,40 @@ class ParseTest < Minitest::Test
 
 
 
-  ## TEST INPUT: EXAMPLES
-  # Realistic examples from the reading.csv template:
+  ## TEST INPUT: ALL COLUMNS
+  # For interactions between columns that are not caught in the single-column
+  # tests above. Also for realistic examples from the reading.csv template:
   # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
-  @inputs[:examples] = {}
-  @inputs[:examples][:"in progress"] = <<~EOM.freeze
+  @inputs[:all_columns] =
+  {
+    :"empty Sources column doesn't prevent variant from elsewhere" =>
+      "|📕Sapiens||2020/09/01",
+    :"default span amount is the correct length via variants" =>
+      "|Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03|2020/09/01",
+  }
+  @inputs[:all_columns][:"in progress"] = <<~EOM.freeze
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20||history, wisdom|15:17|💬History with a sociological bent, with special attention paid to human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.
     5|📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 50% 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
   EOM
-  @inputs[:examples][:"done"] = <<~EOM.freeze
+  @inputs[:all_columns][:"done"] = <<~EOM.freeze
     \\------ DONE
     4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
     2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats|10:13|🔒I would've felt bad if I hadn't tried.
     1|DNF 🎤FiveThirtyEight Politics 🎤The NPR Politics Podcast 🎤Pod Save America||2021/08/02|2021/08/02|politics, podcast|0:30|Not very deep. Disappointing.
     5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science||Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet. -- 💬It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
   EOM
-  @inputs[:examples][:"planned"] = <<~EOM.freeze
+  @inputs[:all_columns][:"planned"] = <<~EOM.freeze
     \\------ PLANNED
     |⚡Tom Holt - A Song for Nero|B00GW4U2TM|||historical fiction|580
   EOM
-  @inputs[:examples][:"single compact planned"] = <<~EOM.freeze
+  @inputs[:all_columns][:"single compact planned"] = <<~EOM.freeze
     \\------ PLANNED
     \\⚡How to Think Like a Roman Emperor
     \\🔊Trevor Noah - Born a Crime @Lexpub @Jeffco
   EOM
-  @inputs[:examples][:"multi compact planned"] = <<~EOM.freeze
+  @inputs[:all_columns][:"multi compact planned"] = <<~EOM.freeze
     \\------ PLANNED
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE, WEIRD @Lexpub: 📕Randall Munroe - How To 🔊Weird Earth @Hoopla
@@ -324,83 +294,78 @@ class ParseTest < Minitest::Test
 
 
 
-  # ## TEST INPUT: ERRORS
-  # # Bad input that should raise an error.
-  # @inputs[:errors] = {}
-  # @inputs[:errors][Reading::InvalidDateError] =
-  # {
-  # :"date not in yyyy/mm/dd format" =>
-  #   "|Sapiens||2019-01-01|2020/01/01",
-  # :"date started content without a date" =>
-  #   "|Sapiens||no date here|2020/01/01",
-  # :"date finished content without a date" =>
-  #   "|Sapiens||2019/01/01|no date here",
-  # :"incomplete date is the same as no date" =>
-  #   "|Sapiens||2019/01|2020/01/01",
-  # :"conjoined dates" =>
-  #   "|Sapiens||2019/01/01 2020/01/01",
-  # :"unparsable date" =>
-  #   "|Sapiens||2019/01/32|2020/01/01",
-  # :"end date before start date" =>
-  #   "|Sapiens||2020/01/01|2019/01/01",
-  # :"start dates out of order" =>
-  #   "|Sapiens||2019/01/01, 2018/01/01",
-  # :"end date after the next start date for the same variant" =>
-  #   "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
-  # :"OK: end date after the next start date for different variants" =>
-  #   "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
-  # }
-  # @inputs[:errors][Reading::InvalidSourceError] =
-  # {
-  # :"multiple ISBNs or ASINs for the same variant" =>
-  #   "|Sapiens|0062316117 B00ICN066A",
-  # :"OK: multiple URLs but different sources" =>
-  #   "|Sapiens|https://www.sapiens.org https://www.ynharari.com/book/sapiens-2",
-  # }
-  # @inputs[:errors][Reading::InvalidHeadError] =
-  # {
-  # :"blank Head column" =>
-  #   "|",
-  # :"missing title" =>
-  #   "|📕",
-  # :"missing title after author" =>
-  #   "|📕Mark Twain - ",
-  # :"missing title in compact planned row" =>
-  #   "\\📕",
-  # :"missing title after author in compact planned row" =>
-  #   "\\📕Mark Twain - ",
-  # }
-  # @inputs[:errors][Reading::InvalidRatingError] =
-  # {
-  # :"non-numeric rating" =>
-  #   "a|Sapiens",
-  # }
-  # @inputs[:errors][Reading::TooManyColumnsError] =
-  # {
-  # :"column beyond the number of enabled columns" =>
-  #   "|Sapiens||||||||something",
-  # :"empty column beyond the number of enabled columns" =>
-  #   "|Sapiens||||||||",
-  # :"multiple other columns in a compact planned item when only Sources is allowed" =>
-  #   "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
-  # }
-  # # These are examples of missing columns that do NOT raise an error during parsing.
-  # # I *could* add more validations to avoid these, but for me these never happen
-  # # because I view my reading.csv with color-coded columns (Rainbow CSV extension
-  # # for VS Code). Even so, I'm documenting these odd cases here.
-  # @inputs[:errors][Reading::Error] =
-  # {
-  # :"OK: missing Rating column if the title is numeric (no InvalidRatingError is raised)" =>
-  #   "1984|https://www.george-orwell.org/1984",
-  # :"OK: missing Head column (the date is parsed as the title)" =>
-  #   "|2019/01/01",
-  # :"OK: missing Source column (the date is parsed as a source)" =>
-  #   "|Sapiens|2019/01/01",
-  # :"OK: missing Genres column (the length is parsed as a genre)" =>
-  #   "|Sapiens||2019/01/01|2020/01/01|15:17",
-  # :"OK: missing Notes column (History is parsed as Notes)" =>
-  #   "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
-  # }
+  ## TEST INPUT: ERRORS
+  # Bad input that should raise an error.
+  @inputs[:errors] = {}
+  @inputs[:errors][Reading::ParsingError] =
+  {
+  :"non-numeric rating" =>
+    "a|Sapiens",
+  :"date not in yyyy/mm/dd format" =>
+    "|Sapiens||2019-01-01|2020/01/01",
+  :"date started content without a date" =>
+    "|Sapiens||no date here|2020/01/01",
+  :"date finished content without a date" =>
+    "|Sapiens||2019/01/01|no date here",
+  :"incomplete date is the same as no date" =>
+    "|Sapiens||2019/01|2020/01/01",
+  :"conjoined dates" =>
+    "|Sapiens||2019/01/01 2020/01/01",
+  }
+  @inputs[:errors][Reading::InvalidDateError] =
+  {
+  :"unparsable date" =>
+    "|Sapiens||2019/01/32|2020/01/01",
+  :"end date before start date" =>
+    "|Sapiens||2020/01/01|2019/01/01",
+  :"start dates out of order" =>
+    "|Sapiens||2019/01/01, 2018/01/01",
+  :"end date after the next start date for the same variant" =>
+    "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
+  :"OK: end date after the next start date for different variants" =>
+    "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
+  }
+  @inputs[:errors][Reading::InvalidHeadError] =
+  {
+  :"missing Head column" =>
+    "2",
+  :"blank Head column" =>
+    "2| |Hoopla",
+  :"missing title" =>
+    "|📕 ",
+  :"missing title after author" =>
+    "|📕Mark Twain - ",
+  :"missing title in compact planned row" =>
+    "\\📕",
+  :"missing title after author in compact planned row" =>
+    "\\📕Mark Twain - ",
+  }
+  @inputs[:errors][Reading::TooManyColumnsError] =
+  {
+  :"column beyond the number of enabled columns" =>
+    "|Sapiens||||||||something",
+  :"multiple other columns in a compact planned item when only Sources is allowed" =>
+    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
+  :"OK: empty column beyond the number of enabled columns" =>
+    "|Sapiens||||||||",
+  }
+  # These are examples of missing columns that do NOT raise an error during parsing.
+  # I *could* add more validations to avoid these, but for me these never happen
+  # because I view my reading.csv with color-coded columns (Rainbow CSV extension
+  # for VS Code). Even so, I'm documenting these odd cases here.
+  @inputs[:errors][Reading::Error] =
+  {
+  :"OK: missing Rating column if the title is numeric (no InvalidRatingError is raised)" =>
+    "1984|https://www.george-orwell.org/1984",
+  :"OK: missing Head column (the date is parsed as the title)" =>
+    "|2019/01/01",
+  :"OK: missing Source column (the date is parsed as a source)" =>
+    "|Sapiens|2019/01/01",
+  :"OK: missing Genres column (the length is parsed as a genre)" =>
+    "|Sapiens||2019/01/01|2020/01/01|15:17",
+  :"OK: missing Notes column (History is parsed as Notes)" =>
+    "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
+  }
 
 
 
@@ -476,25 +441,6 @@ class ParseTest < Minitest::Test
 
 
 
-  @parsed[:custom_columns] = {}
-  a_custom_numeric = a.merge(surprise_factor: 6.0,
-                            family_friendliness: 3.9)
-  b_custom_numeric = b.merge(surprise_factor: 9.0,
-                            family_friendliness: 5)
-  c_custom_numeric = c.merge(surprise_factor: nil,
-                            family_friendliness: 5)
-  @parsed[:custom_columns][:numeric] = [a_custom_numeric, b_custom_numeric, c_custom_numeric]
-
-  a_custom_text = a.merge(mood: "apprehensive",
-                          will_reread: "yes")
-  b_custom_text = b.merge(mood: "tragicomic",
-                          will_reread: "no")
-  c_custom_text = c.merge(mood: nil,
-                          will_reread: "no")
-  @parsed[:custom_columns][:text] = [a_custom_text, b_custom_text, c_custom_text]
-
-
-
   @parsed[:features_head] = {}
   a_basic = item_hash(author: "Tom Holt", title: "Goatsong")
   @parsed[:features_head][:"author"] = [a_basic]
@@ -524,31 +470,33 @@ class ParseTest < Minitest::Test
 
   @parsed[:features_head][:"multi items with a long separator"] = [a_with_format, b]
 
-  half_progress = { experiences: [{ spans: [{ progress: 0.5 }] }] }
-  a = item_hash(title: "Goatsong", **half_progress)
-  @parsed[:features_head][:"progress"] = [a]
+  progress_half = { experiences: [{ spans: [{ progress: 0.5 }] }] }
+  a_progress_half = a_with_format.deep_merge(progress_half)
+  @parsed[:features_head][:"progress"] = [a_progress_half]
 
-  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 220 }] }])
+  progress_220_pages = { experiences: [{ spans: [{ progress: 220 }] }] }
+  a = a_with_format.deep_merge(progress_220_pages)
   @parsed[:features_head][:"progress pages"] = [a]
 
   @parsed[:features_head][:"progress pages without p"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: "2:30" }] }])
+  progress_2_hours_30_minutes = { experiences: [{ spans: [{ progress: "2:30" }] }] }
+  a = a_with_format.deep_merge(progress_2_hours_30_minutes)
   @parsed[:features_head][:"progress time"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 0 }] }])
+  progress_zero = { experiences: [{ spans: [{ progress: 0 }] }] }
+  a = a_with_format.deep_merge(progress_zero)
   @parsed[:features_head][:"dnf"] = [a]
 
-  a = item_hash(title: "Goatsong", experiences: [{ spans: [{ progress: 0.5 }] }])
-  @parsed[:features_head][:"dnf with progress"] = [a]
+  @parsed[:features_head][:"dnf with progress"] = [a_progress_half]
 
   a = a_with_format.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
   b = b.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
   @parsed[:features_head][:"dnf with multi items"] = [a, b]
 
   full_variants = variants_with_extra_info.deep_merge(variants: [series_with_volume])
-  a = a.deep_merge(full_variants).deep_merge(half_progress)
-  b = b.deep_merge(half_progress)
+  a = a.deep_merge(full_variants).deep_merge(progress_half)
+  b = b.deep_merge(progress_half)
   @parsed[:features_head][:"all features"] = [a, b]
 
 
@@ -588,27 +536,17 @@ class ParseTest < Minitest::Test
   @parsed[:features_sources][:"URL source with a name from config"] = [a]
 
   lexpub = { name: "Lexpub", url: nil }
-  three_sources = [site, library, lexpub]
+  three_sources = [library, site, lexpub]
   a = a_basic.deep_merge(variants: [{ sources: three_sources }])
-  @parsed[:features_sources][:"sources"] = [a]
-
-  four_sources = three_sources + [{ name: "rec. by Sam", url: nil }]
-  a = a_basic.deep_merge(variants: [{ sources: four_sources }])
-  @parsed[:features_sources][:"sources separated by commas"] = [a]
+  @parsed[:features_sources][:"multiple sources must be separated with commas"] = [a]
 
   a = a_basic.deep_merge(variants: [{ sources: [library],
                                         isbn: isbn }])
   @parsed[:features_sources][:"source with ISBN"] = [a]
 
-  @parsed[:features_sources][:"source with ISBN in reverse order"] = [a]
-
-  a = a_basic.deep_merge(variants: [{ sources: [site, library],
+  a = a_basic.deep_merge(variants: [{ sources: three_sources,
                                         isbn: isbn }])
   @parsed[:features_sources][:"sources with ISBN"] = [a]
-
-  a = a_basic.deep_merge(variants: [{ sources: four_sources,
-                                        isbn: isbn }])
-  @parsed[:features_sources][:"sources with ISBN separated by commas"] = [a]
 
   a = item_hash(title:,
                 variants: [{ format: :print, sources: [library] },
@@ -637,14 +575,15 @@ class ParseTest < Minitest::Test
   )
   @parsed[:features_sources][:"variant with extra info and series from Head also"] = [a_with_head_extras]
 
-  a = item_hash(title:,
-                variants: [a[:variants].first.merge(isbn: isbn, length: 247),
-                           a[:variants].last.merge(length: "7:03")])
-  @parsed[:features_sources][:"length after sources ISBN and before extra info"] = [a]
+  a_variants_length =
+    item_hash(title:,
+              variants: [a[:variants].first.merge(isbn: isbn, length: 247),
+                          a[:variants].last.merge(length: "7:03")])
+  @parsed[:features_sources][:"length after sources ISBN and before extra info"] = [a_variants_length]
 
   a = item_hash(title:,
-                variants: [a[:variants].first.merge(sources: three_sources),
-                           a[:variants].last])
+                variants: [a_variants_length[:variants].first.merge(sources: three_sources),
+                           a_variants_length[:variants].last])
   @parsed[:features_sources][:"multiple sources allowed in variant"] = [a]
 
   @parsed[:features_sources][:"optional commas can be added within and between variants"] = [a]
@@ -692,12 +631,6 @@ class ParseTest < Minitest::Test
   a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
   @parsed[:features_dates_started][:"group can be indicated at the very end"] = [a]
 
-  a = a_variant.deep_merge(experiences: [{ group: "" }])
-  @parsed[:features_dates_started][:"group can be without text"] = [a]
-
-
-  @parsed[:features_dates_started][:"other text before or after dates is ignored"] = [a_started]
-
   a_many = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   a = a_many.deep_merge(experiences: [{ spans: [{ progress: 0.5 }],
                                         variant_index: 1 },
@@ -724,13 +657,11 @@ class ParseTest < Minitest::Test
   a_full_sources = a_sources.deep_merge(variants: [{ isbn: "B00GW4U2TM",
                                                     extra_info: ["unabridged"],
                                                     series: [{ name: "Holt's Classical Novels", volume: nil }] }])
-  @parsed[:features_compact_planned][:"with fuller Head and Sources columns (unlikely)"] = [a_full_sources]
+  @parsed[:features_compact_planned][:"with fuller Head and Sources columns"] = [a_full_sources]
 
   b_sources = item_hash(title: "True Grit",
                         variants: [{ format: :audiobook,
                                     sources: [{ name: "Lexpub" }] }])
-
-  @parsed[:features_compact_planned][:"multiple with with Head and Sources columns (very unlikely)"] = [a_full_sources, b_sources]
 
   a_full_sources_minus_isbn = a_full_sources.deep_merge(variants: [{ isbn: nil }])
   @parsed[:features_compact_planned][:"with sources and extra info"] = [a_full_sources_minus_isbn]
@@ -785,7 +716,20 @@ class ParseTest < Minitest::Test
 
 
 
-  @parsed[:examples] = {}
+  @parsed[:all_columns] = {}
+  @parsed[:all_columns][:"empty Sources column doesn't prevent variant from elsewhere"] =
+    [a_started.deep_merge(variants: [{ format: :print }])]
+
+  a_variants_length_with_experience =
+    a_variants_length.deep_merge(
+      experiences: [{
+        spans: [{ dates: Date.parse("2020/09/01").., amount: 247 }],
+        variant_index: 0
+      }]
+    )
+  @parsed[:all_columns][:"default span amount is the correct length via variants"] =
+    [a_variants_length_with_experience]
+
   sapiens = item_hash(
     title: "Sapiens: A Brief History of Humankind",
     variants:    [{ format: :audiobook,
@@ -822,7 +766,7 @@ class ParseTest < Minitest::Test
                               progress: 0.5 }] }],
     genres: ["historical fiction"],
   )
-  @parsed[:examples][:"in progress"] = [sapiens, goatsong]
+  @parsed[:all_columns][:"in progress"] = [sapiens, goatsong]
 
   insula = item_hash(
     rating: 4,
@@ -906,7 +850,7 @@ class ParseTest < Minitest::Test
       { blurb?: true, content: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist." },
     ],
   )
-  @parsed[:examples][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
+  @parsed[:all_columns][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
 
 
   nero = item_hash(
@@ -917,7 +861,7 @@ class ParseTest < Minitest::Test
                     length: 580 }],
     genres: ["historical fiction"],
   )
-  @parsed[:examples][:"planned"] = [nero]
+  @parsed[:all_columns][:"planned"] = [nero]
 
   emperor = item_hash(
     title: "How to Think Like a Roman Emperor",
@@ -930,7 +874,7 @@ class ParseTest < Minitest::Test
                   sources: [{ name: "Lexpub" },
                             { name: "Jeffco" }] }],
   )
-  @parsed[:examples][:"single compact planned"] = [emperor, born_crime]
+  @parsed[:all_columns][:"single compact planned"] = [emperor, born_crime]
 
   nero = item_hash(
     author: "Tom Holt",
@@ -948,7 +892,7 @@ class ParseTest < Minitest::Test
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
                   sources: [{ name: base_config.deep_fetch(:sources, :default_name_for_url),
-                              url: "https://www.runleiarun.com/lebowski" }] }],
+                              url: "https://www.runleiarun.com/lebowski/" }] }],
     genres: ["historical fiction"],
   )
   how_to = item_hash(
@@ -965,25 +909,20 @@ class ParseTest < Minitest::Test
                             { name: "Hoopla" }] }],
     genres: %w[science weird],
   )
-  @parsed[:examples][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
+  @parsed[:all_columns][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
 
 
 
   # ==== UTILITY METHODS
 
-  def with_columns(columns, custom_numeric_columns: nil, custom_text_columns: nil)
+  def with_columns(columns)
     if columns.empty? || columns == :all
       config = base_config
     else
-      columns.delete(:compact_planned)
-      config = base_config.merge(csv: { enabled_columns: columns})
-    end
-
-    unless custom_numeric_columns.nil?
-      config.deep_merge!(csv: { custom_numeric_columns: })
-    end
-    unless custom_text_columns.nil?
-      config.deep_merge!(csv: { custom_text_columns: })
+      if columns.delete(:compact_planned)
+        columns << :sources # because some compact planned tests have the Sources column.
+      end
+      config = base_config.merge(enabled_columns: columns)
     end
 
     config
@@ -1027,80 +966,61 @@ class ParseTest < Minitest::Test
 
   # ==== TESTS
 
-  # ## TESTS: ENABLING COLUMNS
-  # inputs[:enabled_columns].each do |set_name, file_str|
-  #   columns = set_name.to_s.split(", ").map(&:to_sym)
-  #   define_method("test_enabled_columns_#{columns.join("_")}") do
-  #     config = with_columns(columns)
-  #     exp = tidy(parsed[:enabled_columns][set_name])
-  #     act = Reading.parse(file_str, config: config)
-  #     # debugger unless exp == act
-  #     assert_equal exp, act,
-  #       "Failed to parse with these columns enabled: #{set_name}"
-  #   end
-  # end
-
-  # ## TESTS: CUSTOM COLUMNS
-  # def test_custom_numeric_columns
-  #   config = with_columns(%i[rating head sources dates_started dates_finished length],
-  #               custom_numeric_columns: { surprise_factor: nil, family_friendliness: 5 })
-  #   exp = tidy(parsed[:custom_columns][:numeric])
-  #   act = Reading.parse(inputs[:custom_columns][:numeric], config: config)
-  #   # debugger unless exp == act
-  #   assert_equal exp, act
-  # end
-
-  # def test_custom_text_columns
-  #   config = with_columns(%i[rating head sources dates_started dates_finished length],
-  #               custom_text_columns: { mood: nil, will_reread: "no" })
-  #   exp = tidy(parsed[:custom_columns][:text])
-  #   act = Reading.parse(inputs[:custom_columns][:text], config: config)
-  #   # debugger unless exp == act
-  #   assert_equal exp, act
-  # end
-
-  # ## TESTS: FEATURES OF SINGLE COLUMNS
-  # inputs.keys.select { |key| key.start_with?("features_") }.each do |group_name|
-  #   inputs[group_name].each do |feat, file_str|
-  #     columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
-  #     columns = columns_sym.to_s.split(", ").map(&:to_sym)
-  #     main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
-  #     define_method("test_#{columns_sym}_feature_#{feat}") do
-  #       config = with_columns(columns + [:head])
-  #       exp = tidy(parsed[group_name][feat])
-  #       act = Reading.parse(file_str, config: config)
-  #       # debugger unless exp == act
-  #       assert_equal exp, act,
-  #         "Failed to parse this #{main_column_humanized} column feature: #{feat}"
-  #     end
-  #   end
-  # end
-
-  ## TESTS: EXAMPLES
-  inputs[:examples].each do |set_name, file_str|
-    define_method("test_example_#{set_name}") do
-      config = with_columns(:all)
-      exp = tidy(parsed[:examples][set_name])
+  ## TESTS: ENABLING COLUMNS
+  inputs[:enabled_columns].each do |set_name, file_str|
+    columns = set_name.to_s.split(", ").map(&:to_sym)
+    define_method("test_enabled_columns_#{columns.join("_")}") do
+      config = with_columns(columns)
+      exp = tidy(parsed[:enabled_columns][set_name])
       act = Reading.parse(file_str, config: config)
       # debugger unless exp == act
       assert_equal exp, act,
-        "Failed to parse this set of examples: #{set_name}"
+        "Failed to parse with these columns enabled: #{set_name}"
     end
   end
 
-  # ## TESTS: ERRORS
-  # inputs[:errors].each do |error, inputs_hash|
-  #   inputs_hash.each do |name, file_str|
-  #     define_method("test_example_#{name}") do
-  #       config = with_columns(:all)
-  #       if name.start_with? "OK: "
-  #         refute_nil Reading.parse(file_str, config: config) # Should not raise an error.
-  #       else
-  #         assert_raises error, "Failed to raise #{error} for: #{name}" do
-  #           Reading.parse(file_str, config: config)
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+  ## TESTS: FEATURES OF SINGLE COLUMNS
+  inputs.keys.select { |key| key.start_with?("features_") }.each do |group_name|
+    inputs[group_name].each do |feat, file_str|
+      columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
+      columns = columns_sym.to_s.split(", ").map(&:to_sym)
+      main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
+      define_method("test_#{columns_sym}_feature_#{feat}") do
+        config = with_columns(columns + [:head])
+        exp = tidy(parsed[group_name][feat])
+        act = Reading.parse(file_str, config: config)
+        # debugger unless exp == act
+        assert_equal exp, act,
+          "Failed to parse this #{main_column_humanized} column feature: #{feat}"
+      end
+    end
+  end
+
+  ## TESTS: ALL COLUMNS
+  inputs[:all_columns].each do |set_name, file_str|
+    define_method("test_all_columns_#{set_name}") do
+      config = with_columns(:all)
+      exp = tidy(parsed[:all_columns][set_name])
+      act = Reading.parse(file_str, config: config)
+      # debugger unless exp == act
+      assert_equal exp, act,
+        "Failed to parse this all-columns example: #{set_name}"
+    end
+  end
+
+  ## TESTS: ERRORS
+  inputs[:errors].each do |error, inputs_hash|
+    inputs_hash.each do |name, file_str|
+      define_method("test_example_#{name}") do
+        config = with_columns(:all)
+        if name.start_with? "OK: "
+          refute_nil Reading.parse(file_str, config: config) # Should not raise an error.
+        else
+          assert_raises error, "Failed to raise #{error} for: #{name}" do
+            Reading.parse(file_str, config: config)
+          end
+        end
+      end
+    end
+  end
 end

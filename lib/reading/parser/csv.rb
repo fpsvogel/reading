@@ -6,18 +6,19 @@ require_relative "../util/hash_to_struct"
 require_relative "../util/hash_deep_merge"
 require_relative "../util/hash_array_deep_fetch"
 require_relative "../util/hash_compact_by_template"
-require_relative "../new_errors"
+require_relative "../errors"
 
 # Used just here.
 require_relative "../config"
-require_relative "row"
+require_relative "parse"
+require_relative "transform"
 
 module Reading
   module Parser
     class CSV
       using Util::HashToStruct
 
-      attr_reader :config
+      private attr_reader :parser, :transformer
 
       # @param string [Object] the input source, which must respond to #each_line;
       #   if nil, the file at the given path is used.
@@ -26,10 +27,12 @@ module Reading
       #   e.g. { errors: { styling: :html } }
       def initialize(string = nil, path: nil, config: {})
         validate_string_or_path(string, path)
+        full_config = Config.new(config).hash
 
         @string = string
         @path = path
-        @config ||= Config.new(config).hash
+        @parser = Parse.new(full_config)
+        @transformer = Transform.new(full_config)
       end
 
       # Parses a CSV reading log into item data (an array of Structs).
@@ -40,9 +43,16 @@ module Reading
         input = @string || File.open(@path)
         items = []
 
-        input.each_line do |string|
-          row = Row.new(string, config)
-          items += row.parse
+        input.each_line do |line|
+          begin
+            parsed = parser.parse_row_to_intermediate_hash(line)
+            next if parsed.empty?
+            row_items = transformer.transform_intermediate_hash_to_item_hashes(parsed)
+          rescue Reading::Error => e
+            raise e.class, "#{e.message} in the row \"#{line}\""
+          end
+
+          items += row_items
         end
 
         items.map(&:to_struct)

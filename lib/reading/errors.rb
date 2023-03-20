@@ -1,16 +1,20 @@
 module Reading
+  class Error < StandardError; end
+
   # Means there was a problem accessing a file.
-  class FileError < StandardError; end
+  class FileError < Reading::Error; end
 
   # Means unexpected input was encountered during parsing.
-  class ParsingError < StandardError; end
+  class ParsingError < Reading::Error; end
 
-  # # Means there are too many columns in a row.
-  # class TooManyColumnsError < StandardError; end
+  # Means something in the Head column (author, title, etc.) is invalid.
+  class InvalidHeadError < Reading::Error; end
 
-  # # Means the Head column is missing or empty.
-  # class MissingHeadError < StandardError; end
+  # Means there are too many columns in a row.
+  class TooManyColumnsError < Reading::Error; end
+
+  # class MissingHeadError < Reading::Error; end
 
   # Means a date is unparsable, or a set of dates does not make logical sense.
-  class InvalidDateError < StandardError; end
+  class InvalidDateError < Reading::Error; end
 end

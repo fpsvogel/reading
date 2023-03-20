@@ -1,4 +1,4 @@
-require_relative "parser/csv"
+require_relative "reading/parser/csv"
 
 module Reading
   # Parses a CSV file or string. See Parser::CSV#initialize and #parse for details.

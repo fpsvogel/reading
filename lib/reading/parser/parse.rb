@@ -32,6 +32,13 @@ module Reading
         column_classes = row_types
           .find { |row_type| row_type.match?(string, config) }
           .column_classes
+          .filter { |column_class|
+            config.fetch(:enabled_columns).include?(column_class.to_sym)
+          }
+
+        if !column_classes.count.zero? && column_strings.count > column_classes.count
+          raise TooManyColumnsError, "Too many columns"
+        end
 
         column_classes
           .zip(column_strings)
@@ -58,16 +65,22 @@ module Reading
                 .merge(format: format)
             }
 
+            # Combine values of conflicting keys so that in a compact planned
+            # Head column, sources from before_formats are not ignored.
             if before_formats
               heads.each do |head|
-                head.merge!(before_formats)
+                head.merge!(before_formats) do |k, old_v, new_v|
+                  (new_v + old_v).uniq
+                end
               end
             end
 
             return [column_class.to_sym, heads]
           else
-            # Wrap the value in an array so that e.g. a head without emojis is still an array.
-            return [column_class.to_sym, [parse_segments(column_class, column_string)]]
+            parsed_column = parse_segments(column_class, column_string)
+            # Wrap a non-empty value in an array so that e.g. a head without
+            # emojis is still an array.
+            return [column_class.to_sym, [parsed_column.presence].compact]
           end
         else
           return [column_class.to_sym, parse_segments(column_class, column_string)]
@@ -75,6 +88,8 @@ module Reading
       end
 
       def parse_segments(column_class, string)
+        return {} if string.blank?
+
         if !column_class.split_by_segment?
           return parse_segment(column_class, string)
         end
@@ -87,10 +102,10 @@ module Reading
 
         if column_class.flatten_segments?
           segments = segments.reduce { |merged, segment|
-            merged.merge!(segment) { |k, old_v, new_v|
+            merged.merge!(segment) { |_k, old_v, new_v|
               # old_v is already an array by this point, since its key should be
               # in Column.array_keys
-              old_v = old_v + new_v
+              old_v + new_v
             }
           }
         end
@@ -109,7 +124,7 @@ module Reading
 
         if parsed.nil?
           raise ParsingError, "Could not parse \"#{string}\" in " \
-            "the #{column_class.column_name} column."
+            "the #{column_class.column_name} column"
         end
 
         parsed.each do |k, v|

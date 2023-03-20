@@ -52,7 +52,7 @@ module Reading
             (DNF\s+)?(?<progress_percent>\d\d?)%
             |
             # page
-            (DNF\s+)?p(?<progress_page>\d+)
+            (DNF\s+)?p?(?<progress_pages>\d+)p?
             |
             # time
             (DNF\s+)?(?<progress_time>\d+:\d\d)
