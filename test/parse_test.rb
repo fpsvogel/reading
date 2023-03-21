@@ -119,9 +119,9 @@ class ParseTest < Minitest::Test
     "220 📕Tom Holt - Goatsong",
   :"progress time" =>
     "2:30 📕Tom Holt - Goatsong",
-  :"dnf" =>
+  :"dnf in head" =>
     "DNF 📕Tom Holt - Goatsong",
-  :"dnf with progress" =>
+  :"dnf in head with progress" =>
     "DNF 50% 📕Tom Holt - Goatsong",
   :"dnf with multi items" =>
     "DNF 📕Tom Holt - Goatsong, 🔊Sapiens",
@@ -183,14 +183,20 @@ class ParseTest < Minitest::Test
     "Sapiens|220 2020/09/01",
   :"progress time" =>
     "Sapiens|2:30 2020/09/01",
-  :"dnf" =>
+  :"dnf default zero" =>
     "Sapiens|DNF 2020/09/01",
   :"dnf with progress" =>
     "Sapiens|DNF 50% 2020/09/01",
+  :"dnf only" =>
+    "Sapiens|DNF 50%",
   :"variant" =>
     "Sapiens|2020/09/01 v2",
-  :"group can be indicated at the very end" =>
+  :"variant only" =>
+    "Sapiens|v2",
+  :"group" =>
     "Sapiens|2020/09/01 v2 🤝🏼 county book club",
+  :"group only" =>
+    "Sapiens|🤝🏼 county book club",
   :"all features" =>
     "Sapiens|DNF 50% 2020/09/01 v2, 2:30 2021/07/15",
   }
@@ -343,11 +349,11 @@ class ParseTest < Minitest::Test
   @inputs[:errors][Reading::TooManyColumnsError] =
   {
   :"column beyond the number of enabled columns" =>
-    "|Sapiens||||||||something",
+    "|Sapiens|||||||something",
+  :"empty column beyond the number of enabled columns" =>
+    "|Sapiens|||||||| ",
   :"multiple other columns in a compact planned item when only Sources is allowed" =>
     "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
-  :"OK: empty column beyond the number of enabled columns" =>
-    "|Sapiens||||||||",
   }
   # These are examples of missing columns that do NOT raise an error during parsing.
   # I *could* add more validations to avoid these, but for me these never happen
@@ -365,6 +371,28 @@ class ParseTest < Minitest::Test
     "|Sapiens||2019/01/01|2020/01/01|15:17",
   :"OK: missing Notes column (History is parsed as Notes)" =>
     "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
+  }
+
+
+
+  ## TEST INPUT: CUSTOM CONFIG
+  # Bad input that should raise an error.
+  @inputs[:config] = {
+    :"comment_character" =>
+      ["#3|Dracula",
+        { comment_character: "#" }],
+    :"column_separator" =>
+      ["$Dracula",
+        { column_separator: "$" }],
+    :"column_separator can be a tab" =>
+      ["\tDracula",
+        { column_separator: "\t" }],
+    :"skip_compact_planned" =>
+      ["\\📕Dracula",
+        { skip_compact_planned: true }],
+    :"ignored_characters" =>
+      ["|✅Dracula",
+        { ignored_characters: "Da"}],
   }
 
 
@@ -486,9 +514,9 @@ class ParseTest < Minitest::Test
 
   progress_zero = { experiences: [{ spans: [{ progress: 0 }] }] }
   a = a_with_format.deep_merge(progress_zero)
-  @parsed[:features_head][:"dnf"] = [a]
+  @parsed[:features_head][:"dnf in head"] = [a]
 
-  @parsed[:features_head][:"dnf with progress"] = [a_progress_half]
+  @parsed[:features_head][:"dnf in head with progress"] = [a_progress_half]
 
   a = a_with_format.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
   b = b.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
@@ -620,16 +648,25 @@ class ParseTest < Minitest::Test
   @parsed[:features_dates_started][:"progress time"] = [a]
 
   a = a_started.deep_merge(exp_progress.call(0))
-  @parsed[:features_dates_started][:"dnf"] = [a]
+  @parsed[:features_dates_started][:"dnf default zero"] = [a]
 
   @parsed[:features_dates_started][:"dnf with progress"] = [a_halfway]
+
+  a_dnf_only = a_basic.deep_merge(exp_progress.call(0.5))
+  @parsed[:features_dates_started][:"dnf only"] = [a_dnf_only]
 
   exp_v2 = { experiences: [{ variant_index: 1 }] }
   a_variant = a_started.deep_merge(exp_v2)
   @parsed[:features_dates_started][:"variant"] = [a_variant]
 
+  a_variant_only = a_basic.deep_merge(exp_v2)
+  @parsed[:features_dates_started][:"variant only"] = [a_variant_only]
+
   a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
-  @parsed[:features_dates_started][:"group can be indicated at the very end"] = [a]
+  @parsed[:features_dates_started][:"group"] = [a]
+
+  a = a_basic.deep_merge(experiences: [{ group: "county book club" }])
+  @parsed[:features_dates_started][:"group only"] = [a]
 
   a_many = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
   a = a_many.deep_merge(experiences: [{ spans: [{ progress: 0.5 }],
@@ -913,6 +950,22 @@ class ParseTest < Minitest::Test
 
 
 
+  @parsed[:config] = {}
+
+  @parsed[:config][:"comment_character"] = []
+
+  a_basic = item_hash(title: "Dracula")
+  @parsed[:config][:"column_separator"] = [a_basic]
+
+  @parsed[:config][:"column_separator can be a tab"] = [a_basic]
+
+  a_mangled = item_hash(title: "✅rcul")
+  @parsed[:config][:"ignored_characters"] = [a_mangled]
+
+  @parsed[:config][:"skip_compact_planned"] = []
+
+
+
   # ==== UTILITY METHODS
 
   def with_columns(columns)
@@ -931,8 +984,8 @@ class ParseTest < Minitest::Test
   # Removes any blank hashes in arrays, i.e. any that are the same as in the
   # template in config. Data in items must already be complete, i.e. merged with
   # the item template in config.
-  def tidy(items)
-    items.map { |item_hash|
+  def tidy(hash, key)
+    hash.fetch(key).map { |item_hash|
       without_blank_hashes(item_hash).to_struct
     }
   end
@@ -967,60 +1020,71 @@ class ParseTest < Minitest::Test
   # ==== TESTS
 
   ## TESTS: ENABLING COLUMNS
-  inputs[:enabled_columns].each do |set_name, file_str|
-    columns = set_name.to_s.split(", ").map(&:to_sym)
+  inputs[:enabled_columns].each do |name, file_str|
+    columns = name.to_s.split(", ").map(&:to_sym)
     define_method("test_enabled_columns_#{columns.join("_")}") do
-      config = with_columns(columns)
-      exp = tidy(parsed[:enabled_columns][set_name])
-      act = Reading.parse(file_str, config: config)
+      columns_config = with_columns(columns)
+      exp = tidy(parsed[:enabled_columns], name)
+      act = Reading.parse(file_str, config: columns_config)
       # debugger unless exp == act
       assert_equal exp, act,
-        "Failed to parse with these columns enabled: #{set_name}"
+        "Failed to parse with these columns enabled: #{name}"
     end
   end
 
   ## TESTS: FEATURES OF SINGLE COLUMNS
   inputs.keys.select { |key| key.start_with?("features_") }.each do |group_name|
-    inputs[group_name].each do |feat, file_str|
+    inputs[group_name].each do |name, file_str|
       columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
-      define_method("test_#{columns_sym}_feature_#{feat}") do
-        config = with_columns(columns + [:head])
-        exp = tidy(parsed[group_name][feat])
-        act = Reading.parse(file_str, config: config)
+      define_method("test_#{columns_sym}_feature_#{name}") do
+        columns_config = with_columns(columns + [:head])
+        exp = tidy(parsed[group_name], name)
+        act = Reading.parse(file_str, config: columns_config)
         # debugger unless exp == act
         assert_equal exp, act,
-          "Failed to parse this #{main_column_humanized} column feature: #{feat}"
+          "Failed to parse this #{main_column_humanized} column feature: #{name}"
       end
     end
   end
 
   ## TESTS: ALL COLUMNS
-  inputs[:all_columns].each do |set_name, file_str|
-    define_method("test_all_columns_#{set_name}") do
-      config = with_columns(:all)
-      exp = tidy(parsed[:all_columns][set_name])
-      act = Reading.parse(file_str, config: config)
+  inputs[:all_columns].each do |name, file_str|
+    define_method("test_all_columns_#{name}") do
+      columns_config = with_columns(:all)
+      exp = tidy(parsed[:all_columns], name)
+      act = Reading.parse(file_str, config: columns_config)
       # debugger unless exp == act
       assert_equal exp, act,
-        "Failed to parse this all-columns example: #{set_name}"
+        "Failed to parse this all-columns example: #{name}"
     end
   end
 
   ## TESTS: ERRORS
   inputs[:errors].each do |error, inputs_hash|
     inputs_hash.each do |name, file_str|
-      define_method("test_example_#{name}") do
-        config = with_columns(:all)
-        if name.start_with? "OK: "
-          refute_nil Reading.parse(file_str, config: config) # Should not raise an error.
+      define_method("test_error_#{name}") do
+        columns_config = with_columns(:all)
+        if name.start_with? "OK: " # Should not raise an error.
+          refute_nil Reading.parse(file_str, config: columns_config)
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            Reading.parse(file_str, config: config)
+            Reading.parse(file_str, config: columns_config)
           end
         end
       end
+    end
+  end
+
+  ## TESTS: CUSTOM CONFIG
+  inputs[:config].each do |name, (file_str, custom_config)|
+    define_method("test_config_#{name}") do
+      exp = tidy(parsed[:config], name)
+      act = Reading.parse(file_str, config: custom_config)
+      # debugger unless exp == act
+      assert_equal exp, act,
+        "Failed to parse this config example: #{name}"
     end
   end
 end

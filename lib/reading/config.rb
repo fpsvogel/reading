@@ -1,3 +1,7 @@
+require_relative "util/hash_deep_merge"
+require_relative "util/hash_array_deep_fetch"
+require_relative "errors"
+
 module Reading
   # Builds a hash config.
   class Config
@@ -7,7 +11,7 @@ module Reading
     attr_reader :hash
 
     # @param custom_config [Hash] a custom config which overrides the defaults,
-    #   e.g. { errors: { styling: :html } }
+    #   e.g. { enabled_columns: %i[head dates_finished] }
     def initialize(custom_config = {})
       @custom_config = custom_config
 
@@ -26,14 +30,21 @@ module Reading
         @hash[:formats] = @custom_config[:formats]
       end
 
-      # Validate enabled_columns
+      # Ensure enabled_columns includes :head, and sort them.
       enabled_columns =
         (@hash.fetch(:enabled_columns) + [:head])
         .uniq
-        .sort_by { |col| default_config[:enabled_columns].index(col) }
+        .sort_by { |col| default_config[:enabled_columns].index(col) || 0 }
 
-      # Add the Regex config, which is built based on the config so far.
-      @hash[:regex] = build_regex_config
+      invalid_columns = enabled_columns - default_config[:enabled_columns]
+      if invalid_columns.any?
+        raise ConfigError, "Invalid columns in custom config: #{invalid_columns.join(", ")}"
+      end
+
+      @hash[:enabled_columns] = enabled_columns
+
+      # Add the regex config, which is built based on the config so far.
+      @hash[:regex] = regex_config
     end
 
     # The default config, excluding Regex config (see further down).
@@ -42,7 +53,7 @@ module Reading
       {
         comment_character:        "\\",
         column_separator:         "|",
-        ignored_chars:            "✅💲❓⏳⭐",
+        ignored_characters:       "✅💲❓⏳⭐",
         skip_compact_planned:     false,
         # The Head column is always enabled; the others can be disabled by
         # using a custom config that omits columns from this array.
@@ -58,6 +69,9 @@ module Reading
             notes
             history
           ],
+        # If your custom config includes formats, they will replace the defaults
+        # (unlike the rest of the config, to which custom config is deep merged).
+        # So if you want to keep any of these defaults, include them in your config.
         formats:
           {
             print:     "📕",
@@ -84,6 +98,19 @@ module Reading
               },
             default_name_for_url: "site",
           },
+        # The structure of an item, along with default values.
+        # Wherever an array of hashes ends up with no data (i.e. equal to the
+        # value in the template), it is collapsed into an empty array.
+        # E.g. the row "|Dracula||🤝🏼book club" is parsed to a Struct analogous to:
+        # {
+        #   rating: nil,
+        #   author: nil,
+        #   title: "Dracula",
+        #   genres: [],
+        #   variants: [],
+        #   experiences: [{ spans: [], group: "book club", variant_index: 0 }],
+        #   notes: [],
+        # }
         item_template:
           {
             rating: nil,
@@ -130,9 +157,9 @@ module Reading
       }
     end
 
-    # Builds the Regex portion of the config, based on the given config.
+    # Builds the regex portion of the config, based on the config so far.
     # @return [Hash]
-    def build_regex_config
+    def regex_config
       return @hash[:regex] if @hash.has_key?(:regex)
 
       formats = @hash.fetch(:formats).values.join("|")

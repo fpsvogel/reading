@@ -17,8 +17,7 @@ module Reading
         end
 
         def self.match?(row_string, config)
-          comment = /\A\s*\\/
-          !row_string.match?(comment)
+          !row_string.lstrip.start_with?(config.fetch(:comment_character))
         end
       end
     end

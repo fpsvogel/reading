@@ -17,6 +17,10 @@ module Reading
       def parse_row_to_intermediate_hash(string)
         columns = extract_columns(string)
 
+        if config.fetch(:skip_compact_planned) && columns.has_key?(Rows::CompactPlanned::Head)
+          return {}
+        end
+
         columns.map { |column, column_string|
           parse_column(column, column_string)
         }.to_h
@@ -25,7 +29,7 @@ module Reading
       private
 
       def extract_columns(string)
-        clean_string = string.dup.force_encoding(Encoding::UTF_8).strip
+        clean_string = string.dup.force_encoding(Encoding::UTF_8)
         column_strings = clean_string.split(config.fetch(:column_separator))
 
         row_types = [Rows::Regular, Rows::CompactPlanned, Rows::Blank]
@@ -43,6 +47,7 @@ module Reading
         column_classes
           .zip(column_strings)
           .reject { |_class, string| string.nil? }
+          .to_h
       end
 
       def parse_column(column_class, column_string)
@@ -136,7 +141,7 @@ module Reading
 
       def parse_string(string, regex, tweaks)
         hash = string
-          .tr(config.fetch(:ignored_chars), "")
+          .tr(config.fetch(:ignored_characters), "")
           .strip
           .match(regex)
           &.named_captures

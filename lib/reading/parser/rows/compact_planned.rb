@@ -13,8 +13,8 @@ module Reading
         end
 
         def self.match?(row_string, config)
-          comment = /\A\s*\\/
-          row_string.match?(comment) && row_string.match?(config.deep_fetch(:regex, :formats))
+          row_string.lstrip.start_with?(config.fetch(:comment_character)) &&
+            row_string.match?(config.deep_fetch(:regex, :formats))
         end
       end
     end

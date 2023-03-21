@@ -11,11 +11,13 @@ module Reading
             # dnf/progress, date, variant number, group
             [%r{\A
               (
-                #{SHARED_REGEXES[:progress]}
-                \s+
+                #{Column::SHARED_REGEXES[:progress]}
+                (\s+|\z)
               )?
-              (?<date>\d{4}/\d\d?/\d\d?)
-              (\s+|\z)
+              (
+                (?<date>\d{4}/\d\d?/\d\d?)
+                (\s+|\z)
+              )?
               (
                 v(?<variant>\d)
                 (\s+|\z)

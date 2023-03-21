@@ -51,7 +51,7 @@ module Reading
                   (?<length_time>\d+:\d\d)
                 )?
               \z}x if  segment_index.zero?),
-              *SHARED_REGEXES[:series_and_extra_info],
+              *Column::SHARED_REGEXES[:series_and_extra_info],
             ].compact
           end
         end

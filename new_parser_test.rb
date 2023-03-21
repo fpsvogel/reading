@@ -12,7 +12,7 @@ require_relative "lib/reading"
 
 require "debug"
 
-str = "|Sapiens||||||||something"
+str = "|Dracula"
 
 config = Reading::Config.new.hash
 # parsed = Reading::Parser::Parse.new(config).parse_row_to_intermediate_hash(str)

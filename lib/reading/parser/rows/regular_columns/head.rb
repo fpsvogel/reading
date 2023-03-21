@@ -8,7 +8,7 @@ module Reading
           end
 
           def self.regex_before_formats
-            /\A#{SHARED_REGEXES[:progress]}\z/
+            /\A#{Column::SHARED_REGEXES[:progress]}\z/
           end
 
           def self.segment_separator
@@ -29,7 +29,7 @@ module Reading
                 )?
                 (?<title>.+)
               \z}x if segment_index.zero?),
-              *SHARED_REGEXES[:series_and_extra_info],
+              *Column::SHARED_REGEXES[:series_and_extra_info],
             ].compact
           end
         end
