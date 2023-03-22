@@ -9,18 +9,14 @@ class ParseTest < Minitest::Test
   using Reading::Util::HashArrayDeepFetch
   using Reading::Util::HashToStruct
 
-  self.class.attr_reader :inputs, :parsed, :transformed, :base_config
+  self.class.attr_reader :inputs, :outputs, :base_config
 
   def inputs
     self.class.inputs
   end
 
-  def parsed
-    self.class.parsed
-  end
-
-  def transformed
-    self.class.transformed
+  def outputs
+    self.class.outputs
   end
 
   def base_config
@@ -235,6 +231,7 @@ class ParseTest < Minitest::Test
     "\\❓HISTORICAL FICTION @Lexpub:⚡💲Tom Holt - A Song for Nero ✅@Hoopla ✅🔊True Grit",
   }
 
+  # TODO uncomment
   @inputs[:features_history] =
   {
   # :"dates and descriptions" =>
@@ -270,30 +267,31 @@ class ParseTest < Minitest::Test
     :"default span amount is the correct length via variants" =>
       "|Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03|2020/09/01",
   }
-  @inputs[:all_columns][:"in progress"] = <<~EOM.freeze
+  @inputs[:all_columns][:"realistic examples: in progress books"] = <<~EOM.freeze
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Notes|History
     \\------ IN PROGRESS
-    |🔊Sapiens: A Brief History of Humankind|Vail Library B00ICN066A|2021/09/20||history, wisdom|15:17|💬History with a sociological bent, with special attention paid to human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos. -- Ch. 19: are we happier in modernity? It's doubtful.
-    5|📕Tom Holt - Goatsong: A Novel of Ancient Athens -- The Walled Orchard, #1|0312038380|2019/05/28, 2020/05/01, 50% 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
+    |🔊Sapiens: A Brief History of Humankind|Hoopla B00ICN066A|2021/09/20||history|15:17|Easy to criticize, but I like the emphasis on human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
+    5|📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01|2019/06/13|history, fiction|247
   EOM
-  @inputs[:all_columns][:"done"] = <<~EOM.freeze
+  # TODO uncomment
+  # @inputs[:all_columns][:"realistic examples: in progress podcasts"] = <<~EOM.freeze
+  #   3|🎤Flightless Bird|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week
+  #   4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
+  # EOM
+  @inputs[:all_columns][:"realistic examples: done"] = <<~EOM.freeze
     \\------ DONE
-    4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus -- unabridged|1533694567|2020/10/20 🤝🏼 weekly Latin reading with Sean and Dennis|2021/08/31|latin, novel|8:18|Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html -- Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d
-    2|🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|DNF 50% 2020/03/21, DNF 4:45 2021/08/06|2020/04/01, 2021/08/11|cats|10:13|🔒I would've felt bad if I hadn't tried.
+    4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus|1533694567|2020/10/20 🤝🏼Latin reading group|2021/08/31|latin, fiction|260
+    2|DNF 50% 🔊Total Cat Mojo|gift from neighbor Edith B01NCYY3BV|2020/03/21|2020/04/01|cats|10:13|🔒I would've felt bad if I hadn't tried.
     1|DNF 🎤FiveThirtyEight Politics 🎤The NPR Politics Podcast 🎤Pod Save America||2021/08/02|2021/08/02|politics, podcast|0:30|Not very deep. Disappointing.
-    5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016, ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼 with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science||Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet. -- 💬It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
+    5|Randall Munroe - What If?: Serious Scientific Answers to Absurd Hypothetical Questions|🔊Lexpub B00LV2F1ZA 6:36 -- unabridged -- published 2016 ⚡Amazon B00IYUYF4A 320 -- published 2014|2021/08/01, 2021/08/16 v2 🤝🏼with Sam, 2021/09/01|2021/08/15, 2021/08/28, 2021/09/10|science||Favorites: Global Windstorm, Relativistic Baseball, Laser Pointer, Hair Dryer, Machine-Gun Jetpack, Neutron Bullet. -- 💬It's been a long time since I gave highest marks to a "just for fun" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist.
   EOM
-  @inputs[:all_columns][:"planned"] = <<~EOM.freeze
+  @inputs[:all_columns][:"realistic examples: planned"] = <<~EOM.freeze
     \\------ PLANNED
-    |⚡Tom Holt - A Song for Nero|B00GW4U2TM|||historical fiction|580
-  EOM
-  @inputs[:all_columns][:"single compact planned"] = <<~EOM.freeze
-    \\------ PLANNED
+    |⚡Tom Holt - Alexander At The World's End|B00GVG00R0|||historical fiction|484
+    \\
     \\⚡How to Think Like a Roman Emperor
     \\🔊Trevor Noah - Born a Crime @Lexpub @Jeffco
-  EOM
-  @inputs[:all_columns][:"multi compact planned"] = <<~EOM.freeze
-    \\------ PLANNED
+    \\
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE, WEIRD @Lexpub: 📕Randall Munroe - How To 🔊Weird Earth @Hoopla
   EOM
@@ -397,8 +395,8 @@ class ParseTest < Minitest::Test
 
 
 
-  # ==== EXPECTED DATA
-  # The results of parsing the above inputs are expected to equal these hashes.
+  # ==== EXPECTED TEST OUTPUT
+  # The results of parsing the above inputs are expected to equal the hashes below.
 
   def self.item_hash(**partial_hash)
     # This merge is not the same as Reading::Util::HashDeepMerge. This one uses the
@@ -422,316 +420,341 @@ class ParseTest < Minitest::Test
     end
   end
 
-  @parsed = {}
-  @parsed[:enabled_columns] = {}
+  @outputs = {}
+
+  @outputs[:enabled_columns] = {}
   a = item_hash(title: "Sapiens")
   b = item_hash(title: "Goatsong")
   c = item_hash(title: "How To")
-  @parsed[:enabled_columns][:"head"] = [a, b, c]
+  @outputs[:enabled_columns][:"head"] = [a, b, c]
 
-  b_finished_inner = { experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30"),
-                                                 progress: 1.0}] }] }
-  b_finished = b.deep_merge(b_finished_inner)
-  @parsed[:enabled_columns][:"head, dates_finished"] = [a, b_finished, c]
+  b_finished_only = b.deep_merge(
+    experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30"),
+                    progress: 1.0}] }],
+  )
+  @outputs[:enabled_columns][:"head, dates_finished"] = [a, b_finished_only, c]
 
   a_started = a.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2021/9/1").. }] }])
   b_started = b.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2020/5/1").. }] }])
-  @parsed[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
+  @outputs[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
 
-  a = a_started
-  b = item_hash(
+  b_finished = item_hash(
     title: "Goatsong",
     experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30"),
                               progress: 1.0}] }],
   )
-  @parsed[:enabled_columns][:"head, dates_started, dates_finished"] = [a, b, c]
+  @outputs[:enabled_columns][:"head, dates_started, dates_finished"] = [a_started, b_finished, c]
 
-  a = a.merge(rating: nil)
-  b = b.merge(rating: 5)
-  @parsed[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a, b, c]
+  a_rating = a_started.merge(rating: nil)
+  b_rating = b_finished.merge(rating: 5)
+  @outputs[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a_rating, b_rating, c]
 
   a_length_and_amount = { variants: [{ length: "15:17" }],
                           experiences: [{ spans: [{ amount: "15:17" }] }] }
   b_length_and_amount = { variants: [{ length: 247 }],
                           experiences: [{ spans: [{ amount: 247 }] }] }
-  a_length = a.deep_merge(a_length_and_amount)
-  b_length = b.deep_merge(b_length_and_amount)
-  @parsed[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
+  a_length = a_rating.deep_merge(a_length_and_amount)
+  b_length = b_rating.deep_merge(b_length_and_amount)
+  @outputs[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
 
-  a_sources = a.deep_merge(variants: [{ isbn: "B00ICN066A",
-                          sources: [{ name: "Vail Library" }] }])
-  b_sources = b.deep_merge(variants: [{ isbn: "0312038380" }])
-  @parsed[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
+  a_sources = a_rating.deep_merge(
+    variants: [{ isbn: "B00ICN066A",
+                 sources: [{ name: "Vail Library" }] }])
+  b_sources = b_rating.deep_merge(variants: [{ isbn: "0312038380" }])
+  @outputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
 
-  a = a_sources.deep_merge(a_length_and_amount)
-  b = b_sources.deep_merge(b_length_and_amount)
-  @parsed[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a, b, c]
+  a_many = a_sources.deep_merge(a_length_and_amount)
+  b_many = b_sources.deep_merge(b_length_and_amount)
+  @outputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a_many, b_many, c]
 
 
 
-  @parsed[:features_head] = {}
-  a_basic = item_hash(author: "Tom Holt", title: "Goatsong")
-  @parsed[:features_head][:"author"] = [a_basic]
+  @outputs[:features_head] = {}
+  a = item_hash(author: "Tom Holt", title: "Goatsong")
+  @outputs[:features_head][:"author"] = [a]
 
-  a = a_basic.deep_merge(variants: [{ series: [{ name: "The Walled Orchard" }] }])
-  @parsed[:features_head][:"series"] = [a]
+  series = { variants: [{ series: [{ name: "The Walled Orchard" }] }] }
+  a_series = a.deep_merge(series)
+  @outputs[:features_head][:"series"] = [a_series]
 
-  a = a.deep_merge(variants: [{ series: [{ volume: 1 }] }])
-  series_with_volume = a[:variants].first.slice(:series)
-  @parsed[:features_head][:"series with volume"] = [a]
+  volume = { variants: [{ series: [{ volume: 1 }] }] }
+  a_series_volume = a_series.deep_merge(volume)
+  @outputs[:features_head][:"series with volume"] = [a_series_volume]
 
-  extra_info = %w[paperback 1990]
-  variants_with_extra_info = { variants: [{ extra_info: extra_info }] }
-  a = a_basic.deep_merge(variants_with_extra_info)
-  @parsed[:features_head][:"extra info"] = [a]
+  extra_info = { variants: [{ extra_info: %w[paperback 1990] }] }
+  a_extra_info = a.deep_merge(extra_info)
+  @outputs[:features_head][:"extra info"] = [a_extra_info]
 
-  a = a.deep_merge(variants: [series_with_volume])
-  @parsed[:features_head][:"extra info and series"] = [a]
+  a_extra_info_series = a_extra_info.deep_merge(series).deep_merge(volume)
+  @outputs[:features_head][:"extra info and series"] = [a_extra_info_series]
 
-  a_with_format = a_basic.deep_merge(variants: [{ format: :print }])
-  @parsed[:features_head][:"format"] = [a_with_format]
+  format = { variants: [{ format: :print }] }
+  a_format = a.deep_merge(format)
+  @outputs[:features_head][:"format"] = [a_format]
 
   b = item_hash(title: "Sapiens", variants: [{ format: :audiobook }])
-  @parsed[:features_head][:"multi items"] = [a_with_format, b]
+  @outputs[:features_head][:"multi items"] = [a_format, b]
 
-  @parsed[:features_head][:"multi items without a comma"] = [a_with_format, b]
+  @outputs[:features_head][:"multi items without a comma"] = [a_format, b]
 
-  @parsed[:features_head][:"multi items with a long separator"] = [a_with_format, b]
+  @outputs[:features_head][:"multi items with a long separator"] = [a_format, b]
 
   progress_half = { experiences: [{ spans: [{ progress: 0.5 }] }] }
-  a_progress_half = a_with_format.deep_merge(progress_half)
-  @parsed[:features_head][:"progress"] = [a_progress_half]
+  a_progress_half = a_format.deep_merge(progress_half)
+  @outputs[:features_head][:"progress"] = [a_progress_half]
 
-  progress_220_pages = { experiences: [{ spans: [{ progress: 220 }] }] }
-  a = a_with_format.deep_merge(progress_220_pages)
-  @parsed[:features_head][:"progress pages"] = [a]
+  progress_pages = { experiences: [{ spans: [{ progress: 220 }] }] }
+  a_progress_pages = a_format.deep_merge(progress_pages)
+  @outputs[:features_head][:"progress pages"] = [a_progress_pages]
 
-  @parsed[:features_head][:"progress pages without p"] = [a]
+  @outputs[:features_head][:"progress pages without p"] = [a_progress_pages]
 
-  progress_2_hours_30_minutes = { experiences: [{ spans: [{ progress: "2:30" }] }] }
-  a = a_with_format.deep_merge(progress_2_hours_30_minutes)
-  @parsed[:features_head][:"progress time"] = [a]
+  progress_time = { experiences: [{ spans: [{ progress: "2:30" }] }] }
+  a_progress_time = a_format.deep_merge(progress_time)
+  @outputs[:features_head][:"progress time"] = [a_progress_time]
 
   progress_zero = { experiences: [{ spans: [{ progress: 0 }] }] }
-  a = a_with_format.deep_merge(progress_zero)
-  @parsed[:features_head][:"dnf in head"] = [a]
+  a_progress_zero = a_format.deep_merge(progress_zero)
+  @outputs[:features_head][:"dnf in head"] = [a_progress_zero]
 
-  @parsed[:features_head][:"dnf in head with progress"] = [a_progress_half]
+  @outputs[:features_head][:"dnf in head with progress"] = [a_progress_half]
 
-  a = a_with_format.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
-  b = b.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
-  @parsed[:features_head][:"dnf with multi items"] = [a, b]
+  b_progress_zero = b.deep_merge(experiences: [{ spans: [{ progress: 0 }] }])
+  @outputs[:features_head][:"dnf with multi items"] = [a_progress_zero, b_progress_zero]
 
-  full_variants = variants_with_extra_info.deep_merge(variants: [series_with_volume])
-  a = a.deep_merge(full_variants).deep_merge(progress_half)
-  b = b.deep_merge(progress_half)
-  @parsed[:features_head][:"all features"] = [a, b]
-
+  full_variants = extra_info.deep_merge(series).deep_merge(volume)
+  a_full = a_progress_zero.deep_merge(full_variants).deep_merge(progress_half)
+  b_full = b_progress_zero.deep_merge(progress_half)
+  @outputs[:features_head][:"all features"] = [a_full, b_full]
 
 
-  @parsed[:features_sources] = {}
+
+  @outputs[:features_sources] = {}
   title = "Goatsong"
-  a_basic = item_hash(title:)
+  a = item_hash(title:)
   isbn = "0312038380"
-  a = a_basic.deep_merge(variants: [{ isbn: isbn }])
-  @parsed[:features_sources][:"ISBN-10"] = [a]
+  a_isbn = a.deep_merge(variants: [{ isbn: isbn }])
+  @outputs[:features_sources][:"ISBN-10"] = [a_isbn]
 
-  a = a_basic.deep_merge(variants: [{ isbn: "978-0312038380" }])
-  @parsed[:features_sources][:"ISBN-13"] = [a]
+  a_isbn_13 = a.deep_merge(variants: [{ isbn: "978-0312038380" }])
+  @outputs[:features_sources][:"ISBN-13"] = [a_isbn_13]
 
-  a = a_basic.deep_merge(variants: [{ isbn: "B00GVG01HE" }])
-  @parsed[:features_sources][:"ASIN"] = [a]
+  a_asin = a.deep_merge(variants: [{ isbn: "B00GVG01HE" }])
+  @outputs[:features_sources][:"ASIN"] = [a_asin]
 
   library = { name: "Little Library", url: nil }
-  a = a_basic.deep_merge(variants: [{ sources: [library] }])
-  @parsed[:features_sources][:"source"] = [a]
+  a_source = a.deep_merge(variants: [{ sources: [library] }])
+  @outputs[:features_sources][:"source"] = [a_source]
 
   site = { name: base_config.deep_fetch(:sources, :default_name_for_url),
            url: "https://www.edlin.org/holt" }
-  a = a_basic.deep_merge(variants: [{ sources: [site] }])
-  @parsed[:features_sources][:"URL source"] = [a]
+  a_site = a.deep_merge(variants: [{ sources: [site] }])
+  @outputs[:features_sources][:"URL source"] = [a_site]
 
   default_name = base_config.deep_fetch(:sources, :default_name_for_url)
   site_named = { name: default_name, url: "https://www.edlin.org/holt" }
-  a = a_basic.deep_merge(variants: [{ sources: [site_named] }])
-  @parsed[:features_sources][:"URL source with name"] = [a]
+  a_site_named = a.deep_merge(variants: [{ sources: [site_named] }])
+  @outputs[:features_sources][:"URL source with name"] = [a_site_named]
 
-  @parsed[:features_sources][:"URL source with name after"] = [a]
+  @outputs[:features_sources][:"URL source with name after"] = [a_site_named]
 
   site_auto_named = { name: "Internet Archive",
                       url: "https://archive.org/details/walledorchard0000holt" }
-  a = a_basic.deep_merge(variants: [{ sources: [site_auto_named] }])
-  @parsed[:features_sources][:"URL source with a name from config"] = [a]
+  a_site_auto_named = a.deep_merge(variants: [{ sources: [site_auto_named] }])
+  @outputs[:features_sources][:"URL source with a name from config"] = [a_site_auto_named]
 
   lexpub = { name: "Lexpub", url: nil }
   three_sources = [library, site, lexpub]
-  a = a_basic.deep_merge(variants: [{ sources: three_sources }])
-  @parsed[:features_sources][:"multiple sources must be separated with commas"] = [a]
+  a_commas = a.deep_merge(variants: [{ sources: three_sources }])
+  @outputs[:features_sources][:"multiple sources must be separated with commas"] = [a_commas]
 
-  a = a_basic.deep_merge(variants: [{ sources: [library],
-                                        isbn: isbn }])
-  @parsed[:features_sources][:"source with ISBN"] = [a]
+  a_source_isbn = a.deep_merge(
+    variants: [{ sources: [library],
+                 isbn: isbn }],
+  )
+  @outputs[:features_sources][:"source with ISBN"] = [a_source_isbn]
 
-  a = a_basic.deep_merge(variants: [{ sources: three_sources,
-                                        isbn: isbn }])
-  @parsed[:features_sources][:"sources with ISBN"] = [a]
+  a_multi_sources_isbn = a.deep_merge(
+    variants: [{ sources: three_sources,
+                 isbn: isbn }],
+  )
+  @outputs[:features_sources][:"sources with ISBN"] = [a_multi_sources_isbn]
 
-  a = item_hash(title:,
-                variants: [{ format: :print, sources: [library] },
-                           { format: :print, sources: [lexpub] }])
-  @parsed[:features_sources][:"simple variants"] = [a]
+  a_variants = item_hash(
+    title:,
+    variants: [{ format: :print, sources: [library] },
+               { format: :print, sources: [lexpub] }],
+  )
+  @outputs[:features_sources][:"simple variants"] = [a_variants]
 
-  a = item_hash(title:,
-                variants: [{ format: :print,
-                             sources: [library],
-                             extra_info: extra_info },
-                           { format: :audiobook,
-                             sources: [lexpub] }])
-  @parsed[:features_sources][:"variant with extra info"] = [a]
+  a_variant_extra_info = item_hash(
+    title:,
+    variants: [{ format: :print,
+                 sources: [library],
+                 extra_info: %w[paperback 1990] },
+               { format: :audiobook,
+                 sources: [lexpub] }],
+  )
+  @outputs[:features_sources][:"variant with extra info"] = [a_variant_extra_info]
 
-  @parsed[:features_sources][:"optional long separator can be added between variants"] = [a]
+  @outputs[:features_sources][:"optional long separator can be added between variants"] = [a_variant_extra_info]
 
-  a_with_series = a.deep_merge(variants: [{ series: [{ name: "The Walled Orchard", volume: 1 }] }])
-  @parsed[:features_sources][:"variant with extra info and series"] = [a_with_series]
+  a_variant_series = a_variant_extra_info.deep_merge(
+    variants: [{ series: [{ name: "The Walled Orchard", volume: 1 }] }],
+  )
+  @outputs[:features_sources][:"variant with extra info and series"] = [a_variant_series]
 
-  a_with_head_extras = a.deep_merge(
+  a_head_extras = a_variant_extra_info.deep_merge(
     variants: [{ series: [{ name: "Holt's Classical Novels", volume: nil },
                           { name: "The Walled Orchard", volume: 1 }],
-                 extra_info: ["unabridged"] + extra_info},
+                 extra_info: %w[unabridged paperback 1990] },
                { series: [{ name: "Holt's Classical Novels", volume: nil }],
                  extra_info: ["unabridged"] }]
   )
-  @parsed[:features_sources][:"variant with extra info and series from Head also"] = [a_with_head_extras]
+  @outputs[:features_sources][:"variant with extra info and series from Head also"] = [a_head_extras]
 
-  a_variants_length =
-    item_hash(title:,
-              variants: [a[:variants].first.merge(isbn: isbn, length: 247),
-                          a[:variants].last.merge(length: "7:03")])
-  @parsed[:features_sources][:"length after sources ISBN and before extra info"] = [a_variants_length]
+  a_variant_length = item_hash(
+    title:,
+    variants: [a_variant_extra_info[:variants].first.merge(isbn: isbn, length: 247),
+               a_variant_extra_info[:variants].last.merge(length: "7:03")],
+  )
+  @outputs[:features_sources][:"length after sources ISBN and before extra info"] = [a_variant_length]
 
-  a = item_hash(title:,
-                variants: [a_variants_length[:variants].first.merge(sources: three_sources),
-                           a_variants_length[:variants].last])
-  @parsed[:features_sources][:"multiple sources allowed in variant"] = [a]
+  a_variant_sources = item_hash(
+    title:,
+    variants: [a_variant_length[:variants].first.merge(sources: three_sources),
+               a_variant_length[:variants].last],
+  )
+  @outputs[:features_sources][:"multiple sources allowed in variant"] = [a_variant_sources]
 
-  @parsed[:features_sources][:"optional commas can be added within and between variants"] = [a]
-
-
-
-  @parsed[:features_dates_started] = {}
-  a_basic = item_hash(title: "Sapiens")
-  exp_started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
-  a_started = a_basic.deep_merge(exp_started)
-  @parsed[:features_dates_started][:"date started"] = [a_started]
-
-  exp_second_started = { experiences: [{},
-                                       { spans: [{ dates: Date.parse("2021/07/15").. }] }] }
-  a = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
-  @parsed[:features_dates_started][:"dates started"] = [a]
-
-  exp_third_started = { experiences: [{},
-                                      {},
-                                      { spans: [{ dates: Date.parse("2022/01/01").. }] }] }
-  z = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started).deep_merge(exp_third_started))
-  @parsed[:features_dates_started][:"dates started in any order"] = [z]
-
-  exp_progress = ->(amount) { { experiences: [{ spans: [{ progress: amount }] }] } }
-  a_halfway = a_started.deep_merge(exp_progress.call(0.5))
-  @parsed[:features_dates_started][:"progress"] = [a_halfway]
-
-  a = a_started.deep_merge(exp_progress.call(220))
-  @parsed[:features_dates_started][:"progress pages"] = [a]
-
-  @parsed[:features_dates_started][:"progress pages without p"] = [a]
-
-  a = a_started.deep_merge(exp_progress.call("2:30"))
-  @parsed[:features_dates_started][:"progress time"] = [a]
-
-  a = a_started.deep_merge(exp_progress.call(0))
-  @parsed[:features_dates_started][:"dnf default zero"] = [a]
-
-  @parsed[:features_dates_started][:"dnf with progress"] = [a_halfway]
-
-  a_dnf_only = a_basic.deep_merge(exp_progress.call(0.5))
-  @parsed[:features_dates_started][:"dnf only"] = [a_dnf_only]
-
-  exp_v2 = { experiences: [{ variant_index: 1 }] }
-  a_variant = a_started.deep_merge(exp_v2)
-  @parsed[:features_dates_started][:"variant"] = [a_variant]
-
-  a_variant_only = a_basic.deep_merge(exp_v2)
-  @parsed[:features_dates_started][:"variant only"] = [a_variant_only]
-
-  a = a_variant.deep_merge(experiences: [{ group: "county book club" }])
-  @parsed[:features_dates_started][:"group"] = [a]
-
-  a = a_basic.deep_merge(experiences: [{ group: "county book club" }])
-  @parsed[:features_dates_started][:"group only"] = [a]
-
-  a_many = item_hash(**a_basic.deep_merge(exp_started).deep_merge(exp_second_started))
-  a = a_many.deep_merge(experiences: [{ spans: [{ progress: 0.5 }],
-                                        variant_index: 1 },
-                                      { spans: [{ progress: "2:30" }] }])
-  @parsed[:features_dates_started][:"all features"] = [a]
+  @outputs[:features_sources][:"optional commas can be added within and between variants"] = [a_variant_sources]
 
 
 
-  @parsed[:features_compact_planned] = {}
+  @outputs[:features_dates_started] = {}
+  a = item_hash(title: "Sapiens")
+  started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
+  a_started = a.deep_merge(started)
+  @outputs[:features_dates_started][:"date started"] = [a_started]
+
+  started_2 = {
+    experiences: [{},
+                  { spans: [{ dates: Date.parse("2021/07/15").. }] }],
+  }
+  a_started_2 = item_hash(**a.deep_merge(started).deep_merge(started_2))
+  @outputs[:features_dates_started][:"dates started"] = [a_started_2]
+
+  started_3 = {
+    experiences: [{},
+                  {},
+                  { spans: [{ dates: Date.parse("2022/01/01").. }] }],
+  }
+  a_started_3 = item_hash(**a.deep_merge(started).deep_merge(started_2).deep_merge(started_3))
+  @outputs[:features_dates_started][:"dates started in any order"] = [a_started_3]
+
+  progress = ->(amount) { { experiences: [{ spans: [{ progress: amount }] }] } }
+  a_progress_half = a_started.deep_merge(progress.call(0.5))
+  @outputs[:features_dates_started][:"progress"] = [a_progress_half]
+
+  a_progress_pages = a_started.deep_merge(progress.call(220))
+  @outputs[:features_dates_started][:"progress pages"] = [a_progress_pages]
+
+  @outputs[:features_dates_started][:"progress pages without p"] = [a_progress_pages]
+
+  a_progress_time = a_started.deep_merge(progress.call("2:30"))
+  @outputs[:features_dates_started][:"progress time"] = [a_progress_time]
+
+  a_progress_zero = a_started.deep_merge(progress.call(0))
+  @outputs[:features_dates_started][:"dnf default zero"] = [a_progress_zero]
+
+  @outputs[:features_dates_started][:"dnf with progress"] = [a_progress_half]
+
+  a_dnf_only = a.deep_merge(progress.call(0.5))
+  @outputs[:features_dates_started][:"dnf only"] = [a_dnf_only]
+
+  variant_2 = { experiences: [{ variant_index: 1 }] }
+  a_variant = a_started.deep_merge(variant_2)
+  @outputs[:features_dates_started][:"variant"] = [a_variant]
+
+  a_variant_only = a.deep_merge(variant_2)
+  @outputs[:features_dates_started][:"variant only"] = [a_variant_only]
+
+  group = { experiences: [{ group: "county book club" }] }
+  a_group = a_variant.deep_merge(group)
+  @outputs[:features_dates_started][:"group"] = [a_group]
+
+  a_group_only = a.deep_merge(group)
+  @outputs[:features_dates_started][:"group only"] = [a_group_only]
+
+  a_started_twice = item_hash(**a.deep_merge(started).deep_merge(started_2))
+  a_started_twice_progress = a_started_twice.deep_merge(
+    experiences: [{ spans: [{ progress: 0.5 }],
+                    variant_index: 1 },
+                  { spans: [{ progress: "2:30" }] }],
+  )
+  @outputs[:features_dates_started][:"all features"] = [a_started_twice_progress]
+
+
+
+  @outputs[:features_compact_planned] = {}
   a_title = item_hash(title: "A Song for Nero",
                       variants: [{ format: :ebook }])
-  @parsed[:features_compact_planned][:"title only"] = [a_title]
+  @outputs[:features_compact_planned][:"title only"] = [a_title]
 
   a_author = a_title.merge(author: "Tom Holt")
-  @parsed[:features_compact_planned][:"with author"] = [a_author]
+  @outputs[:features_compact_planned][:"with author"] = [a_author]
 
   lexpub_and_hoopla = [{ name: "Lexpub", url: nil },
                        { name: "Hoopla", url: nil }]
   a_sources = a_author.deep_merge(variants: [{ sources: lexpub_and_hoopla }])
-  @parsed[:features_compact_planned][:"with sources"] = [a_sources]
+  @outputs[:features_compact_planned][:"with sources"] = [a_sources]
 
-  @parsed[:features_compact_planned][:"with sources in the Sources column"] = [a_sources]
+  @outputs[:features_compact_planned][:"with sources in the Sources column"] = [a_sources]
 
-  a_full_sources = a_sources.deep_merge(variants: [{ isbn: "B00GW4U2TM",
-                                                    extra_info: ["unabridged"],
-                                                    series: [{ name: "Holt's Classical Novels", volume: nil }] }])
-  @parsed[:features_compact_planned][:"with fuller Head and Sources columns"] = [a_full_sources]
-
-  b_sources = item_hash(title: "True Grit",
-                        variants: [{ format: :audiobook,
-                                    sources: [{ name: "Lexpub" }] }])
+  a_full_sources = a_sources.deep_merge(
+    variants: [{ isbn: "B00GW4U2TM",
+                 extra_info: ["unabridged"],
+                 series: [{ name: "Holt's Classical Novels", volume: nil }] }],
+  )
+  @outputs[:features_compact_planned][:"with fuller Head and Sources columns"] = [a_full_sources]
 
   a_full_sources_minus_isbn = a_full_sources.deep_merge(variants: [{ isbn: nil }])
-  @parsed[:features_compact_planned][:"with sources and extra info"] = [a_full_sources_minus_isbn]
+  @outputs[:features_compact_planned][:"with sources and extra info"] = [a_full_sources_minus_isbn]
 
-  @parsed[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
+  b_sources = item_hash(
+    title: "True Grit",
+    variants: [{ format: :audiobook,
+                sources: [{ name: "Lexpub" }] }],
+  )
+  @outputs[:features_compact_planned][:"multiple"] = [a_sources, b_sources]
 
-  @parsed[:features_compact_planned][:"multiple with source"] = [a_sources, b_sources]
+  @outputs[:features_compact_planned][:"multiple with source"] = [a_sources, b_sources]
 
   a_genre = a_sources.merge(genres: ["historical fiction"])
   b_genre = b_sources.merge(genres: ["historical fiction"])
-  @parsed[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
+  @outputs[:features_compact_planned][:"multiple with genre"] = [a_genre, b_genre]
 
   a_multi_genre = a_sources.merge(genres: ["historical fiction", "faves"])
   b_multi_genre = b_sources.merge(genres: ["historical fiction", "faves"])
-  @parsed[:features_compact_planned][:"multiple with multiple genres"] = [a_multi_genre, b_multi_genre]
+  @outputs[:features_compact_planned][:"multiple with multiple genres"] = [a_multi_genre, b_multi_genre]
 
-  @parsed[:features_compact_planned][:"multiple with genre plus source"] = [a_genre, b_genre]
+  @outputs[:features_compact_planned][:"multiple with genre plus source"] = [a_genre, b_genre]
 
-  @parsed[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
+  @outputs[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
 
   default_name = base_config.deep_fetch(:sources, :default_name_for_url)
   multi_source = [{ sources: [{ name: "Lexpub" },
                               { name: default_name, url: "https://www.lexpublib.org" }]}]
   a_multi_source = a_genre.deep_merge(variants: multi_source)
   b_multi_source = b_genre.deep_merge(variants: multi_source)
-  @parsed[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
+  @outputs[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
 
-  @parsed[:features_compact_planned][:"config-defined emojis are ignored"] = [a_genre, b_genre]
+  @outputs[:features_compact_planned][:"config-defined emojis are ignored"] = [a_genre, b_genre]
 
 
 
-  @parsed[:features_history] = {}
-  a = item_hash(
+  @outputs[:features_history] = {}
+  a_dates_names = item_hash(
     title: "Fullstack Ruby",
     experiences: [{ spans: [
       { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
@@ -741,69 +764,71 @@ class ParseTest < Minitest::Test
       { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
         name: "#3 String-Based Templates vs. DSLs" }] }],
   )
-  @parsed[:features_history][:"dates and names"] = [a]
+  @outputs[:features_history][:"dates and names"] = [a_dates_names]
 
-  a = a.merge(
+  a_time_amounts = a.merge(
     experiences: [{ spans: [
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:35" ),
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" ),
       a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" )] }],
   )
-  @parsed[:features_history][:"time amounts"] = [a]
+  @outputs[:features_history][:"time amounts"] = [a_time_amounts]
 
 
 
-  @parsed[:all_columns] = {}
-  @parsed[:all_columns][:"empty Sources column doesn't prevent variant from elsewhere"] =
-    [a_started.deep_merge(variants: [{ format: :print }])]
+  @outputs[:all_columns] = {}
+  a = item_hash(title: "Sapiens")
+  started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
+  a_started = a.deep_merge(started)
+  a_started_format = a_started.deep_merge(variants: [{ format: :print }])
+  @outputs[:all_columns][:"empty Sources column doesn't prevent variant from elsewhere"] = [a_started_format]
 
-  a_variants_length_with_experience =
-    a_variants_length.deep_merge(
+  a_variant_length = item_hash(
+    title: "Goatsong",
+    variants: [a_variant_extra_info[:variants].first.merge(isbn: isbn, length: 247),
+               a_variant_extra_info[:variants].last.merge(length: "7:03")],
+  )
+  a_variant_length_with_experience =
+    a_variant_length.deep_merge(
       experiences: [{
         spans: [{ dates: Date.parse("2020/09/01").., amount: 247 }],
         variant_index: 0
       }]
     )
-  @parsed[:all_columns][:"default span amount is the correct length via variants"] =
-    [a_variants_length_with_experience]
+  @outputs[:all_columns][:"default span amount is the correct length via variants"] =
+    [a_variant_length_with_experience]
 
   sapiens = item_hash(
     title: "Sapiens: A Brief History of Humankind",
     variants:    [{ format: :audiobook,
-                    sources: [{ name: "Vail Library" }],
+                    sources: [{ name: "Hoopla" }],
                     isbn: "B00ICN066A",
                     length: "15:17" }],
     experiences: [{ spans: [{ dates: Date.parse("2021/09/20")..,
                               amount: "15:17" }] }],
-    genres: %w[history wisdom],
+    genres: ["history"],
     notes: [
-      { blurb?: true, content: "History with a sociological bent, with special attention paid to human happiness." },
+      { content: "Easy to criticize, but I like the emphasis on human happiness." },
       { content: "Ch. 5: \"We did not domesticate wheat. It domesticated us.\"" },
-      { content: "End of ch. 8: the ubiquity of patriarchal societies is so far unexplained. It would make more sense for women (being on average more socially adept) to have formed a matriarchal society as among the bonobos." },
-      { content: "Ch. 19: are we happier in modernity? It's doubtful." },
+      { content: "Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2" },
     ],
   )
   goatsong = item_hash(
     rating: 5,
     author: "Tom Holt",
-    title: "Goatsong: A Novel of Ancient Athens",
+    title: "Goatsong",
     variants:    [{ format: :print,
-                    series: [{ name: "The Walled Orchard",
-                              volume: 1 }],
+                    sources: [{ name: "Lexpub" }],
                     isbn: "0312038380",
                     length: 247 }],
     experiences: [{ spans: [{ dates: Date.parse("2019/05/28")..Date.parse("2019/06/13"),
                               amount: 247,
                               progress: 1.0 }] },
-                  { spans: [{ dates: Date.parse("2020/05/01")..Date.parse("2020/05/23"),
-                              amount: 247,
-                              progress: 1.0 }] },
-                  { spans: [{ dates: Date.parse("2021/08/17")..,
-                              amount: 247,
-                              progress: 0.5 }] }],
-    genres: ["historical fiction"],
+                  { spans: [{ dates: Date.parse("2020/05/01")..,
+                              amount: 247 }] }],
+    genres: %w[history fiction],
   )
-  @parsed[:all_columns][:"in progress"] = [sapiens, goatsong]
+  @outputs[:all_columns][:"realistic examples: in progress books"] = [sapiens, goatsong]
 
   insula = item_hash(
     rating: 4,
@@ -812,17 +837,13 @@ class ParseTest < Minitest::Test
     variants:    [{ format: :print,
                     series: [{ name: "Mount Hope Classics" }],
                     isbn: "1533694567",
-                    length: "8:18",
-                    extra_info: ["trans. Arcadius Avellanus", "unabridged"] }],
+                    length: 260,
+                    extra_info: ["trans. Arcadius Avellanus"] }],
     experiences: [{ spans: [{ dates: Date.parse("2020/10/20")..Date.parse("2021/08/31"),
-                              amount: "8:18",
+                              amount: 260,
                               progress: 1.0 }],
-                    group: "weekly Latin reading with Sean and Dennis" }],
-    genres: %w[latin novel],
-    notes: [
-      { content: "Paper on Avellanus by Patrick Owens: https://linguae.weebly.com/arcadius-avellanus.html" },
-      { content: "Arcadius Avellanus: Erasmus Redivivus (1947): https://ur.booksc.eu/book/18873920/05190d" },
-    ],
+                    group: "Latin reading group" }],
+    genres: %w[latin fiction],
   )
   cat_mojo = item_hash(
     rating: 2,
@@ -833,10 +854,7 @@ class ParseTest < Minitest::Test
                     length: "10:13" }],
     experiences: [{ spans: [{ dates: Date.parse("2020/03/21")..Date.parse("2020/04/01"),
                               amount: "10:13",
-                              progress: 0.5 }] },
-                  { spans: [{ dates: Date.parse("2021/08/06")..Date.parse("2021/08/11"),
-                              amount: "10:13",
-                              progress: "4:45" }] }],
+                              progress: 0.5 }] }],
     genres: %w[cats],
     notes: [{ private?: true, content: "I would've felt bad if I hadn't tried." }],
   )
@@ -887,19 +905,17 @@ class ParseTest < Minitest::Test
       { blurb?: true, content: "It's been a long time since I gave highest marks to a \"just for fun\" book, but wow, this was fun. So fun that after listening to the audiobook, I immediately proceeded to read the book, for its illustrations. If I'd read this as a kid, I might have been inspired to become a scientist." },
     ],
   )
-  @parsed[:all_columns][:"done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
+  @outputs[:all_columns][:"realistic examples: done"] = [insula, cat_mojo, podcast_1, podcast_2, podcast_3, what_if]
 
 
-  nero = item_hash(
+  alexander = item_hash(
     author: "Tom Holt",
-    title: "A Song for Nero",
+    title: "Alexander At The World's End",
     variants:    [{ format: :ebook,
-                    isbn: "B00GW4U2TM",
-                    length: 580 }],
+                    isbn: "B00GVG00R0",
+                    length: 484 }],
     genres: ["historical fiction"],
   )
-  @parsed[:all_columns][:"planned"] = [nero]
-
   emperor = item_hash(
     title: "How to Think Like a Roman Emperor",
     variants:  [{ format: :ebook }],
@@ -911,8 +927,6 @@ class ParseTest < Minitest::Test
                   sources: [{ name: "Lexpub" },
                             { name: "Jeffco" }] }],
   )
-  @parsed[:all_columns][:"single compact planned"] = [emperor, born_crime]
-
   nero = item_hash(
     author: "Tom Holt",
     title: "A Song for Nero",
@@ -946,23 +960,24 @@ class ParseTest < Minitest::Test
                             { name: "Hoopla" }] }],
     genres: %w[science weird],
   )
-  @parsed[:all_columns][:"multi compact planned"] = [nero, true_grit, lebowski, how_to, weird_earth]
+  @outputs[:all_columns][:"realistic examples: planned"] =
+    [alexander, emperor, born_crime, nero, true_grit, lebowski, how_to, weird_earth]
 
 
 
-  @parsed[:config] = {}
+  @outputs[:config] = {}
 
-  @parsed[:config][:"comment_character"] = []
+  @outputs[:config][:"comment_character"] = []
 
   a_basic = item_hash(title: "Dracula")
-  @parsed[:config][:"column_separator"] = [a_basic]
+  @outputs[:config][:"column_separator"] = [a_basic]
 
-  @parsed[:config][:"column_separator can be a tab"] = [a_basic]
+  @outputs[:config][:"column_separator can be a tab"] = [a_basic]
 
-  a_mangled = item_hash(title: "✅rcul")
-  @parsed[:config][:"ignored_characters"] = [a_mangled]
+  a_without_D_a = item_hash(title: "✅rcul")
+  @outputs[:config][:"ignored_characters"] = [a_without_D_a]
 
-  @parsed[:config][:"skip_compact_planned"] = []
+  @outputs[:config][:"skip_compact_planned"] = []
 
 
 
@@ -1024,7 +1039,7 @@ class ParseTest < Minitest::Test
     columns = name.to_s.split(", ").map(&:to_sym)
     define_method("test_enabled_columns_#{columns.join("_")}") do
       columns_config = with_columns(columns)
-      exp = tidy(parsed[:enabled_columns], name)
+      exp = tidy(outputs[:enabled_columns], name)
       act = Reading.parse(file_str, config: columns_config)
       # debugger unless exp == act
       assert_equal exp, act,
@@ -1040,7 +1055,7 @@ class ParseTest < Minitest::Test
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
       define_method("test_#{columns_sym}_feature_#{name}") do
         columns_config = with_columns(columns + [:head])
-        exp = tidy(parsed[group_name], name)
+        exp = tidy(outputs[group_name], name)
         act = Reading.parse(file_str, config: columns_config)
         # debugger unless exp == act
         assert_equal exp, act,
@@ -1053,7 +1068,7 @@ class ParseTest < Minitest::Test
   inputs[:all_columns].each do |name, file_str|
     define_method("test_all_columns_#{name}") do
       columns_config = with_columns(:all)
-      exp = tidy(parsed[:all_columns], name)
+      exp = tidy(outputs[:all_columns], name)
       act = Reading.parse(file_str, config: columns_config)
       # debugger unless exp == act
       assert_equal exp, act,
@@ -1080,7 +1095,7 @@ class ParseTest < Minitest::Test
   ## TESTS: CUSTOM CONFIG
   inputs[:config].each do |name, (file_str, custom_config)|
     define_method("test_config_#{name}") do
-      exp = tidy(parsed[:config], name)
+      exp = tidy(outputs[:config], name)
       act = Reading.parse(file_str, config: custom_config)
       # debugger unless exp == act
       assert_equal exp, act,
