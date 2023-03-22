@@ -43,7 +43,7 @@ This guide is written to show you what your reading log CSV file should look lik
 ## Preliminaries: how to edit a CSV file pleasantly
 
 - I highly recommend the [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) for VS Code. It's perfect for editing CSV files with potentially long columns, as your reading log is likely to have.
-- Entering a row is much less cumbersome if you set up keyboard shortcuts for a row template and for today's date. I myself use [an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.rb) for this.
+- Entering a row is much less cumbersome if you set up keyboard shortcuts for a row template and for today's date. I use [a Ruby script](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb) for which I've set up a keyboard shortcut. [Here's an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk) that does the same thing.
 - To edit your reading log on mobile devices, you can save the CSV file in the cloud and use a cloud-syncing text editor mobile app. I use the Android app [Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox), which syncs to Dropbox.
 
 ## A minimal reading log
@@ -296,7 +296,7 @@ In these cases, I like putting each planned item on its own line with a Sources 
 
 This will be parsed as normal Head and Sources columns. If you want more columns than that, then just change it to a non-compact item by removing the comment character and adding in all the missing columns.
 
-One reason I like this form is that [an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.rb) recognizes a compact planned item and incorporates it into the new row, and having a Sources column ready to go means less work changing the planned item into a regular row.
+One reason I like this form is that my shortcut scripts for creating a new row ([Ruby](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb), [AutoHotkey](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk)) recognize a compact planned item and incorporates it into the new row, and having a Sources column ready to go means less work changing the planned item into a regular row.
 
 ### Compact planned items: ignored emojis
 

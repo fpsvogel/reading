@@ -14,7 +14,9 @@
 \ Be sure to set VS Code's Language Mode to "CSV (pipe)".
 \
 \ Also, entering a row is much less cumbersome if you set up keyboard shortcuts for a row template and for today's date.
-\ I myself use an AutoHotkey script: https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-csv.ahk
+\ You can use one of these two scripts:
+\   https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb
+\   https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk
 \
 \
 \Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
