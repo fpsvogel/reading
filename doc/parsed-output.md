@@ -4,7 +4,7 @@
 Hello! This is a guide to the output of the Reading gem after it parses a CSV reading log. To learn what the CSV file should look like in the first place, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md), relevant sections of which are linked below for convenience.
 
 ### Table of contents
-- [Testing CSV strings with the `reading` command](#testing-csv-strings-with-the-reading-command)
+- [Viewing output from CSV strings with the `reading` command](#viewing-output-from-csv-strings-with-the-reading-command)
 - [Output from a minimal CSV reading log](#output-from-a-minimal-csv-reading-log)
 - [The attributes](#the-attributes)
   - [`rating` attribute](#rating-attribute)
@@ -19,9 +19,9 @@ Hello! This is a guide to the output of the Reading gem after it parses a CSV re
   - [Example: podcast](#example-podcast)
 - [Next steps](#next-steps)
 
-## Testing CSV strings with the `reading` command
+## Viewing output from CSV strings with the `reading` command
 
-To quickly see the output from a CSV string, use the `reading` command:
+Use the `reading` command to quickly see the output from a CSV string:
 
 ```
 $ reading '3|📕Trying|Little Library 1970147288'
@@ -45,10 +45,10 @@ Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
 
-When that's parsed, the below output is produced. Comments in the first item point out all the columns from which each item attribute can possibly come from. We'll look more closely at these column-to-attribute mappings in the sections below.
+When that's parsed, an array of Structs is outputted analogous to the Hashes below. The first item in this code snippet has comments pointing out all the columns from which each attribute can possibly come from. We'll look more closely at these column-to-attribute mappings in the sections below.
 
 ```ruby
-# Compare to default_config[:csv][:template] in config.rb.
+# Compare to Config#default_config[:item_template] in config.rb.
 # The item in the output is actually converted so that its
 # Hashes become Structs for their convenient dot access,
 # e.g. item.variants instead of item[:variants].
@@ -99,7 +99,7 @@ parsed_items = [
 ]
 ```
 
-Why such verbose output for such simple CSV input? It's because the output data structure needs to be verbose in order to be able to represent more complex input, and it's convenient for the output to be *consistent*, having the same structure whether a row is simple or complex.
+Why such verbose output for such simple CSV input? It's because the output data structure needs to be able to represent more complex input, and it's convenient for the output to be *consistent*, having the same structure whether a row is simple or complex.
 
 ## The attributes
 
@@ -378,7 +378,7 @@ Without further ado, here's a podcast example, one that is more complex than usu
 
 ```
 \Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
-3|🎤Flightless Bird||||podcast|1:00 each||2022/10/06..10/10 x8 --  ..11/12 x1/week -- 11/14 0:50 ⭐#30 Leaf Blowers -- 11/15 DNF @0:15 Baseball -- x3 -- ? #32 Soft Drinks -- Christmas
+3|🎤Flightless Bird||||podcast|1:00 each||2022/10/06..10 x8 --  ..11/12 x1/week -- (10/18..24 x3) -- 11/14 0:50 ⭐#30 Leaf Blowers -- 11/15 DNF 0:15 Baseball -- x3 -- ? #32 Soft Drinks -- Christmas
 ```
 
 That's parsed to the following:
@@ -419,9 +419,33 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,10,11)..Date.new(2022,11,12)
+          dates: Date.new(2022,10,11)..Date.new(2022,11,17)
           progress: 1.0,
-          amount: "4:00",
+          amount: "1:00",
+          name: nil,
+          favorite?: false,
+        }],
+      group: nil,
+      variant_index: 0,
+    },
+    {
+      spans:
+        [{
+          dates: Date.new(2022,10,18)..Date.new(2022,10,24)
+          progress: 1.0,
+          amount: "3:00",
+          name: nil,
+          favorite?: false,
+        }],
+      group: nil,
+      variant_index: 0,
+    },
+    {
+      spans:
+        [{
+          dates: Date.new(2022,10,25)..Date.new(2022,11,12)
+          progress: 1.0,
+          amount: "2:00",
           name: nil,
           favorite?: false,
         }],

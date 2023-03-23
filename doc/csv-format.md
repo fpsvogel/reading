@@ -33,7 +33,7 @@ This guide is written to show you what your reading log CSV file should look lik
   - [Dates Started column: group experience](#dates-started-column-group-experience)
   - [Notes column: special notes](#notes-column-special-notes)
   - [History column](#history-column)
-    - [History: regular item (podcast)](#history-regular-item-podcast)
+    - [History: regularly recurring item (podcast)](#history-regularly-recurring-item-podcast)
     - [History: occasional item (podcast)](#history-occasional-item-podcast)
     - [History: planned and DNF (podcast)](#history-planned-and-dnf-podcast)
     - [History: no names and re-watching (TV show)](#history-no-names-and-re-watching-tv-show)
@@ -42,8 +42,8 @@ This guide is written to show you what your reading log CSV file should look lik
 
 ## Preliminaries: how to edit a CSV file pleasantly
 
-- I highly recommend the [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) for VS Code. It's perfect for editing CSV files with potentially long columns, as your reading log is likely to have.
-- Entering a row is much less cumbersome if you set up keyboard shortcuts for a row template and for today's date. I use [a Ruby script](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb) for which I've set up a keyboard shortcut. [Here's an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk) that does the same thing.
+- I highly recommend the [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) for VS Code. It's perfect for editing CSV files with long columns, as your reading log is likely to have.
+- A row template shortcut makes entering a row less cumbersome. I use [a Ruby script](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb) for which I've set up a keyboard shortcut. [Here's an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk) that does the same thing.
 - To edit your reading log on mobile devices, you can save the CSV file in the cloud and use a cloud-syncing text editor mobile app. I use the Android app [Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox), which syncs to Dropbox.
 
 ## A minimal reading log
@@ -56,7 +56,7 @@ Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
 
-- The first line (containing headers) is a comment because it starts with a backslash (`\`). Comments are ignored by the parser. The header comment is not special; you can put whatever you want in it, or you can omit it altogether.
+- The first line (the header) is a comment because it starts with a backslash (`\`). Comments are ignored by the parser. The header comment is not special; you can put whatever you want in it, or you can omit it altogether.
 - Then we have two items, books in this case.
 - Columns are divided by a pipe character (`|`).
 - This means you *must not* use the pipe character anywhere except to divide columns (or in comments).
@@ -66,19 +66,9 @@ Tom Holt - Goatsong|2019/06/18, 2020/5/8
 
 If this minimal kind of reading log is what you want, see example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
 
-You could go *even more* minimalist and disable the Dates Finished column if you just want to keep a list of books you've read. (But in that case, why not just use a text file?)
-
-By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns, so that you can get an idea of what a full item looks like. Here's a screenshot from VS Code using the above-mentioned Rainbow CSV extension:
+By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns (as they appear in [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv)), so that you can get an idea of what a full item looks like. Here's a screenshot from VS Code using the above-mentioned Rainbow CSV extension:
 
 ![example reading log in Rainbow CSV](/doc/rainbow-csv-example.png)
-
-And here are those same rows in a code snippet:
-
-```
-\Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
-|🔊Sapiens: A Brief History of Humankind|Hoopla B00ICN066A|2021/09/20||history, wisdom|15:17|Easy to criticize, but I like the emphasis on human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
-5|50% 📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01, 2021/08/17|2019/06/13, 2020/05/23|historical fiction|247
-```
 
 Remember, you don't *have* to fill in every column every time, and the title is the only thing that's required on every line. Everything else is optional.
 
@@ -86,7 +76,7 @@ Now, onto the columns!
 
 ## Basics
 
-Here are the features of each column that you'll most often use. To keep the examples below as concise as possible, not all the columns will be shown at once.
+Here are the features of columns that you'll use most often. To keep the examples below as concise as possible, not all the columns will be shown at once.
 
 ### Rating column
 
@@ -128,13 +118,13 @@ Emoji|Format
 ✏️  |`piece`
 🌐  |`website`
 
-You can define your own formats via a custom config, similar to the example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
+You can define your own formats via a custom config by following a process similar to the example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README. To see what the custom formats should look like when you pass them in as custom config, see `Config#default_config[:formats]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 ### Sources column
 
 The Sources column is for a few different pieces of information. Here are a few things it can include.
 
-An ISBN-10, ISBN-13, or ASIN number:
+ISBN-10, ISBN-13, or ASIN:
 
 ```
 \Title|Sources
@@ -143,7 +133,7 @@ Cosmos|978-0345539434
 Utopia|B078Y97W7D
 ```
 
-The source where you got the item. This can be either a name or a URL:
+The source where you got the item, either a name or a URL:
 
 ```
 \Title|Sources
@@ -151,20 +141,12 @@ Hamlet|Lexington Public Library
 Utopia|https://www.gutenberg.org/ebooks/2130
 ```
 
-And you can mix them together, one number plus one or more sources:
+And you can mix them together, one or more sources (divided by commas) plus one ISBN/ASIN:
 
 ```
 \Title|Sources
 Hamlet|Lexington Public Library 0141396504
-Cosmos|Hoopla 978-0345539434 recommended by Sam
-Utopia|B078Y97W7D https://www.gutenberg.org/ebooks/2130
-```
-
-If two name sources are adjacent, separate them with commas:
-
-```
-\Title|Sources
-Cosmos|Hoopla, recommended by Sam 978-0345539434
+Cosmos|Hoopla, recommended by Sam, https://archive.org/details/CosmosAPersonalVoyage 978-0345539434
 ```
 
 ### Dates Started and Dates Finished columns
@@ -201,7 +183,7 @@ Genres are just a list, all in lowercase:
 ```
 \Title|Genres
 Hamlet|classic, elizabethan drama
-Cosmos|science, astronomy, classic|
+Cosmos|science, astronomy, classic
 Utopia|latin
 ```
 
@@ -228,7 +210,7 @@ Hamlet|In contemporary English: https://nosweatshakespeare.com/plays/modern-haml
 
 A.k.a. your "to read" list. We'll circle back to the columns to show their advanced features, but first: how to jot down books that you might read in the future?
 
-One way to track this is to have normal items, but without a date started.
+As we've seen already, one way to track this is to have normal items but without a date started.
 
 ```
 \Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
@@ -300,19 +282,13 @@ One reason I like this form is that my shortcut scripts for creating a new row (
 
 ### Compact planned items: ignored emojis
 
-In a row of compact planned items, certain emojis are ignored. For the default list, see `default_config[:csv][:compact_planned_ignored_characters]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
-
-This makes it easier to manage lists of planned items using emojis as visual markers. Here's an example which produces the exact same output as the previous example, because the extra emojis (`❓`, `💲`, and `⏳`) are in the default ignore list:
-
-```
-\❓HISTORY, FICTION @Lexpub: 📕Beloved ⏳@Jeffco 💲🔊Kindred
-```
+Especially in a row of compact planned items, it can be useful to sprinkle emojis to mark items in various ways, such as "I'll need to buy this" (`💲`) or "I have this on hold" (`⏳`)—but the emojis and their meanings are up to you. The point here is that certain emojis are ignored by the parser. For the default list, see `Config#default_config[:ignored_characters]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 ## Advanced
 
 ### Head column: DNF
 
-Quitting a book partway through is an underappreciated art. In these cases, you can put `DNF` at the beginning of the Head column (*before* the format, if any), optionally followed by a stopping point:
+Quitting a book partway through is an underappreciated art. In these cases, you can put `DNF` at the beginning of the Head column (*before* the format, which is required in these cases), optionally followed by your progress when you stopped:
 
 ```
 \Title|Length
@@ -322,7 +298,7 @@ DNF 3:40 🔊Cosmos|14:07
 DNF p105 📕Utopia|336
 ```
 
-What the parser actually understands from `DNF <amount>` is simply the amount of progress made, with a bare `DNF` defaulting to no progress. Progress can also be indicated with amounts on their own, so the following examples give the exact same output as the above:
+What the parser actually understands from `DNF <amount>` is simply the amount of progress made, with a bare `DNF` defaulting to no progress. That means progress can also be indicated with amounts on their own; the following examples give the exact same output as the above:
 
 ```
 \Title|Length
@@ -334,7 +310,15 @@ p105 📕Utopia|336
 
 So `DNF` is just a visual marker for clarity; it doesn't actually make a difference in the parser output.
 
-For the Date Finished, it's helpful to put down the date of abandonment:
+Any other string before the format is also ignored by the parser. This is handy for adding notes-to-self about the status of the item:
+
+```
+\Title|Date Started
+maybe will DNF 📕Beloved|2022/1/25
+?? 🔊Kindred
+```
+
+Moving on, how do we indicate the DNF date? Just use the Date Finished column, as you would if you'd actually finished the item. (Don't get too hung up on the name "Date Finished": an item's date finished or lack thereof does not affect its progress.)
 
 ```
 \Title|Date Started|Date Finished|Length
@@ -377,7 +361,7 @@ Wonder -- in The Wonder Series -- published 2013
 
 Extra info is saved separately from series, so `Hamlet` in this example has one string of extra info, plus the series.
 
-Each string of extra info will be saved into a simple `extra_info` array, and it's up to you what to do with those strings. (You may need to further parse those array elements yourself, depending on your needs.)
+Each string of extra info will be saved into a simple `extra_info` array, and it's up to you what to do with those strings.
 
 ### Head column: multiple items
 
@@ -397,7 +381,7 @@ If you re-read something in a different format or edition, it's nice to keep it 
 Utopia|📕🔊
 ```
 
-In the next section we'll see how to mark a re-read of a different variant, but for now let's dig deeper into the variants themselves. To add source information to each variant, simply write it out after each format emoji, as you would normally in the Sources column:
+In the next section we'll see how to mark a re-read as referring to a different variant, but for now let's dig deeper into the variants themselves. To add source information to each variant, simply write it out after each format emoji, as you would normally in the Sources column:
 
 ```
 \Title|Sources
@@ -405,7 +389,7 @@ Utopia|📕039393246X 🔊https://librivox.org/utopia-by-thomas-more
 Hamlet|📕own 0141396504 📕Lexpub B07C8956BH
 ```
 
-But variants can specify more than just format and sources. They can specify extra info and series as well. Earlier we saw these in the Head column, but if they are specific to a variant then they should be in the Sources column instead (but if any extra info should apply to all variants, then keep it in the Head column):
+But variants can specify more than just format and sources. They can specify extra info and series as well. Earlier we saw these in the Head column, but if they are specific to a variant then they should be in the Sources column instead. (But if any extra info should apply to all variants, then keep it in the Head column.s)
 
 ```
 \Title|Sources
@@ -413,14 +397,12 @@ Utopia|📕039393246X -- trans. Robert Adams -- ed. George Logan 🔊https://lib
 Hamlet -- paperback|📕own 0141396504 📕Lexpub B07C8956BH -- in No Fear Shakespeare
 ```
 
-An item's length also probably belongs with a specific variant. You can specify the length at the end of the main part of the variant string, just before any series or extra info:
+An item's length also typically belongs with a specific variant. You can specify the length at the end of the main part of the variant string, just before any series or extra info:
 
 ```
 \Title|Sources
 Utopia|📕039393246X 336p -- trans. Robert Adams -- ed. George Logan 🔊https://librivox.org/utopia-by-thomas-more 3:59
 ```
-
-The `p` after the page count is optional, and only for clarity.
 
 ### Dates Started column: variants
 
@@ -465,12 +447,12 @@ Utopia|📕336p 🔊3:59|DNF p105 2021/7/1, DNF 0:50 2022/12/1 v2|2021/8/5, 2022
 
 ### Dates Started column: group experience
 
-We've been looking at how to shift information into variants, but here's something completely new: a *group experience*. That's when you read/watch/listen as part of a group. You can record that with a special emoji in the Dates Started column, optionally followed by the group name:
+Something else you can mark down in the Dates Started column is a *group experience*. That's when you read/watch/listen as part of a group. You can record that with a special emoji in the Dates Started column, followed by the group name:
 
 ```
 \Title|Dates started
 Hamlet|2022/12/1 🤝🏼Sadvent book club
-Cosmos|2021/7/1 🤝🏼
+Cosmos|2021/7/1 🤝🏼 with Sam
 ```
 
 If variants are involved, the variant marker comes first before the group:
@@ -493,30 +475,42 @@ They aren't inherently different from regular notes, but they can come in handy 
 
 ### History column
 
-NOTE: Parsing of the History column is TBIS (To Be Implemented Soon). Until that happens, you should fill in Dates Started and Dates Finished in addition to your History column.
+#### History: regularly recurring item (podcast)
 
-#### History: regular item (podcast)
-
-The History column is handy for podcasts. Here's a common scenario: you discover a good podcast, you listen to a bunch of previous episodes until you're caught up, and then you listen to each new episode as they're released.
+The History column is especially useful for podcasts. Here's a common scenario: you discover a good podcast, you listen to a bunch of previous episodes until you're caught up, and then you listen to each new episode as they're released.
 
 ```
 \Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
-3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..10/11 x23 -- x1/week
+3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- x1/week
 ```
 
-- In plain English this means "Each episode is 50 minutes long. From the 6th to the 12th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
+- In plain English this means "Each episode is 50 minutes long. From the 6th to the 11th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
 - Notice that the Dates Started and Dates Finished columns are empty. These columns are not parsed if the History column is filled in.
-- `x1/week` means once weekly, but you can also use `/day` and `/month`, like this: `x1/day`, `x2/week`, `x10/month`, and so on.
+- `x1/week` means once weekly, but you can also use `/day` and `/month`, like this: `x1/day`, `x10/month`, and so on.
 
 But that's not the only way to listen to a podcast, and so the History column is flexible. For example, what if you stopped listening to that podcast after a while?
 
 ```
-3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..10/11 x23 -- ..12/14 x1/week -- 2023/3/1.. x2/week
+3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week
 ```
 
-- This adds, in plain English, "I stopped listening on December 14, and then on March 1 I started listening again, but now I'm listening to two episodes per week."
-- If one side of a date range is omitted (here `..12/14` and `2023/3/1..`), that date is inferred from the previous/next date, or if there is no next date then it means "up to the present".
-- You can omit the year from dates after the first one, except when the year advances (as in the last entry).
+- This adds, in plain English, "I stopped listening on December 14, and then on March 1 I started listening again, this time two episodes per week."
+- If one side of a date range is omitted (here `..12/14` and `3/1..`), that date is inferred from the previous/next date, or if there is no next date then it means "up to the present".
+- For any date after the first one, the year may be omitted (and the month in the second half of a date range); in these cases the year and month inferred from the context.
+
+What if you miss a few days here and there? That would be cumbersome to write following the patterns we've seen so far. Resuming from the last bit in the above example, it'd be `-- 3/1.. x2/week -- 3/13..15 x0 -- x2/week -- 4/1 x0 -- 4/2.. 2x/week`. That's a lot just to say "I skipped March 13-15 and April 1", so here's a more concise syntax for missing days:
+
+```
+3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1
+```
+
+One more: what if one week you listen to a few extra episodes? Simply tack on the total number of episodes for that week, and it'll overwrite that week's two episodes from the ongoing x2/week.
+
+```
+3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1 -- (4/5..11 x5)
+```
+
+The parentheses are for visual clarity only; they don't make a difference to the parser.
 
 #### History: occasional item (podcast)
 
@@ -526,7 +520,7 @@ What about a podcast that you listen to only occasionally? You may want to keep 
 4|🎤The Bible for Normal People||||podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
 ```
 
-- Here's the format of each entry: `[date] [h:mm] [star if favorite] #[episode number] [creator or interviewee] [title]`
+- Here's the format of each entry: `[date] [h:mm] [star if favorite] [title]`
 - But as you can see, not every piece of information is spelled out in every entry. Wherever a length (duration) is omitted, the length from the previous entry is used, or the "each" length in the Length column if there is one (see the next example below). Wherever a date is omitted, the date from the previous entry is used if that was a single date, or (as in the above Flightless Bird example) the date after the previous entry is used if that was a date range.
 - The Length column is empty this time because the lengths are different among the episodes.
 
@@ -544,7 +538,7 @@ OK, but what if you want to write down episode titles without having to write do
 If you've planned out which episodes you want to listen to, you can mark them down as planned simply by a question mark (`?`) in place of the date.
 
 ```
-|🎤Pray as you go||||religion,podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- ? 2:29 God with Us -- 1:34 God's Grandeur -- DNF 1:17 Way of the Cross
+|🎤Pray as you go||||religion,podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- ? 2:29 God with Us -- 1:34 God's Grandeur -- 1:17 Way of the Cross
 ```
 
 - As with a date, the question mark carries over to omitted dates in subsequent entries, so only the first planned item (`God with Us`) needs a question mark.
@@ -552,10 +546,10 @@ If you've planned out which episodes you want to listen to, you can mark them do
 But then what if you don't like that podcast and you end up DNF'ing parts of it? Here's how to record that:
 
 ```
-2|DNF 🎤Pray as you go||||podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- DNF 30% ..9/17 2:13 God with Us -- DNF @0:15 2:01 God's Grandeur -- DNF 1:17 Way of the Cross
+2|DNF 🎤Pray as you go||||podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- DNF 30% ..9/17 2:13 God with Us -- DNF 0:15 2:01 God's Grandeur -- DNF 0 1:17 Way of the Cross
 ```
 
-- As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%. The only difference is that in the History column, lengths for DNFs need to be preceded by `@` (such as `DNF @0:15` in this example) because otherwise it would be hard to distinguish the DNF length from the length of the episode.
+- As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%. You just need to be careful because the length of an item has the same format as the amount of a DNF, so in the last segment above if we had omitted the zero (`DNF 1:17 Way of the Cross`) then this would mean "DNF'ed at 1:17", when in fact 1:17 is the length of the episode. (Or you could just delete the length and have `DNF Way of the Cross`.)
 - The `DNF` near the beginning of the row, just before the title, actually has no meaning whenever the History column is filled in; it's just a handy visual marker.
 
 #### History: no names and re-watching (TV show)
@@ -575,23 +569,23 @@ Thus far we've been talking about podcasts, but you can use the History column t
 Books work with the History column, too.
 
 ```
-3|📕Cultish||||religion|319||2022/5/1 @31p -- 5/2 @54p -- 5/6..5/15 10p -- 5/20 @200p -- 5/21..5/23 done
+3|📕Cultish||||religion|319||2022/5/1 @31p -- 5/2 @54p -- 5/6..15 10p -- 5/20 @200p -- 5/21..23 done
 ```
 
 - `@` means "I stopped at", such as `5/1 @31p` meaning "On 5/1 I stopped at page 31."
-- Contrast that with the entry `5/6..5/15 10p`, without the `@`. Here the page count is an amount read, not a stopping point. This entry means "Between 5/6 and 5/15 I read 10 pages per day."
+- Contrast that with the entry `5/6..15 10p`, without the `@`. Here the page count is an amount read, not a stopping point. This entry means "Between 5/6 and 5/15 I read 10 pages per day."
 - The whole example means, in plain English: "The book is 319 pages long. On the 1st of March, 2022, I read up to page 31. On the 2nd I read up to page 54. From the 6th through the 15th I read 10 pages per day. Then on the 20th, I read up to page 200, and from the 21st to the 23rd I finished the book."
 
 And here's an audiobook with a History column similar to the last example:
 
 ```
-4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..5/15 0:30 -- 5/20 @6:50 -- 5/21..23 done
+4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..15 0:30 -- 5/20 @6:50 -- 5/21..23 done
 ```
 
 A variant and group can be specified similar to how we've seen in the Dates Started column. For example, if you start re-reading Born a Crime but this time in print, and with a friend:
 
 ```
-4|Born a Crime|🔊📕|||memoir|8:44||2021/5/1..5/23 done ---- v2 🤝🏼with Jane 2022/7/1 @p50 -- 7/2 @p90
+4|Born a Crime|🔊📕|||memoir|8:44||2021/5/1..23 done ---- v2 🤝🏼with Jane 2022/7/1 @p50 -- 7/2 @p90
 ```
 
 So the history column is not limited to one particular format. I myself find it most useful for podcasts, but the parser is flexible enough that it can apply History entries to any kind of item.

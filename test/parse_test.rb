@@ -117,6 +117,8 @@ class ParseTest < Minitest::Test
     "2:30 📕Tom Holt - Goatsong",
   :"dnf in head" =>
     "DNF 📕Tom Holt - Goatsong",
+  :"other string in head is ignored" =>
+    "maybe will DNF 📕Tom Holt - Goatsong",
   :"dnf in head with progress" =>
     "DNF 50% 📕Tom Holt - Goatsong",
   :"dnf with multi items" =>
@@ -275,7 +277,7 @@ class ParseTest < Minitest::Test
   EOM
   # TODO uncomment
   # @inputs[:all_columns][:"realistic examples: in progress podcasts"] = <<~EOM.freeze
-  #   3|🎤Flightless Bird|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06-10/11 x23 -- -12/14 x1/week -- 2023/3/1- x2/week
+  #   3|🎤Flightless Bird|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 2023/3/1.. x2/week
   #   4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
   # EOM
   @inputs[:all_columns][:"realistic examples: done"] = <<~EOM.freeze
@@ -516,6 +518,8 @@ class ParseTest < Minitest::Test
   progress_zero = { experiences: [{ spans: [{ progress: 0 }] }] }
   a_progress_zero = a_format.deep_merge(progress_zero)
   @outputs[:features_head][:"dnf in head"] = [a_progress_zero]
+
+  @outputs[:features_head][:"other string in head is ignored"] = [a_format]
 
   @outputs[:features_head][:"dnf in head with progress"] = [a_progress_half]
 
