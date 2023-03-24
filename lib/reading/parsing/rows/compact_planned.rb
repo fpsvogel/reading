@@ -3,7 +3,7 @@ require_relative "compact_planned_columns/head"
 require_relative "regular_columns/sources"
 
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module CompactPlanned
         using Util::HashArrayDeepFetch

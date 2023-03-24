@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Attributes
       class Experiences
         # Methods to validate dates. This does not cover all the ways dates can be

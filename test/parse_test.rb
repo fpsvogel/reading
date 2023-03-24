@@ -95,6 +95,8 @@ class ParseTest < Minitest::Test
     "Tom Holt - Goatsong -- in The Walled Orchard",
   :"series with volume" =>
     "Tom Holt - Goatsong -- The Walled Orchard, #1",
+  :"multiple series" =>
+    "Tom Holt - Goatsong -- in Holt Historical Fiction -- The Walled Orchard, #1",
   :"extra info" =>
     "Tom Holt - Goatsong -- paperback -- 1990",
   :"extra info and series" =>
@@ -475,13 +477,21 @@ class ParseTest < Minitest::Test
   a = item_hash(author: "Tom Holt", title: "Goatsong")
   @outputs[:features_head][:"author"] = [a]
 
-  series = { variants: [{ series: [{ name: "The Walled Orchard" }] }] }
+  series_name = "The Walled Orchard"
+  series = { variants: [{ series: [{ name: series_name }] }] }
   a_series = a.deep_merge(series)
   @outputs[:features_head][:"series"] = [a_series]
 
   volume = { variants: [{ series: [{ volume: 1 }] }] }
   a_series_volume = a_series.deep_merge(volume)
   @outputs[:features_head][:"series with volume"] = [a_series_volume]
+
+  multi_series = {
+    variants: [{ series: [{ name: "Holt Historical Fiction", volume: nil },
+                          { name: series_name, volume: 1 }] }],
+  }
+  a_multi_series = a.deep_merge(multi_series)
+  @outputs[:features_head][:"multiple series"] = [a_multi_series]
 
   extra_info = { variants: [{ extra_info: %w[paperback 1990] }] }
   a_extra_info = a.deep_merge(extra_info)

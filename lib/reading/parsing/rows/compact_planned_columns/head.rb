@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module CompactPlanned
         class Head < Column
@@ -7,24 +7,26 @@ module Reading
             true
           end
 
-          def self.regex_before_formats
-            %r{\A
-              \\ # comment character
-              \s*
-              (
-                (?<genres>[^a-z]+)?
+          def self.regexes_before_formats
+            [
+              %r{\A
+                \\ # comment character
                 \s*
-                (?<sources>@.+)?
-                \s*:
-              )?
-            \z}x
+                (
+                  (?<genres>[^a-z]+)?
+                  \s*
+                  (?<sources>@.+)?
+                  \s*:
+                )?
+              \z}x,
+            ]
           end
 
           def self.segment_separator
             /\s*--\s*/
           end
 
-          def self.array_keys
+          def self.flatten_into_arrays
             %i[extra_info series_names series_volumes]
           end
 

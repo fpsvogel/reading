@@ -4,8 +4,6 @@
 # By mapping this script to a keyboard shortcut, entering a new row
 # becomes just a matter of filling in a few blank columns.
 
-# For more on reading.csv, see https://github.com/fpsvogel/reading
-
 # Sleep a bit because the keyboard shortcut needs to have been released first.
 sleep 0.2
 

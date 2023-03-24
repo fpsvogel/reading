@@ -266,7 +266,7 @@ item = {
 
 Now that we've seen how the reading log CSV file should be formatted, let's take a look at what output the Reading gem gives after parsing it.
 
-In each of the two output examples below, I've copied the item template in `default_config[:csv][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb) and added to it the information that is parsed from the example. Just keep in mind that the parsed output is converted from Hashes to Structs, but the examples have Hashes because they're easier to show.
+In each of the two output examples below, I've copied the item template in `Config#default_config[:item_template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb) and added to it the information that is parsed from the example. Just keep in mind that the parsed output is converted from Hashes to Structs, but the examples have Hashes because they're easier to show.
 
 ### Example: book
 
@@ -280,7 +280,7 @@ Here's a long but still realistic example. (Yes, I know *The Lord of the Rings* 
 That would be parsed to:
 
 ```ruby
-# Compare to default_config[:csv][:template] in config.rb.
+# Compare to Config#default_config[:item_template] in config.rb.
 # The item in the output is actually converted so that its
 # Hashes become Structs for their convenient dot access,
 # e.g. item.variants instead of item[:variants].
@@ -320,7 +320,7 @@ parsed_items = [{
         }],
       sources:
         [{
-          name: "Internet Archive", # see default_config[:item][:sources][:names_from_urls]
+          name: "Internet Archive", # see default_config[:sources][:names_from_urls]
           url: "https://archive.org/details/the-fellowship-of-the-ring_soundscape-by-phil-dragash",
         }],
       isbn: nil,
@@ -384,7 +384,7 @@ Without further ado, here's a podcast example, one that is more complex than usu
 That's parsed to the following:
 
 ```ruby
-# Compare to default_config[:csv][:template] in config.rb.
+# Compare to Config#default_config[:item_template] in config.rb.
 # The item in the output is actually converted so that its
 # Hashes become Structs for their convenient dot access,
 # e.g. item.variants instead of item[:variants].

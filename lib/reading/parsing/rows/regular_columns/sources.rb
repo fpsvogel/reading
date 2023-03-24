@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module Regular
         class Sources < Column
@@ -11,7 +11,7 @@ module Reading
             /\s*--\s*/
           end
 
-          def self.array_keys
+          def self.flatten_into_arrays
             %i[extra_info series_names series_volumes]
           end
 

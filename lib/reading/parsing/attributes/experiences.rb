@@ -2,7 +2,7 @@ require "date"
 require_relative "experiences/dates_validator"
 
 module Reading
-  module Parser
+  module Parsing
     module Attributes
       class Experiences
         using Util::HashArrayDeepFetch

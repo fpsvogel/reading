@@ -13,6 +13,7 @@
 
 require_relative "../lib/reading"
 require "amazing_print"
+require "debug"
 
 input = ARGV[0]
 unless input
@@ -22,7 +23,7 @@ end
 config = {}
 if ARGV[1]
   enabled_columns = ARGV[1].split(",").map(&:strip).map(&:to_sym)
-  config[:csv] = { enabled_columns: }
+  config = { enabled_columns: }
 end
 
 items = Reading.parse(string: input, config:)

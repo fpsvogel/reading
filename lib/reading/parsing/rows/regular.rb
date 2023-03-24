@@ -9,7 +9,7 @@ require_relative "regular_columns/length"
 require_relative "regular_columns/notes"
 
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module Regular
         def self.column_classes

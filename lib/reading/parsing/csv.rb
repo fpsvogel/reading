@@ -10,16 +10,32 @@ require_relative "../errors"
 
 # Used just here.
 require_relative "../config"
-require_relative "parse"
-require_relative "transform"
+require_relative "parser"
+require_relative "transformer"
 
 module Reading
-  module Parser
+  module Parsing
+    #
+    # Validates a path/string of a CSV reading log, then parses it into item data
+    # (an array of Structs).
+    #
+    # Parsing happens in two steps:
+    #   (1) Parse a row string into an intermediate hash representing the columns.
+    #       - See parsing/parser.rb, which uses parsing/rows/*
+    #   (2) Transform the intermediate hash into an array of hashes structured
+    #       around item attributes rather than CSV columns.
+    #       - See parsing/transformer.rb, which uses parsing/attributes/*
+    #
+    # Keeping these steps separate makes the code easier to understand. It was
+    # inspired by the Parslet gem: https://kschiess.github.io/parslet/transform.html
+    #
     class CSV
       using Util::HashToStruct
 
       private attr_reader :parser, :transformer
 
+      # Validates a path/string of a CSV reading log, builds the config, and
+      # initializes the parser and transformer.
       # @param path [String] path to the CSV file; if nil, string is used instead.
       # @param string [Object] a string of CSV row(s); used if no path is given.
       # @param config [Hash] a custom config which overrides the defaults,
@@ -30,13 +46,13 @@ module Reading
 
         @path = path
         @string = string
-        @parser = Parse.new(full_config)
-        @transformer = Transform.new(full_config)
+        @parser = Parser.new(full_config)
+        @transformer = Transformer.new(full_config)
       end
 
-      # Parses a CSV reading log into item data (an array of Structs).
+      # Parses and transforms the reading log into item data.
       # @return [Array<Struct>] an array of Structs like the template in
-      #   Config#default_config[:item][:template]. The Structs are identical in
+      #   Config#default_config[:item_template]. The Structs are identical in
       #   structure to that Hash (with every inner Hash replaced by a Struct).
       def parse
         input = @path ? File.open(@path) : @string

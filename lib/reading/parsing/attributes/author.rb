@@ -1,13 +1,12 @@
 module Reading
-  module Parser
+  module Parsing
     module Attributes
-      class Genres
+      class Author
         def initialize(_config)
         end
 
         def extract(parsed, head_index)
-          (parsed[:genres] || parsed[:head][head_index][:genres])
-            &.map { _1.is_a?(Hash) ? _1[:genre] : _1 }
+          parsed[:head][head_index][:author]
         end
       end
     end

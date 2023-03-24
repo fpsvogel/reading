@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Attributes
       class Rating
         def initialize(_config)

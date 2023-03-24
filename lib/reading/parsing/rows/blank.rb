@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module Blank
         using Util::HashArrayDeepFetch

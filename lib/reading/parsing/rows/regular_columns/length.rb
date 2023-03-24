@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module Regular
         class Length < Column

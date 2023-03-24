@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Rows
       class Column
         def self.column_name
@@ -34,15 +34,15 @@ module Reading
         # Keys in the parsed output hash that should be converted to an array, even
         # if only one value was in the input, e.g. { ... extra_info: ["ed. Jane Doe"] }
         # @return [Array<Symbol>]
-        def self.array_keys
+        def self.flatten_into_arrays
           []
         end
 
-        def self.flatten_segments?
-          array_keys.any?
+        def self.regexes(segment_index)
+          []
         end
 
-        def self.regexes(segment_index)
+        def self.regexes_before_formats
           []
         end
 

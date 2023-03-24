@@ -1,5 +1,5 @@
 module Reading
-  module Parser
+  module Parsing
     module Rows
       module Regular
         class Head < Column
@@ -7,15 +7,18 @@ module Reading
             true
           end
 
-          def self.regex_before_formats
-            /\A#{Column::SHARED_REGEXES[:progress]}\z/
+          def self.regexes_before_formats
+            [
+              /\A#{Column::SHARED_REGEXES[:progress]}\z/,
+              /.+/,
+            ]
           end
 
           def self.segment_separator
             /\s*--\s*/
           end
 
-          def self.array_keys
+          def self.flatten_into_arrays
             %i[extra_info series_names series_volumes]
           end
 

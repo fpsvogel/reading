@@ -32,7 +32,7 @@ module Reading
                 end
               }
             elsif block_given?
-              block.call(key, this_val, other_val)
+              yield key, this_val, other_val
             else
               other_val
             end
