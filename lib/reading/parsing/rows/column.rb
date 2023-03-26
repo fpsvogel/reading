@@ -1,12 +1,18 @@
 module Reading
   module Parsing
     module Rows
+      # The base class for all the columns in parsing/rows/compact_planned_columns
+      # and parsing/rows/regular_columns.
       class Column
+        # The class name changed into a string, e.g. DatesStarted => "Dates Started"
+        # @return [String]
         def self.column_name
           class_name = name.split("::").last
           class_name.gsub(/(.)([A-Z])/,'\1 \2')
         end
 
+        # The class name changed into a symbol, e.g. DatesStarted => :dates_started
+        # @return [Symbol]
         def self.to_sym
           class_name = name.split("::").last
           class_name
@@ -15,37 +21,66 @@ module Reading
             .to_sym
         end
 
+        # Whether the column can contain "chunks" each set off by a format emoji.
+        # For example, the Head column of a compact planned row typically
+        # contains a list of multiple items. (The two others are the Sources
+        # column, for multiple variants of an item; and the regular Head column,
+        # for multiple items.)
+        # @return [Boolean]
         def self.split_by_format?
           false
         end
 
+        # Whether the column can contain multiple segments, e.g. "Cosmos -- 2013 paperback".
+        # @return [Boolean]
         def self.split_by_segment?
           !!segment_separator
         end
 
+        # The regular expression used to split segments (e.g. /\s*--\s*/),
+        # or nil if the column should not be split by segment.
+        # @return [Regexp, nil]
         def self.segment_separator
           nil
         end
 
+        # Adjustments that are made to captured values at the end of parsing
+        # the column. For example, if ::regexes includes a capture group named
+        # "sources" and it needs to be split by commas:
+        # { sources: -> { _1.split(/\s*,\s*/) } }
+        # @return [Hash{Symbol => Proc}]
         def self.tweaks
           {}
         end
 
         # Keys in the parsed output hash that should be converted to an array, even
-        # if only one value was in the input, e.g. { ... extra_info: ["ed. Jane Doe"] }
+        # if only one value was in the input, as in { ... extra_info: ["ed. Jane Doe"] }
         # @return [Array<Symbol>]
         def self.flatten_into_arrays
           []
         end
 
+        # The regular expressions used to parse the column (except the part of
+        # the column before the first format emoji, which is in
+        # ::regexes_before_formats below). An array because sometimes it's
+        # simpler to try several smaller regular expressions in series, and
+        # because a regular expression might be applicable only for segments in
+        # a certain position. See parsing/rows/regular_columns/head.rb for an example.
+        # @param segment_index [Integer] the position of the current segment.
+        # @return [Array<Regexp>]
         def self.regexes(segment_index)
           []
         end
 
+        # The regular expressions used to parse the part of the column before
+        # the first format emoji.
+        # @return [Array<Regexp>]
         def self.regexes_before_formats
           []
         end
 
+        # Regular expressions that are shared across more than one column,
+        # placed here just to be DRY.
         SHARED_REGEXES = {
           progress: %r{
             # percent

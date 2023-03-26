@@ -4,26 +4,20 @@ require_relative "experiences/dates_validator"
 module Reading
   module Parsing
     module Attributes
-      class Experiences
+      class Experiences < Attribute
         using Util::HashArrayDeepFetch
         using Util::HashDeepMerge
 
-        private attr_reader :config
-
-        def initialize(config)
-          @config = config
-        end
-
-        def extract(parsed, head_index)
-          head = parsed[:head][head_index]
-          dates_started_not_empty = parsed[:dates_started].presence ||
-            [{}] * (parsed[:dates_finished]&.count || 1)
+        def extract(parsed_row, head_index)
+          head = parsed_row[:head][head_index]
+          dates_started_not_empty = parsed_row[:dates_started].presence ||
+            [{}] * (parsed_row[:dates_finished]&.count || 1)
           dates_started_finished = dates_started_not_empty
-            .zip(parsed[:dates_finished] || [])
+            .zip(parsed_row[:dates_finished] || [])
 
           experiences_with_dates = dates_started_finished.map { |started, finished|
             {
-              spans: spans(started, finished, head, parsed),
+              spans: spans(started, finished, head, parsed_row),
               group: started[:group],
               variant_index: (started[:variant] || 1).to_i - 1,
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h

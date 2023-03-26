@@ -1,12 +1,9 @@
 module Reading
   module Parsing
     module Attributes
-      class Notes
-        def initialize(_config)
-        end
-
-        def extract(parsed, _head_index)
-          parsed[:notes]&.map { |note|
+      class Notes < Attribute
+        def extract(parsed_row, _head_index)
+          parsed_row[:notes]&.map { |note|
             {
               blurb?: note.has_key?(:note_blurb),
               private?: note.has_key?(:note_private),

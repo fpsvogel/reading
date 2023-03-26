@@ -1,6 +1,6 @@
 require_relative "rows/regular"
 require_relative "rows/compact_planned"
-require_relative "rows/blank"
+require_relative "rows/comment"
 
 module Reading
   module Parsing
@@ -28,7 +28,7 @@ module Reading
     # }
     #
     # The hash's top-level keys are column names. The nested keys come from
-    # regex capture group names in each column (for this example, see .regexes
+    # regex capture group names in each column (for this example, see ::regexes
     # in rating.rb and head.rb in parsing/rows/regular_columns).
     #
     # All the rest is just details of how the parts of a column are joined:
@@ -78,7 +78,7 @@ module Reading
         clean_string = string.dup.force_encoding(Encoding::UTF_8)
         column_strings = clean_string.split(config.fetch(:column_separator))
 
-        row_types = [Rows::Regular, Rows::CompactPlanned, Rows::Blank]
+        row_types = [Rows::Regular, Rows::CompactPlanned, Rows::Comment]
         column_classes = row_types
           .find { |row_type| row_type.match?(string, config) }
           .column_classes

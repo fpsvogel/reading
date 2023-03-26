@@ -309,6 +309,8 @@ class ParseTest < Minitest::Test
   {
   :"non-numeric rating" =>
     "a|Sapiens",
+  :"comment containing a format emoji (matched as compact planned)" =>
+    "\\Testing a row with 📕",
   :"date not in yyyy/mm/dd format" =>
     "|Sapiens||2019-01-01|2020/01/01",
   :"date started content without a date" =>

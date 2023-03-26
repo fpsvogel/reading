@@ -1,12 +1,9 @@
 module Reading
   module Parsing
     module Attributes
-      class Rating
-        def initialize(_config)
-        end
-
-        def extract(parsed, _head_index)
-          rating = parsed[:rating]&.dig(:number)
+      class Rating < Attribute
+        def extract(parsed_row, _head_index)
+          rating = parsed_row[:rating]&.dig(:number)
 
           Integer(rating, exception: false) || Float(rating, exception: false)
         end

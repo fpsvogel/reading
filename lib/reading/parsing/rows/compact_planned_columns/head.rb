@@ -2,6 +2,8 @@ module Reading
   module Parsing
     module Rows
       module CompactPlanned
+        # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items
+        # and the sections following.
         class Head < Column
           def self.split_by_format?
             true

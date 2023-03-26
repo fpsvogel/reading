@@ -61,7 +61,7 @@ module Reading
         input.each_line do |line|
           begin
             intermediate = parser.parse_row_to_intermediate_hash(line)
-            next if intermediate.empty?
+            next if intermediate.empty? # When the row is blank or a comment.
             row_items = transformer.transform_intermediate_hash_to_item_hashes(intermediate)
           rescue Reading::Error => e
             raise e.class, "#{e.message} in the row \"#{line}\""

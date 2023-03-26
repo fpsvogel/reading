@@ -1,17 +1,18 @@
 module Reading
   module Parsing
     module Attributes
-      class Experiences
+      class Experiences < Attribute
         # Methods to validate dates. This does not cover all the ways dates can be
-        # invalid, just the ones not covered by ExperiencesAttribute during parsing.
+        # invalid, just the ones not caught during parsing.
         module DatesValidator
           using Util::HashArrayDeepFetch
 
           class << self
-            # Checks the dates in the given experiences hash, and raises an error at
-            # the first invalid date found.
+            # Checks the dates in the given experiences hash, and raises an error
+            # at the first invalid date found.
             # @param experiences [Array<Hash>]
             # @param config [Hash]
+            # @raise [InvalidDateError] if any date is invalid.
             def validate(experiences, config)
               validate_dates_started_are_in_order(experiences) if dates_started_column?(config)
               validate_dates_finished_are_in_order(experiences) if dates_finished_column?(config)

@@ -1,26 +1,20 @@
 module Reading
   module Parsing
     module Attributes
-      class Variants
+      class Variants < Attribute
         using Util::HashArrayDeepFetch
 
-        private attr_reader :config
-
-        def initialize(config)
-          @config = config
-        end
-
-        def extract(parsed, head_index)
-          head = parsed[:head][head_index]
+        def extract(parsed_row, head_index)
+          head = parsed_row[:head][head_index]
 
           # || [{}] in case there is no Sources column.
-          (parsed[:sources].presence || [{}])&.map { |variant|
+          (parsed_row[:sources].presence || [{}])&.map { |variant|
             {
               format: variant[:format] || head[:format],
               series: (series(head) + series(variant)).presence,
               sources: sources(variant) || sources(head),
               isbn: variant[:isbn],
-              length: length(variant) || length(parsed[:length]),
+              length: length(variant) || length(parsed_row[:length]),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }&.compact&.presence

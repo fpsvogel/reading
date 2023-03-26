@@ -2,6 +2,8 @@ module Reading
   module Parsing
     module Rows
       module Regular
+        # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column
+        # and https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants
         class Sources < Column
           def self.split_by_format?
             true
