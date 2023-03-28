@@ -14,44 +14,44 @@ module Reading
             # @param config [Hash]
             # @raise [InvalidDateError] if any date is invalid.
             def validate(experiences, config)
-              validate_dates_started_are_in_order(experiences) if dates_started_column?(config)
-              validate_dates_finished_are_in_order(experiences) if dates_finished_column?(config)
+              validate_start_dates_are_in_order(experiences) if start_dates_column?(config)
+              validate_end_dates_are_in_order(experiences) if end_dates_column?(config)
               validate_experiences_of_same_variant_do_not_overlap(experiences)  if both_date_columns?(config)
               validate_spans_are_in_order_and_not_overlapping(experiences)
             end
 
             private
 
-            def dates_started_column?(config)
-              config.fetch(:enabled_columns).include?(:dates_started)
+            def start_dates_column?(config)
+              config.fetch(:enabled_columns).include?(:start_dates)
             end
 
-            def dates_finished_column?(config)
-              config.fetch(:enabled_columns).include?(:dates_finished)
+            def end_dates_column?(config)
+              config.fetch(:enabled_columns).include?(:end_dates)
             end
 
             def both_date_columns?(config)
-              dates_started_column?(config) && dates_finished_column?(config)
+              start_dates_column?(config) && end_dates_column?(config)
             end
 
-            def validate_dates_started_are_in_order(experiences)
+            def validate_start_dates_are_in_order(experiences)
               experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| exp[:spans].first[:dates].begin }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
-                    raise InvalidDateError, "Dates started are not in order"
+                    raise InvalidDateError, "Start dates are not in order"
                   end
                 end
             end
 
-            def validate_dates_finished_are_in_order(experiences)
+            def validate_end_dates_are_in_order(experiences)
               experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| exp[:spans].last[:dates].end }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
-                    raise InvalidDateError, "Dates finished are not in order"
+                    raise InvalidDateError, "End dates are not in order"
                   end
                 end
             end

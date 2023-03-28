@@ -14,7 +14,7 @@ class ParseTest < Minitest::Test
 
   def test_custom_config_is_deep_merged_with_default_config
     custom_comment_char = "#"
-    custom_enabled_columns = %i[head dates_finished]
+    custom_enabled_columns = %i[head end_dates]
     extra_name_from_urls = { "gutenberg.org" => "Project Gutenberg" }
 
     c = Reading::Config.new(

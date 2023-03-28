@@ -2,8 +2,8 @@ require_relative "column"
 require_relative "regular_columns/rating"
 require_relative "regular_columns/head"
 require_relative "regular_columns/sources"
-require_relative "regular_columns/dates_started"
-require_relative "regular_columns/dates_finished"
+require_relative "regular_columns/start_dates"
+require_relative "regular_columns/end_dates"
 require_relative "regular_columns/genres"
 require_relative "regular_columns/length"
 require_relative "regular_columns/notes"
@@ -17,7 +17,7 @@ module Reading
         # The columns that are possible in this type of row.
         # @return [Array<Class>]
         def self.column_classes
-          [Rating, Head, Sources, DatesStarted, DatesFinished, Genres, Length, Notes, History]
+          [Rating, Head, Sources, StartDates, EndDates, Genres, Length, Notes, History]
         end
 
         # Does not start with a comment character.

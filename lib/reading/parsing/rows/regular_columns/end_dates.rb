@@ -2,8 +2,8 @@ module Reading
   module Parsing
     module Rows
       module Regular
-        # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-and-dates-finished-columns
-        class DatesFinished < Column
+        # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-and-end-dates-columns
+        class EndDates < Column
           def self.segment_separator
             /,\s*/
           end

@@ -40,41 +40,41 @@ class ParseTest < Minitest::Test
     Goatsong
     How To
   EOM
-  @inputs[:enabled_columns][:"head, dates_finished"] = <<~EOM.freeze
-    \\Author - Title|Dates finished
+  @inputs[:enabled_columns][:"head, end_dates"] = <<~EOM.freeze
+    \\Author - Title|End dates
     Sapiens
     Goatsong|2020/5/30
     How To
   EOM
-  @inputs[:enabled_columns][:"head, dates_started"] = <<~EOM.freeze
+  @inputs[:enabled_columns][:"head, start_dates"] = <<~EOM.freeze
     Sapiens|2021/9/1
     Goatsong|2020/5/1
     How To
   EOM
-  @inputs[:enabled_columns][:"head, dates_started, dates_finished"] = <<~EOM.freeze
+  @inputs[:enabled_columns][:"head, start_dates, end_dates"] = <<~EOM.freeze
     Sapiens|2021/9/1
     Goatsong|2020/5/1|2020/5/30
     How To
   EOM
-  @inputs[:enabled_columns][:"rating, head, dates_started, dates_finished"] = <<~EOM.freeze
+  @inputs[:enabled_columns][:"rating, head, start_dates, end_dates"] = <<~EOM.freeze
     |Sapiens|2021/9/1
     5|Goatsong|2020/5/1|2020/5/30
     |How To
   EOM
   # length but no sources
-  @inputs[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = <<~EOM.freeze
+  @inputs[:enabled_columns][:"rating, head, start_dates, end_dates, length"] = <<~EOM.freeze
     |Sapiens|2021/9/1||15:17
     5|Goatsong|2020/5/1|2020/5/30|247
     |How To
   EOM
   # sources but no length
-  @inputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = <<~EOM.freeze
+  @inputs[:enabled_columns][:"rating, head, sources, start_dates, end_dates"] = <<~EOM.freeze
     |Sapiens|Vail Library B00ICN066A|2021/9/1
     5|Goatsong|0312038380|2020/5/1|2020/5/30
     |How To
   EOM
   # sources and length
-  @inputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = <<~EOM.freeze
+  @inputs[:enabled_columns][:"rating, head, sources, start_dates, end_dates, length"] = <<~EOM.freeze
     |Sapiens|Vail Library B00ICN066A|2021/9/1||15:17
     5|Goatsong|0312038380|2020/5/1|2020/5/30|247
     |How To
@@ -169,11 +169,11 @@ class ParseTest < Minitest::Test
     "Goatsong|📕Little Library, https://www.edlin.org/holt, Lexpub, 0312038380, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
   }
 
-  @inputs[:features_dates_started] =
+  @inputs[:features_start_dates] =
   {
-  :"date started" =>
+  :"start date" =>
     "Sapiens|2020/09/01",
-  :"dates started" =>
+  :"start dates" =>
     "Sapiens|2020/09/01, 2021/07/15",
   :"progress" =>
     "Sapiens|50% 2020/09/01",
@@ -272,7 +272,7 @@ class ParseTest < Minitest::Test
       "|Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03|2020/09/01",
   }
   @inputs[:all_columns][:"realistic examples: in progress books"] = <<~EOM.freeze
-    \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Dates started, Progress|Dates finished|Genres|Length|Notes|History
+    \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Start dates, Progress|End dates|Genres|Length|Notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Hoopla B00ICN066A|2021/09/20||history|15:17|Easy to criticize, but I like the emphasis on human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
     5|📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01|2019/06/13|history, fiction|247
@@ -313,9 +313,9 @@ class ParseTest < Minitest::Test
     "\\Testing a row with 📕",
   :"date not in yyyy/mm/dd format" =>
     "|Sapiens||2019-01-01|2020/01/01",
-  :"date started content without a date" =>
+  :"start date content without a date" =>
     "|Sapiens||no date here|2020/01/01",
-  :"date finished content without a date" =>
+  :"end date content without a date" =>
     "|Sapiens||2019/01/01|no date here",
   :"incomplete date is the same as no date" =>
     "|Sapiens||2019/01|2020/01/01",
@@ -434,26 +434,26 @@ class ParseTest < Minitest::Test
   c = item_hash(title: "How To")
   @outputs[:enabled_columns][:"head"] = [a, b, c]
 
-  b_finished_only = b.deep_merge(
+  b_end_only = b.deep_merge(
     experiences: [{ spans: [{ dates: ..Date.parse("2020/5/30"),
                     progress: 1.0}] }],
   )
-  @outputs[:enabled_columns][:"head, dates_finished"] = [a, b_finished_only, c]
+  @outputs[:enabled_columns][:"head, end_dates"] = [a, b_end_only, c]
 
-  a_started = a.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2021/9/1").. }] }])
-  b_started = b.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2020/5/1").. }] }])
-  @outputs[:enabled_columns][:"head, dates_started"] = [a_started, b_started, c]
+  a_start = a.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2021/9/1").. }] }])
+  b_start = b.deep_merge(experiences: [{ spans: [{ dates: Date.parse("2020/5/1").. }] }])
+  @outputs[:enabled_columns][:"head, start_dates"] = [a_start, b_start, c]
 
-  b_finished = item_hash(
+  b_end = item_hash(
     title: "Goatsong",
     experiences: [{ spans: [{ dates: Date.parse("2020/5/1")..Date.parse("2020/5/30"),
                               progress: 1.0}] }],
   )
-  @outputs[:enabled_columns][:"head, dates_started, dates_finished"] = [a_started, b_finished, c]
+  @outputs[:enabled_columns][:"head, start_dates, end_dates"] = [a_start, b_end, c]
 
-  a_rating = a_started.merge(rating: nil)
-  b_rating = b_finished.merge(rating: 5)
-  @outputs[:enabled_columns][:"rating, head, dates_started, dates_finished"] = [a_rating, b_rating, c]
+  a_rating = a_start.merge(rating: nil)
+  b_rating = b_end.merge(rating: 5)
+  @outputs[:enabled_columns][:"rating, head, start_dates, end_dates"] = [a_rating, b_rating, c]
 
   a_length_and_amount = { variants: [{ length: "15:17" }],
                           experiences: [{ spans: [{ amount: "15:17" }] }] }
@@ -461,17 +461,17 @@ class ParseTest < Minitest::Test
                           experiences: [{ spans: [{ amount: 247 }] }] }
   a_length = a_rating.deep_merge(a_length_and_amount)
   b_length = b_rating.deep_merge(b_length_and_amount)
-  @outputs[:enabled_columns][:"rating, head, dates_started, dates_finished, length"] = [a_length, b_length, c]
+  @outputs[:enabled_columns][:"rating, head, start_dates, end_dates, length"] = [a_length, b_length, c]
 
   a_sources = a_rating.deep_merge(
     variants: [{ isbn: "B00ICN066A",
                  sources: [{ name: "Vail Library" }] }])
   b_sources = b_rating.deep_merge(variants: [{ isbn: "0312038380" }])
-  @outputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished"] = [a_sources, b_sources, c]
+  @outputs[:enabled_columns][:"rating, head, sources, start_dates, end_dates"] = [a_sources, b_sources, c]
 
   a_many = a_sources.deep_merge(a_length_and_amount)
   b_many = b_sources.deep_merge(b_length_and_amount)
-  @outputs[:enabled_columns][:"rating, head, sources, dates_started, dates_finished, length"] = [a_many, b_many, c]
+  @outputs[:enabled_columns][:"rating, head, sources, start_dates, end_dates, length"] = [a_many, b_many, c]
 
 
 
@@ -647,68 +647,68 @@ class ParseTest < Minitest::Test
 
 
 
-  @outputs[:features_dates_started] = {}
+  @outputs[:features_start_dates] = {}
   a = item_hash(title: "Sapiens")
-  started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
-  a_started = a.deep_merge(started)
-  @outputs[:features_dates_started][:"date started"] = [a_started]
+  start = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
+  a_start = a.deep_merge(start)
+  @outputs[:features_start_dates][:"start date"] = [a_start]
 
-  started_2 = {
+  start_2 = {
     experiences: [{},
                   { spans: [{ dates: Date.parse("2021/07/15").. }] }],
   }
-  a_started_2 = item_hash(**a.deep_merge(started).deep_merge(started_2))
-  @outputs[:features_dates_started][:"dates started"] = [a_started_2]
+  a_start_2 = item_hash(**a.deep_merge(start).deep_merge(start_2))
+  @outputs[:features_start_dates][:"start dates"] = [a_start_2]
 
-  started_3 = {
+  start_3 = {
     experiences: [{},
                   {},
                   { spans: [{ dates: Date.parse("2022/01/01").. }] }],
   }
-  a_started_3 = item_hash(**a.deep_merge(started).deep_merge(started_2).deep_merge(started_3))
-  @outputs[:features_dates_started][:"dates started in any order"] = [a_started_3]
+  a_start_3 = item_hash(**a.deep_merge(start).deep_merge(start_2).deep_merge(start_3))
+  @outputs[:features_start_dates][:"start dates in any order"] = [a_start_3]
 
   progress = ->(amount) { { experiences: [{ spans: [{ progress: amount }] }] } }
-  a_progress_half = a_started.deep_merge(progress.call(0.5))
-  @outputs[:features_dates_started][:"progress"] = [a_progress_half]
+  a_progress_half = a_start.deep_merge(progress.call(0.5))
+  @outputs[:features_start_dates][:"progress"] = [a_progress_half]
 
-  a_progress_pages = a_started.deep_merge(progress.call(220))
-  @outputs[:features_dates_started][:"progress pages"] = [a_progress_pages]
+  a_progress_pages = a_start.deep_merge(progress.call(220))
+  @outputs[:features_start_dates][:"progress pages"] = [a_progress_pages]
 
-  @outputs[:features_dates_started][:"progress pages without p"] = [a_progress_pages]
+  @outputs[:features_start_dates][:"progress pages without p"] = [a_progress_pages]
 
-  a_progress_time = a_started.deep_merge(progress.call("2:30"))
-  @outputs[:features_dates_started][:"progress time"] = [a_progress_time]
+  a_progress_time = a_start.deep_merge(progress.call("2:30"))
+  @outputs[:features_start_dates][:"progress time"] = [a_progress_time]
 
-  a_progress_zero = a_started.deep_merge(progress.call(0))
-  @outputs[:features_dates_started][:"dnf default zero"] = [a_progress_zero]
+  a_progress_zero = a_start.deep_merge(progress.call(0))
+  @outputs[:features_start_dates][:"dnf default zero"] = [a_progress_zero]
 
-  @outputs[:features_dates_started][:"dnf with progress"] = [a_progress_half]
+  @outputs[:features_start_dates][:"dnf with progress"] = [a_progress_half]
 
   a_dnf_only = a.deep_merge(progress.call(0.5))
-  @outputs[:features_dates_started][:"dnf only"] = [a_dnf_only]
+  @outputs[:features_start_dates][:"dnf only"] = [a_dnf_only]
 
   variant_2 = { experiences: [{ variant_index: 1 }] }
-  a_variant = a_started.deep_merge(variant_2)
-  @outputs[:features_dates_started][:"variant"] = [a_variant]
+  a_variant = a_start.deep_merge(variant_2)
+  @outputs[:features_start_dates][:"variant"] = [a_variant]
 
   a_variant_only = a.deep_merge(variant_2)
-  @outputs[:features_dates_started][:"variant only"] = [a_variant_only]
+  @outputs[:features_start_dates][:"variant only"] = [a_variant_only]
 
   group = { experiences: [{ group: "county book club" }] }
   a_group = a_variant.deep_merge(group)
-  @outputs[:features_dates_started][:"group"] = [a_group]
+  @outputs[:features_start_dates][:"group"] = [a_group]
 
   a_group_only = a.deep_merge(group)
-  @outputs[:features_dates_started][:"group only"] = [a_group_only]
+  @outputs[:features_start_dates][:"group only"] = [a_group_only]
 
-  a_started_twice = item_hash(**a.deep_merge(started).deep_merge(started_2))
-  a_started_twice_progress = a_started_twice.deep_merge(
+  a_start_twice = item_hash(**a.deep_merge(start).deep_merge(start_2))
+  a_start_twice_progress = a_start_twice.deep_merge(
     experiences: [{ spans: [{ progress: 0.5 }],
                     variant_index: 1 },
                   { spans: [{ progress: "2:30" }] }],
   )
-  @outputs[:features_dates_started][:"all features"] = [a_started_twice_progress]
+  @outputs[:features_start_dates][:"all features"] = [a_start_twice_progress]
 
 
 
@@ -794,10 +794,10 @@ class ParseTest < Minitest::Test
 
   @outputs[:all_columns] = {}
   a = item_hash(title: "Sapiens")
-  started = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
-  a_started = a.deep_merge(started)
-  a_started_format = a_started.deep_merge(variants: [{ format: :print }])
-  @outputs[:all_columns][:"empty Sources column doesn't prevent variant from elsewhere"] = [a_started_format]
+  start = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
+  a_start = a.deep_merge(start)
+  a_start_format = a_start.deep_merge(variants: [{ format: :print }])
+  @outputs[:all_columns][:"empty Sources column doesn't prevent variant from elsewhere"] = [a_start_format]
 
   a_variant_length = item_hash(
     title: "Goatsong",

@@ -4,14 +4,14 @@ module Reading
       # The base class for all the columns in parsing/rows/compact_planned_columns
       # and parsing/rows/regular_columns.
       class Column
-        # The class name changed into a string, e.g. DatesStarted => "Dates Started"
+        # The class name changed into a string, e.g. StartDates => "Start Dates"
         # @return [String]
         def self.column_name
           class_name = name.split("::").last
           class_name.gsub(/(.)([A-Z])/,'\1 \2')
         end
 
-        # The class name changed into a symbol, e.g. DatesStarted => :dates_started
+        # The class name changed into a symbol, e.g. StartDates => :start_dates
         # @return [Symbol]
         def self.to_sym
           class_name = name.split("::").last

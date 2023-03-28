@@ -11,7 +11,7 @@ module Reading
     attr_reader :hash
 
     # @param custom_config [Hash] a custom config which overrides the defaults,
-    #   e.g. { enabled_columns: %i[head dates_finished] }
+    #   e.g. { enabled_columns: %i[head end_dates] }
     def initialize(custom_config = {})
       @custom_config = custom_config
 
@@ -62,8 +62,8 @@ module Reading
             rating
             head
             sources
-            dates_started
-            dates_finished
+            start_dates
+            end_dates
             genres
             length
             notes

@@ -40,7 +40,7 @@ $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 Here is a minimal CSV reading log:
 
 ```
-\Title|Dates finished
+\Title|End dates
 Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
@@ -60,7 +60,7 @@ parsed_items = [
     title: "Sapiens: A Brief History of Humankind", # Head
     genres: [], # Genres
     variants: [], # Head, Sources, Length
-    experiences: [], # Dates Started, Dates Finished, History, Head
+    experiences: [], # Start Dates, End Dates, History, Head
     notes: [], # Notes
   },
   {
@@ -227,15 +227,15 @@ item = {
 
 ### `experiences` attribute
 
-*Experiences* are different times when you read/watched/listened to an item, such as your first time reading a book vs. your re-reading of it at a later date. For books, experiences are typically just a date started and a date finished. But if you listen to podcasts, or if you like tracking your reading in detail, then experiences are likely to become more complex. The [podcast example below](#example-podcast) demonstrates the fine-grained tracking of experiences, and explains the usefulness of the complex structure of experiences.
+*Experiences* are different times when you read/watched/listened to an item, such as your first time reading a book vs. your re-reading of it at a later date. For books, experiences are typically just a start date and an end date. But if you listen to podcasts, or if you like tracking your reading in detail, then experiences are likely to become more complex. The [podcast example below](#example-podcast) demonstrates the fine-grained tracking of experiences, and explains the usefulness of the complex structure of experiences.
 
 CSV columns:
 
-- **Dates Started** and **Dates Finished**:
-  - [for `dates`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-and-dates-finished-columns)
-  - [for `variant_index`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-column-variants)
-  - [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-column-progress)
-  - [for `group`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#dates-started-column-group-experience)
+- **Start Dates** and **End Dates**:
+  - [for `dates`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-and-end-dates-columns)
+  - [for `variant_index`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-column-variants)
+  - [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-column-progress)
+  - [for `group`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-column-group-experience)
 - **Head** [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-dnf)
 - [**History**](#history-column) for everything
 
@@ -273,7 +273,7 @@ In each of the two output examples below, I've copied the item template in `Conf
 Here's a long but still realistic example. (Yes, I know *The Lord of the Rings* is not technically a series. I'm committing that blasphemy just for the sake of example.)
 
 ```
-\Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
+\Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History
 4|J. R. R. Tolkien - The Fellowship of the Ring -- The Lord of the Rings, #1|📕own, gift from Sam B007978NPG 480p 🔊https://archive.org/details/the-fellowship-of-the-ring_soundscape-by-phil-dragash 17:33 -- narrated by Phil Dragash|2018/05/01, 2020/12/23 v2 🤝🏼with Hannah|2018/08/10|fiction|💬A bit slow, but it really grows on you. -- The descriptions of the Shire and the appearance of Tom Bombadil are my favorite parts.
 ```
 
@@ -377,7 +377,7 @@ So it makes sense why a podcast would have all this span-based information, but 
 Without further ado, here's a podcast example, one that is more complex than usual just for illustration's sake:
 
 ```
-\Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
+\Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History
 3|🎤Flightless Bird||||podcast|1:00 each||2022/10/06..10 x8 --  ..11/12 x1/week -- (10/18..24 x3) -- 11/14 0:50 ⭐#30 Leaf Blowers -- 11/15 DNF 0:15 Baseball -- x3 -- ? #32 Soft Drinks -- Christmas
 ```
 

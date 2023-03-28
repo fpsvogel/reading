@@ -19,15 +19,15 @@
 \   https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk
 \
 \
-\Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
+\Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History
 \--- BASIC TEMPLATES:
 \ Delete the comment character (\) and fill in with your information.
 \------ BOOK:
-\<your rating>|📕<author> - <title>|<source> <ISBN>|<date started>|<date finished>|<genre>, <genre>, ...|<length in pages>|<a note> -- <another note> -- ...
+\<your rating>|📕<author> - <title>|<source> <ISBN>|<start date>|<end date>|<genre>, <genre>, ...|<length in pages>|<a note> -- <another note> -- ...
 \------ AUDIOBOOK:
-\<your rating>|🔊<author> - <title>|<source> <ISBN>|<date started>|<date finished>|<genre>, <genre>, ...|<length in hh:mm>|<a note> -- <another note> -- ...
+\<your rating>|🔊<author> - <title>|<source> <ISBN>|<start date>|<end date>|<genre>, <genre>, ...|<length in hh:mm>|<a note> -- <another note> -- ...
 \------ PODCAST:
-\<your rating>|🎤<title>|<source>|||<genre>, <genre>, ...|<length of an episode in hh:mm> each|<a note> -- <another note> -- ...|<date started>- <frequency, e.g. x1/week>
+\<your rating>|🎤<title>|<source>|||<genre>, <genre>, ...|<length of an episode in hh:mm> each|<a note> -- <another note> -- ...|<start date>- <frequency, e.g. x1/week>
 \
 \--- EXAMPLES:
 \------ IN PROGRESS

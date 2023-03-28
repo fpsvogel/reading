@@ -10,16 +10,16 @@ module Reading
 
         def extract(parsed_row, head_index)
           head = parsed_row[:head][head_index]
-          dates_started_not_empty = parsed_row[:dates_started].presence ||
-            [{}] * (parsed_row[:dates_finished]&.count || 1)
-          dates_started_finished = dates_started_not_empty
-            .zip(parsed_row[:dates_finished] || [])
+          start_dates_not_empty = parsed_row[:start_dates].presence ||
+            [{}] * (parsed_row[:end_dates]&.count || 1)
+          start_end_dates = start_dates_not_empty
+            .zip(parsed_row[:end_dates] || [])
 
-          experiences_with_dates = dates_started_finished.map { |started, finished|
+          experiences_with_dates = start_end_dates.map { |start_entry, end_entry|
             {
-              spans: spans(started, finished, head, parsed_row),
-              group: started[:group],
-              variant_index: (started[:variant] || 1).to_i - 1,
+              spans: spans(start_entry, end_entry, head, parsed_row),
+              group: start_entry[:group],
+              variant_index: (start_entry[:variant] || 1).to_i - 1,
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }.presence
 
@@ -41,13 +41,6 @@ module Reading
           config.deep_fetch(:item_template, :experiences, 0, :spans).first
         end
 
-        def dates_started_and_finished(parsed)
-          dates_started = parsed[:dates_started]&.presence ||
-            [{}] * parsed[:dates_finished].count
-
-          [dates_started, parsed[:dates_finished]]
-        end
-
         def progress(hash)
           hash[:progress_time] ||
             hash[:progress_pages]&.to_i ||
@@ -56,11 +49,11 @@ module Reading
             nil
         end
 
-        def spans(started, finished, head, parsed)
-          if !started&.dig(:date) && !finished&.dig(:date)
+        def spans(start_entry, end_entry, head, parsed)
+          if !start_entry&.dig(:date) && !end_entry&.dig(:date)
             dates = nil
           else
-            dates = [started, finished].map { |date_hash|
+            dates = [start_entry, end_entry].map { |date_hash|
               begin
                 Date.parse(date_hash[:date]) if date_hash&.dig(:date)
               rescue Date::Error
@@ -70,7 +63,7 @@ module Reading
             dates = dates[0]..dates[1]
           end
 
-          variant_index = (started[:variant] || 1).to_i - 1
+          variant_index = (start_entry[:variant] || 1).to_i - 1
           length = length(parsed[:sources]&.dig(variant_index)) ||
             length(parsed[:length])
 
@@ -78,7 +71,7 @@ module Reading
             {
               dates: dates,
               amount: (length if dates),
-              progress: progress(started) || progress(head) || (1.0 if finished),
+              progress: progress(start_entry) || progress(head) || (1.0 if end_entry),
               name: spans_template.fetch(:name),
               favorite?: spans_template.fetch(:favorite?),
             }.map { |k, v| [k, v || spans_template.fetch(k)] }.to_h

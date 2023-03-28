@@ -107,7 +107,7 @@ Here's an example. If you don't want to use all the columns (as in [the minimal 
 ```ruby
 require "reading"
 
-custom_config = { enabled_columns: [:head, :dates_finished] }
+custom_config = { enabled_columns: [:head, :end_dates] }
 file_path = "/home/user/reading.csv"
 items = Reading.parse(file_path, config: custom_config)
 ```

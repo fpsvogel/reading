@@ -12,7 +12,7 @@ This guide is written to show you what your reading log CSV file should look lik
   - [Rating column](#rating-column)
   - [Head column ("Title")](#head-column-title)
   - [Sources column](#sources-column)
-  - [Dates Started and Dates Finished columns](#dates-started-and-dates-finished-columns)
+  - [Start Dates and End Dates columns](#start-dates-and-end-dates-columns)
   - [Genres column](#genres-column)
   - [Length column](#length-column)
   - [Notes column](#notes-column)
@@ -28,9 +28,9 @@ This guide is written to show you what your reading log CSV file should look lik
   - [Head column: extra info](#head-column-extra-info)
   - [Head column: multiple items](#head-column-multiple-items)
   - [Sources column: variants](#sources-column-variants)
-  - [Dates Started column: variants](#dates-started-column-variants)
-  - [Dates Started column: progress](#dates-started-column-progress)
-  - [Dates Started column: group experience](#dates-started-column-group-experience)
+  - [Start Dates column: variants](#start-dates-column-variants)
+  - [Start Dates column: progress](#start-dates-column-progress)
+  - [Start Dates column: group experience](#start-dates-column-group-experience)
   - [Notes column: special notes](#notes-column-special-notes)
   - [History column](#history-column)
     - [History: regularly recurring item (podcast)](#history-regularly-recurring-item-podcast)
@@ -51,7 +51,7 @@ This guide is written to show you what your reading log CSV file should look lik
 Here is the beginning of a minimal CSV reading log:
 
 ```
-\Title|Dates finished
+\Title|End dates
 Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
@@ -149,30 +149,30 @@ Hamlet|Lexington Public Library 0141396504
 Cosmos|Hoopla, recommended by Sam, https://archive.org/details/CosmosAPersonalVoyage 978-0345539434
 ```
 
-### Dates Started and Dates Finished columns
+### Start Dates and End Dates columns
 
 These two columns can be used separately (you can disable one or the other), but they're similar so let's look at both.
 
 Dates must be in the format `yyyy/mm/dd`, with zeroes either included or omitted:
 
 ```
-\Title|Dates started|Dates finished
+\Title|Start dates|End dates
 Hamlet|2020/05/01|2020/5/9
 ```
 
 Use commas to separate multiple dates, with the earlier dates on the left side:
 
 ```
-\Title|Dates started|Dates finished
+\Title|Start dates|End dates
 Cosmos|2019/11/22, 2020/07/17, 2022/10/05|2019/12/10, 2020/08/15
 ```
 
-The above example means that you started and finished the book in 2019 and again in 2020. In 2022 you've started it but haven't yet finished it (since there isn't a third date finished to match that date started).
+The above example means that you started and finished the book in 2019 and again in 2020. In 2022 you've started it but haven't yet finished it (since there isn't a third end date to match that start date).
 
 The examples above are done and in progress, respectively, but what about a *planned* item, something on your "to read" list? Just omit the dates entirely:
 
 ```
-\Title|Dates started|Dates finished
+\Title|Start dates|End dates
 Utopia
 ```
 
@@ -210,10 +210,10 @@ Hamlet|In contemporary English: https://nosweatshakespeare.com/plays/modern-haml
 
 A.k.a. your "to read" list. We'll circle back to the columns to show their advanced features, but first: how to jot down books that you might read in the future?
 
-As we've seen already, one way to track this is to have normal items but without a date started.
+As we've seen already, one way to track this is to have normal items but without a start date.
 
 ```
-\Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
+\Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History
 \------ PLANNED
 |📕Beloved
 |🔊Kindred
@@ -313,19 +313,19 @@ So `DNF` is just a visual marker for clarity; it doesn't actually make a differe
 Any other string before the format is also ignored by the parser. This is handy for adding notes-to-self about the status of the item:
 
 ```
-\Title|Date Started
+\Title|Start Dates
 maybe will DNF 📕Beloved|2022/1/25
 ?? 🔊Kindred
 ```
 
-Moving on, how do we indicate the DNF date? Just use the Date Finished column, as you would if you'd actually finished the item. (Don't get too hung up on the name "Date Finished": an item's date finished or lack thereof does not affect its progress.)
+Moving on, how do we indicate the DNF date? Just use the End Dates column, as you would if you'd actually finished the item.
 
 ```
-\Title|Date Started|Date Finished|Length
+\Title|Start Dates|End Dates|Length
 DNF 23% 📕Hamlet|2021/12/30|2022/01/10|400
 ```
 
-Remember, since `DNF` is just a visual marker, if you don't put down a Date Finished then in the parsed output this item will just be at 23% progress and apparently still in progress (lacking a date finished).
+Remember, since `DNF` is just a visual marker, if you don't put down an end date then in the parsed output this item will just be at 23% progress and apparently still in progress (lacking an end date).
 
 ### Head column: series and volume
 
@@ -404,12 +404,12 @@ An item's length also typically belongs with a specific variant. You can specify
 Utopia|📕039393246X 336p -- trans. Robert Adams -- ed. George Logan 🔊https://librivox.org/utopia-by-thomas-more 3:59
 ```
 
-### Dates Started column: variants
+### Start Dates column: variants
 
 Now let's actually make use of the variants we saw in the previous section. Suppose you read a book in print, and then again on audio:
 
 ```
-\Title|Sources|Dates started
+\Title|Sources|Start dates
 Utopia|📕🔊|2021/7/1 v1, 2022/12/1 v2
 ```
 
@@ -418,39 +418,39 @@ Utopia|📕🔊|2021/7/1 v1, 2022/12/1 v2
 `v1` can be omitted, because an *experience* (the technical name for a read/re-read) refers to the first variant by default:
 
 ```
-\Title|Sources|Dates started
+\Title|Sources|Start dates
 Utopia|📕🔊|2021/7/1, 2022/12/1 v2
 ```
 
-### Dates Started column: progress
+### Start Dates column: progress
 
 Recall one of our examples from the earlier section on `DNF` ("Did Not Finish"):
 
 ```
-Title|Dates started|Dates finished|Length
+Title|Start dates|End dates|Length
 DNF p105 📕Utopia|2021/7/1|2021/8/5|336
 ```
 
 What if you gave that book another chance as an audiobook? Here's how:
 
 ```
-Title|Sources|Dates started|Dates finished
+Title|Sources|Start dates|End dates
 Utopia|📕336p 🔊3:59|DNF p105 2021/7/1, 2022/12/1 v2|2021/8/5
 ```
 
 Then if you DNF again:
 
 ```
-Title|Sources|Dates started|Dates finished
+Title|Sources|Start dates|End dates
 Utopia|📕336p 🔊3:59|DNF p105 2021/7/1, DNF 0:50 2022/12/1 v2|2021/8/5, 2022/12/24
 ```
 
-### Dates Started column: group experience
+### Start Dates column: group experience
 
-Something else you can mark down in the Dates Started column is a *group experience*. That's when you read/watch/listen as part of a group. You can record that with a special emoji in the Dates Started column, followed by the group name:
+Something else you can mark down in the Start Dates column is a *group experience*. That's when you read/watch/listen as part of a group. You can record that with a special emoji in the Start Dates column, followed by the group name:
 
 ```
-\Title|Dates started
+\Title|Start dates
 Hamlet|2022/12/1 🤝🏼Sadvent book club
 Cosmos|2021/7/1 🤝🏼 with Sam
 ```
@@ -458,7 +458,7 @@ Cosmos|2021/7/1 🤝🏼 with Sam
 If variants are involved, the variant marker comes first before the group:
 
 ```
-\Title|Dates started
+\Title|Start dates
 Hamlet|🔊📕|2022/12/1 v2 🤝🏼Sadvent book club
 ```
 
@@ -480,12 +480,12 @@ They aren't inherently different from regular notes, but they can come in handy 
 The History column is especially useful for podcasts. Here's a common scenario: you discover a good podcast, you listen to a bunch of previous episodes until you're caught up, and then you listen to each new episode as they're released.
 
 ```
-\Rating|Title|Sources|Dates started|Dates finished|Genres|Length|Notes|History
+\Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History
 3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- x1/week
 ```
 
 - In plain English this means "Each episode is 50 minutes long. From the 6th to the 11th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
-- Notice that the Dates Started and Dates Finished columns are empty. These columns are not parsed if the History column is filled in.
+- Notice that the Start Dates and End Dates columns are empty. These columns are not parsed if the History column is filled in.
 - `x1/week` means once weekly, but you can also use `/day` and `/month`, like this: `x1/day`, `x10/month`, and so on.
 
 But that's not the only way to listen to a podcast, and so the History column is flexible. For example, what if you stopped listening to that podcast after a while?
@@ -583,7 +583,7 @@ And here's an audiobook with a History column similar to the last example:
 4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..15 0:30 -- 5/20 @6:50 -- 5/21..23 done
 ```
 
-A variant and group can be specified similar to how we've seen in the Dates Started column. For example, if you start re-reading Born a Crime but this time in print, and with a friend:
+A variant and group can be specified similar to how we've seen in the Start Dates column. For example, if you start re-reading Born a Crime but this time in print, and with a friend:
 
 ```
 4|Born a Crime|🔊📕|||memoir|8:44||2021/5/1..23 done ---- v2 🤝🏼with Jane 2022/7/1 @p50 -- 7/2 @p90
