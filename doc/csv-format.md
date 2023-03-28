@@ -498,7 +498,7 @@ But that's not the only way to listen to a podcast, and so the History column is
 - If one side of a date range is omitted (here `..12/14` and `3/1..`), that date is inferred from the previous/next date, or if there is no next date then it means "up to the present".
 - For any date after the first one, the year may be omitted (and the month in the second half of a date range); in these cases the year and month inferred from the context.
 
-What if you miss a few days here and there? That would be cumbersome to write following the patterns we've seen so far. Resuming from the last bit in the above example, it'd be `-- 3/1.. x2/week -- 3/13..15 x0 -- x2/week -- 4/1 x0 -- 4/2.. 2x/week`. That's a lot just to say "I skipped March 13-15 and April 1", so here's a more concise syntax for missing days:
+What if you miss a few days here and there? That would be cumbersome to write following the patterns we've seen so far. Resuming from the last bit in the above example, it'd be `-- 3/1.. x2/week -- 3/13..15 x0 -- x2/week -- 4/1 x0 -- 4/2.. x2/week`. That's a lot just to say "I skipped March 13-15 and April 1", so here's a more concise syntax for missing days:
 
 ```
 3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1
@@ -546,10 +546,11 @@ If you've planned out which episodes you want to listen to, you can mark them do
 But then what if you don't like that podcast and you end up DNF'ing parts of it? Here's how to record that:
 
 ```
-2|DNF 🎤Pray as you go||||podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- DNF 30% ..9/17 2:13 God with Us -- DNF 0:15 2:01 God's Grandeur -- DNF 0 1:17 Way of the Cross
+2|DNF 🎤Pray as you go||||podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- ..9/17 DNF 30% 2:13 God with Us -- DNF @0:15 2:01 God's Grandeur -- DNF 1:17 Way of the Cross
 ```
 
-- As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%. You just need to be careful because the length of an item has the same format as the amount of a DNF, so in the last segment above if we had omitted the zero (`DNF 1:17 Way of the Cross`) then this would mean "DNF'ed at 1:17", when in fact 1:17 is the length of the episode. (Or you could just delete the length and have `DNF Way of the Cross`.)
+- As elsewhere, DNF's may be followed by a percentage or length indicating the stopping point, or the stopping point may be omitted, which means the same as 0%.
+- The only difference is that in the History column, lengths for DNFs need to be preceded by `@` (such as `DNF @0:15` in this example) because otherwise it would be hard to distinguish the DNF length from the length of the episode. The `@` also allows us to leave off the `DNF` if we wish: `@0:15 2:01 God's Grandeur`.
 - The `DNF` near the beginning of the row, just before the title, actually has no meaning whenever the History column is filled in; it's just a handy visual marker.
 
 #### History: no names and re-watching (TV show)
@@ -572,7 +573,7 @@ Books work with the History column, too.
 3|📕Cultish||||religion|319||2022/5/1 @31p -- 5/2 @54p -- 5/6..15 10p -- 5/20 @200p -- 5/21..23 done
 ```
 
-- `@` means "I stopped at", such as `5/1 @31p` meaning "On 5/1 I stopped at page 31."
+- `@` means "I stopped at", such as `5/1 @31p` meaning "On 5/1 I stopped at page 31." This is in the context of an item with a definite length, such as a book or audiobook; we've seen above that `@` in the context of an indefinitely long item (such as a podcast) means "I listened to this much of the episode".
 - Contrast that with the entry `5/6..15 10p`, without the `@`. Here the page count is an amount read, not a stopping point. This entry means "Between 5/6 and 5/15 I read 10 pages per day."
 - The whole example means, in plain English: "The book is 319 pages long. On the 1st of March, 2022, I read up to page 31. On the 2nd I read up to page 54. From the 6th through the 15th I read 10 pages per day. Then on the 20th, I read up to page 200, and from the 21st to the 23rd I finished the book."
 

@@ -182,11 +182,25 @@ module Reading
           return parse_segment(column_class, string)
         end
 
-        segments = string
-          .split(column_class.segment_separator)
-          .map.with_index { |segment, i|
-            parse_segment(column_class, segment, i)
-          }
+        # Add an extra level of nesting if the column can have segment groups,
+        # as in "2021/1/28..2/1 x4 -- ..2/3 x5 ---- 11/1 -- 11/2"
+        if column_class.split_by_segment_group?
+          segments = string
+            .split(column_class.segment_group_separator)
+            .map { |segment_group|
+              segment_group
+                .split(column_class.segment_separator)
+                .map.with_index { |segment, i|
+                  parse_segment(column_class, segment, i)
+                }
+            }
+        else
+          segments = string
+            .split(column_class.segment_separator)
+            .map.with_index { |segment, i|
+              parse_segment(column_class, segment, i)
+            }
+        end
 
         if column_class.flatten_into_arrays.any?
           segments = segments.reduce { |merged, segment|

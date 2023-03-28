@@ -353,9 +353,9 @@ class ParseTest < Minitest::Test
   @inputs[:errors][Reading::TooManyColumnsError] =
   {
   :"column beyond the number of enabled columns" =>
-    "|Sapiens|||||||something",
+    "|Sapiens||||||||something",
   :"empty column beyond the number of enabled columns" =>
-    "|Sapiens|||||||| ",
+    "|Sapiens||||||||| ",
   :"multiple other columns in a compact planned item when only Sources is allowed" =>
     "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
   }

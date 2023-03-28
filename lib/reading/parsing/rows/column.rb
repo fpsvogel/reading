@@ -31,7 +31,7 @@ module Reading
           false
         end
 
-        # Whether the column can contain multiple segments, e.g. "Cosmos -- 2013 paperback".
+        # Whether the column can contain multiple segments, e.g. "Cosmos -- 2013 paperback"
         # @return [Boolean]
         def self.split_by_segment?
           !!segment_separator
@@ -41,6 +41,20 @@ module Reading
         # or nil if the column should not be split by segment.
         # @return [Regexp, nil]
         def self.segment_separator
+          nil
+        end
+
+        # Whether the column can contain multiple segment groups, e.g.
+        # "2021/1/28..2/1 x4 -- ..2/3 x5 ---- 11/1 -- 11/2"
+        # @return [Boolean]
+        def self.split_by_segment_group?
+          !!segment_group_separator
+        end
+
+        # The regular expression used to split segment groups (e.g. /\s*----\s*/),
+        # or nil if the column should not be split by segment group.
+        # @return [Regexp, nil]
+        def self.segment_group_separator
           nil
         end
 
@@ -83,13 +97,10 @@ module Reading
         # placed here just to be DRY.
         SHARED_REGEXES = {
           progress: %r{
-            # percent
             (DNF\s+)?(?<progress_percent>\d\d?)%
             |
-            # page
             (DNF\s+)?p?(?<progress_pages>\d+)p?
             |
-            # time
             (DNF\s+)?(?<progress_time>\d+:\d\d)
             |
             # just DNF
