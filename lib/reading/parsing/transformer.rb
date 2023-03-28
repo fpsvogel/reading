@@ -44,9 +44,9 @@ module Reading
         parsed_row[:head].map.with_index { |_head, head_index|
           template.map { |attribute_name, default_value|
             attribute = attributes.fetch(attribute_name)
-            extracted_value = attribute.extract(parsed_row, head_index)
+            transformed_value = attribute.transform_from_parsed(parsed_row, head_index)
 
-            [attribute_name, extracted_value || default_value]
+            [attribute_name, transformed_value || default_value]
           }.to_h
           .compact_by(template:)
         }

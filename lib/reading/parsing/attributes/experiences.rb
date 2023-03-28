@@ -9,7 +9,7 @@ module Reading
         using Util::HashArrayDeepFetch
         using Util::HashDeepMerge
 
-        def extract(parsed_row, head_index)
+        def transform_from_parsed(parsed_row, head_index)
           if !parsed_row[:history].blank?
             return HistoryTransformer.new(parsed_row, config).transform
           end

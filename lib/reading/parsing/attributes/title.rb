@@ -2,7 +2,7 @@ module Reading
   module Parsing
     module Attributes
       class Title < Attribute
-        def extract(parsed_row, head_index)
+        def transform_from_parsed(parsed_row, head_index)
           title = parsed_row[:head][head_index][:title]
 
           if title.nil? || title.end_with?(" -")

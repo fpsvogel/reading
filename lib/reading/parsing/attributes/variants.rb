@@ -4,7 +4,7 @@ module Reading
       class Variants < Attribute
         using Util::HashArrayDeepFetch
 
-        def extract(parsed_row, head_index)
+        def transform_from_parsed(parsed_row, head_index)
           head = parsed_row[:head][head_index]
 
           # || [{}] in case there is no Sources column.

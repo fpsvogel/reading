@@ -15,7 +15,7 @@ module Reading
         # @param head_index [Integex] the position of the current item in the
         #   Head column.
         # @return [Object]
-        def extract(parsed_row, head_index)
+        def transform_from_parsed(parsed_row, head_index)
           raise NotImplementedError, "#{self.class} should have implemented #{__method__}"
         end
       end

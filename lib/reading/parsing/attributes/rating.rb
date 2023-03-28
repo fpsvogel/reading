@@ -2,7 +2,7 @@ module Reading
   module Parsing
     module Attributes
       class Rating < Attribute
-        def extract(parsed_row, _head_index)
+        def transform_from_parsed(parsed_row, _head_index)
           rating = parsed_row[:rating]&.dig(:number)
 
           Integer(rating, exception: false) || Float(rating, exception: false)
