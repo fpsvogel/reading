@@ -96,7 +96,6 @@ module Reading
                 "librivox.org"        => "LibriVox",
                 "tv.apple.com"        => "Apple TV",
               },
-            default_name_for_url: "site",
           },
         # The structure of an item, along with default values.
         # Wherever an array of hashes ends up with no data (i.e. equal to the
@@ -139,7 +138,7 @@ module Reading
                 spans:
                   [{
                     dates: nil,
-                    amount: nil,
+                    amount: 0,
                     progress: nil,
                     name: nil,
                     favorite?: false,

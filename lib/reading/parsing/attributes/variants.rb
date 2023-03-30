@@ -20,7 +20,7 @@ module Reading
               sources: sources(variant) || sources(head),
               isbn: variant[:isbn],
               length: Attributes::Shared.length(variant) ||
-                Attributes::Shared.length(parsed_row[:length], nil_if_each: true),
+                Attributes::Shared.length(parsed_row[:length]),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }&.compact&.presence
@@ -69,7 +69,7 @@ module Reading
               end
             end
 
-          config.deep_fetch(:sources, :default_name_for_url)
+          nil
         end
       end
     end

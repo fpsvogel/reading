@@ -82,7 +82,7 @@ module Reading
 
             variant_index = (start_entry[:variant] || 1).to_i - 1
             length = Attributes::Shared.length(parsed_row[:sources]&.dig(variant_index)) ||
-              Attributes::Shared.length(parsed_row[:length], nil_if_each: true)
+              Attributes::Shared.length(parsed_row[:length])
 
             [
               {

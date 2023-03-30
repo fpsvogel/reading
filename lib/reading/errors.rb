@@ -13,6 +13,9 @@ module Reading
   # Means something in the Head column (author, title, etc.) is invalid.
   class InvalidHeadError < Reading::Error; end
 
+  # Means something in the History column is invalid.
+  class InvalidHistoryError < Reading::Error; end
+
   # Means there are too many columns in a row.
   class TooManyColumnsError < Reading::Error; end
 

@@ -2,6 +2,7 @@
 require_relative "../util/blank"
 require_relative "../util/string_remove"
 require_relative "../util/string_truncate"
+require_relative "../util/numeric_to_i_if_whole"
 require_relative "../util/hash_to_struct"
 require_relative "../util/hash_deep_merge"
 require_relative "../util/hash_array_deep_fetch"

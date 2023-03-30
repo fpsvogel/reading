@@ -34,6 +34,7 @@ class ParseTest < Minitest::Test
   # only the columns enabled that are listed in the hash key. This tests basic
   # functionality of each column, and a few possible combinations of columns.
   @inputs[:enabled_columns] = {}
+
   @inputs[:enabled_columns][:"head"] = <<~EOM.freeze
     \\Author - Title
     Sapiens
@@ -235,29 +236,108 @@ class ParseTest < Minitest::Test
     "\\❓HISTORICAL FICTION @Lexpub:⚡💲Tom Holt - A Song for Nero ✅@Hoopla ✅🔊True Grit",
   }
 
-  # TODO uncomment
+  # Stub Date.today so that the endless date ranges below aren't needlessly long.
+  class ::Date
+    def self.today
+      Date.new(2022,10,1)
+    end
+  end
+
   @inputs[:features_history] =
   {
-  # :"dates and descriptions" =>
-  #   "Fullstack Ruby|2021/12/6 #1 Why Ruby2JS is a Game Changer -- 12/21 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
-  # :"time amounts" =>
-  #   "Fullstack Ruby|2021/12/6 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 2022/2/22 #3 String-Based Templates vs. DSLs",
-  # :"page amounts" =>
-  #   "War and Peace|2021/04/28 115p -- 4/30 96p",
-  # :"page amounts without p" =>
-  #   "War and Peace|2021/04/28 115 -- 4/30 96",
-  # :"date ranges" =>
-  #   "War and Peace|2021/04/28-29 115p -- 4/30-5/1 97p",
-  # :"with description, amount is for part and not per day" =>
-  #   "War and Peace|2021/04/28-29 51p Vol 1 Pt 1 -- 4/30-5/3 Vol 1 Pt 2",
-  # :"stopping points for amount" =>
-  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 p211",
-  # :"mixed amounts and stopping points" =>
-  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p",
-  # :"reread" =>
-  #   "War and Peace|2021/04/28-29 p115 -- 4/30-5/3 24p - 2022/1/1-2/15 50p",
+  :"dates" =>
+    "Fullstack Ruby|2021/12/6 0:30 -- 12/21 -- 3/1",
+  :"dates can omit unchanged month" =>
+    "Fullstack Ruby|2021/12/6 0:30 -- 21 -- 3/1",
+  :"date ranges" =>
+    "Fullstack Ruby|2021/12/6..8 0:30 -- 12/21 -- 3/1",
+  :"adjacent dates of same daily amount are merged into a range" => # of 12/6..10
+    "Fullstack Ruby|2021/12/6..8 1:30 -- 12/9 0:30 -- 12/10",
+  :"time amounts" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 -- 12/21 0:45 -- 3/1 0:45",
+  :"implied time amount" => # 3/1 has an implied amount of 0:45
+    "Fullstack Ruby|2021/12/6..8 0:35 -- 12/21 0:45 -- 3/1",
+  # Here 0:45 has an implied date of 12/9, and 0:30 also has an implied date of
+  # 12/9 (the implied date doesn't increment except after a range), so the 0:30
+  # overwrites the 0:45 on 12/9.
+  :"implied dates" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 -- 0:45 -- 0:30",
+  :"implied date range starts" => # same as 12/6, 12/7..8, 12/9..10
+    "Fullstack Ruby|2021/12/6 0:35 -- ..12/8 0:45 -- ..12/10 0:25",
+  :"implied date range end" => # Date.today becomes the end date
+    "Fullstack Ruby|2021/12/6.. 0:35",
+  :"implied date range start and end" => # same as 12/6, 12/7..
+    "Fullstack Ruby|2021/12/6 0:35 -- .. 0:45",
+  :"open range" =>
+    "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- ..12/13",
+  :"open range with dates in the middle" =>
+    "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45 -- ..13",
+  :"open range with implied end" => # implies ..12/8 0:25
+    "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45",
+  :"repetition" =>
+    "Fullstack Ruby|2021/12/6 0:30 x4 -- 12/7 x2",
+  :"frequency" =>
+    "Fullstack Ruby|2021/12/6..6/1 0:30 x1/month",
+  :"frequency x1 implied" =>
+    "Fullstack Ruby|2021/12/6..6/1 0:30/month",
+  :"frequency until present" =>
+    "Fullstack Ruby|2021/12/6..6/1 0:30/month -- .. x2/month",
+  :"frequency implied until present" =>
+    "Fullstack Ruby|2021/12/6..6/1 0:30/month -- x2/month",
+  :"exception list" =>
+    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
+  # 13:00 here gives the same result as 1:00/day, though it's unexpected. We
+  # would expect that over these 10 days (not counting the exception days),
+  # 10:00 means 1:00/day. However, the amounts are distributed across the days
+  # *before* the exception days are removed, i.e. 13:00 across 13 days means
+  # 1:00/day. I don't use exception lists with fixed amounts, so I don't feel it
+  # would be worth the extra complexity to make exception lists recalculate
+  # amount-per-day in cases of a fixed amount. So this is a feature, not a bug ;)
+  :"exception list doesn't work as expected with fixed amount" =>
+    "Fullstack Ruby|2021/12/27..1/8 13:00 -- not 12/28..29, 1/1",
+  :"overwriting" =>
+    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- (1/4..8 2:00/day)",
+  :"overwriting can omit parentheses" =>
+    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 1/4..8 2:00/day",
+  :"overwriting to zero has the same effect as exception list" =>
+    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0)",
+  :"names" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
+  :"favorites" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 ⭐#1 Why Ruby2JS is a Game Changer -- 12/21 0:45 ⭐#2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
+  :"multiple experiences" =>
+    "Fullstack Ruby|2021/12/6 0:30 ---- 2022/4/1 0:30",
+  :"variant" =>
+    "Fullstack Ruby|2021/12/6 0:30 ---- v2 2022/4/1 0:30",
+  :"group" =>
+    "Fullstack Ruby|2021/12/6 0:30 ---- 🤝🏼with Sam 2022/4/1 0:30",
+  :"planned" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- ?? 0:45 #2 Componentized View Architecture FTW! -- #3 String-Based Templates vs. DSLs -- 4/18 #4 Design Patterns on the Frontend",
+  :"DNF" =>
+    "Fullstack Ruby|2021/12/6..8 DNF 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 DNF @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 DNF 0:45 #3 String-Based Templates vs. DSLs",
+  :"progress without DNF" =>
+    "Fullstack Ruby|2021/12/6..8 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 @0 0:45 #3 String-Based Templates vs. DSLs",
+  :"pages amount" =>
+    "Beowulf|2021/04/28 10p",
+  :"pages amount without p" =>
+    "Beowulf|2021/04/28 10",
+  :"stopping points in place of amount" =>
+    "Beowulf|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p",
+  :"stopping point with p on other side or omitted" =>
+    "Beowulf|2021/04/28 10p -- 4/30 @p20 -- 5/1 @30",
   }
 
+
+
+  @inputs[:"features_length, history"] =
+  {
+  :"length of each" =>
+    "Fullstack Ruby|0:30 each|2021/12/6 -- 12/21 0:45 -- 3/1",
+  :"repetitions in length" =>
+    "Fullstack Ruby|0:30 x3|2021/12/6 -- 12/21 -- 3/1",
+  :"done shortcut with length" =>
+    "Beowulf|144|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p -- ..5/20 done",
+  }
 
 
   ## TEST INPUT: ALL COLUMNS
@@ -277,11 +357,6 @@ class ParseTest < Minitest::Test
     |🔊Sapiens: A Brief History of Humankind|Hoopla B00ICN066A|2021/09/20||history|15:17|Easy to criticize, but I like the emphasis on human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
     5|📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01|2019/06/13|history, fiction|247
   EOM
-  # TODO uncomment
-  # @inputs[:all_columns][:"realistic examples: in progress podcasts"] = <<~EOM.freeze
-  #   3|🎤Flightless Bird|Spotify https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 2023/3/1.. x2/week
-  #   4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
-  # EOM
   @inputs[:all_columns][:"realistic examples: done"] = <<~EOM.freeze
     \\------ DONE
     4|📕Robert Louis Stevenson - Insula Thesauraria -- in Mount Hope Classics -- trans. Arcadius Avellanus|1533694567|2020/10/20 🤝🏼Latin reading group|2021/08/31|latin, fiction|260
@@ -299,12 +374,19 @@ class ParseTest < Minitest::Test
     \\HISTORICAL FICTION: ⚡Tom Holt - A Song for Nero 🔊True Grit @Lexpub 🔊Two Gentlemen of Lebowski @https://www.runleiarun.com/lebowski/
     \\SCIENCE, WEIRD @Lexpub: 📕Randall Munroe - How To 🔊Weird Earth @Hoopla
   EOM
+  @inputs[:all_columns][:"realistic examples: History column"] = <<~EOM.freeze
+    3|🎤Flightless Bird|Spotify, https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2021/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week
+    4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2021/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 1/1 #5 Mike McHargue - Science and the Bible
+    4|🎤Escriba Café|https://www.escribacafe.com|||podcast|0:30 each||2021/04/16.. Amor -- Diabolus -- Máfia -- Piratas -- 2:00 Trilogia História do Brasil -- Rapa-Nui -- Espíritos -- Inferno -- ..4/30 Pompeia
+    4|🔊Born a Crime|Lexpub B01DHWACVY|||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..15 0:30/day -- 5/20 @6:50 -- 5/21..23 done
+  EOM
 
 
 
   ## TEST INPUT: ERRORS
   # Bad input that should raise an error.
   @inputs[:errors] = {}
+
   @inputs[:errors][Reading::ParsingError] =
   {
   :"non-numeric rating" =>
@@ -334,6 +416,13 @@ class ParseTest < Minitest::Test
     "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
   :"OK: end date after the next start date for different variants" =>
     "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
+  :"future date in History" => # Date.today is stubbed above to 2022/10/1
+    "|Flightless Bird|||||||2022/10/2.. 0:30 x2/week"
+  }
+  @inputs[:errors][Reading::InvalidHistoryError] =
+  {
+  :"missing length/amount" =>
+    "|Flightless Bird|||||||2021/10/06"
   }
   @inputs[:errors][Reading::InvalidHeadError] =
   {
@@ -429,6 +518,7 @@ class ParseTest < Minitest::Test
   @outputs = {}
 
   @outputs[:enabled_columns] = {}
+
   a = item_hash(title: "Sapiens")
   b = item_hash(title: "Goatsong")
   c = item_hash(title: "How To")
@@ -476,6 +566,7 @@ class ParseTest < Minitest::Test
 
 
   @outputs[:features_head] = {}
+
   a = item_hash(author: "Tom Holt", title: "Goatsong")
   @outputs[:features_head][:"author"] = [a]
 
@@ -546,6 +637,7 @@ class ParseTest < Minitest::Test
 
 
   @outputs[:features_sources] = {}
+
   title = "Goatsong"
   a = item_hash(title:)
   isbn = "0312038380"
@@ -562,13 +654,12 @@ class ParseTest < Minitest::Test
   a_source = a.deep_merge(variants: [{ sources: [library] }])
   @outputs[:features_sources][:"source"] = [a_source]
 
-  site = { name: base_config.deep_fetch(:sources, :default_name_for_url),
+  site = { name: nil,
            url: "https://www.edlin.org/holt" }
   a_site = a.deep_merge(variants: [{ sources: [site] }])
   @outputs[:features_sources][:"URL source"] = [a_site]
 
-  default_name = base_config.deep_fetch(:sources, :default_name_for_url)
-  site_named = { name: default_name, url: "https://www.edlin.org/holt" }
+  site_named = { name: nil, url: "https://www.edlin.org/holt" }
   a_site_named = a.deep_merge(variants: [{ sources: [site_named] }])
   @outputs[:features_sources][:"URL source with name"] = [a_site_named]
 
@@ -648,6 +739,7 @@ class ParseTest < Minitest::Test
 
 
   @outputs[:features_start_dates] = {}
+
   a = item_hash(title: "Sapiens")
   start = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
   a_start = a.deep_merge(start)
@@ -713,6 +805,7 @@ class ParseTest < Minitest::Test
 
 
   @outputs[:features_compact_planned] = {}
+
   a_title = item_hash(title: "A Song for Nero",
                       variants: [{ format: :ebook }])
   @outputs[:features_compact_planned][:"title only"] = [a_title]
@@ -758,9 +851,8 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_compact_planned][:"duplicate sources are ignored"] = [a_genre, b_genre]
 
-  default_name = base_config.deep_fetch(:sources, :default_name_for_url)
   multi_source = [{ sources: [{ name: "Lexpub" },
-                              { name: default_name, url: "https://www.lexpublib.org" }]}]
+                              { name: nil, url: "https://www.lexpublib.org" }]}]
   a_multi_source = a_genre.deep_merge(variants: multi_source)
   b_multi_source = b_genre.deep_merge(variants: multi_source)
   @outputs[:features_compact_planned][:"multiple sources at the beginning"] = [a_multi_source, b_multi_source]
@@ -770,29 +862,347 @@ class ParseTest < Minitest::Test
 
 
   @outputs[:features_history] = {}
-  a_dates_names = item_hash(
-    title: "Fullstack Ruby",
+
+  title_a = "Fullstack Ruby"
+
+  a_dates = item_hash(
+    title: title_a,
     experiences: [{ spans: [
       { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
-        name: "#1 Why Ruby2JS is a Game Changer" },
+        amount: Reading.time("0:30") },
       { dates: Date.parse("2021/12/21")..Date.parse("2021/12/21"),
-        name: "#2 Componentized View Architecture FTW!" },
-      { dates: Date.parse("2021/2/22")..Date.parse("2021/2/22"),
-        name: "#3 String-Based Templates vs. DSLs" }] }],
+        amount: Reading.time("0:30") },
+      { dates: Date.parse("2022/3/1")..Date.parse("2022/3/1"),
+        amount: Reading.time("0:30") },
+    ] }],
   )
-  @outputs[:features_history][:"dates and names"] = [a_dates_names]
+  @outputs[:features_history][:"dates"] = [a_dates]
 
-  a_time_amounts = a.merge(
+  @outputs[:features_history][:"dates can omit unchanged month"] = [a_dates]
+
+  a_ranges = a_dates.deep_merge(
     experiences: [{ spans: [
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: Reading.time("0:35") ),
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: Reading.time("0:45") ),
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: Reading.time("0:45") )] }],
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/8"),
+        amount: Reading.time("0:30") },
+    ] }],
   )
-  @outputs[:features_history][:"time amounts"] = [a_time_amounts]
+  @outputs[:features_history][:"date ranges"] = [a_ranges]
+
+  a_adjacent = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/10"),
+        amount: Reading.time("2:30") },
+    ] }],
+  )
+  @outputs[:features_history][:"adjacent dates of same daily amount are merged into a range"] = [a_adjacent]
+
+  a_amounts = a_ranges.deep_merge(
+    experiences: [{ spans: [
+      { amount: Reading.time("0:35") },
+      { amount: Reading.time("0:45") },
+      { amount: Reading.time("0:45") },
+    ] }],
+  )
+  @outputs[:features_history][:"time amounts"] = [a_amounts]
+
+  @outputs[:features_history][:"implied time amount"] = [a_amounts]
+
+  a_implied_dates = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/8"),
+        amount: Reading.time("0:35") },
+      { dates: Date.parse("2021/12/9")..Date.parse("2021/12/9"),
+        amount: Reading.time("0:30") },
+    ] }],
+  )
+  @outputs[:features_history][:"implied dates"] = [a_implied_dates]
+
+  a_implied_range_start = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
+        amount: Reading.time("0:35") },
+      { dates: Date.parse("2021/12/7")..Date.parse("2021/12/8"),
+        amount: Reading.time("0:45") },
+      { dates: Date.parse("2021/12/9")..Date.parse("2021/12/10"),
+        amount: Reading.time("0:25") },
+    ] }],
+  )
+  @outputs[:features_history][:"implied date range starts"] = [a_implied_range_start]
+
+  a_implied_range_end = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.today,
+        amount: Reading.time("0:35") },
+    ] }],
+  )
+  @outputs[:features_history][:"implied date range end"] = [a_implied_range_end]
+
+  a_implied_range_start_and_end = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
+        amount: Reading.time("0:35") },
+      { dates: Date.parse("2021/12/7")..Date.today,
+        amount: Reading.time("0:45") },
+    ] }],
+  )
+  @outputs[:features_history][:"implied date range start and end"] =
+    [a_implied_range_start_and_end]
+
+  a_open_range = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/9"),
+        amount: Reading.time("0:35") },
+      { dates: Date.parse("2021/12/9")..Date.parse("2021/12/11"),
+        amount: Reading.time("0:25") },
+      { dates: Date.parse("2021/12/11")..Date.parse("2021/12/13"),
+        amount: Reading.time("0:25") },
+    ] }],
+  )
+  @outputs[:features_history][:"open range"] = [a_open_range]
+
+  a_open_range_dates_in_middle = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/7"),
+        amount: Reading.time("0:35") },
+      { dates: Date.parse("2021/12/7")..Date.parse("2021/12/8"),
+        amount: Reading.time("0:25") },
+      { dates: Date.parse("2021/12/9")..Date.parse("2021/12/10"),
+        amount: Reading.time("0:45") },
+      { dates: Date.parse("2021/12/11")..Date.parse("2021/12/13"),
+        amount: Reading.time("0:45") },
+    ] }],
+  )
+  @outputs[:features_history][:"open range with dates in the middle"] =
+    [a_open_range_dates_in_middle]
+
+  a_open_range_implied_end = item_hash(
+    title: title_a,
+    experiences: [{ spans:
+      a_open_range_dates_in_middle.deep_fetch(:experiences, 0, :spans).first(3)
+    }],
+  )
+  @outputs[:features_history][:"open range with implied end"] =
+    [a_open_range_implied_end]
+
+  a_repetition = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
+        amount: Reading.time("2:00") },
+      { dates: Date.parse("2021/12/7")..Date.parse("2021/12/7"),
+        amount: Reading.time("1:00") },
+    ] }],
+  )
+  @outputs[:features_history][:"repetition"] = [a_repetition]
+
+  start_date = Date.parse("2021/12/6")
+  end_date_june = Date.parse("2022/6/1")
+  days_per_month =
+    Reading::Parsing::Attributes::Experiences::HistoryTransformer::AVERAGE_DAYS_IN_A_MONTH
+  almost_6_months = (end_date_june - start_date + 1).to_i / days_per_month
+  minutes_175 = almost_6_months * 30
+  a_frequency = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: start_date..end_date_june,
+        amount: Reading::Item::TimeLength.new(minutes_175) },
+    ] }],
+  )
+  @outputs[:features_history][:"frequency"] = [a_frequency]
+
+  @outputs[:features_history][:"frequency x1 implied"] = [a_frequency]
+
+  start_date = end_date_june + 1
+  # 10 months because Date.today is stubbed above
+  about_4_months = (Date.today - start_date + 1).to_i / days_per_month
+  minutes_240 = about_4_months * 30 * 2 # multiply by 2 because x2/month this time
+  a_frequency_present = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      a_frequency.deep_fetch(:experiences, 0, :spans, 0),
+      { dates: start_date..Date.today,
+        amount: Reading::Item::TimeLength.new(minutes_240) },
+    ] }],
+  )
+  @outputs[:features_history][:"frequency until present"] = [a_frequency_present]
+
+  @outputs[:features_history][:"frequency implied until present"] = [a_frequency_present]
+
+  a_except = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/12/27")..Date.parse("2021/12/27"),
+        amount: Reading.time("1:00") },
+      { dates: Date.parse("2021/12/30")..Date.parse("2021/12/31"),
+        amount: Reading.time("2:00") },
+      { dates: Date.parse("2022/1/2")..Date.parse("2022/1/8"),
+        amount: Reading.time("7:00") },
+    ] }],
+  )
+  @outputs[:features_history][:"exception list"] = [a_except]
+
+  @outputs[:features_history][:"exception list doesn't work as expected with fixed amount"] = [a_except]
+
+  a_overwriting = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      *a_except.deep_fetch(:experiences, 0, :spans).first(2),
+      { dates: Date.parse("2022/1/2")..Date.parse("2022/1/3"),
+        amount: Reading.time("2:00") },
+      { dates: Date.parse("2022/1/4")..Date.parse("2022/1/8"),
+        amount: Reading.time("10:00") },
+    ] }],
+  )
+  @outputs[:features_history][:"overwriting"] = [a_overwriting]
+
+  @outputs[:features_history][:"overwriting can omit parentheses"] = [a_overwriting]
+
+  @outputs[:features_history][:"overwriting to zero has the same effect as exception list"] = [a_except]
+
+  a_names = a_amounts.deep_merge(
+    experiences: [{ spans: [
+      { name: "#1 Why Ruby2JS is a Game Changer" },
+      { name: "#2 Componentized View Architecture FTW!" },
+      { name: "#3 String-Based Templates vs. DSLs" },
+    ] }],
+  )
+  @outputs[:features_history][:"names"] = [a_names]
+
+  a_favorites = a_names.deep_merge(
+    experiences: [{ spans: [
+      { favorite?: true },
+      { favorite?: true },
+    ] }],
+  )
+  @outputs[:features_history][:"favorites"] = [a_favorites]
+
+  a_experiences = item_hash(
+    title: title_a,
+    experiences: [
+      { spans: [
+        { dates: Date.parse("2021/12/6")..Date.parse("2021/12/6"),
+          amount: Reading.time("0:30") },
+      ] },
+      { spans: [
+        { dates: Date.parse("2022/4/1")..Date.parse("2022/4/1"),
+          amount: Reading.time("0:30") },
+      ] },
+    ],
+  )
+  @outputs[:features_history][:"multiple experiences"] = [a_experiences]
+
+  a_variant = a_experiences.deep_merge(
+    experiences: [
+      { },
+      { variant_index: 1 },
+    ],
+  )
+  @outputs[:features_history][:"variant"] = [a_variant]
+
+  a_group = a_experiences.deep_merge(
+    experiences: [
+      { },
+      { group: "with Sam" },
+    ],
+  )
+  @outputs[:features_history][:"group"] = [a_group]
+
+  a_planned = a_names.deep_merge(
+    experiences: [{ spans: [
+      { },
+      { dates: nil },
+      { dates: nil },
+      { dates: Date.new(2022,4,18)..Date.new(2022,4,18),
+        amount: Reading.time("0:45"),
+        progress: nil,
+        name: "#4 Design Patterns on the Frontend",
+        favorite?: false },
+    ] }],
+  )
+  @outputs[:features_history][:"planned"] = [a_planned]
+
+  a_dnf = a_names.deep_merge(
+    experiences: [{ spans: [
+      { progress: 0.5 },
+      { progress: Reading.time("0:15") },
+      { progress: 0 },
+    ] }],
+  )
+  @outputs[:features_history][:"DNF"] = [a_dnf]
+
+  @outputs[:features_history][:"progress without DNF"] = [a_dnf]
+
+  title_b = "Beowulf"
+  b_pages = item_hash(
+    title: title_b,
+    experiences: [{ spans: [
+      { dates: Date.parse("2021/4/28")..Date.parse("2021/4/28"),
+        amount: 10 }
+    ] }],
+  )
+  @outputs[:features_history][:"pages amount"] = [b_pages]
+
+  @outputs[:features_history][:"pages amount without p"] = [b_pages]
+
+  b_stopping_points = item_hash(
+    title: title_b,
+    experiences: [{ spans: [
+      b_pages.deep_fetch(:experiences, 0, :spans, 0),
+      { dates: Date.parse("2021/4/30")..Date.parse("2021/4/30"),
+        amount: 10 },
+      { dates: Date.parse("2021/5/1")..Date.parse("2021/5/1"),
+        amount: 10 },
+    ] }],
+  )
+  @outputs[:features_history][:"stopping points in place of amount"] = [b_stopping_points]
+
+  @outputs[:features_history][:"stopping point with p on other side or omitted"] = [b_stopping_points]
+
+
+
+  @outputs[:"features_length, history"] = {}
+
+  a_each = a_dates.deep_merge(
+    experiences: [{ spans: [
+      { amount: Reading.time("0:30") },
+      { amount: Reading.time("0:45") },
+      { amount: Reading.time("0:30") },
+    ] }],
+  )
+  @outputs[:"features_length, history"][:"length of each"] = [a_each]
+
+  a_length_repetitions = a_dates.deep_merge(
+    variants: [{ length: Reading.time("1:30") }],
+    experiences: [{ spans: [
+      { amount: Reading.time("0:30") },
+      { amount: Reading.time("0:30") },
+      { amount: Reading.time("0:30") },
+    ] }],
+  )
+  @outputs[:"features_length, history"][:"repetitions in length"] = [a_length_repetitions]
+
+  b_done = item_hash(
+    title: title_b,
+    variants: [{ length: 144 }],
+    experiences: [{ spans: [
+      *b_stopping_points.deep_fetch(:experiences, 0, :spans),
+      { dates: Date.parse("2021/5/2")..Date.parse("2021/5/20"),
+        amount: 114 },
+    ] }],
+  )
+  @outputs[:"features_length, history"][:"done shortcut with length"] = [b_done]
 
 
 
   @outputs[:all_columns] = {}
+
   a = item_hash(title: "Sapiens")
   start = { experiences: [{ spans: [{ dates: Date.parse("2020/09/01").. }] }] }
   a_start = a.deep_merge(start)
@@ -958,7 +1368,7 @@ class ParseTest < Minitest::Test
   lebowski = item_hash(
     title: "Two Gentlemen of Lebowski",
     variants:  [{ format: :audiobook,
-                  sources: [{ name: base_config.deep_fetch(:sources, :default_name_for_url),
+                  sources: [{ name: nil,
                               url: "https://www.runleiarun.com/lebowski/" }] }],
     genres: ["historical fiction"],
   )
@@ -978,6 +1388,189 @@ class ParseTest < Minitest::Test
   )
   @outputs[:all_columns][:"realistic examples: planned"] =
     [alexander, emperor, born_crime, nero, true_grit, lebowski, how_to, weird_earth]
+
+
+  flightless_bird = item_hash(
+    rating: 3,
+    title: "Flightless Bird",
+    genres: ["podcast"],
+    variants:
+      [{
+        format: :audio,
+        sources:
+          [{
+            name: "Spotify",
+          },
+          {
+            url: "https://armchairexpertpod.com/flightless-bird",
+          }],
+      }],
+    experiences:
+      [{
+        spans:
+          [{
+            dates: Date.new(2021,10,6)..Date.new(2021,10,11),
+            amount: Reading::Item::TimeLength.new(1150),
+          },
+          {
+            dates: Date.new(2021,10,12)..Date.new(2021,12,14),
+            amount: Reading::Item::TimeLength.new(3200/7r),
+          },
+          {
+            dates: Date.new(2022,3,1)..Date.today,
+            amount: Reading::Item::TimeLength.new(21500/7r),
+          }],
+      }],
+  )
+  tbfnp = item_hash(
+    rating: 4,
+    author: "Pete Enns & Jared Byas",
+    title: "The Bible for Normal People",
+    genres: ["religion", "podcast"],
+    variants:
+      [{
+        format: :audio,
+        sources:
+          [{
+            url: "https://peteenns.com/podcast",
+          }],
+      }],
+    experiences:
+      [{
+        spans:
+          [{
+            dates: Date.new(2021,12,1)..Date.new(2021,12,1),
+            amount: Reading.time("0:50"),
+            name: "#2 Richard Rohr - A Contemplative Look at The Bible",
+          },
+          {
+            dates: Date.new(2021,12,9)..Date.new(2021,12,9),
+            amount: Reading.time("1:30"),
+            name: "#19 Megan DeFranza - The Bible and Intersex Believers",
+          },
+          {
+            dates: Date.new(2021,12,21)..Date.new(2021,12,21),
+            amount: Reading.time("1:30"),
+            name: '#160 The Risk of an "Errant" Bible',
+            favorite?: true,
+          },
+          {
+            dates: Date.new(2021,12,21)..Date.new(2021,12,21),
+            amount: Reading.time("0:50"),
+            name: "#164 Where Did Our Bible Come From?",
+            favorite?: true,
+          },
+          {
+            dates: Date.new(2022,1,1)..Date.new(2022,1,1),
+            amount: Reading.time("0:50"),
+            name: "#5 Mike McHargue - Science and the Bible",
+          },
+        ],
+      }],
+  )
+  escriba_cafe = item_hash(
+    rating: 4,
+    title: "Escriba Café",
+    genres: ["podcast"],
+    variants:
+      [{
+        format: :audio,
+        sources:
+          [{
+            url: "https://www.escribacafe.com",
+          }],
+      }],
+    experiences:
+      [{
+        spans:
+          [{
+            dates: Date.new(2021,4,16)..Date.new(2021,4,17),
+            amount: Reading.time("0:30"),
+            name: "Amor",
+          },
+          {
+            dates: Date.new(2021,4,17)..Date.new(2021,4,18),
+            amount: Reading.time("0:30"),
+            name: "Diabolus",
+          },
+          {
+            dates: Date.new(2021,4,18)..Date.new(2021,4,19),
+            amount: Reading.time("0:30"),
+            name: "Máfia",
+          },
+          {
+            dates: Date.new(2021,4,19)..Date.new(2021,4,21),
+            amount: Reading.time("0:30"),
+            name: "Piratas",
+          },
+          {
+            dates: Date.new(2021,4,21)..Date.new(2021,4,26),
+            amount: Reading.time("2:00"),
+            name: "Trilogia História do Brasil",
+          },
+          {
+            dates: Date.new(2021,4,26)..Date.new(2021,4,27),
+            amount: Reading.time("0:30"),
+            name: "Rapa-Nui",
+          },
+          {
+            dates: Date.new(2021,4,27)..Date.new(2021,4,28),
+            amount: Reading.time("0:30"),
+            name: "Espíritos",
+          },
+          {
+            dates: Date.new(2021,4,28)..Date.new(2021,4,29),
+            amount: Reading.time("0:30"),
+            name: "Inferno",
+          },
+          {
+            dates: Date.new(2021,4,29)..Date.new(2021,4,30),
+            amount: Reading.time("0:30"),
+            name: "Pompeia",
+          }],
+      }],
+  )
+  born_a_crime = item_hash(
+    rating: 4,
+    title: "Born a Crime",
+    genres: ["memoir"],
+    variants:
+      [{
+        format: :audiobook,
+        sources:
+          [{
+            name: "Lexpub",
+          }],
+        isbn: "B01DHWACVY",
+        length: Reading.time("8:44"),
+      }],
+    experiences:
+      [{
+        spans:
+          [{
+            dates: Date.new(2021,5,1)..Date.new(2021,5,1),
+            amount: Reading.time("0:47"),
+          },
+          {
+            dates: Date.new(2021,5,2)..Date.new(2021,5,2),
+            amount: Reading.time("0:23"),
+          },
+          {
+            dates: Date.new(2021,5,6)..Date.new(2021,5,15),
+            amount: Reading.time("5:00"),
+          },
+          {
+            dates: Date.new(2021,5,20)..Date.new(2021,5,20),
+            amount: Reading.time("0:40"),
+          },
+          {
+            dates: Date.new(2021,5,21)..Date.new(2021,5,23),
+            amount: Reading.time("1:54"),
+          }],
+      }],
+  )
+  @outputs[:all_columns][:"realistic examples: History column"] =
+    [flightless_bird, tbfnp, escriba_cafe, born_a_crime]
 
 
 

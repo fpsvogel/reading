@@ -14,7 +14,7 @@ module Reading
 
           def self.tweaks
             {
-              not_dates: ->(dates_list) {
+              except_dates: ->(dates_list) {
                 dates_list
                   .split(/\s*,\s*/)
                   .map { |date|
@@ -35,11 +35,11 @@ module Reading
 
           def self.regexes(segment_index)
             [
-              # entry of "except these dates"
+              # entry of exception dates ("but not on these dates")
               %r{\A
                 not
                 \s+
-                (?<not_dates>.+)
+                (?<except_dates>.+)
               \z}x,
               # normal entry
               %r{\A
@@ -58,7 +58,7 @@ module Reading
                 # planned or dates
                 (
                   (
-                    (?<planned>\?)
+                    (?<planned>\?\?)
                     |
                     (#{START_END_DATES_REGEX})
                   )
@@ -83,21 +83,20 @@ module Reading
                   )
                   (\s*\)?\s*\z|\s+)
                 )?
-                # amount
+                # amount, repetitions, frequency
                 (
                   (
                     p?(?<amount_pages>\d+)p?
                     |
                     (?<amount_time>\d+:\d\d)
-                  )
-                  (\s*\)?\s*\z|\s+)
-                )?
-                # repetitions
-                (
+                  )?
                   (
+                    \s*
                     x(?<repetitions>\d+)
-                    (/(?<frequency>day|week|month))?
-                  )
+                  )?
+                  (
+                    /(?<frequency>day|week|month)
+                  )?
                   (\s*\)?\s*\z|\s+)
                 )?
                 # favorite, name

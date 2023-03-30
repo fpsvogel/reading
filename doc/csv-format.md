@@ -481,7 +481,7 @@ The History column is especially useful for podcasts. Here's a common scenario: 
 
 ```
 \Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History
-3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- x1/week
+3|🎤Flightless Bird||||podcast|0:50 each||2021/10/06..11 x23 -- x1/week
 ```
 
 - In plain English this means "Each episode is 50 minutes long. From the 6th to the 11th of October, 2022, I listened to 23 episodes of Flightless Bird, and since then I've been listening to an episode each week."
@@ -491,38 +491,41 @@ The History column is especially useful for podcasts. Here's a common scenario: 
 But that's not the only way to listen to a podcast, and so the History column is flexible. For example, what if you stopped listening to that podcast after a while?
 
 ```
-3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week
+3|🎤Flightless Bird||||podcast|0:50 each||2021/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week
 ```
 
 - This adds, in plain English, "I stopped listening on December 14, and then on March 1 I started listening again, this time two episodes per week."
 - If one side of a date range is omitted (here `..12/14` and `3/1..`), that date is inferred from the previous/next date, or if there is no next date then it means "up to the present".
-- For any date after the first one, the year may be omitted (and the month in the second half of a date range); in these cases the year and month inferred from the context.
+- For any date after the first one, the year and month may be omitted; in these cases the year and month are inferred from the context. (The year automatically increments whenever a month appears without a year and it's earlier than the previous month, but the same thing does *not* happen with months. For example, `2021/12/31..1/1` is valid, but `2021/12/31..1` is not.)
 
 What if you miss a few days here and there? That would be cumbersome to write following the patterns we've seen so far. Resuming from the last bit in the above example, it'd be `-- 3/1.. x2/week -- 3/13..15 x0 -- x2/week -- 4/1 x0 -- 4/2.. x2/week`. That's a lot just to say "I skipped March 13-15 and April 1", so here's a more concise syntax for missing days:
 
 ```
-3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1
+3|🎤Flightless Bird||||podcast|0:50 each||2021/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1
 ```
 
 One more: what if one week you listen to a few extra episodes? Simply tack on the total number of episodes for that week, and it'll overwrite that week's two episodes from the ongoing x2/week.
 
 ```
-3|🎤Flightless Bird||||podcast|0:50 each||2022/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1 -- (4/5..11 x5)
+3|🎤Flightless Bird||||podcast|0:50 each||2021/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week -- not 3/13..15, 4/1 -- (4/5..11 x5)
 ```
 
 The parentheses are for visual clarity only; they don't make a difference to the parser.
+
+So keep in mind that wherever a date is contained in multiple History entries, the only entry that counts is the last one in the list… *unless* the conflicting entries have different names, as in the next example below.
 
 #### History: occasional item (podcast)
 
 What about a podcast that you listen to only occasionally? You may want to keep track of which episodes you've listened to.
 
 ```
-4|🎤The Bible for Normal People||||podcast|||2022/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 2023/1/1 #5 Mike McHargue - Science and the Bible
+4|🎤The Bible for Normal People||||podcast|||2021/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 1/1 #5 Mike McHargue - Science and the Bible
 ```
 
 - Here's the format of each entry: `[date] [h:mm] [star if favorite] [title]`
 - But as you can see, not every piece of information is spelled out in every entry. Wherever a length (duration) is omitted, the length from the previous entry is used, or the "each" length in the Length column if there is one (see the next example below). Wherever a date is omitted, the date from the previous entry is used if that was a single date, or (as in the above Flightless Bird example) the date after the previous entry is used if that was a date range.
 - The Length column is empty this time because the lengths are different among the episodes.
+- Note that the title must not begin with a digit. A workaround is to put the title in quotes, e.g. `2023/01/15 "10 things to do in 2023"`.
 
 OK, but what if you want to write down episode titles without having to write down every date? There's a shortcut for that too: you can have entries for the episodes sandwiched between two halves of a date range, like this:
 
@@ -535,13 +538,13 @@ OK, but what if you want to write down episode titles without having to write do
 
 #### History: planned and DNF (podcast)
 
-If you've planned out which episodes you want to listen to, you can mark them down as planned simply by a question mark (`?`) in place of the date.
+If you've planned out which episodes you want to listen to, you can mark them down as planned simply with a double question mark (`??`) in place of the date.
 
 ```
-|🎤Pray as you go||||religion,podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- ? 2:29 God with Us -- 1:34 God's Grandeur -- 1:17 Way of the Cross
+|🎤Pray as you go||||religion,podcast|||2022/07/12..17 1:39 Imaginative Contemplation -- 8/29..9/7 1:04 Acts -- ?? 2:29 God with Us -- 1:34 God's Grandeur -- 1:17 Way of the Cross
 ```
 
-- As with a date, the question mark carries over to omitted dates in subsequent entries, so only the first planned item (`God with Us`) needs a question mark.
+- As with a date, being planned carries over to subsequent entries that omit a date, so only the first planned item (`God with Us`) needs the double question mark.
 
 But then what if you don't like that podcast and you end up DNF'ing parts of it? Here's how to record that:
 
@@ -558,11 +561,11 @@ But then what if you don't like that podcast and you end up DNF'ing parts of it?
 Thus far we've been talking about podcasts, but you can use the History column to track any kind of item. Here's a TV show, for example:
 
 ```
-4|🎞️Eyes on the Prize||||history|1:00 x14||2021/1/28..2/1 x4 -- ..2/3 x5 -- 2/7 -- 2/9 x4 ---- 11/1 -- 11/2
+4|🎞️Eyes on the Prize||||history|1:00 x14||2021/1/28..2/1 x4 -- ..2/3 x5 -- 2/7 -- 2/9 x4 ---- 2021/11/1 -- 11/2
 ```
 
 - `x14` in the Length column means "There are 14 episodes in total." This gives the item a definite length. It has the same effect as writing `14:00` in the Length column and `1:00 x4` in the first entry, to make all the other entries default to one hour. A third equivalent would be to have just `1:00 each` in the Length column, have `1:00 x4` in the first entry, and then make the last entry of the first watching `2/9 x4 done`, meaning you were done after that one.
-- ` ---- ` indicates a re-watching of the show.
+- ` ---- ` indicates a re-watching of the show. A full date is required in the first entry after it.
 - So in plain English: "Each episode is an hour long, and there are 14 episodes. From the 28th of January to the 1st of February, 2021, I watched 4 episodes. From the 2nd to the 3rd of February I watched 5 episodes. On the 7th I watched another episode, and on the 9th I watched four more. In November I started the series over, watching an episode on the 1st and another on the 2nd."
 
 #### History: pages and stopping points (books)
@@ -570,7 +573,7 @@ Thus far we've been talking about podcasts, but you can use the History column t
 Books work with the History column, too.
 
 ```
-3|📕Cultish||||religion|319||2022/5/1 @31p -- 5/2 @54p -- 5/6..15 10p -- 5/20 @200p -- 5/21..23 done
+3|📕Cultish||||religion|319||2022/5/1 @31p -- 5/2 @54p -- 5/6..15 10p/day -- 5/20 @200p -- 5/21..23 done
 ```
 
 - `@` means "I stopped at", such as `5/1 @31p` meaning "On 5/1 I stopped at page 31." This is in the context of an item with a definite length, such as a book or audiobook; we've seen above that `@` in the context of an indefinitely long item (such as a podcast) means "I listened to this much of the episode".
@@ -580,7 +583,7 @@ Books work with the History column, too.
 And here's an audiobook with a History column similar to the last example:
 
 ```
-4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..15 0:30 -- 5/20 @6:50 -- 5/21..23 done
+4|🔊Born a Crime||||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..15 0:30/day -- 5/20 @6:50 -- 5/21..23 done
 ```
 
 A variant and group can be specified similar to how we've seen in the Start Dates column. For example, if you start re-reading Born a Crime but this time in print, and with a friend:
