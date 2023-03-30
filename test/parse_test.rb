@@ -455,8 +455,8 @@ class ParseTest < Minitest::Test
   b_rating = b_end.merge(rating: 5)
   @outputs[:enabled_columns][:"rating, head, start_dates, end_dates"] = [a_rating, b_rating, c]
 
-  a_length_and_amount = { variants: [{ length: "15:17" }],
-                          experiences: [{ spans: [{ amount: "15:17" }] }] }
+  a_length_and_amount = { variants: [{ length: Reading.time("15:17") }],
+                          experiences: [{ spans: [{ amount: Reading.time("15:17") }] }] }
   b_length_and_amount = { variants: [{ length: 247 }],
                           experiences: [{ spans: [{ amount: 247 }] }] }
   a_length = a_rating.deep_merge(a_length_and_amount)
@@ -523,7 +523,7 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_head][:"progress pages without p"] = [a_progress_pages]
 
-  progress_time = { experiences: [{ spans: [{ progress: "2:30" }] }] }
+  progress_time = { experiences: [{ spans: [{ progress: Reading.time("2:30") }] }] }
   a_progress_time = a_format.deep_merge(progress_time)
   @outputs[:features_head][:"progress time"] = [a_progress_time]
 
@@ -632,7 +632,7 @@ class ParseTest < Minitest::Test
   a_variant_length = item_hash(
     title:,
     variants: [a_variant_extra_info[:variants].first.merge(isbn: isbn, length: 247),
-               a_variant_extra_info[:variants].last.merge(length: "7:03")],
+               a_variant_extra_info[:variants].last.merge(length: Reading.time("7:03"))],
   )
   @outputs[:features_sources][:"length after sources ISBN and before extra info"] = [a_variant_length]
 
@@ -677,7 +677,7 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_start_dates][:"progress pages without p"] = [a_progress_pages]
 
-  a_progress_time = a_start.deep_merge(progress.call("2:30"))
+  a_progress_time = a_start.deep_merge(progress.call(Reading.time("2:30")))
   @outputs[:features_start_dates][:"progress time"] = [a_progress_time]
 
   a_progress_zero = a_start.deep_merge(progress.call(0))
@@ -706,7 +706,7 @@ class ParseTest < Minitest::Test
   a_start_twice_progress = a_start_twice.deep_merge(
     experiences: [{ spans: [{ progress: 0.5 }],
                     variant_index: 1 },
-                  { spans: [{ progress: "2:30" }] }],
+                  { spans: [{ progress: Reading.time("2:30") }] }],
   )
   @outputs[:features_start_dates][:"all features"] = [a_start_twice_progress]
 
@@ -784,9 +784,9 @@ class ParseTest < Minitest::Test
 
   a_time_amounts = a.merge(
     experiences: [{ spans: [
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:35" ),
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" ),
-      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: "0:45" )] }],
+      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: Reading.time("0:35") ),
+      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: Reading.time("0:45") ),
+      a.deep_fetch(:experiences, 0, :spans).first.merge(amount: Reading.time("0:45") )] }],
   )
   @outputs[:features_history][:"time amounts"] = [a_time_amounts]
 
@@ -802,7 +802,7 @@ class ParseTest < Minitest::Test
   a_variant_length = item_hash(
     title: "Goatsong",
     variants: [a_variant_extra_info[:variants].first.merge(isbn: isbn, length: 247),
-               a_variant_extra_info[:variants].last.merge(length: "7:03")],
+               a_variant_extra_info[:variants].last.merge(length: Reading.time("7:03"))],
   )
   a_variant_length_with_experience =
     a_variant_length.deep_merge(
@@ -819,9 +819,9 @@ class ParseTest < Minitest::Test
     variants:    [{ format: :audiobook,
                     sources: [{ name: "Hoopla" }],
                     isbn: "B00ICN066A",
-                    length: "15:17" }],
+                    length: Reading.time("15:17") }],
     experiences: [{ spans: [{ dates: Date.parse("2021/09/20")..,
-                              amount: "15:17" }] }],
+                              amount: Reading.time("15:17") }] }],
     genres: ["history"],
     notes: [
       { content: "Easy to criticize, but I like the emphasis on human happiness." },
@@ -867,9 +867,9 @@ class ParseTest < Minitest::Test
     variants:    [{ format: :audiobook,
                     sources: [{ name: "gift from neighbor Edith" }],
                     isbn: "B01NCYY3BV",
-                    length: "10:13" }],
+                    length: Reading.time("10:13") }],
     experiences: [{ spans: [{ dates: Date.parse("2020/03/21")..Date.parse("2020/04/01"),
-                              amount: "10:13",
+                              amount: Reading.time("10:13"),
                               progress: 0.5 }] }],
     genres: %w[cats],
     notes: [{ private?: true, content: "I would've felt bad if I hadn't tried." }],
@@ -878,9 +878,9 @@ class ParseTest < Minitest::Test
     rating: 1,
     title: "FiveThirtyEight Politics",
     variants:    [{ format: :audio,
-                    length: "0:30" }],
+                    length: Reading.time("0:30") }],
     experiences: [{ spans: [{ dates: Date.parse("2021/08/02")..Date.parse("2021/08/02"),
-                              amount: "0:30",
+                              amount: Reading.time("0:30"),
                               progress: 0 }],
                     variant_index: 0 }],
     genres: %w[politics podcast],
@@ -895,7 +895,7 @@ class ParseTest < Minitest::Test
     variants:    [{ format: :audiobook,
                     sources: [{ name: "Lexpub" }],
                     isbn: "B00LV2F1ZA",
-                    length: "6:36",
+                    length: Reading.time("6:36"),
                     extra_info: ["unabridged", "published 2016"] },
                   { format: :ebook,
                     sources: [{ name: "Amazon" }],
@@ -903,7 +903,7 @@ class ParseTest < Minitest::Test
                     length: 320,
                     extra_info: ["published 2014"] }],
     experiences: [{ spans: [{ dates: Date.parse("2021/08/01")..Date.parse("2021/08/15"),
-                              amount: "6:36",
+                              amount: Reading.time("6:36"),
                               progress: 1.0 }],
                     variant_index: 0 },
                   { spans: [{ dates: Date.parse("2021/08/16")..Date.parse("2021/08/28"),
@@ -912,7 +912,7 @@ class ParseTest < Minitest::Test
                     group: "with Sam",
                     variant_index: 1 },
                   { spans: [{ dates: Date.parse("2021/09/01")..Date.parse("2021/09/10"),
-                              amount: "6:36",
+                              amount: Reading.time("6:36"),
                               progress: 1.0 }],
                     variant_index: 0 }],
     genres: %w[science],

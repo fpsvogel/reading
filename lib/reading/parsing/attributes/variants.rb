@@ -14,7 +14,8 @@ module Reading
               series: (series(head) + series(variant)).presence,
               sources: sources(variant) || sources(head),
               isbn: variant[:isbn],
-              length: length(variant) || length(parsed_row[:length]),
+              length: Attributes::Shared.length(variant) ||
+                Attributes::Shared.length(parsed_row[:length], nil_if_each: true),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }&.compact&.presence
@@ -52,11 +53,6 @@ module Reading
             end
 
           config.deep_fetch(:sources, :default_name_for_url)
-        end
-
-        def length(hash)
-          hash&.dig(:length_time) ||
-            hash&.dig(:length_pages)&.to_i
         end
       end
     end

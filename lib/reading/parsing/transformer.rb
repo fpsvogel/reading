@@ -1,3 +1,4 @@
+require_relative "attributes/shared"
 require_relative "attributes/attribute"
 require_relative "attributes/rating"
 require_relative "attributes/author"

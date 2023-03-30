@@ -45,16 +45,8 @@ module Reading
             config.deep_fetch(:item_template, :experiences).first
           end
 
-          def spans_template
+          def span_template
             config.deep_fetch(:item_template, :experiences, 0, :spans).first
-          end
-
-          def progress(hash)
-            hash[:progress_time] ||
-              hash[:progress_pages]&.to_i ||
-              hash[:progress_percent]&.to_i&./(100.0) ||
-              (0 if hash[:progress_dnf]) ||
-              nil
           end
 
           def spans(start_entry, end_entry, head, parsed)
@@ -72,23 +64,20 @@ module Reading
             end
 
             variant_index = (start_entry[:variant] || 1).to_i - 1
-            length = length(parsed[:sources]&.dig(variant_index)) ||
-              length(parsed[:length])
+            length = Attributes::Shared.length(parsed[:sources]&.dig(variant_index)) ||
+              Attributes::Shared.length(parsed[:length], nil_if_each: true)
 
             [
               {
                 dates: dates,
                 amount: (length if dates),
-                progress: progress(start_entry) || progress(head) || (1.0 if end_entry),
-                name: spans_template.fetch(:name),
-                favorite?: spans_template.fetch(:favorite?),
-              }.map { |k, v| [k, v || spans_template.fetch(k)] }.to_h
+                progress: Attributes::Shared.progress(start_entry) ||
+                  Attributes::Shared.progress(head) ||
+                  (1.0 if end_entry),
+                name: span_template.fetch(:name),
+                favorite?: span_template.fetch(:favorite?),
+              }.map { |k, v| [k, v || span_template.fetch(k)] }.to_h
             ]
-          end
-
-          def length(hash)
-            hash&.dig(:length_time) ||
-              hash&.dig(:length_pages)&.to_i
           end
         end
       end
