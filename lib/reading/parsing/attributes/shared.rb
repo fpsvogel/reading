@@ -1,9 +1,11 @@
 module Reading
   module Parsing
     module Attributes
+      # Shared
       module Shared
-        # Extracts progress (percent, pages, or time) from the given hash.
-        # @param hash [Hash]
+        # Extracts the :progress sub-attribute (percent, pages, or time) from
+        # the given hash.
+        # @param hash [Hash] any parsed hash that contains progress.
         # @return [Float, Integer, Reading::Item::TimeLength]
         def self.progress(hash)
           hash[:progress_percent]&.to_f&./(100) ||
@@ -13,8 +15,8 @@ module Reading
             nil
         end
 
-        # Extracts length (pages or time) from the given hash.
-        # @param hash [Hash]
+        # Extracts the :length sub-attribute (pages or time) from the given hash.
+        # @param hash [Hash] any parsed hash that contains length.
         # @param key_name [Symbol] the first part of the keys to be checked.
         # @param nil_if_each [Boolean] if true, returns nil if hash contains :each.
         # @return [Float, Integer, Reading::Item::TimeLength]
