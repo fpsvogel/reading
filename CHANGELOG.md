@@ -1,4 +1,4 @@
-## [0.7.0] - upcoming
+## [0.7.0] - 2023-04-05
 
 - Added parsing of the History column.
 - Changed the parsing API. See the ["Usage" section of the README](https://github.com/fpsvogel/reading#parse-a-file).
