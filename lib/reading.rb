@@ -1,5 +1,5 @@
 require_relative "reading/parsing/csv"
-require_relative "reading/item/time_length.rb"
+require_relative "reading/entities/time_length.rb"
 
 # The gem's public API. See https://github.com/fpsvogel/reading#usage
 
@@ -11,8 +11,8 @@ module Reading
   end
 
   # @param string [String] a time duration in "h:mm" format.
-  # @return [Reading::Item::TimeLength]
+  # @return [Reading::Entities::TimeLength]
   def self.time(string)
-    Reading::Item::TimeLength.parse(string)
+    Reading::Entities::TimeLength.parse(string)
   end
 end

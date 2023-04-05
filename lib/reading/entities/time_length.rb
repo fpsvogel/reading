@@ -1,5 +1,5 @@
 module Reading
-  module Item
+  module Entities
     # For coercion, see https://www.mutuallyhuman.com/blog/class-coercion-in-ruby/
     class TimeLength
       include Comparable
