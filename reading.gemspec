@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
 
   spec.bindir = 'bin'
   spec.executables << 'reading'
+  spec.executables << 'readingfile'
 
   spec.require_paths = ["lib"]
 end

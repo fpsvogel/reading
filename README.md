@@ -76,7 +76,7 @@ An optional second argument specifies enabled columns. To omit the Rating column
 $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 ```
 
-To try it out on a CSV reading log, use the `readingfile` command instead:
+To see the parser output from a file (e.g. to see if it is correctly formatted), use the `readingfile` command:
 
 ```
 $ readingfile /home/alex/reading.csv
