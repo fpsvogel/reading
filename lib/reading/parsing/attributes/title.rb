@@ -10,7 +10,7 @@ module Reading
           title = parsed_row[:head][head_index][:title]
 
           if title.nil? || title.end_with?(" -")
-            raise InvalidHeadError, "Missing title"
+            raise InvalidHeadError, "Missing title in the head #{parsed_row[:head][head_index]}"
           end
 
           title
