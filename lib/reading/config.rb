@@ -53,7 +53,7 @@ module Reading
       {
         comment_character:        "\\",
         column_separator:         "|",
-        ignored_characters:       "✅💲❓⏳",
+        ignored_characters:       "✅❌💲❓⏳",
         skip_compact_planned:     false,
         # The Head column is always enabled; the others can be disabled by
         # using a custom config that omits columns from this array.
