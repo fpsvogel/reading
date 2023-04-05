@@ -412,17 +412,34 @@ class ParseTest < Minitest::Test
     "|Sapiens||2020/01/01|2019/01/01",
   :"start dates out of order" =>
     "|Sapiens||2019/01/01, 2018/01/01",
-  :"end date after the next start date for the same variant" =>
+  :"end dates out of order" =>
+    "|Sapiens||2019/01/01, 2020/01/01|2022/01/01, 2021/01/01",
+  :"missing end date" =>
+    "|Sapiens||2019/01/01, 2020/01/01|",
+  :"missing start date" =>
+    "|Sapiens||2019/01/01|2019/03/01, 2020/03/01",
+  :"overlapping experiences (end date after the next start date) for the same variant" =>
     "|Sapiens||2019/01/01, 2019/02/01|2019/03/01, ",
-  :"OK: end date after the next start date for different variants" =>
+  :"OK: overlapping experiences for different variants" =>
     "|Sapiens||2019/01/01, 2019/02/01 v2|2019/03/01, ",
-  :"future date in History" => # Date.today is stubbed above to 2022/10/1
-    "|Flightless Bird|||||||2022/10/2.. 0:30 x2/week"
+  :"dates out of order in History" =>
+    "|Flightless Bird|||||||2021/10/06 0:30 -- 2020/1/1 0:30",
+  :"experiences out of order in History" =>
+    "|Flightless Bird|||||||2021/10/06 0:30 ---- 2020/1/1 0:30",
+  :"overlapping experiences in History" =>
+    "|Flightless Bird|||||||2021/10/06..10 0:30 ---- 2021/10/9..12 0:30",
+  # Because the second entry overwrites the first one in the overlap.
+  :"OK: overlapping date ranges in History" =>
+    "|Flightless Bird|||||||2021/10/06..12 0:30 -- 2021/10/10..16 1:00",
   }
   @inputs[:errors][Reading::InvalidHistoryError] =
   {
   :"missing length/amount" =>
-    "|Flightless Bird|||||||2021/10/06"
+    "|Flightless Bird|||||||2021/10/06",
+  :"backward date range" =>
+    "|Flightless Bird|||||||2021/10/06..5 0:30",
+  :"endless date range starts in the future" => # Date.today is stubbed above to 2022/10/1
+    "|Flightless Bird|||||||2022/10/2.. 0:30",
   }
   @inputs[:errors][Reading::InvalidHeadError] =
   {

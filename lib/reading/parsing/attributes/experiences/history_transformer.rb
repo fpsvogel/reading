@@ -1,3 +1,5 @@
+require_relative "spans_validator"
+
 module Reading
   module Parsing
     module Attributes
@@ -34,6 +36,11 @@ module Reading
                 variant_index: (entries.first[:variant] || 1).to_i - 1,
               }
             }
+
+            # Raises an error if experiences overlap or are out of order.
+            Experiences::SpansValidator.validate(experiences, config, history_column: true)
+
+            experiences
           end
 
           private
@@ -330,8 +337,8 @@ module Reading
 
             days ||= date_range.count
             if days.zero?
-              raise InvalidDateError,
-                "An endless date range in the History column starts in the future: #{date_range.begin}.."
+              raise InvalidHistoryError,
+                "Backward date range in the History column: #{date_range}"
             end
 
             amount_per_date = (total_amount / days.to_r).to_i_if_whole if total_amount

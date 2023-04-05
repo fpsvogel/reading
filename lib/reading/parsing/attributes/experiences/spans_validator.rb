@@ -2,38 +2,78 @@ module Reading
   module Parsing
     module Attributes
       class Experiences < Attribute
-        # Methods to validate dates. This does not cover all the ways dates can be
-        # invalid, just the ones not caught during parsing.
-        module DatesValidator
+        # Methods to validate dates in spans. This does not cover all the ways
+        # dates can be invalid, just the ones not caught during parsing.
+        module SpansValidator
           using Util::HashArrayDeepFetch
 
           class << self
             # Checks the dates in the given experiences hash, and raises an error
             # at the first invalid date found.
-            # @param experiences [Array<Hash>]
-            # @param config [Hash]
+            # @param experiences [Array<Hash>] experience hashes.
+            # @param config [Hash] an entire config.
+            # @param history_column [Boolean] whether this validation is for
+            #   experiences from the History column.
             # @raise [InvalidDateError] if any date is invalid.
-            def validate(experiences, config)
-              validate_start_dates_are_in_order(experiences) if start_dates_column?(config)
-              validate_end_dates_are_in_order(experiences) if end_dates_column?(config)
-              validate_experiences_of_same_variant_do_not_overlap(experiences)  if both_date_columns?(config)
+            def validate(experiences, config, history_column: false)
+              if both_date_columns?(config)
+                validate_number_of_start_dates_and_end_dates(experiences)
+              end
+
+              if start_dates_column?(config) || history_column
+                validate_start_dates_are_in_order(experiences)
+              end
+
+              if end_dates_column?(config) || history_column
+                validate_end_dates_are_in_order(experiences)
+              end
+
+              if both_date_columns?(config) || history_column
+                validate_experiences_of_same_variant_do_not_overlap(experiences)
+              end
+
               validate_spans_are_in_order_and_not_overlapping(experiences)
             end
 
             private
 
+            # Whether the Start Dates column is enabled.
+            # @return [Boolean]
             def start_dates_column?(config)
               config.fetch(:enabled_columns).include?(:start_dates)
             end
 
+            # Whether the End Dates column is enabled.
+            # @return [Boolean]
             def end_dates_column?(config)
               config.fetch(:enabled_columns).include?(:end_dates)
             end
 
+            # Whether both the Start Dates and End Dates columns are enabled.
+            # @return [Boolean]
             def both_date_columns?(config)
               start_dates_column?(config) && end_dates_column?(config)
             end
 
+            # Raises an error if there are more end dates than start dates, or
+            # if there is more than one more start date than end dates.
+            # @raise [InvalidDateError]
+            def validate_number_of_start_dates_and_end_dates(experiences)
+              both_dates, not_both_dates = experiences
+                .filter { |exp| exp[:spans].first&.dig(:dates) }
+                .map { |exp| [exp[:spans].first[:dates].begin, exp[:spans].last[:dates].end] }
+                .partition { |start_date, end_date| start_date && end_date }
+
+              all_dates_paired = not_both_dates.empty?
+              last_date_started_present = not_both_dates.count == 1 && not_both_dates.first
+
+              unless all_dates_paired || last_date_started_present
+                raise InvalidDateError, "Start dates or end dates are missing"
+              end
+            end
+
+            # Raises an error if the spans' first start dates are not in order.
+            # @raise [InvalidDateError]
             def validate_start_dates_are_in_order(experiences)
               experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
@@ -45,6 +85,8 @@ module Reading
                 end
             end
 
+            # Raises an error if the spans' last end dates are not in order.
+            # @raise [InvalidDateError]
             def validate_end_dates_are_in_order(experiences)
               experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
@@ -56,6 +98,8 @@ module Reading
                 end
             end
 
+            # Raises an error if two experiences of the same variant overlap.
+            # @raise [InvalidDateError]
             def validate_experiences_of_same_variant_do_not_overlap(experiences)
               experiences
                 .group_by { |exp| exp[:variant_index] }
@@ -71,12 +115,17 @@ module Reading
                 end
             end
 
+            # Raises an error if the spans within an experience are out of order
+            # or if the spans overlap.
+            # @raise [InvalidDateError]
             def validate_spans_are_in_order_and_not_overlapping(experiences)
               experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .each do |exp|
                   exp[:spans]
                     .map { |span| span[:dates] }
+                    # Exclude nil dates (planned entries in History).
+                    .reject { |dates| dates.nil? }
                     .each do |dates|
                       if dates.begin && dates.end && dates.begin > dates.end
                         raise InvalidDateError, "A date range is backward"
@@ -86,8 +135,7 @@ module Reading
                       if a.begin > b.begin || a.end > b.end
                         raise InvalidDateError, "Dates are not in order"
                       end
-                      if a.cover?(b.begin || a.begin || a.end) ||
-                          b.cover?(a.begin || b.begin || b.end)
+                      if a.cover?(b.begin + 1)
                         raise InvalidDateError, "Dates are overlapping"
                       end
                     end

@@ -1,4 +1,4 @@
-require_relative "dates_validator"
+require_relative "spans_validator"
 
 module Reading
   module Parsing
@@ -25,10 +25,13 @@ module Reading
           # @return [Array<Hash>] an array of experiences; see
           #   Config#default_config[:item_template][:experiences]
           def transform
-            start_dates_not_empty = parsed_row[:start_dates].presence ||
-            ([{}] * (parsed_row[:end_dates]&.count || 1))
-            start_end_dates = start_dates_not_empty
-              .zip(parsed_row[:end_dates] || [])
+            size = [parsed_row[:start_dates]&.count || 0, parsed_row[:end_dates]&.count || 0].max
+            # Pad start dates with {} and end dates with nil up to the size of
+            # the larger of the two.
+            start_dates = Array.new(size) { |i| parsed_row[:start_dates]&.dig(i) || {} }
+            end_dates = Array.new(size) { |i| parsed_row[:end_dates]&.dig(i) || nil }
+
+            start_end_dates = start_dates.zip(end_dates).presence || [[{}, nil]]
 
             experiences_with_dates = start_end_dates.map { |start_entry, end_entry|
               {
@@ -40,7 +43,7 @@ module Reading
 
             if experiences_with_dates
               # Raises an error if any sequence of dates does not make sense.
-              Experiences::DatesValidator.validate(experiences_with_dates, config)
+              Experiences::SpansValidator.validate(experiences_with_dates, config)
             end
 
             experiences_with_dates
