@@ -57,12 +57,12 @@ module Reading
         end
 
         # The name for the given URL string, according to
-        # config[:sources][:names_from_urls] or a default.
+        # config[:source_names_from_urls], or nil.
         # @param url [String] a URL.
-        # @return [String]
+        # @return [String, nil]
         def url_name(url)
           config
-            .deep_fetch(:sources, :names_from_urls)
+            .fetch(:source_names_from_urls)
             .each do |url_part, name|
               if url.include?(url_part)
                 return name

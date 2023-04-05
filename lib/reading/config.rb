@@ -11,7 +11,7 @@ module Reading
     attr_reader :hash
 
     # @param custom_config [Hash] a custom config which overrides the defaults,
-    #   e.g. { enabled_columns: %i[head end_dates] }
+    #   e.g. { enabled_columns: [:head, :end_dates] }
     def initialize(custom_config = {})
       @custom_config = custom_config
 
@@ -84,18 +84,15 @@ module Reading
             piece:     "✏️",
             website:   "🌐",
           },
-        sources:
+        source_names_from_urls:
           {
-            names_from_urls:
-              {
-                "youtube.com"         => "YouTube",
-                "youtu.be"            => "YouTube",
-                "books.google.com"    => "Google Books",
-                "archive.org"         => "Internet Archive",
-                "thegreatcourses.com" => "The Great Courses",
-                "librivox.org"        => "LibriVox",
-                "tv.apple.com"        => "Apple TV",
-              },
+            "youtube.com"         => "YouTube",
+            "youtu.be"            => "YouTube",
+            "books.google.com"    => "Google Books",
+            "archive.org"         => "Internet Archive",
+            "thegreatcourses.com" => "The Great Courses",
+            "librivox.org"        => "LibriVox",
+            "tv.apple.com"        => "Apple TV",
           },
         # The structure of an item, along with default values.
         # Wherever an array of hashes ends up with no data (i.e. equal to the

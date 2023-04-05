@@ -14,20 +14,18 @@ class ParseTest < Minitest::Test
 
   def test_custom_config_is_deep_merged_with_default_config
     custom_comment_char = "#"
-    custom_enabled_columns = %i[head end_dates]
+    custom_enabled_columns = [:head, :end_dates]
     extra_name_from_urls = { "gutenberg.org" => "Project Gutenberg" }
 
     c = Reading::Config.new(
       comment_character: custom_comment_char,
       enabled_columns: custom_enabled_columns,
-      sources: {
-        names_from_urls: extra_name_from_urls,
-      },
+      source_names_from_urls: extra_name_from_urls,
     )
     default_config = c.send(:default_config).merge(regex: c.send(:regex_config))
     default_config[:comment_character] = custom_comment_char
     default_config[:enabled_columns]= custom_enabled_columns
-    default_config[:sources][:names_from_urls].merge!(extra_name_from_urls)
+    default_config[:source_names_from_urls].merge!(extra_name_from_urls)
 
     assert_equal default_config, c.hash
   end
@@ -50,7 +48,7 @@ class ParseTest < Minitest::Test
   end
 
   def test_nonexistent_enabled_columns_raise_error
-    custom_enabled_columns = %i[sources lol_nonexistent]
+    custom_enabled_columns = [:sources, :lol_nonexistent]
 
     assert_raises Reading::ConfigError do
       c = Reading::Config.new(enabled_columns: custom_enabled_columns)

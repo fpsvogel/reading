@@ -320,7 +320,7 @@ parsed_items = [{
         }],
       sources:
         [{
-          name: "Internet Archive", # see default_config[:sources][:names_from_urls]
+          name: "Internet Archive", # see default_config[:source_names_from_urls]
           url: "https://archive.org/details/the-fellowship-of-the-ring_soundscape-by-phil-dragash",
         }],
       isbn: nil,
