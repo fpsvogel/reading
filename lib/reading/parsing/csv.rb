@@ -37,9 +37,9 @@ module Reading
 
       # Validates a path or stream (string, file, etc.) of a CSV reading log,
       # builds the config, and initializes the parser and transformer.
-      # @param path [String] path to the CSV file; if nil, stream is used instead.
+      # @param path [String] path to the CSV file; used if no stream is given.
       # @param stream [Object] an object responding to #each_linewith CSV row(s);
-      #   used if no path is given.
+      #   if nil, path is used instead.
       # @param config [Hash] a custom config which overrides the defaults,
       #   e.g. { errors: { styling: :html } }
       def initialize(path = nil, stream: nil, config: {})
@@ -57,7 +57,7 @@ module Reading
       #   Config#default_config[:item_template]. The Structs are identical in
       #   structure to that Hash (with every inner Hash replaced by a Struct).
       def parse
-        input = @path ? File.open(@path) : @stream
+        input = @stream || File.open(@path)
         items = []
 
         input.each_line do |line|
@@ -83,14 +83,14 @@ module Reading
       # @raise [FileError] if the given path is invalid.
       # @raise [ArgumentError] if both stream and path are nil.
       def validate_path_or_stream(path, stream)
-        if path
+        if stream && stream.respond_to?(:each_line)
+          return true
+        elsif path
           if !File.exist?(path)
             raise FileError, "File not found! #{path}"
           elsif File.directory?(path)
             raise FileError, "A file is expected, but the path given is a directory: #{path}"
           end
-        elsif stream && stream.respond_to?(:each_line)
-          return true
         else
           raise ArgumentError,
             "Either a file path or a stream (string, file, etc.) must be provided."

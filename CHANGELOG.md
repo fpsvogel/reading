@@ -1,3 +1,7 @@
+## [0.8.0] - upcoming
+
+- Changed the behavior of `Reading::parse` so that if both a `stream` and a `path` are given, the `stream` is the one that is used.
+
 ## [0.7.0] - 2023-04-05
 
 - Added parsing of the History column.
