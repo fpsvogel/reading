@@ -462,10 +462,8 @@ class ParseTest < Minitest::Test
     "|Sapiens||||||||something",
   :"empty column beyond the number of enabled columns" =>
     "|Sapiens||||||||| ",
-  :"multiple other columns in a compact planned item when only Sources is allowed" =>
-    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
   }
-  # These are examples of missing columns that do NOT raise an error during parsing.
+  # Examples of bad rows, such as missing columns, that do NOT raise an error.
   # I *could* add more validations to avoid these, but for me these never happen
   # because I view my reading.csv with color-coded columns (Rainbow CSV extension
   # for VS Code). Even so, I'm documenting these odd cases here.
@@ -481,6 +479,9 @@ class ParseTest < Minitest::Test
     "|Sapiens||2019/01/01|2020/01/01|15:17",
   :"OK: missing Notes column (History is parsed as Notes)" =>
     "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
+  # OK because in these cases the row is assumed to be a full row.
+  :"OK: multiple other columns in a compact planned item when only Sources is allowed" =>
+    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
   }
 
 

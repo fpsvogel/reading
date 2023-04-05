@@ -21,7 +21,8 @@ module Reading
         # @return [Boolean]
         def self.match?(row_string, config)
           row_string.lstrip.start_with?(config.fetch(:comment_character)) &&
-            row_string.match?(config.deep_fetch(:regex, :formats))
+            row_string.match?(config.deep_fetch(:regex, :formats)) &&
+            row_string.count(config.fetch(:column_separator)) <= column_classes.count - 1
         end
       end
     end
