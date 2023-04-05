@@ -11,14 +11,14 @@ Gem::Specification.new do |spec|
   spec.license       = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
 
-  spec.add_runtime_dependency "pastel"
+  spec.add_runtime_dependency "pastel", "~> 0.8"
 
-  spec.add_development_dependency "debug"
-  spec.add_development_dependency "minitest"
-  spec.add_development_dependency "minitest-reporters"
-  spec.add_development_dependency "pretty-diffs"
-  spec.add_development_dependency "amazing_print"
-  spec.add_development_dependency "rubycritic"
+  spec.add_development_dependency "debug", "~> 1.7"
+  spec.add_development_dependency "minitest", "~> 5.18"
+  spec.add_development_dependency "minitest-reporters", "~> 1.6"
+  spec.add_development_dependency "pretty-diffs", "~> 1.0"
+  spec.add_development_dependency "amazing_print", "~> 1.4"
+  spec.add_development_dependency "rubycritic", "~> 4.7"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
