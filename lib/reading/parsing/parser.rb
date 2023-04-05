@@ -75,8 +75,8 @@ module Reading
       # @return [Hash{Class => String}] a hash whose keys are classes inheriting
       #   Parsing::Rows::Column.
       def extract_columns(string)
-        clean_string = string.dup.force_encoding(Encoding::UTF_8)
-        column_strings = clean_string.split(config.fetch(:column_separator))
+        string = string.dup.force_encoding(Encoding::UTF_8)
+        column_strings = string.split(config.fetch(:column_separator))
 
         row_types = [Rows::Regular, Rows::CompactPlanned, Rows::Comment]
         column_classes = row_types
