@@ -434,6 +434,10 @@ class ParseTest < Minitest::Test
   }
   @inputs[:errors][Reading::InvalidHistoryError] =
   {
+  :"missing first date" =>
+    "|Flightless Bird|||||||0:30",
+  :"incomplete first date" =>
+    "|Flightless Bird|||||||10/06 0:30",
   :"missing length/amount" =>
     "|Flightless Bird|||||||2021/10/06",
   :"backward date range" =>

@@ -150,6 +150,10 @@ module Reading
               active[:day] = start_day
             end
 
+            unless active[:day] && active[:month] && active[:year]
+              raise InvalidHistoryError, "Missing or incomplete first date"
+            end
+
             duplicate_open_range = !start_day && active[:open_range]
             date_range = date_range(entry, active, duplicate_open_range:)
 
