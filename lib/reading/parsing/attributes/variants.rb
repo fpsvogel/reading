@@ -18,7 +18,7 @@ module Reading
               format: variant[:format] || head[:format],
               series: (series(head) + series(variant)).presence,
               sources: sources(variant) || sources(head),
-              isbn: variant[:isbn],
+              isbn: variant[:isbn] || variant[:asin],
               length: Attributes::Shared.length(variant) ||
                 Attributes::Shared.length(parsed_row[:length]),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),

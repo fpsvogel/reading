@@ -5,6 +5,18 @@ module Reading
         # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column
         # and https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants
         class Sources < Column
+          SOURCES_PARSING_ERRORS = {
+            "Missing comma before URL(s) in the Sources column" =>
+              ->(source) {
+                source.match?(/\shttps?:\/\//) || source.scan(/https?:\/\//).count > 1
+              },
+            "The ISBN/ASIN must be placed after sources in the Sources column" =>
+              ->(source) {
+                source.match?(/\A#{ISBN_REGEX}/o) || source.match(/\A#{ASIN_REGEX}/o)
+              },
+          }
+
+
           def self.split_by_format?
             true
           end
@@ -19,7 +31,17 @@ module Reading
 
           def self.tweaks
             {
-              sources: -> { _1.split(/\s*,\s*/) },
+              sources: -> {
+                sources = _1.split(/\s*,\s*/)
+
+                SOURCES_PARSING_ERRORS.each do |message, check|
+                  if sources.any? { |source| check.call(source) }
+                    raise ParsingError, message
+                  end
+                end
+
+                sources
+              },
             }
           end
 
@@ -44,7 +66,11 @@ module Reading
                   ,?(\s+|\z)
                 )?
                 (
-                  (?<isbn>(\d{3}[-\s]?)?[A-Z\d]{10})
+                  (
+                    (?<isbn>#{ISBN_REGEX})
+                    |
+                    (?<asin>#{ASIN_REGEX})
+                  )
                   ,?(\s+|\z)
                 )?
                 (
@@ -52,10 +78,15 @@ module Reading
                   |
                   (?<length_time>\d+:\d\d)
                 )?
-              \z}x if  segment_index.zero?),
+              \z}xo if  segment_index.zero?),
               *Column::SHARED_REGEXES[:series_and_extra_info],
             ].compact
           end
+
+          private
+
+          ISBN_REGEX = /(\d{3}[-\s]?)?\d{10}/
+          ASIN_REGEX = /B0[A-Z\d]{8}/
         end
       end
     end

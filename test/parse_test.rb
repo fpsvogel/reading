@@ -393,6 +393,14 @@ class ParseTest < Minitest::Test
     "a|Sapiens",
   :"comment containing a format emoji (matched as compact planned)" =>
     "\\Testing a row with 📕",
+  :"no comma before URL source after named source" =>
+    "|Goatsong|Little Library https://www.edlin.org/holt",
+  :"no comma between URL sources" =>
+    "|Goatsong|https://www.edlin.org/holt https://www.holt.com",
+  :"ISBN/ASIN before sources" =>
+    "|Goatsong|0312038380 Little Library",
+  :"OK: ISBN/ASIN as part of a source name" =>
+    "|Goatsong|https://archive.org/details/isbn_9780767910422",
   :"date not in yyyy/mm/dd format" =>
     "|Sapiens||2019-01-01|2020/01/01",
   :"start date content without a date" =>
