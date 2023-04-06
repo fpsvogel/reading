@@ -6,11 +6,11 @@ module Reading
         # Extracts the :progress sub-attribute (percent, pages, or time) from
         # the given hash.
         # @param hash [Hash] any parsed hash that contains progress.
-        # @return [Float, Integer, Reading::Entities::TimeLength]
+        # @return [Float, Integer, Reading::TimeLength]
         def self.progress(hash)
           hash[:progress_percent]&.to_f&./(100) ||
             hash[:progress_pages]&.to_i ||
-            hash[:progress_time]&.then { Entities::TimeLength.parse _1 } ||
+            hash[:progress_time]&.then { TimeLength.parse _1 } ||
             (0 if hash[:progress_dnf]) ||
             (1.0 if hash[:progress_done]) ||
             nil
@@ -29,12 +29,12 @@ module Reading
         #   that e.g. "1:00 x14" gives a length of 1 hour instead of 14 hours.
         #   This is useful for the History column, where that 1 hour can be used
         #   as the default amount.
-        # @return [Float, Integer, Reading::Entities::TimeLength]
+        # @return [Float, Integer, Reading::TimeLength]
         def self.length(hash, key_name: :length, episodic: false, ignore_repetitions: false)
           return nil unless hash
 
           length = hash[:"#{key_name}_pages"]&.to_i ||
-            hash[:"#{key_name}_time"]&.then { Entities::TimeLength.parse _1 }
+            hash[:"#{key_name}_time"]&.then { TimeLength.parse _1 }
 
           return nil unless length
 

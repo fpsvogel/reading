@@ -1035,7 +1035,7 @@ class ParseTest < Minitest::Test
     title: title_a,
     experiences: [{ spans: [
       { dates: start_date..end_date_june,
-        amount: Reading::Entities::TimeLength.new(minutes_175) },
+        amount: Reading::TimeLength.new(minutes_175) },
     ] }],
   )
   @outputs[:features_history][:"frequency"] = [a_frequency]
@@ -1051,7 +1051,7 @@ class ParseTest < Minitest::Test
     experiences: [{ spans: [
       a_frequency.deep_fetch(:experiences, 0, :spans, 0),
       { dates: start_date..Date.today,
-        amount: Reading::Entities::TimeLength.new(minutes_240) },
+        amount: Reading::TimeLength.new(minutes_240) },
     ] }],
   )
   @outputs[:features_history][:"frequency until present"] = [a_frequency_present]
@@ -1433,15 +1433,15 @@ class ParseTest < Minitest::Test
         spans:
           [{
             dates: Date.new(2021,10,6)..Date.new(2021,10,11),
-            amount: Reading::Entities::TimeLength.new(1150),
+            amount: Reading::TimeLength.new(1150),
           },
           {
             dates: Date.new(2021,10,12)..Date.new(2021,12,14),
-            amount: Reading::Entities::TimeLength.new(3200/7r),
+            amount: Reading::TimeLength.new(3200/7r),
           },
           {
             dates: Date.new(2022,3,1)..Date.today,
-            amount: Reading::Entities::TimeLength.new(21500/7r),
+            amount: Reading::TimeLength.new(21500/7r),
           }],
       }],
   )
