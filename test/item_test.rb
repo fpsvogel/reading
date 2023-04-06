@@ -3,21 +3,29 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require_relative "test_helper"
 
 require "reading/item"
-require "reading/util/hash_to_struct"
+require "reading/util/hash_to_data"
 require "reading"
 
 class ItemTest < Minitest::Test
-  using Reading::Util::HashToStruct
+  using Reading::Util::HashToData
 
   def test_all_item_attributes_can_be_accessed
-    item = Reading::Item.new(BOOK)
+    book = Reading::Item.new(BOOK)
+    podcast = Reading::Item.new(PODCAST)
 
-    # Convert to Struct and back again because #to_struct converts nested Hashes
-    # to Structs, but #to_h converts only the top level back to a Hash.
-    BOOK.to_struct.to_h.each do |key, value|
-      assert_equal value, item.send(key)
+    # Convert to Data and back again because #to_data converts nested Hashes
+    # to Datas, but #to_h converts only the top level back to a Hash.
+    BOOK.to_data.to_h.each do |key, value|
+      assert_equal value, book.send(key)
+    end
+
+    PODCAST.to_data.to_h.each do |key, value|
+      debugger if value.nil?
+      assert_equal value, podcast.send(key)
     end
   end
+
+
 
   private
 
@@ -114,7 +122,6 @@ class ItemTest < Minitest::Test
   PODCAST =
     {
       rating: 3,
-      author: nil,
       title: "Flightless Bird",
       genres: ["podcast"],
       variants:
