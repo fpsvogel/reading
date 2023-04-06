@@ -7,21 +7,14 @@ require "reading"
 class ParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge
   using Reading::Util::HashArrayDeepFetch
-  using Reading::Util::HashToStruct
 
   self.class.attr_reader :inputs, :outputs, :base_config
 
-  def inputs
-    self.class.inputs
-  end
+  def inputs = self.class.inputs
 
-  def outputs
-    self.class.outputs
-  end
+  def outputs = self.class.outputs
 
-  def base_config
-    self.class.base_config
-  end
+  def base_config = self.class.base_config
 
   @base_config = Reading::Config.new.hash
 
@@ -1640,7 +1633,7 @@ class ParseTest < Minitest::Test
   # the item template in config.
   def tidy(hash, key)
     hash.fetch(key).map { |item_hash|
-      without_blank_hashes(item_hash).to_struct
+      without_blank_hashes(item_hash)
     }
   end
 

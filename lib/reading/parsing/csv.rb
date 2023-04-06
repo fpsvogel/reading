@@ -3,7 +3,6 @@ require_relative "../util/blank"
 require_relative "../util/string_remove"
 require_relative "../util/string_truncate"
 require_relative "../util/numeric_to_i_if_whole"
-require_relative "../util/hash_to_struct"
 require_relative "../util/hash_deep_merge"
 require_relative "../util/hash_array_deep_fetch"
 require_relative "../util/hash_compact_by_template"
@@ -31,8 +30,6 @@ module Reading
     # inspired by the Parslet gem: https://kschiess.github.io/parslet/transform.html
     #
     class CSV
-      using Util::HashToStruct
-
       private attr_reader :parser, :transformer
 
       # Validates a path or stream (string, file, etc.) of a CSV reading log,
@@ -72,7 +69,7 @@ module Reading
           items += row_items
         end
 
-        items.map(&:to_struct)
+        items
       ensure
         input&.close if input.respond_to?(:close)
       end

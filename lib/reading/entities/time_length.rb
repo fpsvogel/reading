@@ -1,6 +1,7 @@
 module Reading
   module Entities
-    # For coercion, see https://www.mutuallyhuman.com/blog/class-coercion-in-ruby/
+    # The length of an item when it is a time, as opposed to pages. (Pages are
+    # represented simply with an Integer.)
     class TimeLength
       include Comparable
 
@@ -108,6 +109,7 @@ module Reading
       end
 
       # TODO: add coercion for pages (nonzero Integer)
+      # See https://www.mutuallyhuman.com/blog/class-coercion-in-ruby
       # @param other [Integer] must be zero.
       def coerce(other)
         if other.zero?

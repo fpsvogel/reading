@@ -36,6 +36,6 @@ class CSVTest < Minitest::Test
     items = Reading::Parsing::CSV.new(file.path, stream: string).parse
 
     assert_equal 1, items.count
-    assert_equal "Sapiens", items.first.title
+    assert_equal "Sapiens", items.first[:title]
   end
 end

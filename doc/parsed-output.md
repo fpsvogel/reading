@@ -286,7 +286,7 @@ That would be parsed to:
 # e.g. item.variants instead of item[:variants].
 # But Hashes are easier to show in a code snippet.
 parsed_items = [{
-  rating: 4, #
+  rating: 4,
   author: "J. R. R. Tolkien",
   title: "The Fellowship of the Ring",
   genres: ["fiction"],
@@ -343,7 +343,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2020,12,23)..
+          dates: Date.new(2020,12,23)..,
           progress: nil,
           amount: nil,
           name: nil,
@@ -352,7 +352,7 @@ parsed_items = [{
       group: "with Hannah",
       variant_index: 1,
     }],
-  notes: # Notes
+  notes:
     [{
       blurb?: true,
       private?: false,
@@ -419,7 +419,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,10,11)..Date.new(2022,11,17)
+          dates: Date.new(2022,10,11)..Date.new(2022,11,17),
           progress: 1.0,
           amount: "1:00",
           name: nil,
@@ -431,7 +431,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,10,18)..Date.new(2022,10,24)
+          dates: Date.new(2022,10,18)..Date.new(2022,10,24),
           progress: 1.0,
           amount: "3:00",
           name: nil,
@@ -443,7 +443,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,10,25)..Date.new(2022,11,12)
+          dates: Date.new(2022,10,25)..Date.new(2022,11,12),
           progress: 1.0,
           amount: "2:00",
           name: nil,
@@ -455,7 +455,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,11,14)..Date.new(2022,11,14)
+          dates: Date.new(2022,11,14)..Date.new(2022,11,14),
           progress: 1.0,
           amount: "0:50",
           name: "#30 Leaf Blowers",
@@ -467,8 +467,8 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,11,15)..Date.new(2022,11,15)
-          progress: 0.25,
+          dates: Date.new(2022,11,15)..Date.new(2022,11,15),
+          progress: Reading.time("0:15"),
           amount: "1:00",
           name: "Baseball",
           favorite?: false,
@@ -479,7 +479,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: Date.new(2022,11,15)..Date.new(2022,11,15)
+          dates: Date.new(2022,11,15)..Date.new(2022,11,15),
           progress: 1.0,
           amount: "3:00",
           name: nil,
@@ -491,7 +491,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: nil
+          dates: nil,
           progress: nil,
           amount: "1:00",
           name: "#32 Soft Drinks",
@@ -503,7 +503,7 @@ parsed_items = [{
     {
       spans:
         [{
-          dates: nil
+          dates: nil,
           progress: nil,
           amount: "1:00",
           name: "Christmas",
