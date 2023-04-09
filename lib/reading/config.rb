@@ -150,6 +150,22 @@ module Reading
                 content: nil,
               }],
           },
+        item_view:
+          {
+            name_separator: " 〜 ",
+            # Items rated this or above get a star. If nil, number ratings are shown instead.
+            minimum_rating_for_star: 5,
+            url_from_isbn: "https://www.goodreads.com/book/isbn?isbn=%{isbn}",
+            types:
+              {
+                book: { emoji: "📕", from_formats: %i[print ebook audiobook pdf] },
+                course: { emoji: "🏫", from_formats: %i[website] },
+                piece: { emoji: "✏️" },
+                video: { emoji: "🎞️" },
+                audio: { emoji: "🎤" },
+              },
+            default_type: :book,
+          },
       }
     end
 

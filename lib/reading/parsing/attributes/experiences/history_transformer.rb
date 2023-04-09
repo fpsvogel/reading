@@ -304,11 +304,11 @@ module Reading
           # Distributes an amount across the given date(s).
           # @param date_or_range [Date, Range<Date>] the date or range across
           #   which the amount will be split up.
-          # @param amount [Float, Integer, Reading::TimeLength] amount in
+          # @param amount [Float, Integer, Reading::Item::TimeLength] amount in
           #   pages or time.
           # @param repetitions [Integer] e.g. "x4" in a History entry.
           # @param frequency [Integer] e.g. "/week" in a History entry.
-          # @return [Hash{Date => Float, Integer, Reading::TimeLength}]
+          # @return [Hash{Date => Float, Integer, Reading::Item::TimeLength}]
           def distribute_amount_across_date_range(date_or_range, amount, repetitions, frequency)
             unless amount
               raise InvalidHistoryError, "Missing length or amount"

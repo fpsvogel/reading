@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "debug", "~> 1.7"
   spec.add_development_dependency "minitest", "~> 5.18"
   spec.add_development_dependency "minitest-reporters", "~> 1.6"
+  spec.add_development_dependency "shoulda-context", "~> 2.0"
   spec.add_development_dependency "pretty-diffs", "~> 1.0"
   spec.add_development_dependency "amazing_print", "~> 1.4"
   spec.add_development_dependency "rubycritic", "~> 4.7"
