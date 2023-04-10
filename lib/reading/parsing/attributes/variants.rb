@@ -8,7 +8,7 @@ module Reading
         # @param parsed_row [Hash] a parsed row (the intermediate hash).
         # @param head_index [Integer] current item's position in the Head column.
         # @return [Array<Hash>] an array of variants; see
-        #   Config#default_config[:item_template][:variants]
+        #   Config#default_config[:item][:template][:variants]
         def transform_from_parsed(parsed_row, head_index)
           head = parsed_row[:head][head_index]
 
@@ -29,7 +29,7 @@ module Reading
         # A shortcut to the variant template.
         # @return [Hash]
         def template
-          config.deep_fetch(:item_template, :variants).first
+          config.deep_fetch(:item, :template, :variants).first
         end
 
         # The :series sub-attribute for the given parsed hash.

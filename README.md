@@ -93,7 +93,7 @@ file_path = "/home/user/reading.csv"
 items = Reading.parse(file_path)
 ```
 
-This returns an array of Structs, each representing an item (such as a book or podcast) structured like the template hash in `Config#default_config[:item_template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+This returns an array of Structs, each representing an item (such as a book or podcast) structured like the template hash in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 If instead of a file path you want to directly parse a string (or anything else responding to `#each_line`, such as a `File`):
 

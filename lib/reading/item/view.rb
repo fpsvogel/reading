@@ -32,7 +32,7 @@ module Reading
       # @param config [Hash] an entire config.
       # @return [String, Integer, Float]
       def extract_star_or_rating(item, config)
-        minimum_rating = config.deep_fetch(:item_view, :minimum_rating_for_star)
+        minimum_rating = config.deep_fetch(:item, :view, :minimum_rating_for_star)
         if minimum_rating
           "⭐" if item.rating && item.rating >= minimum_rating
         else
@@ -51,7 +51,7 @@ module Reading
         item.variants.map { |variant|
           isbn = variant.isbn
           if isbn
-            url = config.deep_fetch(:item_view, :url_from_isbn).sub('%{isbn}', isbn)
+            url = config.deep_fetch(:item, :view, :url_from_isbn).sub('%{isbn}', isbn)
           else
             url = variant.sources.map { |source| source.url }.compact.first
           end
@@ -80,7 +80,7 @@ module Reading
             end
           }
 
-          name_separator = config.deep_fetch(:item_view, :name_separator)
+          name_separator = config.deep_fetch(:item, :view, :name_separator)
           series_and_extra_info = name_separator +
             (pretty_series + variant.extra_info).join(name_separator)
         end
@@ -93,7 +93,7 @@ module Reading
       # @param config [Hash] an entire config.
       # @return [String]
       def extract_type_emoji(format, config)
-        types = config.deep_fetch(:item_view, :types)
+        types = config.deep_fetch(:item, :view, :types)
 
         return types.deep_fetch(format, :emoji) if types.has_key?(format)
 
@@ -102,7 +102,7 @@ module Reading
           &.first # key
 
         types.deep_fetch(
-          type || config.deep_fetch(:item_view, :default_type),
+          type || config.deep_fetch(:item, :view, :default_type),
           :emoji,
         )
       end

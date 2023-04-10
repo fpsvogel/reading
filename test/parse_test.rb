@@ -229,13 +229,6 @@ class ParseTest < Minitest::Test
     "\\❓HISTORICAL FICTION @Lexpub:⚡💲Tom Holt - A Song for Nero ✅@Hoopla ✅🔊True Grit",
   }
 
-  # Stub Date.today so that the endless date ranges below aren't needlessly long.
-  class ::Date
-    def self.today
-      Date.new(2022,10,1)
-    end
-  end
-
   @inputs[:features_history] =
   {
   :"dates" =>
@@ -443,7 +436,7 @@ class ParseTest < Minitest::Test
     "|Flightless Bird|||||||2021/10/06",
   :"backward date range" =>
     "|Flightless Bird|||||||2021/10/06..5 0:30",
-  :"endless date range starts in the future" => # Date.today is stubbed above to 2022/10/1
+  :"endless date range starts in the future" => # Date::today is stubbed in test_helper.rb to 2022/10/1
     "|Flightless Bird|||||||2022/10/2.. 0:30",
   }
   @inputs[:errors][Reading::InvalidHeadError] =
@@ -520,7 +513,7 @@ class ParseTest < Minitest::Test
     # This merge is not the same as Reading::Util::HashDeepMerge. This one uses the
     # first (empty) subhashes in the item template, for example in :variants and
     # :experiences in the item template.
-    base_config.fetch(:item_template).merge(partial_hash) do |key, old_value, new_value|
+    base_config.deep_fetch(:item, :template).merge(partial_hash) do |key, old_value, new_value|
       item_template_merge(key, old_value, new_value)
     end
   end
@@ -1043,7 +1036,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"frequency x1 implied"] = [a_frequency]
 
   start_date = end_date_june + 1
-  # 10 months because Date.today is stubbed above
+  # 10 months because Date::today is stubbed in test_helper.rb
   about_4_months = (Date.today - start_date + 1).to_i / days_per_month
   minutes_240 = about_4_months * 30 * 2 # multiply by 2 because x2/month this time
   a_frequency_present = item_hash(
@@ -1638,7 +1631,7 @@ class ParseTest < Minitest::Test
   end
 
   def without_blank_hashes(item_hash)
-    template = base_config.fetch(:item_template)
+    template = base_config.deep_fetch(:item, :template)
 
     %i[variants experiences notes].each do |attribute|
       item_hash[attribute] =
@@ -1714,10 +1707,10 @@ class ParseTest < Minitest::Test
       define_method("test_error_#{name}") do
         columns_config = with_columns(:all)
         if name.start_with? "OK: " # Should not raise an error.
-          refute_nil Reading.parse(stream: file_str, config: columns_config)
+          refute_nil Reading.parse(stream: file_str, config: columns_config, hash_output: true)
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            Reading.parse(stream: file_str, config: columns_config)
+            Reading.parse(stream: file_str, config: columns_config, hash_output: true)
           end
         end
       end

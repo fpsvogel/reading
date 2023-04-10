@@ -4,7 +4,7 @@ module Reading
       # The base class for all the attribute in parsing/attributes, each of which
       # extracts an attribute from a parsed row. Together they transform the
       # parsed row (an intermediate hash) into item attributes, as in
-      # Config#default_config[:item_template].
+      # Config#default_config[:item][:template].
       class Attribute
         private attr_reader :config
 

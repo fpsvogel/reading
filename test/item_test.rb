@@ -62,6 +62,20 @@ class ItemTest < Minitest::Test
     end
   end
 
+  describe "#definite_length" do
+    context "when the Item has a non-nil #length" do
+      it "is true" do
+        assert book.definite_length?
+      end
+    end
+
+    context "when the Item has a nil #length" do
+      it "is false" do
+        refute podcast.definite_length?
+      end
+    end
+  end
+
   describe "#status" do
     context "when there aren't any spans" do
       it "is :planned" do
@@ -72,20 +86,41 @@ class ItemTest < Minitest::Test
     end
 
     context "when there are spans" do
-      context "when there's no end date in the last span" do
-        it "is :in_progress" do
-          in_progress_book = book
+      context "when the Item has a definite length" do
+        context "when there's no end date in the last span" do
+          it "is :in_progress" do
+            in_progress_book = book
 
-          assert_equal :in_progress, in_progress_book.status
+            assert_equal :in_progress, in_progress_book.status
+          end
+        end
+
+        context "when there is an end date in the last span" do
+          it "is :done" do
+            done_date_range = Date.new(2020,12,23)..Date.new(2021,2,10)
+            done_book = book(experiences: [{}, {}, { spans: [{}, { dates: done_date_range }] }])
+
+            assert_equal :done, done_book.status
+          end
         end
       end
 
-      context "when there is an end date in the last span" do
-        it "is :done" do
-          done_date_range = Date.new(2020,12,23)..Date.new(2021,2,10)
-          done_book = book(experiences: [{}, {}, { spans: [{}, { dates: done_date_range }] }])
+      context "when the Item has an indefinite length" do
+        context "when the in-progress grace period is over" do
+          it "is :done" do
+            assert_equal :done, podcast.status
+          end
+        end
 
-          assert_equal :done, done_book.status
+        # Date::today is stubbed in test_helper.rb to 2022/10/1
+        context "when the in-progress grace period is not yet over" do
+          it "is :in_progress" do
+            podcast_with_recent_listen = podcast(experiences: [
+              { spans: [{}, {}, {}, {}, {}, {}, { dates: Date.new(2022,9,15)..Date.new(2022,9,15) }] },
+            ])
+
+            assert_equal :in_progress, podcast_with_recent_listen.status
+          end
         end
       end
     end
@@ -183,7 +218,7 @@ class ItemTest < Minitest::Test
 
       context "when the star minimum is nil" do
         it "is the item's rating" do
-          book_no_stars = book(config: { item_view: { minimum_rating_for_star: nil } })
+          book_no_stars = book(config: { item: { view: { minimum_rating_for_star: nil } } })
 
           assert_equal book_no_stars.rating, book_no_stars.view.rating
         end
@@ -201,8 +236,8 @@ class ItemTest < Minitest::Test
         it "is the default type emoji" do
           config = Reading::Config.new.hash
           podcast = podcast(config:, variants: [{ format: nil }])
-          default_type = config.deep_fetch(:item_view, :default_type)
-          default_type_emoji = config.deep_fetch(:item_view, :types, default_type, :emoji)
+          default_type = config.deep_fetch(:item, :view, :default_type)
+          default_type_emoji = config.deep_fetch(:item, :view, :types, default_type, :emoji)
 
           assert_equal default_type_emoji, podcast.view.type_emoji
         end
@@ -290,7 +325,7 @@ class ItemTest < Minitest::Test
             config = Reading::Config.new.hash
             book_without_first_isbn = book(config:, variants: [{ isbn: nil }])
             url_from_isbn = config
-              .deep_fetch(:item_view, :url_from_isbn)
+              .deep_fetch(:item, :view, :url_from_isbn)
               .sub('%{isbn}', book_without_first_isbn.variants[1].isbn)
 
             assert_equal url_from_isbn, book_without_first_isbn.view.url
@@ -484,102 +519,62 @@ class ItemTest < Minitest::Test
         [{
           spans:
             [{
-              dates: Date.new(2022,10,6)..Date.new(2022,10,10),
+              dates: Date.new(2021,10,6)..Date.new(2021,10,10),
               progress: 1.0,
               amount: "8:00",
               name: nil,
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
-              dates: Date.new(2022,10,11)..Date.new(2022,11,17),
+            },
+            {
+              dates: Date.new(2021,10,11)..Date.new(2021,11,17),
               progress: 1.0,
               amount: "1:00",
               name: nil,
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
-              dates: Date.new(2022,10,18)..Date.new(2022,10,24),
+            },
+            {
+              dates: Date.new(2021,10,18)..Date.new(2021,10,24),
               progress: 1.0,
               amount: "3:00",
               name: nil,
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
-              dates: Date.new(2022,10,25)..Date.new(2022,11,12),
+            },
+            {
+              dates: Date.new(2021,10,25)..Date.new(2021,11,12),
               progress: 1.0,
               amount: "2:00",
               name: nil,
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
-              dates: Date.new(2022,11,14)..Date.new(2022,11,14),
+            },
+            {
+              dates: Date.new(2021,11,14)..Date.new(2021,11,14),
               progress: 1.0,
               amount: "0:50",
               name: "#30 Leaf Blowers",
               favorite?: true,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
-              dates: Date.new(2022,11,15)..Date.new(2022,11,15),
+            },
+            {
+              dates: Date.new(2021,11,15)..Date.new(2021,11,15),
               progress: Reading.time("0:15"),
               amount: "1:00",
               name: "Baseball",
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
-              dates: Date.new(2022,11,15)..Date.new(2022,11,15),
+            },
+            {
+              dates: Date.new(2021,11,15)..Date.new(2021,11,15),
               progress: 1.0,
               amount: "3:00",
               name: nil,
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
+            },
+            {
               dates: nil,
               progress: nil,
               amount: "1:00",
               name: "#32 Soft Drinks",
               favorite?: false,
-            }],
-          group: nil,
-          variant_index: 0,
-        },
-        {
-          spans:
-            [{
+            },
+            {
               dates: nil,
               progress: nil,
               amount: "1:00",

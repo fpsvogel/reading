@@ -59,7 +59,7 @@ module Reading
 
       # Parses and transforms the reading log into item data.
       # @return [Array<Struct>] an array of Structs like the template in
-      #   Config#default_config[:item_template]. The Structs are identical in
+      #   Config#default_config[:item][:template]. The Structs are identical in
       #   structure to that Hash (with every inner Hash replaced by a Struct).
       def parse
         input = @stream || File.open(@path)

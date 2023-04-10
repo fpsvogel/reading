@@ -94,77 +94,83 @@ module Reading
             "librivox.org"        => "LibriVox",
             "tv.apple.com"        => "Apple TV",
           },
-        # The structure of an item, along with default values.
-        # Wherever an array of hashes ends up with no data (i.e. equal to the
-        # value in the template), it is collapsed into an empty array.
-        # E.g. the row "|Dracula||🤝🏼book club" is parsed to a Struct analogous to:
-        # {
-        #   rating: nil,
-        #   author: nil,
-        #   title: "Dracula",
-        #   genres: [],
-        #   variants: [],
-        #   experiences: [{ spans: [], group: "book club", variant_index: 0 }],
-        #   notes: [],
-        # }
-        item_template:
+        item:
           {
-            rating: nil,
-            author: nil,
-            title: nil,
-            genres: [],
-            variants:
-              [{
-                format: nil,
-                series:
-                  [{
-                    name: nil,
-                    volume: nil,
-                  }],
-                sources:
-                  [{
-                    name: nil,
-                    url: nil,
-                  }],
-                isbn: nil,
-                length: nil,
-                extra_info: [],
-              }],
-            experiences:
-              [{
-                spans:
-                  [{
-                    dates: nil,
-                    amount: 0,
-                    progress: nil,
-                    name: nil,
-                    favorite?: false,
-                  }],
-                group: nil,
-                variant_index: 0,
-              }],
-            notes:
-              [{
-                blurb?: false,
-                private?: false,
-                content: nil,
-              }],
-          },
-        item_view:
-          {
-            name_separator: " 〜 ",
-            # Items rated this or above get a star. If nil, number ratings are shown instead.
-            minimum_rating_for_star: 5,
-            url_from_isbn: "https://www.goodreads.com/book/isbn?isbn=%{isbn}",
-            types:
+            # After how many days of no activity an item of indefinite length
+            # (e.g. a podcast) should change its status from :in_progress to :done.
+            indefinite_in_progress_grace_period_days: 30,
+            view:
               {
-                book: { emoji: "📕", from_formats: %i[print ebook audiobook pdf] },
-                course: { emoji: "🏫", from_formats: %i[website] },
-                piece: { emoji: "✏️" },
-                video: { emoji: "🎞️" },
-                audio: { emoji: "🎤" },
+                name_separator: " 〜 ",
+                # Items rated this or above get a star. If nil, number ratings are shown instead.
+                minimum_rating_for_star: 5,
+                url_from_isbn: "https://www.goodreads.com/book/isbn?isbn=%{isbn}",
+                types:
+                  {
+                    book: { emoji: "📕", from_formats: %i[print ebook audiobook pdf] },
+                    course: { emoji: "🏫", from_formats: %i[website] },
+                    piece: { emoji: "✏️" },
+                    video: { emoji: "🎞️" },
+                    audio: { emoji: "🎤" },
+                  },
+                default_type: :book,
               },
-            default_type: :book,
+            # The structure of an item, along with default values.
+            # Wherever an array of hashes ends up with no data (i.e. equal to the
+            # value in the template), it is collapsed into an empty array.
+            # E.g. the row "|Dracula||🤝🏼book club" is parsed to a Struct analogous to:
+            # {
+            #   rating: nil,
+            #   author: nil,
+            #   title: "Dracula",
+            #   genres: [],
+            #   variants: [],
+            #   experiences: [{ spans: [], group: "book club", variant_index: 0 }],
+            #   notes: [],
+            # }
+            template:
+              {
+                rating: nil,
+                author: nil,
+                title: nil,
+                genres: [],
+                variants:
+                  [{
+                    format: nil,
+                    series:
+                      [{
+                        name: nil,
+                        volume: nil,
+                      }],
+                    sources:
+                      [{
+                        name: nil,
+                        url: nil,
+                      }],
+                    isbn: nil,
+                    length: nil,
+                    extra_info: [],
+                  }],
+                experiences:
+                  [{
+                    spans:
+                      [{
+                        dates: nil,
+                        amount: 0,
+                        progress: nil,
+                        name: nil,
+                        favorite?: false,
+                      }],
+                    group: nil,
+                    variant_index: 0,
+                  }],
+                notes:
+                  [{
+                    blurb?: false,
+                    private?: false,
+                    content: nil,
+                  }],
+              },
           },
       }
     end

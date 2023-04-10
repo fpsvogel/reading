@@ -23,7 +23,7 @@ module Reading
 
           # Extracts experiences from the parsed row.
           # @return [Array<Hash>] an array of experiences; see
-          #   Config#default_config[:item_template][:experiences]
+          #   Config#default_config[:item][:template][:experiences]
           def transform
             size = [parsed_row[:start_dates]&.count || 0, parsed_row[:end_dates]&.count || 0].max
             # Pad start dates with {} and end dates with nil up to the size of
@@ -54,13 +54,13 @@ module Reading
           # A shortcut to the experience template.
           # @return [Hash]
           def template
-            config.deep_fetch(:item_template, :experiences).first
+            config.deep_fetch(:item, :template, :experiences).first
           end
 
           # A shortcut to the span template.
           # @return [Hash]
           def span_template
-            config.deep_fetch(:item_template, :experiences, 0, :spans).first
+            config.deep_fetch(:item, :template, :experiences, 0, :spans).first
           end
 
           # The :spans sub-attribute for the given pair of date entries.

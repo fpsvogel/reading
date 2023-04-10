@@ -17,3 +17,16 @@ module Minitest
     include PrettyDiffs
   end
 end
+
+require "date"
+
+# Stub Date::today so that the endless date ranges in parse_test.rb aren't needlessly long.
+class Date
+  class << self
+    alias_method :original_today, :today
+
+    def today
+      Date.new(2022,10,1)
+    end
+  end
+end

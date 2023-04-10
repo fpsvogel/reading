@@ -27,7 +27,7 @@ module Reading
 
           # Extracts experiences from the parsed row.
           # @return [Array<Hash>] an array of experiences; see
-          #   Config#default_config[:item_template][:experiences]
+          #   Config#default_config[:item][:template][:experiences]
           def transform
             experiences = parsed_row[:history].map { |entries|
               {
@@ -48,13 +48,13 @@ module Reading
           # A shortcut to the span template.
           # @return [Hash]
           def span_template
-            @span_template ||= config.deep_fetch(:item_template, :experiences, 0, :spans).first
+            @span_template ||= config.deep_fetch(:item, :template, :experiences, 0, :spans).first
           end
 
           # The :spans sub-attribute for the given History column entries.
           # @param entries [Array<Hash>] History entries for one experience.
           # @return [Array<Hash>] an array of spans; see
-          #   Config#default_config[:item_template][:experiences].first[:spans]
+          #   Config#default_config[:item][:template][:experiences].first[:spans]
           def spans_from_history_entries(entries)
             daily_spans = {}
             active = {
