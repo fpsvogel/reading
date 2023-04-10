@@ -30,7 +30,7 @@ module Reading
     # inspired by the Parslet gem: https://kschiess.github.io/parslet/transform.html
     #
     class CSV
-      private attr_reader :parser, :transformer
+      private attr_reader :parser, :transformer, :hash_output, :item_view
 
       # Validates a path or stream (string, file, etc.) of a CSV reading log,
       # builds the config, and initializes the parser and transformer.
@@ -39,12 +39,20 @@ module Reading
       #   if nil, path is used instead.
       # @param config [Hash] a custom config which overrides the defaults,
       #   e.g. { errors: { styling: :html } }
-      def initialize(path = nil, stream: nil, config: {})
+      # @param hash_output [Boolean] whether an array of raw Hashes should be
+      #   returned, without Items being created from them.
+      # @param view [Class, nil, Boolean] the class that will be used to build
+      #   each Item's view object, or nil/false if no view object should be built.
+      #   If you use a custom view class, the only requirement is that its
+      #   #initialize take an Item and a full config as arguments.
+      def initialize(path = nil, stream: nil, config: {}, hash_output: false, item_view: Item::View)
         validate_path_or_stream(path, stream)
         full_config = Config.new(config).hash
 
         @path = path
         @stream = stream
+        @hash_output = hash_output
+        @item_view = item_view
         @parser = Parser.new(full_config)
         @transformer = Transformer.new(full_config)
       end
@@ -69,7 +77,11 @@ module Reading
           items += row_items
         end
 
-        items
+        if hash_output
+          items
+        else
+          items.map { |item_hash| Item.new(item_hash, view: item_view) }
+        end
       ensure
         input&.close if input.respond_to?(:close)
       end

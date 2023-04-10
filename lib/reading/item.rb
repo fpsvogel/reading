@@ -51,6 +51,10 @@ module Reading
       :planned
     end
 
+    def ==(other)
+      data == other.send(:data)
+    end
+
     private
 
     # For each missing item attribute (key in config[:item_template) in

@@ -34,7 +34,7 @@ module Reading
       def extract_star_or_rating(item, config)
         minimum_rating = config.deep_fetch(:item_view, :minimum_rating_for_star)
         if minimum_rating
-          "⭐" if item.rating >= minimum_rating
+          "⭐" if item.rating && item.rating >= minimum_rating
         else
           item.rating
         end
