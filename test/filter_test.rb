@@ -18,6 +18,14 @@ class FilterTest < Minitest::Test
       assert_equal original_item_count, ITEMS.count
     end
 
+    it "sorts Items by date" do
+      filtered = Reading::Filter.by(minimum_rating: 1, items: ITEMS.values)
+      sorted_first_two = ITEMS.slice(:ok_scifi_done, :bad_scifi_done).values
+      sorted_items = sorted_first_two + ITEMS.except(:bad_scifi_done, :ok_scifi_done).values
+
+      assert_equal sorted_items, filtered
+    end
+
     context "when the :items keyword argument is missing" do
       it "raises an error" do
         assert_raises ArgumentError do
@@ -45,7 +53,7 @@ class FilterTest < Minitest::Test
     context "when the :minimum_rating keyword argument is provided" do
       it "filters Items by minimum rating" do
         filtered = Reading::Filter.by(minimum_rating: 4, items: ITEMS.values)
-        remaining = ITEMS.except(:ok_scifi_done).values
+        remaining = ITEMS.except(:bad_scifi_done, :ok_scifi_done).values
 
         assert_equal remaining, filtered
       end
@@ -69,8 +77,8 @@ class FilterTest < Minitest::Test
       end
 
       it "filters Items by multiple statuses" do
-        filtered = Reading::Filter.by(status: [:done, :in_progress], items: ITEMS.values)
-        remaining = ITEMS.slice(:ok_scifi_done, :good_science_in_progress).values
+        filtered = Reading::Filter.by(status: [:done, :in_progress], items: ITEMS.values, no_sort: true)
+        remaining = ITEMS.slice(:bad_scifi_done, :ok_scifi_done, :good_science_in_progress).values
 
         assert_equal remaining, filtered
       end
@@ -94,6 +102,25 @@ class FilterTest < Minitest::Test
   private
 
   ITEMS = {
+    bad_scifi_done: Reading::Item.new(
+      {
+        rating: 1,
+        genres: ["science", "fiction"],
+        experiences:
+          [{
+            spans:
+              [{
+                dates: Date.new(2019,2,10)..Date.new(2019,5,3),
+                progress: 1.0,
+                amount: nil,
+                name: nil,
+                favorite?: false,
+              }],
+            group: nil,
+            variant_index: 0,
+          }],
+      }
+    ),
     ok_scifi_done: Reading::Item.new(
       {
         rating: 3,

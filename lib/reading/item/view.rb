@@ -5,7 +5,7 @@ module Reading
     class View
       using Util::HashArrayDeepFetch
 
-      attr_reader :name, :rating, :type_emoji, :genres, :status, :date, :date_in_words,
+      attr_reader :name, :rating, :type_emoji, :genres, :status, :date,
         :isbn, :url, :experience_count, :groups, :blurb, :public_notes
 
       # @param item [Item] the Item from which to extract view information.
@@ -17,7 +17,7 @@ module Reading
         @isbn, @url, variant = extract_first_source_info(item, config)
         @name = extract_name(item, variant, config)
         @type_emoji = extract_type_emoji(variant&.format, config)
-        @date = item.experiences.last&.spans&.last&.dates&.end&.strftime("%Y-%m-%d")
+        @date = item.last_end_date&.strftime("%Y-%m-%d")
         @experience_count = item.experiences.count
         @groups = item.experiences.map(&:group).compact
         @blurb = item.notes.find(&:blurb?)&.content

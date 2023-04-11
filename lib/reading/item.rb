@@ -14,7 +14,7 @@ module Reading
     ATTRIBUTES = %i[rating author title genres variants experiences notes]
 
     private attr_reader :attributes, :config
-    attr_reader :status, :view
+    attr_reader :status, :last_end_date, :view
 
     def_delegators :attributes, *ATTRIBUTES
 
@@ -33,23 +33,8 @@ module Reading
       @attributes = item_hash.to_data
       @config = config
 
+      @status, @last_end_date = get_status_and_last_end_date
       @view = view.new(self, config) if view
-    end
-
-    # :done, :in_progress, or :planned.
-    # @return [Date, nil]
-    def status
-      return :planned if experiences.none? || experiences.flat_map(&:spans).none?
-
-      if definite_length?
-        last_end_date = experiences.last.spans.last&.dates&.end
-
-        return :done if last_end_date
-
-        return :in_progress
-      else
-        status_of_indefinite_length_item
-      end
     end
 
     # Whether this item has a fixed length, such as a book or audiobook (as
@@ -82,17 +67,18 @@ module Reading
       end
     end
 
-    # For an indefinite-length item (e.g. podcast). There is a grace period
-    # during which the status remains :in_progress after the last activity. If
-    # that grace period is over, the status is :done. It's :planned if there
-    # are no spans with dates.
-    # @return [Symbol] :planned, :in_progress, :done
-    def status_of_indefinite_length_item
-      grace_period = config.deep_fetch(:item, :indefinite_in_progress_grace_period_days)
+    # Determines the status and the last end date. Note: for an item of indefinite
+    # length (e.g. podcast) there is a grace period during which the status
+    # remains :in_progress after the last activity. If that grace period is over,
+    # the status is :done. It's :planned if there are no spans with dates.
+    # @return [Array(Symbol, Date)]
+    def get_status_and_last_end_date
+      return [:planned, nil] if experiences.none? || experiences.flat_map(&:spans).none?
+
       experiences_with_spans_with_dates = experiences
         .select { |experience| experience.spans.any? { |span| span.dates } }
 
-      return :planned unless experiences_with_spans_with_dates.any?
+      return [:planned, nil] unless experiences_with_spans_with_dates.any?
 
       last_end_date = experiences_with_spans_with_dates
         .last
@@ -102,14 +88,19 @@ module Reading
         .dates
         .end
 
-      return :in_progress unless last_end_date
+      return [:in_progress, nil] unless last_end_date
 
-      indefinite_in_progress_grace_period_over =
-        (Date.today - grace_period) > last_end_date
+      if definite_length?
+        [:done, last_end_date]
+      else
+        grace_period = config.deep_fetch(:item, :indefinite_in_progress_grace_period_days)
+        indefinite_in_progress_grace_period_is_over =
+          (Date.today - grace_period) > last_end_date
 
-      return :done if indefinite_in_progress_grace_period_over
+        return [:done, last_end_date] if indefinite_in_progress_grace_period_is_over
 
-      :in_progress
+        [:in_progress, last_end_date]
+      end
     end
   end
 end
