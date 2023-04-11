@@ -10,6 +10,7 @@ require_relative "../errors"
 
 # Used just here.
 require_relative "../config"
+require_relative "../item"
 require_relative "parser"
 require_relative "transformer"
 

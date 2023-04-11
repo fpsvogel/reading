@@ -7,7 +7,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.8.3)
+    addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
     amazing_print (1.4.0)
     ansi (1.5.0)
@@ -38,7 +38,7 @@ GEM
       sexp_processor (~> 4.8)
     ice_nine (0.11.2)
     io-console (0.6.0)
-    irb (1.6.3)
+    irb (1.6.4)
       reline (>= 0.3.0)
     kwalify (0.7.2)
     launchy (2.5.2)

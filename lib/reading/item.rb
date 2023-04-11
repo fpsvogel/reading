@@ -1,3 +1,5 @@
+require "forwardable"
+
 require_relative "item/view"
 require_relative "config"
 require_relative "util/hash_to_data"
