@@ -26,6 +26,6 @@ if ARGV[1]
   config = { enabled_columns: }
 end
 
-items = Reading.parse(stream: input, config:)
+items = Reading.parse(stream: input, config:, hash_output: true)
 
 ap items
