@@ -5,19 +5,18 @@ module Reading
     class View
       using Util::HashArrayDeepFetch
 
-      attr_reader :name, :rating, :type_emoji, :genres, :status, :date,
+      attr_reader :name, :rating, :type_emoji, :genres, :date_or_status,
         :isbn, :url, :experience_count, :groups, :blurb, :public_notes
 
       # @param item [Item] the Item from which to extract view information.
       # @param config [Hash] an entire config.
       def initialize(item, config)
         @genres = item.genres
-        @status = item.status.to_s.gsub('_', ' ')
         @rating = extract_star_or_rating(item, config)
         @isbn, @url, variant = extract_first_source_info(item, config)
         @name = extract_name(item, variant, config)
         @type_emoji = extract_type_emoji(variant&.format, config)
-        @date = item.last_end_date&.strftime("%Y-%m-%d")
+        @date_or_status = extract_date_or_status(item)
         @experience_count = item.experiences.count
         @groups = item.experiences.map(&:group).compact
         @blurb = item.notes.find(&:blurb?)&.content
@@ -113,6 +112,17 @@ module Reading
           type || config.deep_fetch(:item, :view, :default_type),
           :emoji,
         )
+      end
+
+      # The date (if done) or status, stringified.
+      # @param item [Item]
+      # @return [String]
+      def extract_date_or_status(item)
+        if item.done?
+          item.last_end_date&.strftime("%Y-%m-%d")
+        else
+          item.status.to_s.gsub('_', ' ')
+        end
       end
     end
   end

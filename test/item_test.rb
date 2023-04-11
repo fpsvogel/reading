@@ -253,19 +253,13 @@ class ItemTest < Minitest::Test
       end
     end # #view#genres
 
-    describe "#status" do
-      it "is the item's status stringified" do
-        assert_equal "in progress", book.view.status
-      end
-    end # #view#status
-
-    describe "#date" do
+    describe "#date_or_status" do
       context "when the item is done" do
-        it "is the last end date" do
+        it "is the last end date as a string" do
           done_date_range = Date.new(2020,12,23)..Date.new(2021,2,10)
           done_book = book(experiences: [{}, {}, { spans: [{}, { dates: done_date_range }] }])
 
-          assert_equal '2021-02-10', done_book.view.date
+          assert_equal '2021-02-10', done_book.view.date_or_status
         end
       end
 
@@ -274,11 +268,11 @@ class ItemTest < Minitest::Test
           in_progress_book = book
           planned_book = book(:merge, experiences: [])
 
-          assert_nil in_progress_book.view.date
-          assert_nil planned_book.view.date
+          assert_equal 'in progress', in_progress_book.view.date_or_status
+          assert_equal 'planned', planned_book.view.date_or_status
         end
       end
-    end # #view#date
+    end # #view#date_or_status
 
     describe "#isbn" do
       context "when a variant has an ISBN/ASIN or URL" do

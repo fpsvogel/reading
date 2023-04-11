@@ -20,7 +20,7 @@ module Reading
         return filtered if no_sort
 
         filtered.sort_by { |item|
-          if item.status == :done
+          if item.done?
             item.last_end_date.strftime("%Y-%m-%d")
           else
             item.status.to_s

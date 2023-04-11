@@ -16,7 +16,7 @@ module Reading
     ATTRIBUTES = %i[rating author title genres variants experiences notes]
 
     private attr_reader :attributes, :config
-    attr_reader :status, :last_end_date, :view
+    attr_reader :view, :status, :last_end_date
 
     def_delegators :attributes, *ATTRIBUTES
 
@@ -39,6 +39,12 @@ module Reading
       @view = view.new(self, config) if view
     end
 
+    # Whether this item is done.
+    # @return [Boolean]
+    def done?
+      status == :done
+    end
+
     # Whether this item has a fixed length, such as a book or audiobook (as
     # opposed to an ongoing podcast).
     # @return [Boolean]
@@ -46,6 +52,9 @@ module Reading
       attributes.variants.any? { |variant| !!variant.length }
     end
 
+    # Equality to another Item.
+    # @other [Item]
+    # @return [Boolean]
     def ==(other)
       unless other.is_a?(Item)
         raise ArgumentError, "An Item can be compared only with another Item."
