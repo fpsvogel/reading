@@ -23,14 +23,6 @@ module Reading
         @public_notes = item.notes.reject(&:private?).reject(&:blurb?).map(&:content)
       end
 
-      # All of the attributes as a Hash.
-      # @return [Hash]
-      def to_h
-        instance_variables.each.with_object({}) do |v, hash|
-          hash[v.to_s.delete_prefix("@").to_sym] = instance_variable_get(v)
-        end
-      end
-
       private
 
       # A star (or nil if the item doesn't make the cut), or the number rating if

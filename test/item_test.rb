@@ -135,27 +135,6 @@ class ItemTest < Minitest::Test
       end
     end
 
-    describe "#to_h" do
-      it "is the View's attributes as a Hash" do
-        attributes_hash = {
-          genres: ["fiction", "history"],
-          status: "in progress",
-          rating: nil,
-          isbn: "B00GVG01HE",
-          url: "https://www.goodreads.com/book/isbn?isbn=B00GVG01HE",
-          name: "Tom Holt – The Walled Orchard 〜 in Holt's Classical Novels 〜 2009 〜 both volumes in one",
-          type_emoji: "📕",
-          date: nil,
-          experience_count: 3,
-          groups: ["classics book club", "with Hannah"],
-          blurb: "My favorite historical fiction.",
-          public_notes: ["Others by Holt that I should try: A Song for Nero, Alexander at the World's End."],
-        }
-
-        assert_equal attributes_hash, book.view.to_h
-      end
-    end
-
     describe "#name" do
       context "when a variant has an ISBN/ASIN or URL" do
         context "when the second variant has both, the first has neither" do
