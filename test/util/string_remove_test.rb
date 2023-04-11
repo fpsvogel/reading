@@ -1,4 +1,4 @@
-require_relative "../test_helper"
+require_relative "../test_helpers/test_helper"
 
 require_relative "../../lib/reading/util/string_remove"
 

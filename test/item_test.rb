@@ -1,6 +1,7 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require_relative "test_helper"
+require_relative "test_helpers/test_helper"
+require_relative "test_helpers/describe_and_it_blocks"
 
 require "reading/item"
 require "reading/config"
@@ -10,30 +11,11 @@ require "reading/util/hash_to_data"
 require "reading"
 
 class ItemTest < Minitest::Test
+  extend DescribeAndItBlocks
+
   using Reading::Util::HashDeepMerge
   using Reading::Util::HashArrayDeepFetch
   using Reading::Util::HashToData
-
-  # The shoulda-context gem provides `context` and `should` blocks. I like
-  # RSpec-style `describe` in addition to `context`, and `it` instead of `should`.
-  class << self
-    alias_method :describe, :context
-    alias_method :it, :should
-  end
-
-  # But wait, doesn't minitest/spec already provide `describe` blocks? Yes, but
-  # I get errors when using it alongside shoulda-context, so here I undefine it
-  # so that the alias above (`context` to `describe`) works correctly.
-  #
-  # (Sidenote: Why is `describe` already defined, but not `it`? It's because
-  # `describe` is monkey-patched into Kernel in minitest/spec, which is loaded
-  # into minitest/autorun, which I'm using. `it` is also defined in minitest/spec,
-  # but within Minitest::Spec which makes it apply only within a Minitest::Spec
-  # (which `describe` sets up). See
-  # https://github.com/minitest/minitest/blob/master/lib/minitest/spec.rb
-  module ::Kernel
-    undef describe
-  end
 
   def book(merge_type = :deep_merge, config: {}, **merge_hash)
     Reading::Item.new(BOOK.send(merge_type, merge_hash), config: full_config(config))

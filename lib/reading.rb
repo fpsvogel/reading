@@ -5,11 +5,12 @@ require_relative "reading/item/time_length.rb"
 #
 # Architectural overview:
 #
-#                 (CSV input)
-#                      |
-#                   ::parse         -------------> Item -----------> (Item output)
-#  Config,             |           /               / \
-#  errors.rb ----- Parsing::CSV ---       Item::View  Item::TimeLength
+#                 (CSV input)             (Items output)-----.  (filtered Items
+#                      |                          Λ          |    Λ     output)
+#                      V                          |          V    |
+#                   ::parse         .-----------> Item       Filter
+#  Config,             |           /             / \
+#  errors.rb ----- Parsing::CSV --·     Item::View  Item::TimeLength
 #                     / \
 #      Parsing::Parser  Parsing::Transformer
 #             |                 |

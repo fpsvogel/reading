@@ -47,10 +47,8 @@ module Reading
         return :done if last_end_date
 
         return :in_progress
-      else # indefinite length
-        return :done if indefinite_in_progress_grace_period_over?
-
-        return :in_progress
+      else
+        status_of_indefinite_length_item
       end
     end
 
@@ -62,6 +60,10 @@ module Reading
     end
 
     def ==(other)
+      unless other.is_a?(Item)
+        raise ArgumentError, "An Item can be compared only with another Item."
+      end
+
       attributes == other.send(:attributes)
     end
 
@@ -80,23 +82,34 @@ module Reading
       end
     end
 
-    # Whether the grace period is over for an indefinite-length item (e.g. podcast)
-    # still having an :in_progress status.
-    # @return [Boolean]
-    def indefinite_in_progress_grace_period_over?
+    # For an indefinite-length item (e.g. podcast). There is a grace period
+    # during which the status remains :in_progress after the last activity. If
+    # that grace period is over, the status is :done. It's :planned if there
+    # are no spans with dates.
+    # @return [Symbol] :planned, :in_progress, :done
+    def status_of_indefinite_length_item
       grace_period = config.deep_fetch(:item, :indefinite_in_progress_grace_period_days)
-      last_end_date = experiences
+      experiences_with_spans_with_dates = experiences
         .select { |experience| experience.spans.any? { |span| span.dates } }
+
+      return :planned unless experiences_with_spans_with_dates.any?
+
+      last_end_date = experiences_with_spans_with_dates
         .last
         .spans
         .select { |span| span.dates }
         .last
-        &.dates
-        &.end
+        .dates
+        .end
 
-      return false unless last_end_date
+      return :in_progress unless last_end_date
 
-      (Date.today - grace_period) > last_end_date
+      indefinite_in_progress_grace_period_over =
+        (Date.today - grace_period) > last_end_date
+
+      return :done if indefinite_in_progress_grace_period_over
+
+      :in_progress
     end
   end
 end
