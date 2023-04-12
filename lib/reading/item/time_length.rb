@@ -12,7 +12,7 @@ module Reading
         @value = value
       end
 
-      # Builds a Item::TimeLength from a string.
+      # Builds an Item::TimeLength from a string.
       # @param string [String] a time duration in "h:mm" format.
       # @return [TimeLength]
       def self.parse(string)

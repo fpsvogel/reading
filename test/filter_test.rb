@@ -3,7 +3,7 @@ $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 require_relative "test_helpers/test_helper"
 require_relative "test_helpers/describe_and_it_blocks"
 
-require "reading/filter"
+require "reading"
 require "reading/item"
 
 class FilterTest < Minitest::Test
@@ -13,13 +13,13 @@ class FilterTest < Minitest::Test
     it "filters Items without changing the original array" do
       original_item_count = ITEMS.count
 
-      Reading::Filter.by(minimum_rating: 4, items: ITEMS.values)
+      Reading.filter(items: ITEMS.values, minimum_rating: 4)
 
       assert_equal original_item_count, ITEMS.count
     end
 
     it "sorts Items by date" do
-      filtered = Reading::Filter.by(minimum_rating: 1, items: ITEMS.values)
+      filtered = Reading.filter(items: ITEMS.values, minimum_rating: 1)
       sorted_first_two = ITEMS.slice(:ok_scifi_done, :bad_scifi_done).values
       sorted_items = sorted_first_two + ITEMS.except(:bad_scifi_done, :ok_scifi_done).values
 
@@ -29,7 +29,7 @@ class FilterTest < Minitest::Test
     context "when the :items keyword argument is missing" do
       it "raises an error" do
         assert_raises ArgumentError do
-          Reading::Filter.by(minimum_rating: 4)
+          Reading.filter(minimum_rating: 4)
         end
       end
     end
@@ -37,7 +37,7 @@ class FilterTest < Minitest::Test
     context "when no filter keyword argument is provided" do
       it "raises an error" do
         assert_raises ArgumentError do
-          Reading::Filter.by(items: ITEMS.values)
+          Reading.filter(items: ITEMS.values)
         end
       end
     end
@@ -45,14 +45,14 @@ class FilterTest < Minitest::Test
     context "when an unrecognized filter keyword argument is provided" do
       it "raises an error" do
         assert_raises ArgumentError do
-          Reading::Filter.by(teh: "lulz", items: ITEMS.values)
+          Reading.filter(items: ITEMS.values, teh: "lulz")
         end
       end
     end
 
     context "when the :minimum_rating keyword argument is provided" do
       it "filters Items by minimum rating" do
-        filtered = Reading::Filter.by(minimum_rating: 4, items: ITEMS.values)
+        filtered = Reading.filter(items: ITEMS.values, minimum_rating: 4)
         remaining = ITEMS.except(:bad_scifi_done, :ok_scifi_done).values
 
         assert_equal remaining, filtered
@@ -61,7 +61,7 @@ class FilterTest < Minitest::Test
 
     context "when the :excluded_genres keyword argument is provided" do
       it "filters Items by excluded genres" do
-        filtered = Reading::Filter.by(excluded_genres: ["fiction"], items: ITEMS.values)
+        filtered = Reading.filter(items: ITEMS.values, excluded_genres: ["fiction"])
         remaining = ITEMS.slice(:good_science_in_progress, :good_science_planned, :great_science_planned).values
 
         assert_equal remaining, filtered
@@ -70,14 +70,14 @@ class FilterTest < Minitest::Test
 
     context "when the :status keyword argument is provided" do
       it "filters Items by one status" do
-        filtered = Reading::Filter.by(status: :in_progress, items: ITEMS.values)
+        filtered = Reading.filter(items: ITEMS.values, status: :in_progress)
         remaining = ITEMS.slice(:good_science_in_progress).values
 
         assert_equal remaining, filtered
       end
 
       it "filters Items by multiple statuses" do
-        filtered = Reading::Filter.by(status: [:done, :in_progress], items: ITEMS.values, no_sort: true)
+        filtered = Reading.filter(items: ITEMS.values, no_sort: true, status: [:done, :in_progress])
         remaining = ITEMS.slice(:bad_scifi_done, :ok_scifi_done, :good_science_in_progress).values
 
         assert_equal remaining, filtered
@@ -86,11 +86,11 @@ class FilterTest < Minitest::Test
 
     context "when multiple filter keyword arguments are provided" do
       it "filters Items by multiple filters" do
-        filtered = Reading::Filter.by(
+        filtered = Reading.filter(
+          items: ITEMS.values,
           minimum_rating: 5,
           excluded_genres: ["science"],
           status: :planned,
-          items: ITEMS.values,
         )
         remaining = ITEMS.slice(:great_fiction_planned).values
 

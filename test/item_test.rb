@@ -133,7 +133,7 @@ class ItemTest < Minitest::Test
           assert "shiny customization", book_with_custom_view.view.something_custom
         end
       end
-    end
+    end # #view custom view
 
     describe "#name" do
       context "when a variant has an ISBN/ASIN or URL" do
