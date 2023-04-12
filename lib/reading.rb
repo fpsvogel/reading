@@ -1,5 +1,6 @@
 require_relative "reading/parsing/csv"
 require_relative "reading/filter"
+require_relative "reading/config"
 require_relative "reading/item/time_length.rb"
 
 # The gem's public API. See https://github.com/fpsvogel/reading#usage
@@ -31,6 +32,12 @@ module Reading
   # Filters an array of Items. See Filter::by for details.
   def self.filter(...)
     Filter.by(...)
+  end
+
+  # The default config.
+  # @return [Hash]
+  def self.default_config
+    Config.new.hash
   end
 
   # A shortcut for getting a time from a string.
