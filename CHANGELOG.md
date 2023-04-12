@@ -1,5 +1,6 @@
-## [0.8.0] - upcoming
+## [0.8.0] - 2023-04-12
 
+- Added `Item` and `Filter` for more convenient output and filtering of it.
 - Fixed a bug where ASCII-encoded input led to an error.
 - Changed the behavior of `Reading::parse` so that if both a `stream` and a `path` are given, the `stream` is the one that is used.
 
