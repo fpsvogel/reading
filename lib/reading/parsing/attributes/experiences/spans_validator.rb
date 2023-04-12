@@ -59,7 +59,7 @@ module Reading
             # if there is more than one more start date than end dates.
             # @raise [InvalidDateError]
             def validate_number_of_start_dates_and_end_dates(experiences)
-              both_dates, not_both_dates = experiences
+              _both_dates, not_both_dates = experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| [exp[:spans].first[:dates].begin, exp[:spans].last[:dates].end] }
                 .partition { |start_date, end_date| start_date && end_date }
