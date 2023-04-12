@@ -7,8 +7,8 @@
 #   reading "<file path>" "<optional comma-separated names of enabled columns>"
 #
 # Examples:
-#   reading '/home/alex/reading.csv'
-#   reading '/home/alex/reading.csv' 'head, sources'
+#   reading '/home/felipe/reading.csv'
+#   reading '/home/felipe/reading.csv' 'head, sources'
 
 
 require_relative "../lib/reading"
@@ -17,7 +17,7 @@ require "debug"
 
 path = ARGV[0]
 unless path
-  raise ArgumentError, "CSV path argument required, such as '/home/alex/reading.csv'"
+  raise ArgumentError, "CSV path argument required, such as '/home/felipe/reading.csv'"
 end
 
 config = {}

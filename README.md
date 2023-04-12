@@ -10,7 +10,8 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 - [Usage](#usage)
   - [Try out a CSV string](#try-out-a-csv-string)
   - [Parse a file](#parse-a-file)
-  - [Custom config](#custom-config)
+  - [Parse with custom config](#parse-with-custom-config)
+  - [Filtering the output](#filtering-the-output)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
 - [Contributing](#contributing)
 - [License](#license)
@@ -79,7 +80,7 @@ $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 To see the parser output from a file (e.g. to see if it is correctly formatted), use the `readingfile` command:
 
 ```
-$ readingfile /home/alex/reading.csv
+$ readingfile /home/felipe/reading.csv
 ```
 
 ### Parse a file
@@ -93,9 +94,9 @@ file_path = "/home/user/reading.csv"
 items = Reading.parse(file_path)
 ```
 
-This returns an array of Structs, each representing an item (such as a book or podcast) structured like the template hash in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+This returns an array of [Items](https://github.com/fpsvogel/reading/blob/main/lib/reading/item.rb), which are essentially a wrapper with the same structure as the template Hash in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb), but providing a few conveniences such as dot access (`item.notes` instead of `item[:notes]`).
 
-If instead of a file path you want to directly parse a string (or anything else responding to `#each_line`, such as a `File`):
+If instead of a file path you want to directly parse a String (or anything else responding to `#each_line`, such as a `File`):
 
 ```ruby
 require "reading"
@@ -104,11 +105,11 @@ string = File.read(file_path)
 items = Reading.parse(stream: string)
 ```
 
-### Custom config
+### Parse with custom config
 
-To use custom configuration, pass a config hash when initializing.
+To use custom configuration, pass a config Hash when initializing.
 
-Here's an example. If you don't want to use all the columns (as in [the minimal example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)), you'll need to initialize a `Reading::CSV` with a config including only the desired columns, like this:
+Here's an example. If you don't want to use all the columns (as in [the minimal example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)), you'll need to pass in a config including only the desired columns, like this:
 
 ```ruby
 require "reading"
@@ -118,9 +119,24 @@ file_path = "/home/user/reading.csv"
 items = Reading.parse(file_path, config: custom_config)
 ```
 
+### Filtering the output
+
+Once you've parsed your reading log, you can easily filter the output like this:
+
+```ruby
+# (Parse a reading log into `items` as above)
+# ...
+filtered_items = Reading.filter(
+  items: items,
+  minimum_rating: 4,
+  status: [:done, :in_progress],
+  excluded_genres: ["cats", "memoir"],
+)
+```
+
 ## How to add a reading page to your site
 
-After Reading parses your CSV reading log, it's up to you to display that parsed information on a web page. I've set up my personal site so that it automatically parses my reading log during site generation, and it's even automatically generated every week. That means my site's Reading page automatically syncs to my reading log on a weekly basis.
+After Reading parses your CSV reading log, it's up to you to display that parsed information on a web page. I've set up my personal site so that it parses my reading log during site generation, and it's even automatically generated every week. That means my site's "Reading" page automatically syncs to my reading log on a weekly basis.
 
 I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-bridgetown), which may give you ideas even if you don't use [Bridgetown](https://www.bridgetownrb.com/) to build your site… but you should use Bridgetown, it's great 😉
 

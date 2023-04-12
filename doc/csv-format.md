@@ -64,7 +64,7 @@ Tom Holt - Goatsong|2019/06/18, 2020/5/8
 - The author is optional, too. The only thing every row must have is the title.
 - To sum up these two rows: you haven't read *Sapiens* yet, and you've read *Goatsong* twice. Nice!
 
-If this minimal kind of reading log is what you want, see example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README.
+If this minimal kind of reading log is what you want, see example in the ["Parse with custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#parse-with-custom-config) section of the README.
 
 By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns (as they appear in [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv)), so that you can get an idea of what a full item looks like. Here's a screenshot from VS Code using the above-mentioned Rainbow CSV extension:
 
@@ -118,7 +118,7 @@ Emoji|Format
 ✏️  |`piece`
 🌐  |`website`
 
-You can define your own formats via a custom config by following a process similar to the example in the ["Custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#custom-config) section of the README. To see what the custom formats should look like when you pass them in as custom config, see `Config#default_config[:formats]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+You can define your own formats via a custom config by following a process similar to the example in the ["Parse with custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#parse-with-custom-config) section of the README. To see what the custom formats should look like when you pass them in as custom config, see `Config#default_config[:formats]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 ### Sources column
 

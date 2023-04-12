@@ -18,7 +18,7 @@ module Reading
   module Parsing
     #
     # Validates a path or stream (string, file, etc.) of a CSV reading log, then
-    # parses it into item data (an array of Structs).
+    # parses it into an array of Items.
     #
     # Parsing happens in two steps:
     #   (1) Parse a row string into an intermediate hash representing the columns.
@@ -59,9 +59,10 @@ module Reading
       end
 
       # Parses and transforms the reading log into item data.
-      # @return [Array<Struct>] an array of Structs like the template in
-      #   Config#default_config[:item][:template]. The Structs are identical in
-      #   structure to that Hash (with every inner Hash replaced by a Struct).
+      # @return [Array<Item>] an array of Items like the template in
+      #   Config#default_config[:item][:template]. The Items are identical in
+      #   structure to that Hash (with every inner Hash replaced by a Data for
+      #   dot access).
       def parse
         input = @stream || File.open(@path)
         items = []

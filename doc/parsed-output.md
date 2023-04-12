@@ -45,14 +45,12 @@ Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
 
-When that's parsed, an array of Structs is outputted analogous to the Hashes below. The first item in this code snippet has comments pointing out all the columns from which each attribute can possibly come from. We'll look more closely at these column-to-attribute mappings in the sections below.
+When that's parsed, an array of [Items](https://github.com/fpsvogel/reading/blob/main/lib/reading/item.rb) is outputted analogous to the Hashes below. The first item in this code snippet has comments pointing out all the columns from which each attribute can possibly come from. We'll look more closely at these column-to-attribute mappings in the sections below.
 
 ```ruby
 # Compare to Config#default_config[:item][:template] in config.rb.
-# The item in the output is actually converted so that its
-# Hashes become Structs for their convenient dot access,
-# e.g. item.variants instead of item[:variants].
-# But Hashes are easier to show in a code snippet.
+# The item in the output is actually converted so that its Hashes
+# become Items, but Hashes are easier to show in a code snippet.
 parsed_items = [
   {
     rating: nil, # Rating column
@@ -266,7 +264,7 @@ item = {
 
 Now that we've seen how the reading log CSV file should be formatted, let's take a look at what output the Reading gem gives after parsing it.
 
-In each of the two output examples below, I've copied the item template in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb) and added to it the information that is parsed from the example. Just keep in mind that the parsed output is converted from Hashes to Structs, but the examples have Hashes because they're easier to show.
+In each of the two output examples below, I've copied the item template in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb) and added to it the information that is parsed from the example. (In reality these "empty" parts are left out of the parsed data.)
 
 ### Example: book
 
@@ -281,10 +279,8 @@ That would be parsed to:
 
 ```ruby
 # Compare to Config#default_config[:item][:template] in config.rb.
-# The item in the output is actually converted so that its
-# Hashes become Structs for their convenient dot access,
-# e.g. item.variants instead of item[:variants].
-# But Hashes are easier to show in a code snippet.
+# The item in the output is actually converted so that its Hashes
+# become Items, but Hashes are easier to show in a code snippet.
 parsed_items = [{
   rating: 4,
   author: "J. R. R. Tolkien",
@@ -385,10 +381,8 @@ That's parsed to the following:
 
 ```ruby
 # Compare to Config#default_config[:item][:template] in config.rb.
-# The item in the output is actually converted so that its
-# Hashes become Structs for their convenient dot access,
-# e.g. item.variants instead of item[:variants].
-# But Hashes are easier to show in a code snippet.
+# The item in the output is actually converted so that its Hashes
+# become Items, but Hashes are easier to show in a code snippet.
 parsed_items = [{
   rating: 3,
   author: nil,

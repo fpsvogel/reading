@@ -118,7 +118,7 @@ module Reading
             # The structure of an item, along with default values.
             # Wherever an array of hashes ends up with no data (i.e. equal to the
             # value in the template), it is collapsed into an empty array.
-            # E.g. the row "|Dracula||🤝🏼book club" is parsed to a Struct analogous to:
+            # E.g. the row "|Dracula||🤝🏼book club" is parsed to an Item analogous to:
             # {
             #   rating: nil,
             #   author: nil,

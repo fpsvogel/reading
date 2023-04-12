@@ -63,7 +63,7 @@ module Reading
 
       # The view name of the item.
       # @param item [Item]
-      # @param variant [Struct, nil] a variant from the Item.
+      # @param variant [Data, nil] a variant from the Item.
       # @param config [Hash] an entire config.
       # @return [String]
       def extract_name(item, variant, config)
