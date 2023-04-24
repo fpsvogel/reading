@@ -58,7 +58,7 @@ module Reading
                   |
                   (?<length_time>\d+:\d\d)
                 )?
-              \z}x if  segment_index.zero?),
+              \z}x if segment_index.zero?),
               # sources, ISBN/ASIN, length
               (%r{\A
                 (
@@ -78,7 +78,7 @@ module Reading
                   |
                   (?<length_time>\d+:\d\d)
                 )?
-              \z}xo if  segment_index.zero?),
+              \z}xo if segment_index.zero?),
               *Column::SHARED_REGEXES[:series_and_extra_info],
             ].compact
           end

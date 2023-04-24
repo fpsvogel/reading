@@ -49,7 +49,7 @@ module Reading
                 )?
                 (?<title>[^@]+)
                 (?<sources>@.+)?
-              \z}x if  segment_index.zero?),
+              \z}x if segment_index.zero?),
               *Column::SHARED_REGEXES[:series_and_extra_info],
             ].compact
           end
