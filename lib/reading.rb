@@ -7,7 +7,7 @@ require_relative "reading/item/time_length.rb"
 #
 # Architectural overview:
 #
-#                 (CSV input)                    (Items)     (filtered Items)
+#                 (CSV input)                    (Items)   (filtered Items)
 #                      |                          Λ   |           Λ
 #                      |                          |   ·---.       |
 #                      |                          |       |       |
@@ -20,7 +20,7 @@ require_relative "reading/item/time_length.rb"
 #                     / \
 #      Parsing::Parser  Parsing::Transformer
 #             |                 |
-#      parsing/attributes/*  parsing/rows/*
+#       parsing/rows/*   parsing/attributes/*
 #
 module Reading
   # Parses a CSV file or string. See Parsing::CSV#initialize and #parse for details.
