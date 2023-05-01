@@ -20,7 +20,9 @@ module Reading
           [Rating, Head, Sources, StartDates, EndDates, Genres, Length, Notes, History]
         end
 
-        # Does not start with a comment character.
+        # Does not start with a comment character. Note: this must be called
+        # *after* calling ::match? on Rows::Blank, because that one catches
+        # blank lines.
         # @param row_string [String]
         # @param config [Hash]
         # @return [Boolean]

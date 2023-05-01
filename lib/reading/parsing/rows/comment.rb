@@ -11,9 +11,9 @@ module Reading
           []
         end
 
-        # Starts with a comment character and does not include any format emojis.
-        # (Commented rows that DO include format emojis are matched as compact
-        # planned rows.)
+        # Starts with a comment character. Note: this must be called *after*
+        # calling ::match? on Rows::CompactPlanned, because that one checks for
+        # starting with a comment character too.
         # @param row_string [String]
         # @param config [Hash]
         # @return [Boolean]

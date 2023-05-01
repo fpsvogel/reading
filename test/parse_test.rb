@@ -441,6 +441,10 @@ class ParseTest < Minitest::Test
   }
   @inputs[:errors][Reading::InvalidHeadError] =
   {
+  :"OK: blank row" =>
+    "\n\n",
+  :"OK: multiple blank rows" =>
+    "\n\n\n\n",
   :"missing Head column" =>
     "2",
   :"blank Head column" =>
