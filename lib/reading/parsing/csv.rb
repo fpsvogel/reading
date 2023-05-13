@@ -46,7 +46,7 @@ module Reading
       #   each Item's view object, or nil/false if no view object should be built.
       #   If you use a custom view class, the only requirement is that its
       #   #initialize take an Item and a full config as arguments.
-      def initialize(path = nil, lines: nil, config: {}, hash_output: false, item_view: Item::View)
+      def initialize(path: nil, lines: nil, config: {}, hash_output: false, item_view: Item::View)
         validate_path_or_lines(path, lines)
         full_config = Config.new(config).hash
 

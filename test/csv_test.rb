@@ -6,13 +6,13 @@ require "reading/parsing/csv"
 require "tempfile"
 
 class CSVTest < Minitest::Test
-  def test_path_or_stream_required
+  def test_path_or_lines_required
     assert_raises ArgumentError do
       Reading::Parsing::CSV.new
     end
   end
 
-  def test_stream_must_respond_to_each_line
+  def test_lines_must_respond_to_each_line
     assert_raises ArgumentError do
       Reading::Parsing::CSV.new(lines: 1234)
     end
@@ -20,20 +20,20 @@ class CSVTest < Minitest::Test
 
   def test_file_at_path_must_exist
     assert_raises Reading::FileError do
-      Reading::Parsing::CSV.new('~/some/surely/nonexistent/path/reading.csv')
+      Reading::Parsing::CSV.new(path: '~/some/surely/nonexistent/path/reading.csv')
     end
   end
 
   def test_path_must_not_be_a_directory
     assert_raises Reading::FileError do
-      Reading::Parsing::CSV.new('~/')
+      Reading::Parsing::CSV.new(path: '~/')
     end
   end
 
-  def test_if_stream_and_path_given_then_use_stream
+  def test_if_lines_and_path_given_then_use_lines
     file = Tempfile.new('|Goatsong')
     string = '|Sapiens'
-    items = Reading::Parsing::CSV.new(file.path, lines: string).parse
+    items = Reading::Parsing::CSV.new(path: file.path, lines: string).parse
 
     assert_equal 1, items.count
     assert_equal "Sapiens", items.first.title

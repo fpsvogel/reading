@@ -91,7 +91,7 @@ To parse a CSV reading log in Ruby rather than on the command line:
 require "reading"
 
 file_path = "/home/user/reading.csv"
-items = Reading.parse(file_path)
+items = Reading.parse(path: file_path)
 ```
 
 This returns an array of [Items](https://github.com/fpsvogel/reading/blob/main/lib/reading/item.rb), which are essentially a wrapper with the same structure as the template Hash in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb), but providing a few conveniences such as dot access (`item.notes` instead of `item[:notes]`).
@@ -101,8 +101,8 @@ If instead of a file path you want to directly parse a String (or anything else 
 ```ruby
 require "reading"
 
-string = File.read(file_path)
-items = Reading.parse(lines: string)
+csv_string = '3|📕Trying|Little Library 1970147288'
+items = Reading.parse(lines: csv_string)
 ```
 
 ### Parse with custom config
@@ -116,7 +116,7 @@ require "reading"
 
 custom_config = { enabled_columns: [:head, :end_dates] }
 file_path = "/home/user/reading.csv"
-items = Reading.parse(file_path, config: custom_config)
+items = Reading.parse(path: file_path, config: custom_config)
 ```
 
 ### Filtering the output
@@ -124,8 +124,8 @@ items = Reading.parse(file_path, config: custom_config)
 Once you've parsed your reading log, you can easily filter the output like this:
 
 ```ruby
-# (Parse a reading log into `items` as above)
 # ...
+# (Already parsed a reading log into `items` as above.)
 filtered_items = Reading.filter(
   items: items,
   minimum_rating: 4,

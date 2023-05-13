@@ -33,7 +33,7 @@ end
 input_is_csv_path = input.end_with?('.csv') || input.include?('/')
 
 if input_is_csv_path
-  items = Reading.parse(input, config:, hash_output: true)
+  items = Reading.parse(path: input, config:, hash_output: true)
 else # CSV string
   items = Reading.parse(lines: input, config:, hash_output: true)
 end
