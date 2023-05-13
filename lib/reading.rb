@@ -1,5 +1,6 @@
 require_relative "reading/parsing/csv"
 require_relative "reading/filter"
+require_relative "reading/stats/query"
 require_relative "reading/config"
 require_relative "reading/item/time_length.rb"
 
@@ -32,6 +33,12 @@ module Reading
   # Filters an array of Items. See Filter::by for details.
   def self.filter(...)
     Filter.by(...)
+  end
+
+  # Returns statistics on Items. See Stats::Query#initialize and #result for details.
+  def self.stats(...)
+    query = Stats::Query.new(...)
+    query.result
   end
 
   # The default config.
