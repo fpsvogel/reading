@@ -1,5 +1,6 @@
 ## [0.9.0] - in progress
 
+- In the top-level API, renamed `stream` keyword argument to `lines`.
 - Combined the `reading` and `readingfile` commands into `parsereading`.
 
 ## [0.8.0] - 2023-04-12

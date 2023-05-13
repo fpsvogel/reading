@@ -102,7 +102,7 @@ If instead of a file path you want to directly parse a String (or anything else 
 require "reading"
 
 string = File.read(file_path)
-items = Reading.parse(stream: string)
+items = Reading.parse(lines: string)
 ```
 
 ### Parse with custom config

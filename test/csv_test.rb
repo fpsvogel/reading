@@ -14,7 +14,7 @@ class CSVTest < Minitest::Test
 
   def test_stream_must_respond_to_each_line
     assert_raises ArgumentError do
-      Reading::Parsing::CSV.new(stream: 1234)
+      Reading::Parsing::CSV.new(lines: 1234)
     end
   end
 
@@ -33,7 +33,7 @@ class CSVTest < Minitest::Test
   def test_if_stream_and_path_given_then_use_stream
     file = Tempfile.new('|Goatsong')
     string = '|Sapiens'
-    items = Reading::Parsing::CSV.new(file.path, stream: string).parse
+    items = Reading::Parsing::CSV.new(file.path, lines: string).parse
 
     assert_equal 1, items.count
     assert_equal "Sapiens", items.first.title

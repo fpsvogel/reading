@@ -17,7 +17,7 @@ require_relative "transformer"
 module Reading
   module Parsing
     #
-    # Validates a path or stream (string, file, etc.) of a CSV reading log, then
+    # Validates a path or lines (string, file, etc.) of a CSV reading log, then
     # parses it into an array of Items.
     #
     # Parsing happens in two steps:
@@ -33,10 +33,10 @@ module Reading
     class CSV
       private attr_reader :parser, :transformer, :hash_output, :item_view
 
-      # Validates a path or stream (string, file, etc.) of a CSV reading log,
+      # Validates a path or lines (string, file, etc.) of a CSV reading log,
       # builds the config, and initializes the parser and transformer.
-      # @param path [String] path to the CSV file; used if no stream is given.
-      # @param stream [Object] an object responding to #each_linewith CSV row(s);
+      # @param path [String] path to the CSV file; used if no lines are given.
+      # @param lines [Object] an object responding to #each_line with CSV row(s);
       #   if nil, path is used instead.
       # @param config [Hash] a custom config which overrides the defaults,
       #   e.g. { errors: { styling: :html } }
@@ -46,12 +46,12 @@ module Reading
       #   each Item's view object, or nil/false if no view object should be built.
       #   If you use a custom view class, the only requirement is that its
       #   #initialize take an Item and a full config as arguments.
-      def initialize(path = nil, stream: nil, config: {}, hash_output: false, item_view: Item::View)
-        validate_path_or_stream(path, stream)
+      def initialize(path = nil, lines: nil, config: {}, hash_output: false, item_view: Item::View)
+        validate_path_or_lines(path, lines)
         full_config = Config.new(config).hash
 
         @path = path
-        @stream = stream
+        @lines = lines
         @hash_output = hash_output
         @item_view = item_view
         @parser = Parser.new(full_config)
@@ -64,7 +64,7 @@ module Reading
       #   structure to that Hash (with every inner Hash replaced by a Data for
       #   dot access).
       def parse
-        input = @stream || File.open(@path)
+        input = @lines || File.open(@path)
         items = []
 
         input.each_line do |line|
@@ -90,11 +90,11 @@ module Reading
 
       private
 
-      # Checks on the given stream and path (arguments to #initialize).
+      # Checks on the given lines and path (arguments to #initialize).
       # @raise [FileError] if the given path is invalid.
-      # @raise [ArgumentError] if both stream and path are nil.
-      def validate_path_or_stream(path, stream)
-        if stream && stream.respond_to?(:each_line)
+      # @raise [ArgumentError] if both lines and path are nil.
+      def validate_path_or_lines(path, lines)
+        if lines && lines.respond_to?(:each_line)
           return true
         elsif path
           if !File.exist?(path)
@@ -104,7 +104,7 @@ module Reading
           end
         else
           raise ArgumentError,
-            "Either a file path or a stream (string, file, etc.) must be provided."
+            "Provide either a file path or object implementing #each_line (String, File, etc.)."
         end
       end
     end

@@ -1669,7 +1669,7 @@ class ParseTest < Minitest::Test
     define_method("test_enabled_columns_#{columns.join("_")}") do
       columns_config = with_columns(columns)
       exp = tidy(outputs[:enabled_columns], name)
-      act = Reading.parse(stream: file_str, config: columns_config, hash_output: true)
+      act = Reading.parse(lines: file_str, config: columns_config, hash_output: true)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse with these columns enabled: #{name}"
@@ -1685,7 +1685,7 @@ class ParseTest < Minitest::Test
       define_method("test_#{columns_sym}_feature_#{name}") do
         columns_config = with_columns(columns + [:head])
         exp = tidy(outputs[group_name], name)
-        act = Reading.parse(stream: file_str, config: columns_config, hash_output: true)
+        act = Reading.parse(lines: file_str, config: columns_config, hash_output: true)
         # debugger unless exp == act
         assert_equal exp, act,
           "Failed to parse this #{main_column_humanized} column feature: #{name}"
@@ -1698,7 +1698,7 @@ class ParseTest < Minitest::Test
     define_method("test_all_columns_#{name}") do
       columns_config = with_columns(:all)
       exp = tidy(outputs[:all_columns], name)
-      act = Reading.parse(stream: file_str, config: columns_config, hash_output: true)
+      act = Reading.parse(lines: file_str, config: columns_config, hash_output: true)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this all-columns example: #{name}"
@@ -1711,10 +1711,10 @@ class ParseTest < Minitest::Test
       define_method("test_error_#{name}") do
         columns_config = with_columns(:all)
         if name.start_with? "OK: " # Should not raise an error.
-          refute_nil Reading.parse(stream: file_str, config: columns_config, hash_output: true)
+          refute_nil Reading.parse(lines: file_str, config: columns_config, hash_output: true)
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            Reading.parse(stream: file_str, config: columns_config, hash_output: true)
+            Reading.parse(lines: file_str, config: columns_config, hash_output: true)
           end
         end
       end
@@ -1725,7 +1725,7 @@ class ParseTest < Minitest::Test
   inputs[:config].each do |name, (file_str, custom_config)|
     define_method("test_config_#{name}") do
       exp = tidy(outputs[:config], name)
-      act = Reading.parse(stream: file_str, config: custom_config, hash_output: true)
+      act = Reading.parse(lines: file_str, config: custom_config, hash_output: true)
       # debugger unless exp == act
       assert_equal exp, act,
         "Failed to parse this config example: #{name}"
