@@ -8,8 +8,8 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 - [Installation](#installation)
 - [Docs](#docs)
 - [Usage](#usage)
-  - [Try out a CSV string](#try-out-a-csv-string)
-  - [Parse a file](#parse-a-file)
+  - [Try out a CSV file or string](#try-out-a-csv-file-or-string)
+  - [Parse in Ruby](#parse-in-ruby)
   - [Parse with custom config](#parse-with-custom-config)
   - [Filtering the output](#filtering-the-output)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
@@ -61,31 +61,31 @@ $ gem install reading
 
 ## Usage
 
-### Try out a CSV string
+### Try out a CSV file or string
 
-To quickly see the output from a CSV string, use the `reading` command:
+To quickly see the parsed output from a CSV file, use the `parsereading` command:
 
 ```
-$ reading '3|📕Trying|Little Library 1970147288'
+$ parsereading /home/felipe/reading.csv
 ```
 
-The pipe character (`|`) is the column separator. The above example includes the first three columns (Rating, Head, and Sources) which contain a rating, format (book), title, source, and ISBN. You'll see all those reflected in the parsed data that is output to the console after you run the command.
+The same command can be used with a CSV string argument:
 
-An optional second argument specifies enabled columns. To omit the Rating column from the example above:
+```
+$ parsereading '3|📕Trying|Little Library 1970147288'
+```
+
+See the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md) for more on columns, but here suffice it to note that this CSV string has the first three columns (Rating, Head, and Sources).
+
+An optional second argument specifies enabled columns. The CSV string above already omits several right-side columns, but to omit a left-side or middle column we'll have to disable it. For example, to omit the Rating column from the example above:
 
 ```
 $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 ```
 
-To see the parser output from a file (e.g. to see if it is correctly formatted), use the `readingfile` command:
+### Parse in Ruby
 
-```
-$ readingfile /home/felipe/reading.csv
-```
-
-### Parse a file
-
-To parse a CSV reading log:
+To parse a CSV reading log in Ruby rather than on the command line:
 
 ```ruby
 require "reading"

@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+# A script that provides a quick way to see the output of a CSV file or string.
+#
+# Usage:
+# Run on the command line:
+#   reading "<CSV path or string>" "<optional comma-separated names of enabled columns>"
+#
+# Examples:
+#   parsereading /home/felipe/reading.csv
+#   parsereading /home/felipe/reading.csv 'head, sources'
+#   parsereading '3|📕Trying|Little Library 1970147288'
+#   parsereading '📕Trying|Little Library 1970147288' 'head, sources'
+#
+
+require_relative "../lib/reading"
+require "amazing_print"
+require "debug"
+
+input = ARGV[0]
+unless input
+  raise ArgumentError,
+    "Argument required: CSV path such as /home/felipe/reading.csv " \
+    "or CSV string such as '3|📕Trying|Little Library 1970147288'"
+end
+
+config = {}
+if ARGV[1]
+  enabled_columns = ARGV[1].split(",").map(&:strip).map(&:to_sym)
+  config = { enabled_columns: }
+end
+
+input_is_csv_path = input.end_with?('.csv') || input.include?('/')
+
+if input_is_csv_path
+  items = Reading.parse(input, config:, hash_output: true)
+else # CSV string
+  items = Reading.parse(stream: input, config:, hash_output: true)
+end
+
+ap items

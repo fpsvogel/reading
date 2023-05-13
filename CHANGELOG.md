@@ -1,3 +1,7 @@
+## [0.9.0] - in progress
+
+- Combined the `reading` and `readingfile` commands into `parsereading`.
+
 ## [0.8.0] - 2023-04-12
 
 - Added `Item` and `Filter` for more convenient output and filtering of it.
@@ -7,7 +11,7 @@
 ## [0.7.0] - 2023-04-05
 
 - Added parsing of the History column.
-- Changed the parsing API. See the ["Usage" section of the README](https://github.com/fpsvogel/reading#parse-a-file).
+- Changed the parsing API. See the ["Usage" section of the README](https://github.com/fpsvogel/reading#parse-in-ruby).
 
 ## [0.6.1] - 2023-01-01
 
