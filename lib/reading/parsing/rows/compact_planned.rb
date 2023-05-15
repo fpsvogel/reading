@@ -1,6 +1,7 @@
 require_relative "column"
 require_relative "compact_planned_columns/head"
 require_relative "regular_columns/sources"
+require_relative "regular_columns/length"
 
 module Reading
   module Parsing
@@ -12,7 +13,7 @@ module Reading
         # The columns that are possible in this type of row.
         # @return [Array<Class>]
         def self.column_classes
-          [CompactPlanned::Head, Regular::Sources]
+          [CompactPlanned::Head, Regular::Sources, Regular::Length]
         end
 
         # Starts with a comment character and includes one or more format emojis.

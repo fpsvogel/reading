@@ -20,7 +20,7 @@ This guide is written to show you what your reading log CSV file should look lik
   - [Compact planned items](#compact-planned-items)
   - [Compact planned items: genres](#compact-planned-items-genres)
   - [Compact planned items: sources](#compact-planned-items-sources)
-  - [Compact planned items: single line with Sources column](#compact-planned-items-single-line-with-sources-column)
+  - [Compact planned items: single line with Sources and Length columns](#compact-planned-items-single-line-with-sources-and-length-columns)
   - [Compact planned items: ignored emojis](#compact-planned-items-ignored-emojis)
 - [Advanced](#advanced)
   - [Head column: DNF](#head-column-dnf)
@@ -265,20 +265,20 @@ You can group the items with one or more common sources:
 \FICTION, HISTORY @Lexpub: 📕Beloved @Jeffco 🔊Kindred ⚡Beowulf
 ```
 
-### Compact planned items: single line with Sources column
+### Compact planned items: single line with Sources and Length columns
 
 When I know I'm going to read something very soon, I like to put it near my in-progress items at the top of my CSV file, rather than in my lists of planned items at the bottom of the file.
 
-In these cases, I like putting each planned item on its own line with a Sources column:
+In these cases, I like putting each planned item on its own line with Sources and Length columns:
 
 ```
-\📕Beloved|Lexpub, Jeffco
-\🔊Kindred|Lexpub
+\📕Beloved|Lexpub, Jeffco|321
+\🔊Kindred|Lexpub|10:55
 ```
 
-This will be parsed as normal Head and Sources columns. If you want more columns than that, then just change it to a non-compact item by removing the comment character and adding in all the missing columns.
+This will be parsed as normal Head, Sources, and Length columns. If you want more columns than that, then just change it to a non-compact item by removing the comment character and adding in the missing columns.
 
-One reason I like this form is that my shortcut scripts for creating a new row ([Ruby](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb), [AutoHotkey](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk)) recognize a compact planned item and incorporates it into the new row, and having a Sources column ready to go means less work changing the planned item into a regular row.
+One reason I like this form is that my shortcut scripts for creating a new row ([Ruby](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb), [AutoHotkey](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk)) recognize a compact planned item and incorporates it into the new row, and having Sources and Length columns ready to go means less work changing the planned item into a regular row.
 
 ### Compact planned items: ignored emojis
 

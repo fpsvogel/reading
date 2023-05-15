@@ -207,6 +207,10 @@ class ParseTest < Minitest::Test
     "\\⚡Tom Holt - A Song for Nero @Lexpub @Hoopla",
   :"with sources in the Sources column" =>
     "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla",
+  :"with Sources and Length column" =>
+    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|239",
+  :"with only Length column" =>
+    "\\⚡Tom Holt - A Song for Nero|239",
   :"with fuller Head and Sources columns" =>
     "\\⚡Tom Holt - A Song for Nero -- unabridged -- in Holt's Classical Novels|Lexpub, Hoopla B00GW4U2TM",
   :"with sources and extra info" =>
@@ -482,8 +486,8 @@ class ParseTest < Minitest::Test
   :"OK: missing Notes column (History is parsed as Notes)" =>
     "|Sapiens||||history|15:17|2022/5/1 p31 -- 5/2 p54 -- 5/6-15 10p -- 5/20 p200 -- 5/21-23 done",
   # OK because in these cases the row is assumed to be a full row.
-  :"OK: multiple other columns in a compact planned item when only Sources is allowed" =>
-    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21",
+  :"OK: other columns in a compact planned item when only Sources and Length allowed" =>
+    "\\⚡Tom Holt - A Song for Nero|Lexpub, Hoopla|2022/12/21||fiction,history",
   }
 
 
@@ -839,6 +843,13 @@ class ParseTest < Minitest::Test
   @outputs[:features_compact_planned][:"with sources"] = [a_sources]
 
   @outputs[:features_compact_planned][:"with sources in the Sources column"] = [a_sources]
+
+  a_sources_and_length = a_sources.deep_merge(variants: [{ length: 239 }])
+  @outputs[:features_compact_planned][:"with Sources and Length column"] =
+    [a_sources_and_length]
+
+  a_length_only = a_author.deep_merge(variants: [{ length: 239 }])
+  @outputs[:features_compact_planned][:"with only Length column"] = [a_length_only]
 
   a_full_sources = a_sources.deep_merge(
     variants: [{ isbn: "B00GW4U2TM",
@@ -1613,12 +1624,9 @@ class ParseTest < Minitest::Test
   # ==== UTILITY METHODS
 
   def with_columns(columns)
-    if columns.empty? || columns == :all
+    if columns.empty? || columns == :all || columns.delete(:compact_planned)
       config = base_config
     else
-      if columns.delete(:compact_planned)
-        columns << :sources # because some compact planned tests have the Sources column.
-      end
       config = base_config.merge(enabled_columns: columns)
     end
 
