@@ -15,16 +15,12 @@ cut = `xclip -o -selection clipboard`
 comment_char = "\\"
 cut = cut.delete_prefix(comment_char).chomp
 
-# If the Source column is already present, do not add a column separator for it.
-if cut.include? "|"
-  source_sep = ""
-else
-  source_sep = "|"
-end
+# Extract the Source and Length columns, if present.
+head, source, length = cut.split("|")
 
 start_date = `date +'%Y/%m/%d'`.chomp
 
-row = "|#{cut}#{source_sep}|#{start_date}|||"
+row = "|#{head}|#{source}|#{start_date}|||#{length}"
 
 # Output the row to the clipboard, then paste it.
 `echo "#{row}" | xclip -f -selection clipboard`
@@ -32,6 +28,5 @@ sleep 0.05
 `xdotool key "ctrl+v"`
 sleep 0.05
 
-# Move the cursor to the Genres column.
-`xdotool key Left`
+# Move the cursor to the end of the row, from the beginning of the next row.
 `xdotool key Left`
