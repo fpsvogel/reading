@@ -30,9 +30,8 @@ module Reading
       add_missing_attributes_with_filler_values(item_hash, config)
 
       @attributes = item_hash.to_data
-      @config = config
 
-      @status, @last_end_date = get_status_and_last_end_date
+      @status, @last_end_date = get_status_and_last_end_date(config)
       @view = view.new(self, config) if view
     end
 
@@ -79,8 +78,9 @@ module Reading
     # length (e.g. podcast) there is a grace period during which the status
     # remains :in_progress after the last activity. If that grace period is over,
     # the status is :done. It's :planned if there are no spans with dates.
+    # @param config [Hash] an entire config.
     # @return [Array(Symbol, Date)]
-    def get_status_and_last_end_date
+    def get_status_and_last_end_date(config)
       return [:planned, nil] if experiences.none? || experiences.flat_map(&:spans).none?
 
       experiences_with_spans_with_dates = experiences
