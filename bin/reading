@@ -38,5 +38,5 @@ loop do
   input = raw_input.presence
   next if raw_input.blank?
 
-  puts Reading.stats(input:, items:)
+  puts Reading.stats(input:, items:, config:)
 end

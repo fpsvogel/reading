@@ -1,7 +1,5 @@
 require_relative "../test_helpers/test_helper"
 
-require_relative "../../lib/reading/util/string_remove"
-
 class StringRemoveTest < Minitest::Test
   using Reading::Util::StringRemove
 

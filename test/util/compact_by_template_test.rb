@@ -1,8 +1,5 @@
 require_relative "../test_helpers/test_helper"
 
-require_relative "../../lib/reading/util/hash_compact_by_template"
-require_relative "../../lib/reading/config"
-
 class CompactByTemplateTest < Minitest::Test
   using Reading::Util::HashCompactByTemplate
 

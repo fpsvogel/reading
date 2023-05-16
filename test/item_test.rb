@@ -4,10 +4,6 @@ require_relative "test_helpers/test_helper"
 require_relative "test_helpers/describe_and_it_blocks"
 
 require "reading/item"
-require "reading/config"
-require "reading/util/hash_deep_merge"
-require "reading/util/hash_array_deep_fetch"
-require "reading/util/hash_to_data"
 require "reading"
 
 class ItemTest < Minitest::Test

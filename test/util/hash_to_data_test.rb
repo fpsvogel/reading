@@ -1,7 +1,5 @@
 require_relative "../test_helpers/test_helper"
 
-require_relative "../../lib/reading/util/hash_to_data"
-
 class HashToDataTest < Minitest::Test
   using Reading::Util::HashToData
 

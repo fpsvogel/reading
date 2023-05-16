@@ -1,7 +1,5 @@
 require_relative "../test_helpers/test_helper"
 
-require_relative "../../lib/reading/util/string_truncate"
-
 class StringTruncateTest < Minitest::Test
   using Reading::Util::StringTruncate
 

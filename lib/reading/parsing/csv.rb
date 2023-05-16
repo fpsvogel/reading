@@ -1,15 +1,3 @@
-# Used throughout, in other files.
-require_relative "../util/blank"
-require_relative "../util/string_remove"
-require_relative "../util/string_truncate"
-require_relative "../util/numeric_to_i_if_whole"
-require_relative "../util/hash_deep_merge"
-require_relative "../util/hash_array_deep_fetch"
-require_relative "../util/hash_compact_by_template"
-require_relative "../errors"
-
-# Used just here.
-require_relative "../config"
 require_relative "../item"
 require_relative "parser"
 require_relative "transformer"

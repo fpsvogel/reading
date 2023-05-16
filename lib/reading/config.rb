@@ -1,5 +1,3 @@
-require_relative "util/hash_deep_merge"
-require_relative "util/hash_array_deep_fetch"
 require_relative "errors"
 
 module Reading

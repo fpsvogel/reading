@@ -1,9 +1,6 @@
 require "forwardable"
 
 require_relative "item/view"
-require_relative "config"
-require_relative "util/hash_to_data"
-require_relative "util/hash_array_deep_fetch"
 
 module Reading
   # A wrapper for an item parsed from a CSV reading log, providing convenience

@@ -1,5 +1,3 @@
-$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-
 require "rubygems"
 require "bundler/setup"
 
@@ -17,6 +15,9 @@ module Minitest
     include PrettyDiffs
   end
 end
+
+
+Gem.find_files("reading/util/*.rb").each { |f| require f }
 
 
 require "date"
