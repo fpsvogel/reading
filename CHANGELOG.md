@@ -2,7 +2,7 @@
 
 - In the top-level API, renamed `stream` keyword argument to `lines`.
 - In the top-level API, made the `path` argument into a keyword argument.
-- Combined the `reading` and `readingfile` commands into `parsereading`.
+- Added the `reading` command for querying a file for statistics, or for showing raw output from parsing a CSV string. (Replaces the former `reading` and `readingfile` commands.)
 
 ## [0.8.0] - 2023-04-12
 

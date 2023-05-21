@@ -8,7 +8,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
 - [Installation](#installation)
 - [Docs](#docs)
 - [Usage](#usage)
-  - [Try out a CSV file or string](#try-out-a-csv-file-or-string)
+  - [Try out a CSV string](#try-out-a-csv-string)
   - [Parse in Ruby](#parse-in-ruby)
   - [Parse with custom config](#parse-with-custom-config)
   - [Filtering the output](#filtering-the-output)
@@ -61,18 +61,12 @@ $ gem install reading
 
 ## Usage
 
-### Try out a CSV file or string
+### Try out a CSV string
 
-To quickly see the parsed output from a CSV file, use the `parsereading` command:
-
-```
-$ parsereading /home/felipe/reading.csv
-```
-
-The same command can be used with a CSV string argument:
+To quickly see the parsed output from a CSV string, use the `reading` command:
 
 ```
-$ parsereading '3|📕Trying|Little Library 1970147288'
+$ reading '3|📕Trying|Little Library 1970147288'
 ```
 
 See the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md) for more on columns, but here suffice it to note that this CSV string has the first three columns (Rating, Head, and Sources).
