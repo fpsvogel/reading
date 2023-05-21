@@ -7,7 +7,7 @@ module Reading
   # Means there is something wrong with the user-supplied custom config.
   class ConfigError < Reading::Error; end
 
-  # Means unexpected input was encountered during parsing.
+  # Means unexpected input was encountered during CSV parsing.
   class ParsingError < Reading::Error; end
 
   # Means something in the Head column (author, title, etc.) is invalid.
@@ -21,4 +21,7 @@ module Reading
 
   # Means a date is unparsable, or a set of dates does not make logical sense.
   class InvalidDateError < Reading::Error; end
+
+  # Means a stats command was entered incorrectly.
+  class InputError < Reading::Error; end
 end

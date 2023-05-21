@@ -30,12 +30,13 @@ if ARGV[1]
   config = { enabled_columns: }
 end
 
-input_is_csv_path = input.end_with?('.csv') || input.include?('/')
+input_is_csv_string = !input.end_with?('.csv') && !input.include?('/')
 
-if input_is_csv_path
-  items = Reading.parse(path: input, config:, hash_output: true)
-else # CSV string
-  items = Reading.parse(lines: input, config:, hash_output: true)
+if input_is_csv_string
+  item_hashes = Reading.parse(lines: input, config:, hash_output: true)
+  ap item_hashes
 end
 
-ap items
+items = Reading.parse(path: input, config:)
+
+debugger
