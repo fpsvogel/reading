@@ -11,14 +11,14 @@ class StatsTest < Minitest::Test
 
   @config = Reading::Config.new.hash
 
-  # ==== TEST QUERIES AND RESULTS
+  # ==== TEST QUERIES
 
   @queries = {}
 
   ## QUERIES: OPERATIONS
   # Simple queries testing each operation, without filters or group-by.
   @queries[:operations] = {
-    average_rating: {
+    :"average rating" => {
       input: "average rating",
       result: 3.5,
       items: [
@@ -26,7 +26,7 @@ class StatsTest < Minitest::Test
         { rating: 4 },
       ],
     },
-    average_rating_with_nil: {
+    :"average rating with nil" => {
       input: "average rating",
       result: 3.0,
       items: [
@@ -34,15 +34,31 @@ class StatsTest < Minitest::Test
         { rating: nil },
       ],
     },
-    average_length: {
+    :"average length" => {
       input: "average length",
-      result: 0,
+      result: 250,
       items: [
-        { variants: { length: 200 } },
-        { variants: { length: 300 } },
+        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: 300 }], experiences: [{ variant_index: 0 }] },
       ],
     },
-    count: {
+    :"average length with pages and time lengths" => {
+      input: "average length",
+      result: 180,
+      items: [
+        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: Reading.time('4:00') }], experiences: [{ variant_index: 0 }] },
+      ],
+    },
+    :"average length with time and pages lengths" => {
+      input: "average length",
+      result: 180,
+      items: [
+        { variants: [{ length: Reading.time('4:00') }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
+      ],
+    },
+    :"count" => {
       input: "count",
       result: 2,
       items: [

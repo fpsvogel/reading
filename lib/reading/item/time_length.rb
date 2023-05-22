@@ -5,6 +5,8 @@ module Reading
     class Item::TimeLength
       include Comparable
 
+      PAGES_PER_HOUR = 40
+
       attr_reader :value # in total minutes
 
       # @param value [Numeric] the total minutes
@@ -18,6 +20,20 @@ module Reading
       def self.parse(string)
         hours, minutes = string.split(':').map(&:to_i)
         new((hours * 60) + minutes)
+      end
+
+      # Builds an Item::TimeLength based on a page count.
+      # @param pages [Integer]
+      # @return [TimeLength]
+      def self.from_pages(pages)
+        new(pages_to_minutes(pages))
+      end
+
+      # Converts a page count to minutes.
+      # @param pages [Integer]
+      # @return [Integer]
+      def self.pages_to_minutes(pages)
+        (pages.to_f / PAGES_PER_HOUR * 60).round
       end
 
       # Only the hours, e.g. the "h" value in "h:mm".
@@ -35,7 +51,7 @@ module Reading
       # A string in "h:mm" format.
       # @return [String]
       def to_s
-        "#{hours}:#{minutes}"
+        "#{hours}:#{minutes} or #{(value / 60.0 * PAGES_PER_HOUR).round} pages"
       end
 
       # @return [Boolean]
@@ -62,27 +78,25 @@ module Reading
         self.class.new(@value.to_i)
       end
 
-      # TODO: addition with pages (nonzero Integer)
       # @param other [TimeLength, Integer] must be zero if it's an Integer.
       # @return [TimeLength]
       def +(other)
         if other.is_a? Item::TimeLength
           self.class.new(value + other.value)
-        elsif other.zero?
-          self
+        elsif other.is_a? Integer
+          self.class.new(value + self.class.pages_to_minutes(other))
         else
           raise TypeError, "#{other.class} can't be added to Item::TimeLength."
         end
       end
 
-      # TODO: subtraction with pages (nonzero Integer)
       # @param other [TimeLength, Integer] must be zero if it's an Integer.
       # @return [TimeLength]
       def -(other)
         if other.is_a? Item::TimeLength
           self.class.new(value - other.value)
-        elsif other.zero?
-          self
+        elsif other.is_a? Integer
+          self.class.new(value - self.class.pages_to_minutes(other))
         else
           raise TypeError, "#{other.class} can't be subtracted from Item::TimeLength."
         end
@@ -108,25 +122,22 @@ module Reading
         end
       end
 
-      # TODO: add coercion for pages (nonzero Integer)
-      # See https://www.mutuallyhuman.com/blog/class-coercion-in-ruby
+      # See https://web.archive.org/web/20221206095821/https://www.mutuallyhuman.com/blog/class-coercion-in-ruby/
       # @param other [Integer] must be zero.
       def coerce(other)
-        if other.zero?
-          [self.class.new(other), self]
+        if other.is_a? Integer
+          [self.class.from_pages(other), self]
         else
-          raise TypeError, "TimeLength can't be coerced into #{other.class}."
+          raise TypeError, "#{other.class} can't be coerced into a TimeLength."
         end
       end
 
-      # TODO: add comparison to pages (nonzero Integer)
-      # @param other [TimeLength, Integer] if Integer, must be zero.
+      # @param other [TimeLength, Integer]
       def <=>(other)
         return 1 if other.nil?
 
-        if other.zero?
-          return 0 if value.zero?
-          return 1
+        if other.is_a? Integer
+          other = self.class.from_pages(other)
         end
 
         unless other.is_a? Item::TimeLength

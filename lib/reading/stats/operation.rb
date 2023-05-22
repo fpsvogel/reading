@@ -36,7 +36,7 @@ module Reading
         average_length: proc { |items|
           items.flat_map { |item|
             item.experiences.map { |experience|
-              item.variants[experience[:variant_index]].length
+              item.variants[experience.variant_index].length
             }
           }.compact.sum / items.count
         },
