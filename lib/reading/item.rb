@@ -82,15 +82,21 @@ module Reading
     # @return [Array(Symbol, Date)]
     def get_status_and_last_end_date(config)
       return [:planned, nil] if experiences.none? ||
-        experiences.flat_map { |exp|
+        experiences.flat_map { |experience|
           # Conditional in case Item was created with fragmentary experience hashes,
           # as in stats_test.rb
-          exp.spans if exp.members.include?(:spans)
+          experience.spans if experience.members.include?(:spans)
         }
         .none?
 
       experiences_with_spans_with_dates = experiences
-        .select { |experience| experience.spans.any? { |span| span.dates } }
+        .select { |experience|
+          experience.spans.any? { |span|
+            # Conditional in case Item was created with fragmentary experience hashes,
+            # as in stats_test.rb
+            span.dates if span.members.include?(:dates)
+          }
+        }
 
       return [:planned, nil] unless experiences_with_spans_with_dates.any?
 

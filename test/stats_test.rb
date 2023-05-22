@@ -47,23 +47,33 @@ class StatsTest < Minitest::Test
       result: 180,
       items: [
         { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
-        { variants: [{ length: Reading.time('4:00') }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: Reading.time("4:00") }], experiences: [{ variant_index: 0 }] },
       ],
     },
     :"average length with time and pages lengths" => {
       input: "average length",
       result: 180,
       items: [
-        { variants: [{ length: Reading.time('4:00') }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: Reading.time("4:00") }], experiences: [{ variant_index: 0 }] },
         { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
       ],
     },
-    :"count" => {
-      input: "count",
+    :"total items" => {
+      input: "total item",
       result: 2,
       items: [
         {},
         {},
+      ],
+    },
+    :"total amount" => {
+      input: "total amount",
+      result: 47,
+      items: [
+        { experiences: [{ spans: [{ amount: 20 }] },
+                        { spans: [{ amount: 15 }, { amount: Reading.time("0:15") }] }] },
+        { experiences: [{ spans: [{ amount: 2 }] }] },
+        { experiences: [] },
       ],
     },
     :"top ratings" => {
@@ -132,11 +142,8 @@ class StatsTest < Minitest::Test
         "Unexpected result #{act} from stats query \"#{name}\""
 
       # Alternate input style: pluralize the second word.
-      if hash[:input].include?(' ')
-        act = Reading.stats(input: "#{hash.fetch(:input)}s", items:, config:)
-
-        assert_equal exp, act
-      end
+      act = Reading.stats(input: "#{hash.fetch(:input)}s", items:, config:)
+      assert_equal exp, act
     end
   end
 end

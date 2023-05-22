@@ -8,7 +8,8 @@ require_relative "operation"
 # ✅ average rating(s)
 # ✅ average length(s)
 # average amount(s)
-# ✅ count
+# ✅ total item(s)
+# ✅ total amount(s)
 # ✅ top/bottom 5 rating(s)
 # ✅ top/bottom 5 length(s)
 # top/bottom 5 amount(s)

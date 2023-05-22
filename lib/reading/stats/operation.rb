@@ -27,7 +27,7 @@ module Reading
           end
         end
 
-        raise InputError, "Stats input could not be matched to a valid operation."
+        raise InputError, "Stats query input could not be matched to a valid operation."
       end
 
       private
@@ -46,8 +46,11 @@ module Reading
         },
         average_amount: proc { |items|
         },
-        count: proc { |items|
+        total_item: proc { |items|
           items.count
+        },
+        total_amount: proc { |items|
+          items.sum { |item| item.experiences.sum { |exp| exp.spans.sum(&:amount) } }
         },
         top_rating: proc { |items, number_arg|
           items
