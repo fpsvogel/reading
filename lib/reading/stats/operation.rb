@@ -30,7 +30,8 @@ module Reading
 
       ACTIONS = {
         average_rating: proc { |items|
-          items.map(&:rating).sum.to_f / items.count
+          ratings = items.map(&:rating).compact
+          ratings.sum.to_f / ratings.count
         },
         average_length: proc { |items|
           items.flat_map { |item|

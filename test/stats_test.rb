@@ -5,40 +5,11 @@ require_relative "test_helpers/test_helper"
 require "reading"
 
 class StatsTest < Minitest::Test
-  self.class.attr_reader :items, :queries
+  self.class.attr_reader :queries, :config
 
-  def items = self.class.items
+  def config = self.class.config
 
-  def inputs = self.class.inputs
-
-  def outputs = self.class.outputs
-
-  # ==== ITEMS
-
-  config = Reading::Config.new.hash
-
-  item_hashes = [
-    {
-      rating: 3,
-      variants: [
-        { length: 200 },
-      ],
-    },
-    {
-      rating: 5,
-      variants: [
-        { length: 300 },
-      ],
-    },
-  ]
-
-  @items = item_hashes.map { |item_hash|
-    Reading::Item.new(
-      item_hash,
-      config:,
-      view: false,
-    )
-  }
+  @config = Reading::Config.new.hash
 
   # ==== TEST QUERIES AND RESULTS
 
@@ -46,27 +17,59 @@ class StatsTest < Minitest::Test
 
   ## QUERIES: OPERATIONS
   # Simple queries testing each operation, without filters or group-by.
-  @queries[:operations] =
-  {
-  "average rating" =>
-    4.0,
-  "average length" =>
-    0,
-  # "average amount" =>
-  #   nil,
-  "count" =>
-    2,
+  @queries[:operations] = {
+    average_rating: {
+      input: "average rating",
+      result: 3.5,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+      ],
+    },
+    average_rating_with_nil: {
+      input: "average rating",
+      result: 3.0,
+      items: [
+        { rating: 3 },
+        { rating: nil },
+      ],
+    },
+    average_length: {
+      input: "average length",
+      result: 0,
+      items: [
+        { variants: { length: 200 } },
+        { variants: { length: 300 } },
+      ],
+    },
+    count: {
+      input: "count",
+      result: 2,
+      items: [
+        {},
+        {},
+      ],
+    },
   }
 
   # ==== TESTS
 
-  queries[:operations].each do |query, result|
-    define_method("test_operation_#{query}") do
-      exp = result
-      act = Reading.stats(input: query, items:, config:)
+  queries[:operations].each do |key, hash|
+    define_method("test_operation_#{key}") do
+      items = hash.fetch(:items).map { |item_hash|
+        Reading::Item.new(
+          item_hash,
+          config:,
+          view: false,
+        )
+      }
+
+      exp = hash.fetch(:result)
+      act = Reading.stats(input: hash.fetch(:input), items:, config:)
       # debugger unless exp == act
+
       assert_equal exp, act,
-        "Unexpected result from stats query: #{name}"
+        "Unexpected result #{act} from stats query: #{name}"
     end
   end
 end
