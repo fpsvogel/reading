@@ -2,6 +2,10 @@ module Reading
   module Stats
     # The first part of a query.
     class Operation
+      # The default number argument if one is not given, as in "top ratings"
+      # rather than "top 5 ratings".
+      DEFAULT_NUMBER_ARG = 10
+
       # Determines which type of operation is contained in the given input, and
       # then runs it to get the result. For the types of operations and their
       # actions, see the constants below.
@@ -44,7 +48,12 @@ module Reading
         },
         count: proc { |items|
           items.count
-        }
+        },
+        top_rating: proc { |items, number_arg|
+          items
+            .max_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
+            .map { |item| [item.title, item.rating] }
+        },
       }
 
       REGEXES = ACTIONS.map { |key, _action|

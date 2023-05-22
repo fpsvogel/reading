@@ -66,6 +66,23 @@ class StatsTest < Minitest::Test
         {},
       ],
     },
+    :"top ratings" => {
+      input: "top 2 rating",
+      result: [["Whoa.", 5], ["Mehhh", 3]],
+      items: [
+        { title: "Trash", rating: 2 },
+        { title: "Mehhh", rating: 3 },
+        { title: "Whoa.", rating: 5 },
+      ],
+    },
+    :"top ratings without number arg" => {
+      input: "top rating",
+      result: Reading::Stats::Operation::DEFAULT_NUMBER_ARG.times.map { ["Better", 3] },
+      items: [
+        { title: "Trash", rating: 2 },
+        *10.times.map { { title: "Better", rating: 3 } },
+      ],
+    },
   }
 
   # ==== TESTS
