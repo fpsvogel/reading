@@ -83,12 +83,30 @@ class StatsTest < Minitest::Test
         *10.times.map { { title: "Better", rating: 3 } },
       ],
     },
-    :"top length" => {
+    :"top lengths" => {
       input: "top 2 length",
       result: [["Novel", 300], ["Longer", 200]],
       items: [
         { title: "Short", variants: [{ length: 100 }] },
-        { title: "Longer", variants: [{ length: 200 }] },
+        { title: "Longer", variants: [{ length: Reading.time("5:00") }] },
+        { title: "Novel", variants: [{ length: 300 }] },
+      ],
+    },
+    :"bottom ratings" => {
+      input: "bottom 2 rating",
+      result: [["Trash", 2], ["Mehhh", 3]],
+      items: [
+        { title: "Trash", rating: 2 },
+        { title: "Mehhh", rating: 3 },
+        { title: "Whoa.", rating: 5 },
+      ],
+    },
+    :"bottom lengths" => {
+      input: "bottom 2 length",
+      result: [["Short", 100], ["Longer", 200]],
+      items: [
+        { title: "Short", variants: [{ length: 100 }] },
+        { title: "Longer", variants: [{ length: Reading.time("5:00") }] },
         { title: "Novel", variants: [{ length: 300 }] },
       ],
     },

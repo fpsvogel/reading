@@ -61,6 +61,18 @@ module Reading
             }
             .map { |item| [item.title, item.variants.map(&:length).max] }
         },
+        bottom_rating: proc { |items, number_arg|
+          items
+            .min_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
+            .map { |item| [item.title, item.rating] }
+        },
+        bottom_length: proc { |items, number_arg|
+          items
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |item|
+              item.variants.map(&:length).max
+            }
+            .map { |item| [item.title, item.variants.map(&:length).max] }
+        },
       }
 
       REGEXES = ACTIONS.map { |key, _action|
