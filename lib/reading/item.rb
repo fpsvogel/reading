@@ -12,10 +12,10 @@ module Reading
 
     ATTRIBUTES = %i[rating author title genres variants experiences notes]
 
-    private attr_reader :attributes, :config
+    private attr_reader :data, :config
     attr_reader :view, :status, :last_end_date
 
-    def_delegators :attributes, *ATTRIBUTES
+    def_delegators :data, *ATTRIBUTES
 
     # @param item_hash [Hash] a parsed item like the template in
     #   Config#default_config[:item][:template].
@@ -29,7 +29,7 @@ module Reading
 
       add_missing_attributes_with_filler_values(item_hash, config)
 
-      @attributes = item_hash.to_data
+      @data = item_hash.to_data
 
       @status, @last_end_date = get_status_and_last_end_date(config)
       @view = view.new(self, config) if view
@@ -45,7 +45,7 @@ module Reading
     # opposed to an ongoing podcast).
     # @return [Boolean]
     def definite_length?
-      attributes.variants.any? { |variant| !!variant.length }
+      data.variants.any? { |variant| !!variant.length }
     end
 
     # Equality to another Item.
@@ -56,7 +56,7 @@ module Reading
         raise ArgumentError, "An Item can be compared only with another Item."
       end
 
-      attributes == other.send(:attributes)
+      data == other.send(:data)
     end
 
     private

@@ -83,6 +83,15 @@ class StatsTest < Minitest::Test
         *10.times.map { { title: "Better", rating: 3 } },
       ],
     },
+    :"top length" => {
+      input: "top 2 length",
+      result: [["Novel", 300], ["Longer", 200]],
+      items: [
+        { title: "Short", variants: [{ length: 100 }] },
+        { title: "Longer", variants: [{ length: 200 }] },
+        { title: "Novel", variants: [{ length: 300 }] },
+      ],
+    },
   }
 
   # ==== TESTS

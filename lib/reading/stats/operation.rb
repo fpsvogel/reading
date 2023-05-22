@@ -54,6 +54,13 @@ module Reading
             .max_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
             .map { |item| [item.title, item.rating] }
         },
+        top_length: proc { |items, number_arg|
+          items
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |item|
+              item.variants.map(&:length).max
+            }
+            .map { |item| [item.title, item.variants.map(&:length).max] }
+        },
       }
 
       REGEXES = ACTIONS.map { |key, _action|
