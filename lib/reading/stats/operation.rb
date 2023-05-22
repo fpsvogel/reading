@@ -60,6 +60,7 @@ module Reading
             )?
             \s*
             #{second_word}
+            s?
             \s*
           \z}x
 

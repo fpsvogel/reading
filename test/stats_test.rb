@@ -85,7 +85,14 @@ class StatsTest < Minitest::Test
       # debugger unless exp == act
 
       assert_equal exp, act,
-        "Unexpected result #{act} from stats query: #{name}"
+        "Unexpected result #{act} from stats query \"#{name}\""
+
+      # Alternate input style: pluralize the second word.
+      if hash[:input].include?(' ')
+        act = Reading.stats(input: "#{hash.fetch(:input)}s", items:, config:)
+
+        assert_equal exp, act
+      end
     end
   end
 end
