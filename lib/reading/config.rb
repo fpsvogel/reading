@@ -84,6 +84,7 @@ module Reading
           },
         source_names_from_urls:
           {
+            "audible.com"         => "Audible",
             "youtube.com"         => "YouTube",
             "youtu.be"            => "YouTube",
             "books.google.com"    => "Google Books",
