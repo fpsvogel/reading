@@ -154,6 +154,12 @@ module Reading
               raise InvalidHistoryError, "Missing or incomplete first date"
             end
 
+            if entry[:planned] || (active[:planned] && !start_day)
+              active[:planned] = true
+            elsif active[:planned] && start_day
+              active[:planned] = false
+            end
+
             duplicate_open_range = !start_day && active[:open_range]
             date_range = date_range(entry, active, duplicate_open_range:)
 
@@ -202,7 +208,9 @@ module Reading
               span_without_dates = {
                 dates: nil,
                 amount: daily_amount || span_template[:amount],
-                progress: (progress unless amount_from_progress) || span_template[:progress],
+                progress: (progress unless amount_from_progress) ||
+                  (0.0 if entry[:planned] || active[:planned]) ||
+                  span_template[:progress],
                 name: entry[:name] || span_template[:name],
                 favorite?: !!entry[:favorite] || span_template[:favorite?],
                 # Temporary keys (not in the final item data) for marking
@@ -213,9 +221,8 @@ module Reading
                 amount_from_progress: amount_from_progress,
               }
 
-              if entry[:planned] || (active[:planned] && !start_day)
+              if entry[:planned] || active[:planned]
                 date = nil
-                active[:planned] = true
               end
 
               key = [date, span_without_dates[:name]]

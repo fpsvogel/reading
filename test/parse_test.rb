@@ -1154,11 +1154,11 @@ class ParseTest < Minitest::Test
   a_planned = a_names.deep_merge(
     experiences: [{ spans: [
       { },
-      { dates: nil },
-      { dates: nil },
+      { dates: nil, progress: 0.0 },
+      { dates: nil, progress: 0.0 },
       { dates: Date.new(2022,4,18)..Date.new(2022,4,18),
         amount: Reading.time("0:45"),
-        progress: nil,
+        progress: 1.0,
         name: "#4 Design Patterns on the Frontend",
         favorite?: false },
     ] }],

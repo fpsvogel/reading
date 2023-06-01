@@ -156,7 +156,7 @@ module Reading
                       [{
                         dates: nil,
                         amount: 0,
-                        progress: nil,
+                        progress: 1.0,
                         name: nil,
                         favorite?: false,
                       }],

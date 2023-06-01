@@ -116,6 +116,9 @@ class StatsTest < Minitest::Test
         { title: "Jog", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time("5:00") },
         ] }] },
+        { title: "DNF", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 300, progress: 0.10 },
+        ] }] },
         { title: "Planned", experiences: [{ spans: [
           { dates: nil, amount: 1000 },
         ] }] },
@@ -144,7 +147,7 @@ class StatsTest < Minitest::Test
     },
     :"bottom speeds" => {
       input: "bottom 2 speed",
-      result: [["Walk", { amount: 400, days: 14 }], ["Jog", { amount: Reading.time("5:00"), days: 5 }]],
+      result: [["Walk", { amount: 400, days: 14 }], ["DNF", { amount: 30, days: 1 }]],
       items: [
         { title: "Walk", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
@@ -155,6 +158,9 @@ class StatsTest < Minitest::Test
         ] }] },
         { title: "Jog", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time("5:00") },
+        ] }] },
+        { title: "DNF", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 300, progress: 0.10 },
         ] }] },
         { title: "Planned", experiences: [{ spans: [
           { dates: nil, amount: 100 },

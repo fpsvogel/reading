@@ -39,7 +39,7 @@ end
 input_is_csv_path = input.end_with?('.csv') || input.include?('/')
 
 if input_is_csv_path
-  items = Reading.parse(path: input, config:)
+  items = Reading.parse(path: input, config:, item_view: false)
 
   loop do
     raw_input = Readline.readline(pastel.bright_cyan("> "), true)
@@ -52,7 +52,7 @@ if input_is_csv_path
     puts Reading.stats(input:, items:, config:)
   end
 else # CSV string arg
-  item_hashes = Reading.parse(lines: input, config:, hash_output: true)
+  item_hashes = Reading.parse(lines: input, config:, hash_output: true, item_view: false)
 
   ap item_hashes
 end
