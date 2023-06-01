@@ -62,6 +62,14 @@ module Reading
             .map { |item| [item.title, item.variants.map(&:length).max] }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
+        top_speed: proc { |items, number_arg|
+          items
+            .map { |item| calculate_speed(item) }
+            .compact
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, speed_hash|
+              speed_hash[:amount] / speed_hash[:days].to_f
+            }
+        },
         bottom_rating: proc { |items, number_arg|
           items
             .min_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
@@ -71,6 +79,14 @@ module Reading
           items
             .map { |item| [item.title, item.variants.map(&:length).max] }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
+        },
+        bottom_speed: proc { |items, number_arg|
+          items
+            .map { |item| calculate_speed(item) }
+            .compact
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, speed_hash|
+              speed_hash[:amount] / speed_hash[:days].to_f
+            }
         },
       }
 
@@ -93,6 +109,28 @@ module Reading
 
         [key, regex]
       }.to_h
+
+      # Calculates an Item's speed (total amount and days). Returns nil if a
+      # speed is not able to be calculated (e.g. in a planned Item).
+      # @param item [Item]
+      # @return [Array(String, Hash), nil]
+      private_class_method def self.calculate_speed(item)
+        speeds = item.experiences.map { |experience|
+          spans_with_dates = experience.spans.reject { |span| span.dates.nil? }
+          next unless spans_with_dates.any?
+
+          amount = spans_with_dates.sum(&:amount)
+          days = spans_with_dates.sum { |span| span.dates.count }.to_i
+
+          { amount:, days: }
+        }
+
+        return nil unless speeds.any?
+
+        speed = speeds.max_by { |hash| hash[:amount] / hash[:days].to_f }
+
+        [item.title, speed]
+      end
     end
   end
 end

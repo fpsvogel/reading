@@ -81,8 +81,8 @@ class StatsTest < Minitest::Test
       result: [["Whoa.", 5], ["Mehhh", 3]],
       items: [
         { title: "Trash", rating: 2 },
-        { title: "Mehhh", rating: 3 },
         { title: "Whoa.", rating: 5 },
+        { title: "Mehhh", rating: 3 },
       ],
     },
     :"top ratings without number arg" => {
@@ -95,11 +95,30 @@ class StatsTest < Minitest::Test
     },
     :"top lengths" => {
       input: "top 2 length",
-      result: [["Novel", 300], ["Longer", 200]],
+      result: [["Encyclopedic", 1000], ["Longish", 400]],
       items: [
         { title: "Short", variants: [{ length: 100 }] },
-        { title: "Longer", variants: [{ length: Reading.time("5:00") }] },
-        { title: "Novel", variants: [{ length: 300 }] },
+        { title: "Encyclopedic", variants: [{ length: 1000 }] },
+        { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
+      ],
+    },
+    :"top speeds" => {
+      input: "top 2 speed",
+      result: [["Sprint", { amount: 200, days: 1 }], ["Jog", { amount: 200, days: 5 }]],
+      items: [
+        { title: "Walk", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
+          { dates: Date.new(2023,5,5)..Date.new(2023,5,15), amount: 200 },
+        ] }] },
+        { title: "Sprint", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
+        ] }] },
+        { title: "Jog", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: 200 },
+        ] }] },
+        { title: "Planned", experiences: [{ spans: [
+          { dates: nil, amount: 1000 },
+        ] }] },
       ],
     },
     :"bottom ratings" => {
@@ -107,17 +126,36 @@ class StatsTest < Minitest::Test
       result: [["Trash", 2], ["Mehhh", 3]],
       items: [
         { title: "Trash", rating: 2 },
-        { title: "Mehhh", rating: 3 },
         { title: "Whoa.", rating: 5 },
+        { title: "Mehhh", rating: 3 },
       ],
     },
     :"bottom lengths" => {
       input: "bottom 2 length",
-      result: [["Short", 100], ["Longer", 200]],
+      result: [["Short", 100], ["Longish", 400]],
       items: [
         { title: "Short", variants: [{ length: 100 }] },
-        { title: "Longer", variants: [{ length: Reading.time("5:00") }] },
-        { title: "Novel", variants: [{ length: 300 }] },
+        { title: "Encyclopedic", variants: [{ length: 1000 }] },
+        { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
+      ],
+    },
+    :"bottom speeds" => {
+      input: "bottom 2 speed",
+      result: [["Walk", { amount: 400, days: 14 }], ["Jog", { amount: 200, days: 5 }]],
+      items: [
+        { title: "Walk", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
+          { dates: Date.new(2023,5,5)..Date.new(2023,5,15), amount: 200 },
+        ] }] },
+        { title: "Sprint", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
+        ] }] },
+        { title: "Jog", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: 200 },
+        ] }] },
+        { title: "Planned", experiences: [{ spans: [
+          { dates: nil, amount: 100 },
+        ] }] },
       ],
     },
   }

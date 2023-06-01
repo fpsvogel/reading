@@ -13,7 +13,7 @@ require_relative "operation"
 # ✅ top/bottom 5 rating(s)
 # ✅ top/bottom 5 length(s)
 # top/bottom 5 amount(s)
-# top/bottom 5 speed(s)
+# ✅ top/bottom 5 speed(s)
 
 # INPUT FILTERS
 # genre(s)=
