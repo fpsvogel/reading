@@ -7,7 +7,7 @@ require_relative "operation"
 # OPERATIONS:
 # ✅ average rating(s)
 # ✅ average length(s)
-# average amount(s)
+# ✅ average amount(s)
 # ✅ total item(s)
 # ✅ total amount(s)
 # ✅ top/bottom 5 rating(s)

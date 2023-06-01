@@ -50,6 +50,9 @@ module Reading
           (total_length.sum / items.count.to_f).round
         },
         average_amount: proc { |items|
+          amounts_by_date = calculate_amounts_by_date(items)
+
+          amounts_by_date.values.sum / amounts_by_date.count
         },
         total_item: proc { |items|
           items.count
@@ -115,8 +118,35 @@ module Reading
         [key, regex]
       }.to_h
 
-      # Calculates an Item's speed (total amount and days). Returns nil if a
-      # speed is not able to be calculated (e.g. in a planned Item).
+      # Sums the given Items' amounts per date.
+      # @param items [Array<Item>]
+      # @return [Hash{Date => Numeric, Reading::Item::TimeLength}]
+      private_class_method def self.calculate_amounts_by_date(items)
+        amounts_by_date = {}
+
+        items.each do |item|
+          item.experiences.each do |experience|
+            experience.spans.each do |span|
+              next unless span.dates
+
+              dates = span.dates.begin..(span.dates.end || Date.today)
+
+              amount = span.amount / dates.count.to_f
+              progress = span.members.include?(:progress) ? span.progress : 1.0
+
+              dates.each do |date|
+                amounts_by_date[date] ||= 0
+                amounts_by_date[date] += amount * progress
+              end
+            end
+          end
+        end
+
+        amounts_by_date
+      end
+
+      # Calculates an Item's speed (total amount over how many days). Returns
+      # nil if a speed is not able to be calculated (e.g. in a planned Item).
       # @param item [Item]
       # @return [Array(String, Hash), nil]
       private_class_method def self.calculate_speed(item)
@@ -129,11 +159,9 @@ module Reading
           amount = spans_with_finite_dates.sum { |span|
             # Conditional in case Item was created with fragmentary experience hashes,
             # as in stats_test.rb
-            if span.members.include?(:progress)
-              span.amount * span.progress
-            else
-              span.amount
-            end
+            progress = span.members.include?(:progress) ? span.progress : 1.0
+
+            span.amount * progress
           }
           .to_i_if_whole
 

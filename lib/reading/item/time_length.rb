@@ -33,13 +33,13 @@ module Reading
       # @param pages [Integer, Float]
       # @return [Integer]
       def self.pages_to_minutes(pages)
-        (pages.to_f / PAGES_PER_HOUR * 60).round
+        (pages.to_f / PAGES_PER_HOUR * 60)
       end
 
       # Only the hours, e.g. the "h" value in "h:mm".
       # @return [Numeric]
       def hours
-        value / 60
+        value.to_i / 60
       end
 
       # Only the hours, e.g. the "mm" value in "h:mm".
@@ -51,7 +51,7 @@ module Reading
       # A string in "h:mm" format.
       # @return [String]
       def to_s
-        "#{hours}:#{minutes} or #{(value / 60.0 * PAGES_PER_HOUR).round} pages"
+        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * PAGES_PER_HOUR).round} pages"
       end
 
       # @return [Boolean]

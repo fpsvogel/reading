@@ -58,6 +58,19 @@ class StatsTest < Minitest::Test
         { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
       ],
     },
+    :"average amount" => {
+      input: "average amount",
+      result: 12,
+      items: [
+        { experiences:
+          [{ spans: [{ dates: Date.new(2023, 5, 1)..Date.new(2023, 5, 2), amount: Reading.time("0:03") }] },
+            { spans: [{ dates: Date.new(2023, 5, 5)..Date.new(2023, 5, 5), amount: 10 },
+                      { dates: Date.new(2023, 5, 10)..Date.new(2023, 5, 11), amount: 18 }] }] },
+        # 2022/9/30 because Date::today is stubbed to 2022/10/1 in test_helper.rb
+        { experiences: [{ spans: [{ dates: Date.new(2022, 9, 30).., amount: 54 }] }] },
+        { experiences: [] },
+      ],
+    },
     :"total items" => {
       input: "total item",
       result: 2,
