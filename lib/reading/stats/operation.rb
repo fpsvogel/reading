@@ -126,6 +126,7 @@ module Reading
 
           { amount:, days: }
         }
+        .compact
 
         return nil unless speeds.any?
 

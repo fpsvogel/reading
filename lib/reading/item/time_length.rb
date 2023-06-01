@@ -1,7 +1,7 @@
 module Reading
   class Item
     # The length of an item when it is a time, as opposed to pages. (Pages are
-    # represented simply with an Integer.)
+    # represented simply with an Integer or Float.)
     class Item::TimeLength
       include Comparable
 
@@ -23,14 +23,14 @@ module Reading
       end
 
       # Builds an Item::TimeLength based on a page count.
-      # @param pages [Integer]
+      # @param pages [Integer, Float]
       # @return [TimeLength]
       def self.from_pages(pages)
         new(pages_to_minutes(pages))
       end
 
       # Converts a page count to minutes.
-      # @param pages [Integer]
+      # @param pages [Integer, Float]
       # @return [Integer]
       def self.pages_to_minutes(pages)
         (pages.to_f / PAGES_PER_HOUR * 60).round
@@ -78,24 +78,24 @@ module Reading
         self.class.new(@value.to_i)
       end
 
-      # @param other [TimeLength, Integer] must be zero if it's an Integer.
+      # @param other [TimeLength, Numeric]
       # @return [TimeLength]
       def +(other)
         if other.is_a? Item::TimeLength
           self.class.new(value + other.value)
-        elsif other.is_a? Integer
+        elsif other.is_a? Numeric
           self.class.new(value + self.class.pages_to_minutes(other))
         else
           raise TypeError, "#{other.class} can't be added to Item::TimeLength."
         end
       end
 
-      # @param other [TimeLength, Integer] must be zero if it's an Integer.
+      # @param other [TimeLength, Numeric]
       # @return [TimeLength]
       def -(other)
         if other.is_a? Item::TimeLength
           self.class.new(value - other.value)
-        elsif other.is_a? Integer
+        elsif other.is_a? Numeric
           self.class.new(value - self.class.pages_to_minutes(other))
         else
           raise TypeError, "#{other.class} can't be subtracted from Item::TimeLength."
@@ -123,20 +123,20 @@ module Reading
       end
 
       # See https://web.archive.org/web/20221206095821/https://www.mutuallyhuman.com/blog/class-coercion-in-ruby/
-      # @param other [Integer] must be zero.
+      # @param other [Numeric]
       def coerce(other)
-        if other.is_a? Integer
+        if other.is_a? Numeric
           [self.class.from_pages(other), self]
         else
           raise TypeError, "#{other.class} can't be coerced into a TimeLength."
         end
       end
 
-      # @param other [TimeLength, Integer]
+      # @param other [TimeLength, Numeric]
       def <=>(other)
         return 1 if other.nil?
 
-        if other.is_a? Integer
+        if other.is_a? Numeric
           other = self.class.from_pages(other)
         end
 

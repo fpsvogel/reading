@@ -104,7 +104,7 @@ class StatsTest < Minitest::Test
     },
     :"top speeds" => {
       input: "top 2 speed",
-      result: [["Sprint", { amount: 200, days: 1 }], ["Jog", { amount: 200, days: 5 }]],
+      result: [["Sprint", { amount: 200, days: 1 }], ["Jog", { amount: Reading.time("5:00"), days: 5 }]],
       items: [
         { title: "Walk", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
@@ -114,7 +114,7 @@ class StatsTest < Minitest::Test
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
         ] }] },
         { title: "Jog", experiences: [{ spans: [
-          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: 200 },
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time("5:00") },
         ] }] },
         { title: "Planned", experiences: [{ spans: [
           { dates: nil, amount: 1000 },
@@ -144,7 +144,7 @@ class StatsTest < Minitest::Test
     },
     :"bottom speeds" => {
       input: "bottom 2 speed",
-      result: [["Walk", { amount: 400, days: 14 }], ["Jog", { amount: 200, days: 5 }]],
+      result: [["Walk", { amount: 400, days: 14 }], ["Jog", { amount: Reading.time("5:00"), days: 5 }]],
       items: [
         { title: "Walk", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
@@ -154,7 +154,7 @@ class StatsTest < Minitest::Test
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
         ] }] },
         { title: "Jog", experiences: [{ spans: [
-          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: 200 },
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time("5:00") },
         ] }] },
         { title: "Planned", experiences: [{ spans: [
           { dates: nil, amount: 100 },
