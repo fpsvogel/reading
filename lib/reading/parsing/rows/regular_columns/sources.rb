@@ -6,11 +6,7 @@ module Reading
         # and https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants
         class Sources < Column
           SOURCES_PARSING_ERRORS = {
-            "Missing comma before URL(s) in the Sources column" =>
-              ->(source) {
-                source.match?(/\shttps?:\/\//) || source.scan(/https?:\/\//).count > 1
-              },
-            "The ISBN/ASIN must be placed after sources in the Sources column" =>
+            "The ISBN/ASIN must be placed last in the Sources column" =>
               ->(source) {
                 source.match?(/\A#{ISBN_REGEX}/o) || source.match(/\A#{ASIN_REGEX}/o)
               },
@@ -32,7 +28,19 @@ module Reading
           def self.tweaks
             {
               sources: -> {
-                sources = _1.split(/\s*,\s*/)
+                comma = /\s*,\s*/
+                space_before_url = / (?=https?:\/\/)/
+                sources = _1.split(Regexp.union(comma, space_before_url))
+
+                # Split by space after URL.
+                sources = sources.flat_map { |src|
+                  debugger if src.is_a? Array
+                  if src.match?(/\Ahttps?:\/\//)
+                    src.split(" ", 2)
+                  else
+                    src
+                  end
+                }
 
                 SOURCES_PARSING_ERRORS.each do |message, check|
                   if sources.any? { |source| check.call(source) }

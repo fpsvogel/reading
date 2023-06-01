@@ -145,6 +145,8 @@ class ParseTest < Minitest::Test
     "Goatsong|Little Library 0312038380",
   :"sources with ISBN" =>
     "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub 0312038380",
+  :"comma not required before and after URL source" =>
+    "Goatsong|Little Library https://www.edlin.org/holt Lexpub 0312038380",
   :"simple variants" =>
     "Goatsong|📕Little Library 📕Lexpub",
   :"variant with extra info" =>
@@ -385,9 +387,9 @@ class ParseTest < Minitest::Test
     "a|Sapiens",
   :"comment containing a format emoji (matched as compact planned)" =>
     "\\Testing a row with 📕",
-  :"no comma before URL source after named source" =>
-    "|Goatsong|Little Library https://www.edlin.org/holt",
-  :"no comma between URL sources" =>
+  :"OK: no comma before and after URL source" =>
+    "|Goatsong|Little Library https://www.edlin.org/holt Hoopla",
+  :"OK: no comma between URL sources" =>
     "|Goatsong|https://www.edlin.org/holt https://www.holt.com",
   :"ISBN/ASIN before sources" =>
     "|Goatsong|0312038380 Little Library",
@@ -712,6 +714,8 @@ class ParseTest < Minitest::Test
                  isbn: isbn }],
   )
   @outputs[:features_sources][:"sources with ISBN"] = [a_multi_sources_isbn]
+
+  @outputs[:features_sources][:"comma not required before and after URL source"] = [a_multi_sources_isbn]
 
   a_variants = item_hash(
     title:,
