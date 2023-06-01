@@ -38,7 +38,7 @@ module Reading
 
           return nil unless length
 
-          if hash[:each]
+          if hash[:each] && !hash[:repetitions]
             # Length is calculated based on History column in this case.
             if episodic
               return length

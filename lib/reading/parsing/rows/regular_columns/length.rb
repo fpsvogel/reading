@@ -15,16 +15,16 @@ module Reading
                 )
                 (\s+|\z)
               )
-              # each or repetitions, used in conjunction with the History column
+              # each and repetitions are used in conjunction with the History column
+              # each
               (
-                # each
                 (?<each>each)
-                |
-                # repetitions
-                (
-                  x
-                  (?<repetitions>\d+)
-                )
+                (\s+|\z)
+              )?
+              # repetitions
+              (
+                x
+                (?<repetitions>\d+)
               )?
             \z}x]
           end

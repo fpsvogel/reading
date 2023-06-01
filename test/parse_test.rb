@@ -325,6 +325,8 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|0:30 each|2021/12/6 -- 12/21 0:45 -- 3/1",
   :"repetitions in length" =>
     "Fullstack Ruby|0:30 x3|2021/12/6 -- 12/21 -- 3/1",
+  :"repetitions in length with 'each'" =>
+    "Fullstack Ruby|0:30 each x3|2021/12/6 -- 12/21 -- 3/1",
   :"done shortcut with length" =>
     "Beowulf|144|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p -- ..5/20 done",
   }
@@ -1218,6 +1220,8 @@ class ParseTest < Minitest::Test
     ] }],
   )
   @outputs[:"features_length, history"][:"repetitions in length"] = [a_length_repetitions]
+
+  @outputs[:"features_length, history"][:"repetitions in length with 'each'"] = [a_length_repetitions]
 
   b_done = item_hash(
     title: title_b,
