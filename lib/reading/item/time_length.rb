@@ -59,6 +59,12 @@ module Reading
         value.zero?
       end
 
+      # A copy of self with a rounded @value.
+      # @return [TimeLength]
+      def round
+        self.class.new(@value.round)
+      end
+
       # Converts @value to an Integer if it's a whole number, and returns self.
       # @return [TimeLength]
       def to_i_if_whole!

@@ -20,10 +20,10 @@ class StatsTest < Minitest::Test
   @queries[:operations] = {
     :"average rating" => {
       input: "average rating",
-      result: 3.5,
+      result: 3.49,
       items: [
         { rating: 3 },
-        { rating: 4 },
+        { rating: 3.9899999 },
       ],
     },
     :"average rating with nil" => {
@@ -36,9 +36,9 @@ class StatsTest < Minitest::Test
     },
     :"average length" => {
       input: "average length",
-      result: 250,
+      result: 251,
       items: [
-        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: 201 }], experiences: [{ variant_index: 0 }] },
         { variants: [{ length: 300 }], experiences: [{ variant_index: 0 }] },
       ],
     },

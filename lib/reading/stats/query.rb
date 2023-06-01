@@ -17,13 +17,13 @@ require_relative "operation"
 
 # INPUT FILTERS
 # genre(s)=
-# rating(s)=
+# rating(s)=/>/>=/</<=
 # format(s)=
 # source(s)=
 # status(es)=
-# length(s)=
+# length(s)=/>/>=/</<=
 # year(s)=
-# progress(es)=
+# progress(es)=/>/>=/</<=
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
 
 # OUTPUT GROUPINGS
