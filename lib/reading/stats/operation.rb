@@ -116,11 +116,13 @@ module Reading
       # @return [Array(String, Hash), nil]
       private_class_method def self.calculate_speed(item)
         speeds = item.experiences.map { |experience|
-          spans_with_dates = experience.spans.reject { |span| span.dates.nil? }
-          next unless spans_with_dates.any?
+          spans_with_finite_dates = experience.spans.reject { |span|
+            span.dates.nil? || span.dates.end.nil?
+          }
+          next unless spans_with_finite_dates.any?
 
-          amount = spans_with_dates.sum(&:amount)
-          days = spans_with_dates.sum { |span| span.dates.count }.to_i
+          amount = spans_with_finite_dates.sum(&:amount)
+          days = spans_with_finite_dates.sum { |span| span.dates.count }.to_i
 
           { amount:, days: }
         }

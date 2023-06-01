@@ -119,6 +119,9 @@ class StatsTest < Minitest::Test
         { title: "Planned", experiences: [{ spans: [
           { dates: nil, amount: 1000 },
         ] }] },
+        { title: "Endless range", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1).., amount: 1000 },
+        ] }] },
       ],
     },
     :"bottom ratings" => {
@@ -155,6 +158,9 @@ class StatsTest < Minitest::Test
         ] }] },
         { title: "Planned", experiences: [{ spans: [
           { dates: nil, amount: 100 },
+        ] }] },
+        { title: "Endless range", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1).., amount: 100 },
         ] }] },
       ],
     },
