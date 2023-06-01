@@ -2,6 +2,8 @@ module Reading
   module Stats
     # The first part of a query.
     class Operation
+      using Util::NumericToIIfWhole
+
       # The default number argument if one is not given, as in "top ratings"
       # rather than "top 5 ratings".
       DEFAULT_NUMBER_ARG = 10
@@ -110,12 +112,6 @@ module Reading
         [key, regex]
       }.to_h
 
-      # TODO: take progress into account, to prevent this result in my reading.csv:
-      # `top speed`
-      # The Enlightenment
-      # {:amount=>#<Reading::Item::TimeLength:0x00007f38f00f6470 @value=2409>, :days=>1}
-      # Harry Potter and the Methods of Rationality
-      # {:amount=>#<Reading::Item::TimeLength:0x00007f38f00f5f70 @value=4020>, :days=>2}
       # Calculates an Item's speed (total amount and days). Returns nil if a
       # speed is not able to be calculated (e.g. in a planned Item).
       # @param item [Item]
@@ -136,6 +132,7 @@ module Reading
               span.amount
             end
           }
+          .to_i_if_whole
 
           days = spans_with_finite_dates.sum { |span| span.dates.count }.to_i
 
@@ -145,7 +142,8 @@ module Reading
 
         return nil unless speeds.any?
 
-        speed = speeds.max_by { |hash| hash[:amount] / hash[:days].to_f }
+        speed = speeds
+          .max_by { |hash| hash[:amount] / hash[:days].to_f }
 
         [item.title, speed]
       end
