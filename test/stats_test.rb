@@ -24,13 +24,6 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3 },
         { rating: 3.9899999 },
-      ],
-    },
-    :"average rating with nil" => {
-      input: "average rating",
-      result: 3.0,
-      items: [
-        { rating: 3 },
         { rating: nil },
       ],
     },
@@ -38,24 +31,27 @@ class StatsTest < Minitest::Test
       input: "average length",
       result: 251,
       items: [
-        { variants: [{ length: 201 }], experiences: [{ variant_index: 0 }] },
-        { variants: [{ length: 300 }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: 201 }] },
+        { variants: [{ length: 300 }] },
+        { variants: [{ length: nil }] },
       ],
     },
     :"average length with pages and time lengths" => {
       input: "average length",
       result: 180,
       items: [
-        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
-        { variants: [{ length: Reading.time("4:00") }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: 200 }] },
+        { variants: [{ length: Reading.time("4:00") }] },
+        { variants: [{ length: nil }] },
       ],
     },
     :"average length with time and pages lengths" => {
       input: "average length",
       result: 180,
       items: [
-        { variants: [{ length: Reading.time("4:00") }], experiences: [{ variant_index: 0 }] },
-        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: Reading.time("4:00") }] },
+        { variants: [{ length: 200 }] },
+        { variants: [{ length: nil }] },
       ],
     },
     :"average amount" => {
@@ -113,6 +109,7 @@ class StatsTest < Minitest::Test
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
         { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
+        { title: "No length", variants: [{ length: nil }] },
       ],
     },
     :"top speeds" => {
@@ -156,6 +153,7 @@ class StatsTest < Minitest::Test
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
         { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
+        { title: "No length", variants: [{ length: nil }] },
       ],
     },
     :"bottom speeds" => {

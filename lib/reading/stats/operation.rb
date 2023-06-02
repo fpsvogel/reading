@@ -46,14 +46,12 @@ module Reading
           (ratings.sum.to_f / ratings.count).round(2)
         },
         average_length: proc { |items|
-          total_length = items.flat_map { |item|
-            item.experiences.map { |experience|
-              item.variants[experience.variant_index].length
-            }
+          lengths = items.flat_map { |item|
+            item.variants.map(&:length)
           }
           .compact
 
-          (total_length.sum / items.count.to_f).round
+          (lengths.sum / lengths.count.to_f).round
         },
         average_amount: proc { |items|
           amounts_by_date = calculate_amounts_by_date(items)
@@ -74,6 +72,7 @@ module Reading
         top_length: proc { |items, number_arg|
           items
             .map { |item| [item.title, item.variants.map(&:length).max] }
+            .reject { |_title, length| length.nil? }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
         top_speed: proc { |items, number_arg|
@@ -92,6 +91,7 @@ module Reading
         bottom_length: proc { |items, number_arg|
           items
             .map { |item| [item.title, item.variants.map(&:length).max] }
+            .reject { |_title, length| length.nil? }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
         bottom_speed: proc { |items, number_arg|
