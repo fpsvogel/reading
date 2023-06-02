@@ -49,7 +49,7 @@ if input_is_csv_path
     input = raw_input.presence
     next if raw_input.blank?
 
-    puts Reading.stats(input:, items:, config:)
+    puts Reading.stats(input:, items:, result_formatters: true)
   end
 else # CSV string arg
   item_hashes = Reading.parse(lines: input, config:, hash_output: true, item_view: false)

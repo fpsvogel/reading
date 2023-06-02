@@ -11,7 +11,7 @@ class StatsTest < Minitest::Test
 
   @config = Reading::Config.new.hash
 
-  # ==== TEST QUERIES
+  # ==== QUERIES FOR TESTS
 
   @queries = {}
 
@@ -185,6 +185,97 @@ class StatsTest < Minitest::Test
     },
   }
 
+
+
+  ## QUERIES: RESULT FORMATTERS
+  # Minimal queries testing result formatters.
+  @queries[:result_formatters] = {
+    :"average length (pages)" => {
+      input: "average length",
+      result: "200 pages",
+      items: [
+        { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
+      ],
+    },
+    :"average length (time)" => {
+      input: "average length",
+      result: "5:00 or 200 pages",
+      items: [
+        { variants: [{ length: Reading.time("5:00") }], experiences: [{ variant_index: 0 }] },
+      ],
+    },
+    :"total items (singular)" => {
+      input: "total item",
+      result: "1 item",
+      items: [
+        {},
+      ],
+    },
+    :"total items (plural)" => {
+      input: "total item",
+      result: "2 items",
+      items: [
+        {},
+        {},
+      ],
+    },
+    :"total amount" => {
+      input: "total amount",
+      result: "2 pages",
+      items: [
+        { experiences: [{ spans: [{ amount: 2 }] }] },
+      ],
+    },
+    :"total amount (zero)" => {
+      input: "total amount",
+      result: "0 pages",
+      items: [
+        { experiences: [] },
+      ],
+    },
+    :"top lengths" => {
+      input: "top 2 length",
+      result: "1. Encyclopedic\n     1000 pages\n2. Short\n     100 pages",
+      items: [
+        { title: "Short", variants: [{ length: 100 }] },
+        { title: "Encyclopedic", variants: [{ length: 1000 }] },
+      ],
+    },
+    :"top speeds" => {
+      input: "top 2 speed",
+      result: "1. Sprint\n     200 pages in 1 day\n2. Jog\n     5:00 or 200 pages in 5 days",
+      items: [
+        { title: "Sprint", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
+        ] }] },
+        { title: "Jog", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time("5:00") },
+        ] }] },
+      ],
+    },
+    :"bottom lengths" => {
+      input: "bottom 2 length",
+      result: "1. Short\n     100 pages\n2. Longish\n     10:00 or 400 pages",
+      items: [
+        { title: "Short", variants: [{ length: 100 }] },
+        { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
+      ],
+    },
+    :"bottom speeds" => {
+      input: "bottom 2 speed",
+      result: "1. Walk\n     400 pages in 14 days\n2. DNF\n     30 pages in 1 day",
+      items: [
+        { title: "Walk", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
+          { dates: Date.new(2023,5,5)..Date.new(2023,5,15), amount: 200 },
+        ] }] },
+        { title: "DNF", experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 300, progress: 0.10 },
+        ] }] },
+      ],
+    },
+  }
+
   # ==== TESTS
 
   queries[:operations].each do |key, hash|
@@ -198,15 +289,33 @@ class StatsTest < Minitest::Test
       }
 
       exp = hash.fetch(:result)
-      act = Reading.stats(input: hash.fetch(:input), items:, config:)
+      act = Reading.stats(input: hash.fetch(:input), items:)
       # debugger unless exp == act
 
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
 
       # Alternate input style: pluralize the second word.
-      act = Reading.stats(input: "#{hash.fetch(:input)}s", items:, config:)
+      act = Reading.stats(input: "#{hash.fetch(:input)}s", items:)
       assert_equal exp, act
+    end
+  end
+
+  queries[:result_formatters].each do |key, hash|
+    define_method("test_result_formatter_#{key}") do
+      items = hash.fetch(:items).map { |item_hash|
+        Reading::Item.new(
+          item_hash,
+          config:,
+          view: false,
+        )
+      }
+
+      exp = hash.fetch(:result)
+      act = Reading.stats(input: hash.fetch(:input), items:, result_formatters: true)
+      # debugger unless exp == act
+      assert_equal exp, act,
+        "Unexpected result #{act} from stats query \"#{name}\""
     end
   end
 end

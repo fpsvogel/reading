@@ -1,4 +1,5 @@
 require_relative "operation"
+require_relative "result_formatters"
 # require_relative "filter"
 # require_relative "group"
 
@@ -39,21 +40,30 @@ module Reading
   module Stats
     # Gives statistics on an array of Items.
     class Query
-      private attr_reader :input, :items#, :config
+      private attr_reader :input, :items, :result_formatters
 
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items to be queried.
-      # @param config [Hash] an entire config.
-      def initialize(input:, items:, config: {})
+      # @param result_formatters [Boolean, Hash{Symbol => Proc}] if true, alters
+      #   appearance of results using the formatters in result_formatters.rb; if
+      #   false, does not use any formatters; if a Hash is provided, uses it as
+      #   custom formatters, in which case keys should be from among the keys of
+      #   Operation::ACTIONS.
+      def initialize(input:, items:, result_formatters: false)
         @input = input
         @items = items
-        # @config = Config.new(config).hash
+
+        if result_formatters == true
+          @result_formatters = ResultFormatters::DEFAULT_RESULT_FORMATTERS
+        elsif result_formatters
+          @result_formatters = result_formatters
+        end
       end
 
       # Parses the query and returns the result.
       # @return [Object]
       def result
-        Operation.execute(input, items)
+        Operation.execute(input, items, result_formatters || {})
       end
     end
   end
