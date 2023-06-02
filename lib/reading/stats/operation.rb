@@ -43,7 +43,7 @@ module Reading
       ACTIONS = {
         average_rating: proc { |items|
           ratings = items.map(&:rating).compact
-          (ratings.sum.to_f / ratings.count).round(2)
+          (ratings.sum.to_f / ratings.count).to_i_if_whole
         },
         average_length: proc { |items|
           lengths = items.flat_map { |item|
@@ -51,7 +51,7 @@ module Reading
           }
           .compact
 
-          (lengths.sum / lengths.count.to_f).round
+          (lengths.sum / lengths.count.to_f).to_i_if_whole
         },
         average_amount: proc { |items|
           amounts_by_date = calculate_amounts_by_date(items)

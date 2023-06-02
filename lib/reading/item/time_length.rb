@@ -5,7 +5,7 @@ module Reading
     class Item::TimeLength
       include Comparable
 
-      PAGES_PER_HOUR = 40
+      PAGES_PER_HOUR = 35
 
       attr_reader :value # in total minutes
 
@@ -51,7 +51,7 @@ module Reading
       # A string in "h:mm" format.
       # @return [String]
       def to_s
-        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * PAGES_PER_HOUR).round} pages"
+        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * PAGES_PER_HOUR)} pages"
       end
 
       # @return [Boolean]
