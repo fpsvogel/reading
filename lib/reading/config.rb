@@ -53,6 +53,15 @@ module Reading
         column_separator:         "|",
         ignored_characters:       "✅❌💲❓⏳",
         skip_compact_planned:     false,
+        pages_per_hour:           35,
+        speed: # e.g. listening speed for audiobooks and podcasts.
+          {
+            format:
+              {
+                audiobook: 1.0,
+                audio: 1.0,
+              },
+          },
         # The Head column is always enabled; the others can be disabled by
         # using a custom config that omits columns from this array.
         enabled_columns:
@@ -81,14 +90,6 @@ module Reading
             course:    "🏫",
             piece:     "✏️",
             website:   "🌐",
-          },
-        speed: # e.g. listening speed for audiobooks and podcasts.
-          {
-            format:
-              {
-                audiobook: 1.0,
-                audio: 1.0,
-              },
           },
         source_names_from_urls:
           {

@@ -84,15 +84,15 @@ module Reading
             end
 
             variant_index = (start_entry[:variant] || 1).to_i - 1
-            length = Attributes::Shared.length(parsed_row[:sources]&.dig(variant_index)) ||
-              Attributes::Shared.length(parsed_row[:length])
+            length = Attributes::Shared.length(parsed_row[:sources]&.dig(variant_index), config) ||
+              Attributes::Shared.length(parsed_row[:length], config)
 
             [
               {
                 dates: dates,
                 amount: (length if dates),
-                progress: Attributes::Shared.progress(start_entry) ||
-                  Attributes::Shared.progress(parsed_row[:head][head_index]) ||
+                progress: Attributes::Shared.progress(start_entry, config) ||
+                  Attributes::Shared.progress(parsed_row[:head][head_index], config) ||
                   (1.0 if end_entry),
                 name: span_template.fetch(:name),
                 favorite?: span_template.fetch(:favorite?),

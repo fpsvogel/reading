@@ -172,11 +172,11 @@ module Reading
             active[:after_single_date] = !date_range
 
             amount =
-              Attributes::Shared.length(entry, key_name: :amount, ignore_repetitions: true) ||
-              Attributes::Shared.length(parsed_row[:length], episodic: true)
+              Attributes::Shared.length(entry, config, key_name: :amount, ignore_repetitions: true) ||
+              Attributes::Shared.length(parsed_row[:length], config, episodic: true)
             active[:amount] = amount if amount
 
-            progress = Attributes::Shared.progress(entry)
+            progress = Attributes::Shared.progress(entry, config)
 
             # If the entry has no amount and the item has no episodic length,
             # then use progress as amount instead. The typical scenario for this
@@ -184,7 +184,7 @@ module Reading
             # https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#history-pages-and-stopping-points-books
             if !amount && progress
               if progress.is_a? Float
-                total_length = Attributes::Shared.length(parsed_row[:length])
+                total_length = Attributes::Shared.length(parsed_row[:length], config)
                 amount = total_length * progress
               else
                 amount = progress

@@ -5,35 +5,38 @@ module Reading
     class Item::TimeLength
       include Comparable
 
-      PAGES_PER_HOUR = 35
-
       attr_reader :value # in total minutes
 
+      private attr_reader :pages_per_hour
+
       # @param value [Numeric] the total minutes
-      def initialize(value)
+      # @param pages_per_hour [Integer]
+      def initialize(value, pages_per_hour:)
         @value = value
+        @pages_per_hour = pages_per_hour
       end
 
       # Builds an Item::TimeLength from a string.
       # @param string [String] a time duration in "h:mm" format.
+      # @param pages_per_hour [Integer]
       # @return [TimeLength]
-      def self.parse(string)
+      def self.parse(string, pages_per_hour:)
         hours, minutes = string.split(':').map(&:to_i)
-        new((hours * 60) + minutes)
+        new((hours * 60) + minutes, pages_per_hour:)
       end
 
       # Builds an Item::TimeLength based on a page count.
       # @param pages [Integer, Float]
       # @return [TimeLength]
-      def self.from_pages(pages)
-        new(pages_to_minutes(pages))
+      def self.from_pages(pages, pages_per_hour:)
+        new(pages_to_minutes(pages, pages_per_hour:), pages_per_hour:)
       end
 
       # Converts a page count to minutes.
       # @param pages [Integer, Float]
       # @return [Integer]
-      def self.pages_to_minutes(pages)
-        (pages.to_f / PAGES_PER_HOUR * 60)
+      def self.pages_to_minutes(pages, pages_per_hour:)
+        (pages.to_f / pages_per_hour * 60)
       end
 
       # Only the hours, e.g. the "h" value in "h:mm".
@@ -51,7 +54,7 @@ module Reading
       # A string in "h:mm" format.
       # @return [String]
       def to_s
-        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * PAGES_PER_HOUR).round} pages"
+        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * pages_per_hour).round} pages"
       end
 
       # @return [Boolean]
@@ -62,7 +65,7 @@ module Reading
       # A copy of self with a rounded @value.
       # @return [TimeLength]
       def round
-        self.class.new(@value.round)
+        self.class.new(@value.round, pages_per_hour:)
       end
 
       # Converts @value to an Integer if it's a whole number, and returns self.
@@ -81,16 +84,19 @@ module Reading
       def to_i_if_whole
         return self if @value.is_a?(Integer) || @value.to_i != @value
 
-        self.class.new(@value.to_i)
+        self.class.new(@value.to_i, pages_per_hour:)
       end
 
       # @param other [TimeLength, Numeric]
       # @return [TimeLength]
       def +(other)
         if other.is_a? Item::TimeLength
-          self.class.new(value + other.value)
+          self.class.new(value + other.value, pages_per_hour:)
         elsif other.is_a? Numeric
-          self.class.new(value + self.class.pages_to_minutes(other))
+          self.class.new(
+            value + self.class.pages_to_minutes(other, pages_per_hour:),
+            pages_per_hour:,
+          )
         else
           raise TypeError, "#{other.class} can't be added to Item::TimeLength."
         end
@@ -100,9 +106,12 @@ module Reading
       # @return [TimeLength]
       def -(other)
         if other.is_a? Item::TimeLength
-          self.class.new(value - other.value)
+          self.class.new(value - other.value, pages_per_hour:)
         elsif other.is_a? Numeric
-          self.class.new(value - self.class.pages_to_minutes(other))
+          self.class.new(
+            value - self.class.pages_to_minutes(other, pages_per_hour:),
+            pages_per_hour:,
+          )
         else
           raise TypeError, "#{other.class} can't be subtracted from Item::TimeLength."
         end
@@ -112,7 +121,7 @@ module Reading
       # @return [TimeLength]
       def *(other)
         if other.is_a? Numeric
-          self.class.new(value * other).to_i_if_whole!
+          self.class.new(value * other, pages_per_hour:).to_i_if_whole!
         else
           raise TypeError, "TimeLength can't be multiplied by #{other.class}."
         end
@@ -122,7 +131,7 @@ module Reading
       # @return [TimeLength]
       def /(other)
         if other.is_a? Numeric
-          self.class.new(value / other).to_i_if_whole!
+          self.class.new(value / other, pages_per_hour:).to_i_if_whole!
         else
           raise TypeError, "TimeLength can't be divided by #{other.class}."
         end
@@ -132,7 +141,7 @@ module Reading
       # @param other [Numeric]
       def coerce(other)
         if other.is_a? Numeric
-          [self.class.from_pages(other), self]
+          [self.class.from_pages(other, pages_per_hour:), self]
         else
           raise TypeError, "#{other.class} can't be coerced into a TimeLength."
         end
@@ -143,7 +152,7 @@ module Reading
         return 1 if other.nil?
 
         if other.is_a? Numeric
-          other = self.class.from_pages(other)
+          other = self.class.from_pages(other, pages_per_hour:)
         end
 
         unless other.is_a? Item::TimeLength

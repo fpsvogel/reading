@@ -6,11 +6,14 @@ module Reading
         # Extracts the :progress sub-attribute (percent, pages, or time) from
         # the given hash.
         # @param hash [Hash] any parsed hash that contains progress.
+        # @param config [Hash] an entire config.
         # @return [Float, Integer, Item::TimeLength]
-        def self.progress(hash)
+        def self.progress(hash, config)
+          pages_per_hour = config.fetch(:pages_per_hour)
+
           hash[:progress_percent]&.to_f&./(100) ||
             hash[:progress_pages]&.to_i ||
-            hash[:progress_time]&.then { Item::TimeLength.parse _1 } ||
+            hash[:progress_time]&.then { Item::TimeLength.parse(_1, pages_per_hour:) } ||
             (0 if hash[:progress_dnf]) ||
             (1.0 if hash[:progress_done]) ||
             nil
@@ -29,12 +32,15 @@ module Reading
         #   that e.g. "1:00 x14" gives a length of 1 hour instead of 14 hours.
         #   This is useful for the History column, where that 1 hour can be used
         #   as the default amount.
+        # @param config [Hash] an entire config.
         # @return [Float, Integer, Item::TimeLength]
-        def self.length(hash, key_name: :length, episodic: false, ignore_repetitions: false)
+        def self.length(hash, config, key_name: :length, episodic: false, ignore_repetitions: false)
           return nil unless hash
 
+          pages_per_hour = config.fetch(:pages_per_hour)
+
           length = hash[:"#{key_name}_pages"]&.to_i ||
-            hash[:"#{key_name}_time"]&.then { Item::TimeLength.parse _1 }
+            hash[:"#{key_name}_time"]&.then { Item::TimeLength.parse(_1, pages_per_hour:) }
 
           return nil unless length
 

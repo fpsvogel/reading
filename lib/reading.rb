@@ -51,8 +51,12 @@ module Reading
 
   # A shortcut for getting a time from a string.
   # @param string [String] a time duration in "h:mm" format.
+  # @param config [Integer] an entire config.
   # @return [Item::TimeLength]
-  def self.time(string)
-    Item::TimeLength.parse(string)
+  def self.time(string, config: default_config)
+    Item::TimeLength.parse(
+      string,
+      pages_per_hour: config.fetch(:pages_per_hour),
+    )
   end
 end

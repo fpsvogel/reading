@@ -76,7 +76,7 @@ module Reading
 
 
         def length(hash, format)
-          full_length = Attributes::Shared.length(hash)
+          full_length = Attributes::Shared.length(hash, config)
           return nil unless full_length
 
           speed = config.deep_fetch(:speed, :format)[format] || 1.0
