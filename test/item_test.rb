@@ -1,10 +1,10 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require_relative "test_helpers/test_helper"
-require_relative "test_helpers/describe_and_it_blocks"
+require_relative 'test_helpers/test_helper'
+require_relative 'test_helpers/describe_and_it_blocks'
 
-require "reading/item"
-require "reading"
+require 'reading/item'
+require 'reading'
 
 class ItemTest < Minitest::Test
   extend DescribeAndItBlocks

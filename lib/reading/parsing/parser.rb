@@ -1,7 +1,7 @@
-require_relative "rows/blank"
-require_relative "rows/regular"
-require_relative "rows/compact_planned"
-require_relative "rows/comment"
+require_relative 'rows/blank'
+require_relative 'rows/regular'
+require_relative 'rows/compact_planned'
+require_relative 'rows/comment'
 
 module Reading
   module Parsing

@@ -1,7 +1,7 @@
-require_relative "column"
-require_relative "compact_planned_columns/head"
-require_relative "regular_columns/sources"
-require_relative "regular_columns/length"
+require_relative 'column'
+require_relative 'compact_planned_columns/head'
+require_relative 'regular_columns/sources'
+require_relative 'regular_columns/length'
 
 module Reading
   module Parsing

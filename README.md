@@ -82,7 +82,7 @@ $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 To parse a CSV reading log in Ruby rather than on the command line:
 
 ```ruby
-require "reading"
+require 'reading'
 
 file_path = "/home/user/reading.csv"
 items = Reading.parse(path: file_path)
@@ -93,7 +93,7 @@ This returns an array of [Items](https://github.com/fpsvogel/reading/blob/main/l
 If instead of a file path you want to directly parse a String (or anything else responding to `#each_line`, such as a `File`):
 
 ```ruby
-require "reading"
+require 'reading'
 
 csv_string = '3|📕Trying|Little Library 1970147288'
 items = Reading.parse(lines: csv_string)
@@ -106,7 +106,7 @@ To use custom configuration, pass a config Hash when initializing.
 Here's an example. If you don't want to use all the columns (as in [the minimal example in the CSV format guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)), you'll need to pass in a config including only the desired columns, like this:
 
 ```ruby
-require "reading"
+require 'reading'
 
 custom_config = { enabled_columns: [:head, :end_dates] }
 file_path = "/home/user/reading.csv"

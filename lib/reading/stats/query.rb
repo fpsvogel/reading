@@ -1,7 +1,7 @@
-require_relative "operation"
-require_relative "result_formatters"
-# require_relative "filter"
-# require_relative "group"
+require_relative 'operation'
+require_relative 'result_formatters'
+# require_relative 'filter'
+# require_relative 'group'
 
 # average rating of in progress 3 star audiobook dnfs from Hoopla by genre
 

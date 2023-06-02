@@ -1,6 +1,6 @@
-require "date"
-require_relative "experiences/history_transformer"
-require_relative "experiences/dates_and_head_transformer"
+require 'date'
+require_relative 'experiences/history_transformer'
+require_relative 'experiences/dates_and_head_transformer'
 
 module Reading
   module Parsing

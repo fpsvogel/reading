@@ -1,4 +1,4 @@
-require "shoulda-context"
+require 'shoulda-context'
 
 module DescribeAndItBlocks
   def self.extended(target)

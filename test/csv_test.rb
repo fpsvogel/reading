@@ -1,9 +1,9 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require_relative "test_helpers/test_helper"
+require_relative 'test_helpers/test_helper'
 
-require "reading/parsing/csv"
-require "tempfile"
+require 'reading/parsing/csv'
+require 'tempfile'
 
 class CSVTest < Minitest::Test
   def test_path_or_lines_required

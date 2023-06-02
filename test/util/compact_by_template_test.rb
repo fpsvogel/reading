@@ -1,4 +1,4 @@
-require_relative "../test_helpers/test_helper"
+require_relative '../test_helpers/test_helper'
 
 class CompactByTemplateTest < Minitest::Test
   using Reading::Util::HashCompactByTemplate

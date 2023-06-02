@@ -1,4 +1,4 @@
-require_relative "spans_validator"
+require_relative 'spans_validator'
 
 module Reading
   module Parsing

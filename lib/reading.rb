@@ -1,10 +1,10 @@
 Gem.find_files("reading/util/*.rb").each { |f| require f }
-require_relative "reading/errors"
-require_relative "reading/config"
-require_relative "reading/parsing/csv"
-require_relative "reading/filter"
-require_relative "reading/stats/query"
-require_relative "reading/item/time_length.rb"
+require_relative 'reading/errors'
+require_relative 'reading/config'
+require_relative 'reading/parsing/csv'
+require_relative 'reading/filter'
+require_relative 'reading/stats/query'
+require_relative 'reading/item/time_length.rb'
 
 # The gem's public API. See https://github.com/fpsvogel/reading#usage
 #

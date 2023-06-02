@@ -1,8 +1,8 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require_relative "test_helpers/test_helper"
+require_relative 'test_helpers/test_helper'
 
-require "reading"
+require 'reading'
 
 class ParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge

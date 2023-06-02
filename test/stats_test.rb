@@ -1,8 +1,8 @@
-$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 
-require_relative "test_helpers/test_helper"
+require_relative 'test_helpers/test_helper'
 
-require "reading"
+require 'reading'
 
 class StatsTest < Minitest::Test
   self.class.attr_reader :queries, :config

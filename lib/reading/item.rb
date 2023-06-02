@@ -1,6 +1,6 @@
-require "forwardable"
+require 'forwardable'
 
-require_relative "item/view"
+require_relative 'item/view'
 
 module Reading
   # A wrapper for an item parsed from a CSV reading log, providing convenience

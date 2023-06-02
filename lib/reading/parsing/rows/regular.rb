@@ -1,13 +1,13 @@
-require_relative "column"
-require_relative "regular_columns/rating"
-require_relative "regular_columns/head"
-require_relative "regular_columns/sources"
-require_relative "regular_columns/start_dates"
-require_relative "regular_columns/end_dates"
-require_relative "regular_columns/genres"
-require_relative "regular_columns/length"
-require_relative "regular_columns/notes"
-require_relative "regular_columns/history"
+require_relative 'column'
+require_relative 'regular_columns/rating'
+require_relative 'regular_columns/head'
+require_relative 'regular_columns/sources'
+require_relative 'regular_columns/start_dates'
+require_relative 'regular_columns/end_dates'
+require_relative 'regular_columns/genres'
+require_relative 'regular_columns/length'
+require_relative 'regular_columns/notes'
+require_relative 'regular_columns/history'
 
 module Reading
   module Parsing

@@ -1,12 +1,12 @@
-require_relative "attributes/shared"
-require_relative "attributes/attribute"
-require_relative "attributes/rating"
-require_relative "attributes/author"
-require_relative "attributes/title"
-require_relative "attributes/genres"
-require_relative "attributes/variants"
-require_relative "attributes/experiences"
-require_relative "attributes/notes"
+require_relative 'attributes/shared'
+require_relative 'attributes/attribute'
+require_relative 'attributes/rating'
+require_relative 'attributes/author'
+require_relative 'attributes/title'
+require_relative 'attributes/genres'
+require_relative 'attributes/variants'
+require_relative 'attributes/experiences'
+require_relative 'attributes/notes'
 
 module Reading
   module Parsing
