@@ -14,13 +14,14 @@
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
 require_relative '../lib/reading'
+require_relative '../lib/reading/stats/terminal_result_formatters'
 require 'amazing_print'
 require 'readline'
 require 'pastel'
 require 'debug'
 
 EXIT_COMMANDS = %w[exit e quit q]
-pastel = Pastel.new
+PASTEL = Pastel.new
 
 input = ARGV[0]
 unless input
@@ -42,14 +43,18 @@ if input_is_csv_path
   items = Reading.parse(path: input, config:, item_view: false)
 
   loop do
-    raw_input = Readline.readline(pastel.bright_cyan("> "), true)
+    raw_input = Readline.readline(PASTEL.bright_cyan("> "), true)
 
     exit if EXIT_COMMANDS.include?(raw_input)
 
     input = raw_input.presence
     next if raw_input.blank?
 
-    puts Reading.stats(input:, items:, result_formatters: true)
+    puts Reading.stats(
+      input:,
+      items:,
+      result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
+    )
   end
 else # CSV string arg
   item_hashes = Reading.parse(lines: input, config:, hash_output: true, item_view: false)

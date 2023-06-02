@@ -1,5 +1,4 @@
 require_relative 'operation'
-require_relative 'result_formatters'
 # require_relative 'filter'
 # require_relative 'group'
 
@@ -44,20 +43,14 @@ module Reading
 
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items to be queried.
-      # @param result_formatters [Boolean, Hash{Symbol => Proc}] if true, alters
-      #   appearance of results using the formatters in result_formatters.rb; if
-      #   false, does not use any formatters; if a Hash is provided, uses it as
-      #   custom formatters, in which case keys should be from among the keys of
-      #   Operation::ACTIONS.
-      def initialize(input:, items:, result_formatters: false)
+      # @param result_formatters [Boolean, Hash{Symbol => Proc}] to alter the
+      #   appearance of results; keys should be from among the keys of
+      #   Operation::ACTIONS. Pre-made formatters for terminal output are in
+      #   terminal_result_formatters.rb.
+      def initialize(input:, items:, result_formatters: {})
         @input = input
         @items = items
-
-        if result_formatters == true
-          @result_formatters = ResultFormatters::DEFAULT_RESULT_FORMATTERS
-        elsif result_formatters
-          @result_formatters = result_formatters
-        end
+        @result_formatters = result_formatters
       end
 
       # Parses the query and returns the result.

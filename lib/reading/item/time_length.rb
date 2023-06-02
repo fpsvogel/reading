@@ -51,7 +51,7 @@ module Reading
       # A string in "h:mm" format.
       # @return [String]
       def to_s
-        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * PAGES_PER_HOUR)} pages"
+        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * PAGES_PER_HOUR).round} pages"
       end
 
       # @return [Boolean]
