@@ -8,9 +8,17 @@ module Reading
 
     attr_reader :hash
 
+    # Builds an entire config hash from a custom config hash (which is typically
+    # not an entire config, but it can be, in which case a copy is returned).
+    # @param custom_config [Hash, Config]
+    # @return [Hash]
+    def self.hash(custom_config = {})
+      new(custom_config).hash
+    end
+
     # @param custom_config [Hash] a custom config which overrides the defaults,
     #   e.g. { enabled_columns: [:head, :end_dates] }
-    def initialize(custom_config = {})
+    def initialize(custom_config)
       @custom_config = custom_config
 
       build_hash

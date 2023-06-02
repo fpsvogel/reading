@@ -36,7 +36,7 @@ module Reading
       #   #initialize take an Item and a full config as arguments.
       def initialize(path: nil, lines: nil, config: {}, hash_output: false, item_view: Item::View)
         validate_path_or_lines(path, lines)
-        full_config = Config.new(config).hash
+        full_config = Config.hash(config)
 
         @path = path
         @lines = lines

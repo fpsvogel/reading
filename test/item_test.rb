@@ -22,7 +22,7 @@ class ItemTest < Minitest::Test
   end
 
   def full_config(custom_config = {})
-    Reading::Config.new(custom_config).hash
+    Reading::Config.hash(custom_config)
   end
 
   describe "any attribute from the item hash" do
@@ -212,7 +212,7 @@ class ItemTest < Minitest::Test
 
       context "when the item doesn't have a format" do
         it "is the default type emoji" do
-          config = Reading::Config.new.hash
+          config = Reading.default_config
           podcast = podcast(config:, variants: [{ format: nil }])
           default_type = config.deep_fetch(:item, :view, :default_type)
           default_type_emoji = config.deep_fetch(:item, :view, :types, default_type, :emoji)
@@ -294,7 +294,7 @@ class ItemTest < Minitest::Test
       context "when a variant has an ISBN/ASIN or URL" do
         context "when the second variant has both, the first has neither" do
           it "is from the second variant's ISBN" do
-            config = Reading::Config.new.hash
+            config = Reading.default_config
             book_without_first_isbn = book(config:, variants: [{ isbn: nil }])
             url_from_isbn = config
               .deep_fetch(:item, :view, :url_from_isbn)

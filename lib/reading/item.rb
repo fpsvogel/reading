@@ -24,7 +24,7 @@ module Reading
     #   view object, or nil/false if no view object should be built. If you use
     #   a custom view class, the only requirement is that its #initialize take
     #   an Item and a full config as arguments.
-    def initialize(item_hash, config: Config.new.hash, view: Item::View)
+    def initialize(item_hash, config: Reading.default_config, view: Item::View)
       item_hash = item_hash.dup
 
       add_missing_attributes_with_filler_values(item_hash, config)

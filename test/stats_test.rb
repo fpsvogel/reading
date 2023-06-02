@@ -13,7 +13,7 @@ class StatsTest < Minitest::Test
 
   def config = self.class.config
 
-  @config = Reading::Config.new.hash
+  @config = Reading.default_config
 
   # ==== QUERIES FOR TESTS
 
@@ -215,7 +215,7 @@ class StatsTest < Minitest::Test
       input: "average length",
       result: PASTEL.bright_blue("5:00 or 500 pages"),
       items: [
-        { variants: [{ length: Reading.time('5:00', config: Reading::Config.new(pages_per_hour: 100).hash) }],
+        { variants: [{ length: Reading.time('5:00', config: { pages_per_hour: 100 }) }],
                         experiences: [{ variant_index: 0 }] },
       ],
       config: { pages_per_hour: 100 },
@@ -326,7 +326,7 @@ class StatsTest < Minitest::Test
   queries[:terminal_result_formatters].each do |key, hash|
     define_method("test_result_formatter_#{key}") do
       items = hash.fetch(:items).map { |item_hash|
-        custom_config = Reading::Config.new(hash[:config]).hash if hash[:config]
+        custom_config = Reading::Config.hash(hash[:config]) if hash[:config]
 
         Reading::Item.new(
           item_hash,

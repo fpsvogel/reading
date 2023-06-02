@@ -18,7 +18,7 @@ class ParseTest < Minitest::Test
 
   def self.pages_per_hour =  config.fetch(:pages_per_hour)
 
-  @config = Reading::Config.new.hash
+  @config = Reading.default_config
 
   # ==== INPUT
 
