@@ -18,11 +18,11 @@ class ParseTest < Minitest::Test
 
   @base_config = Reading::Config.new.hash
 
-  # ==== TEST INPUT
+  # ==== INPUT
 
   @inputs = {}
 
-  ## TEST INPUT: ENABLING COLUMNS
+  ## INPUT: ENABLING COLUMNS
   # In the columns tests, the input in the heredocs below are each parsed with
   # only the columns enabled that are listed in the hash key. This tests basic
   # functionality of each column, and a few possible combinations of columns.
@@ -76,7 +76,7 @@ class ParseTest < Minitest::Test
 
 
 
-  ## TEST INPUT: FEATURES OF SINGLE COLUMNS
+  ## INPUT: FEATURES OF SINGLE COLUMNS
   # In each the features tests, a single column is enabled (specified in the
   # hash key) and a bunch of possible content for that column is tested. These
   # are the columns that are more flexible and can have lots of information
@@ -334,7 +334,7 @@ class ParseTest < Minitest::Test
   }
 
 
-  ## TEST INPUT: ALL COLUMNS
+  ## INPUT: ALL COLUMNS
   # For interactions between columns that are not caught in the single-column
   # tests above. Also for realistic examples from the reading.csv template:
   # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
@@ -377,7 +377,7 @@ class ParseTest < Minitest::Test
 
 
 
-  ## TEST INPUT: ERRORS
+  ## INPUT: ERRORS
   # Bad input that should raise an error.
   @inputs[:errors] = {}
 
@@ -496,8 +496,8 @@ class ParseTest < Minitest::Test
 
 
 
-  ## TEST INPUT: CUSTOM CONFIG
-  # Bad input that should raise an error.
+  ## INPUT: CUSTOM CONFIG
+  # Custom config that should affect the output.
   @inputs[:config] = {
     :"comment_character" =>
       ["#3|Dracula",
@@ -514,6 +514,9 @@ class ParseTest < Minitest::Test
     :"ignored_characters" =>
       ["|✅Dracula",
         { ignored_characters: "Da"}],
+    :"listening speed" =>
+      ["|🔊Dracula|||||9:00",
+        { speed: { format: { audiobook: 1.5 } } }],
   }
 
 
@@ -1622,10 +1625,16 @@ class ParseTest < Minitest::Test
 
   @outputs[:config][:"column_separator can be a tab"] = [a_basic]
 
+  @outputs[:config][:"skip_compact_planned"] = []
+
   a_without_D_a = item_hash(title: "✅rcul")
   @outputs[:config][:"ignored_characters"] = [a_without_D_a]
 
-  @outputs[:config][:"skip_compact_planned"] = []
+  a_listening_speed = item_hash(
+    title: "Dracula",
+    variants: [{ format: :audiobook, length: Reading.time("6:00") }],
+  )
+  @outputs[:config][:"listening speed"] = [a_listening_speed]
 
 
 

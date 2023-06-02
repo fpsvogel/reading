@@ -4,6 +4,7 @@ module Reading
       # Transformer for the :variant item attribute.
       class Variants < Attribute
         using Util::HashArrayDeepFetch
+        using Util::NumericToIIfWhole
 
         # @param parsed_row [Hash] a parsed row (the intermediate hash).
         # @param head_index [Integer] current item's position in the Head column.
@@ -14,13 +15,14 @@ module Reading
 
           # || [{}] in case there is no Sources column.
           (parsed_row[:sources].presence || [{}])&.map { |variant|
+            format = variant[:format] || head[:format]
+
             {
-              format: variant[:format] || head[:format],
+              format:,
               series: (series(head) + series(variant)).presence,
               sources: sources(variant) || sources(head),
               isbn: variant[:isbn] || variant[:asin],
-              length: Attributes::Shared.length(variant) ||
-                Attributes::Shared.length(parsed_row[:length]),
+              length: length(variant, format) || length(parsed_row[:length], format),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }&.compact&.presence
@@ -70,6 +72,16 @@ module Reading
             end
 
           nil
+        end
+
+
+        def length(hash, format)
+          full_length = Attributes::Shared.length(hash)
+          return nil unless full_length
+
+          speed = config.deep_fetch(:speed, :format)[format] || 1.0
+
+          (full_length / speed).to_i_if_whole
         end
       end
     end

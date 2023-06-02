@@ -82,6 +82,14 @@ module Reading
             piece:     "✏️",
             website:   "🌐",
           },
+        speed: # e.g. listening speed for audiobooks and podcasts.
+          {
+            format:
+              {
+                audiobook: 1.0,
+                audio: 1.0,
+              },
+          },
         source_names_from_urls:
           {
             "audible.com"         => "Audible",
