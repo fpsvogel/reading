@@ -527,7 +527,7 @@ class ItemTest < Minitest::Test
             },
             {
               dates: Date.new(2021,11,15)..Date.new(2021,11,15),
-              progress: Reading.time("0:15"),
+              progress: Reading.time('0:15'),
               amount: "1:00",
               name: "Baseball",
               favorite?: false,
