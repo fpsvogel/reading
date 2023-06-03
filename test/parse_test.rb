@@ -516,8 +516,11 @@ class ParseTest < Minitest::Test
     :"ignored_characters" =>
       ["|✅Dracula",
         { ignored_characters: "Da"}],
-    :"listening speed" =>
+    :"listening speed affects Length" =>
       ["|🔊Dracula|||||9:00",
+        { speed: { format: { audiobook: 1.5 } } }],
+    :"listening speed affects History" =>
+      ["|🔊Dracula|||||||2022/8/1 9:00",
         { speed: { format: { audiobook: 1.5 } } }],
   }
 
@@ -1632,11 +1635,21 @@ class ParseTest < Minitest::Test
   a_without_D_a = item_hash(title: "✅rcul")
   @outputs[:config][:"ignored_characters"] = [a_without_D_a]
 
-  a_listening_speed = item_hash(
+  a_listening_speed_length = item_hash(
     title: "Dracula",
     variants: [{ format: :audiobook, length: Reading.time('6:00') }],
   )
-  @outputs[:config][:"listening speed"] = [a_listening_speed]
+  @outputs[:config][:"listening speed affects Length"] = [a_listening_speed_length]
+
+  a_listening_speed_history = item_hash(
+    title: "Dracula",
+    variants: [{ format: :audiobook }],
+    experiences: [{ spans: [{
+      dates: Date.new(2022,8,1)..Date.new(2022,8,1),
+      amount: Reading.time('6:00'),
+    }] }],
+  )
+  @outputs[:config][:"listening speed affects History"] = [a_listening_speed_history]
 
 
 

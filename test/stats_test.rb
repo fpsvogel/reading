@@ -260,6 +260,14 @@ class StatsTest < Minitest::Test
         { experiences: [] },
       ],
     },
+    :"total amount (time, with custom pages per hour)" => {
+      input: "total amount",
+      result: PASTEL.bright_blue("5:00 or 500 pages"),
+      items: [
+        { experiences: [{ spans: [{ amount: Reading.time('5:00', pages_per_hour: 100) }] }] },
+      ],
+      config: { pages_per_hour: 100 },
+    },
     :"top lengths" => {
       input: "top 2 length",
       result: "1. Encyclopedic\n     #{PASTEL.bright_blue("1000 pages")}\n" \

@@ -22,7 +22,8 @@ module Reading
               series: (series(head) + series(variant)).presence,
               sources: sources(variant) || sources(head),
               isbn: variant[:isbn] || variant[:asin],
-              length: length(variant, format) || length(parsed_row[:length], format),
+              length: Attributes::Shared.length(variant, config, format:) ||
+                Attributes::Shared.length(parsed_row[:length], config, format:),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }&.compact&.presence
@@ -72,16 +73,6 @@ module Reading
             end
 
           nil
-        end
-
-
-        def length(hash, format)
-          full_length = Attributes::Shared.length(hash, config)
-          return nil unless full_length
-
-          speed = config.deep_fetch(:speed, :format)[format] || 1.0
-
-          (full_length / speed).to_i_if_whole
         end
       end
     end

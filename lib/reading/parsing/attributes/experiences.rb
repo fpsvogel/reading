@@ -16,7 +16,7 @@ module Reading
         #   Config#default_config[:item][:template][:experiences]
         def transform_from_parsed(parsed_row, head_index)
           if !parsed_row[:history].blank?
-            return HistoryTransformer.new(parsed_row, config).transform
+            return HistoryTransformer.new(parsed_row, head_index, config).transform
           end
 
           DatesAndHeadTransformer.new(parsed_row, head_index, config).transform

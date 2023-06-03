@@ -1,8 +1,11 @@
 module Reading
   module Parsing
     module Attributes
-      # Shared
+      # Sub-attributes that are shared across multiple attributes.
       module Shared
+        using Util::HashArrayDeepFetch
+        using Util::NumericToIIfWhole
+
         # Extracts the :progress sub-attribute (percent, pages, or time) from
         # the given hash.
         # @param hash [Hash] any parsed hash that contains progress.
@@ -21,6 +24,9 @@ module Reading
 
         # Extracts the :length sub-attribute (pages or time) from the given hash.
         # @param hash [Hash] any parsed hash that contains length.
+        # @param config [Hash] an entire config.
+        # @param format [Symbol] the item format, which affects length in cases
+        #   where config[:speed][:format] is customized.
         # @param key_name [Symbol] the first part of the keys to be checked.
         # @param episodic [Boolean] whether to look for episodic (not total) length.
         #   If false, returns nil if hash contains :each. If true, returns a
@@ -34,7 +40,7 @@ module Reading
         #   as the default amount.
         # @param config [Hash] an entire config.
         # @return [Float, Integer, Item::TimeLength]
-        def self.length(hash, config, key_name: :length, episodic: false, ignore_repetitions: false)
+        def self.length(hash, config, format:, key_name: :length, episodic: false, ignore_repetitions: false)
           return nil unless hash
 
           pages_per_hour = config.fetch(:pages_per_hour)
@@ -60,7 +66,9 @@ module Reading
             return nil if episodic && !hash[:each]
           end
 
-          length
+          speed = config.deep_fetch(:speed, :format)[format] || 1.0
+
+          (length / speed).to_i_if_whole
         end
       end
     end

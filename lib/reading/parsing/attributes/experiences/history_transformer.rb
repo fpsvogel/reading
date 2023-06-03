@@ -16,12 +16,14 @@ module Reading
           # many days, for example.
           AVERAGE_DAYS_IN_A_MONTH = 30.437r
 
-          private attr_reader :parsed_row, :config
+          private attr_reader :parsed_row, :head_index, :config
 
           # @param parsed_row [Hash] a parsed row (the intermediate hash).
+          # @param head_index [Integer] current item's position in the Head column.
           # @param config [Hash] an entire config
-          def initialize(parsed_row, config)
+          def initialize(parsed_row, head_index, config)
             @parsed_row = parsed_row
+            @head_index = head_index
             @config = config
           end
 
@@ -171,9 +173,13 @@ module Reading
             end
             active[:after_single_date] = !date_range
 
+            variant_index = (entry[:variant_index] || 1).to_i - 1
+            format = parsed_row[:sources]&.dig(variant_index)&.dig(:format) ||
+              parsed_row[:head][head_index][:format]
+
             amount =
-              Attributes::Shared.length(entry, config, key_name: :amount, ignore_repetitions: true) ||
-              Attributes::Shared.length(parsed_row[:length], config, episodic: true)
+              Attributes::Shared.length(entry, config, format:, key_name: :amount, ignore_repetitions: true) ||
+              Attributes::Shared.length(parsed_row[:length], config, format:, episodic: true)
             active[:amount] = amount if amount
 
             progress = Attributes::Shared.progress(entry, config)
@@ -184,7 +190,7 @@ module Reading
             # https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#history-pages-and-stopping-points-books
             if !amount && progress
               if progress.is_a? Float
-                total_length = Attributes::Shared.length(parsed_row[:length], config)
+                total_length = Attributes::Shared.length(parsed_row[:length], config, format:)
                 amount = total_length * progress
               else
                 amount = progress
