@@ -53,7 +53,16 @@ module Reading
 
           (lengths.sum / lengths.count.to_f).to_i_if_whole
         },
-        average_amount: proc { |items|
+        :"average_item-amount" => proc { |items|
+          total_amount = items.sum { |item|
+            item.experiences.sum { |experience|
+              experience.spans.sum(&:amount)
+            }
+          }
+
+          (total_amount / items.count.to_f).to_i_if_whole
+        },
+        :"average_daily-amount" => proc { |items|
           amounts_by_date = calculate_amounts_by_date(items)
 
           amounts_by_date.values.sum / amounts_by_date.count
@@ -62,8 +71,12 @@ module Reading
           items.count
         },
         total_amount: proc { |items|
-          items.sum { |item| item.experiences.sum { |exp| exp.spans.sum(&:amount) } }
-        },
+          items.sum { |item|
+            item.experiences.sum { |experience|
+              experience.spans.sum(&:amount)
+              }
+            }
+          },
         top_rating: proc { |items, number_arg|
           items
             .max_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
@@ -107,7 +120,8 @@ module Reading
       ALIASES = {
         average_rating: %w[ar],
         average_length: %w[al],
-        average_amount: %w[aa],
+        :"average_item-amount" => %w[aia ai],
+        :"average_daily-amount" => %w[ada ad],
         total_item: %w[item count ti],
         total_amount: %w[amount ta],
         top_rating: %w[tr],

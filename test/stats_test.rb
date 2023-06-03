@@ -60,8 +60,19 @@ class StatsTest < Minitest::Test
         { variants: [{ length: nil }] },
       ],
     },
-    :"average amount" => {
-      input: "average amount",
+    :"average item-amount" => {
+      input: "average item-amount",
+      # assuming 35 pages per hour (the config default)
+      result: Reading.time('1:00', config:),
+      items: [
+        { experiences: [{ spans: [{ amount: 17.5 }] },
+                        { spans: [{ amount: 17.5 }, { amount: Reading.time('1:00', config:) }] }] },
+        { experiences: [{ spans: [{ amount: 35 }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"average daily-amount" => {
+      input: "average daily-amount",
       # assuming 35 pages per hour (the config default)
       result: Reading.time('1:00', config:),
       items: [
