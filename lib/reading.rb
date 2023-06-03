@@ -46,19 +46,14 @@ module Reading
   # The default config.
   # @return [Hash]
   def self.default_config
-    Config.hash
+    @default_config ||= Config.hash
   end
 
   # A shortcut for getting a time from a string.
   # @param string [String] a time duration in "h:mm" format.
-  # @param config [Integer] a config, fragmentary or entire.
+  # @param pages_per_hour [Integer] from config.
   # @return [Item::TimeLength]
-  def self.time(string, config: default_config)
-    entire_config = Config.hash(config)
-
-    Item::TimeLength.parse(
-      string,
-      pages_per_hour: entire_config.fetch(:pages_per_hour),
-    )
+  def self.time(string, pages_per_hour: default_config.fetch(:pages_per_hour))
+    Item::TimeLength.parse(string, pages_per_hour:)
   end
 end

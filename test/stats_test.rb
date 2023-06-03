@@ -43,19 +43,19 @@ class StatsTest < Minitest::Test
     :"average length with pages and time lengths" => {
       input: "average length",
       # assuming 35 pages per hour (the config default)
-      result: Reading.time('4:30', config:),
+      result: Reading.time('4:30'),
       items: [
         { variants: [{ length: 175 }] }, # or 5 hours
-        { variants: [{ length: Reading.time('4:00', config:) }] },
+        { variants: [{ length: Reading.time('4:00') }] },
         { variants: [{ length: nil }] },
       ],
     },
     :"average length with time and pages lengths" => {
       input: "average length",
       # assuming 35 pages per hour (the config default)
-      result: Reading.time('4:30', config:),
+      result: Reading.time('4:30'),
       items: [
-        { variants: [{ length: Reading.time('5:00', config:) }] },
+        { variants: [{ length: Reading.time('5:00') }] },
         { variants: [{ length: 140 }] }, # or 4 hours
         { variants: [{ length: nil }] },
       ],
@@ -63,10 +63,10 @@ class StatsTest < Minitest::Test
     :"average item-amount" => {
       input: "average item-amount",
       # assuming 35 pages per hour (the config default)
-      result: Reading.time('1:00', config:),
+      result: Reading.time('1:00'),
       items: [
         { experiences: [{ spans: [{ amount: 17.5 }] },
-                        { spans: [{ amount: 17.5 }, { amount: Reading.time('1:00', config:) }] }] },
+                        { spans: [{ amount: 17.5 }, { amount: Reading.time('1:00') }] }] },
         { experiences: [{ spans: [{ amount: 35 }] }] },
         { experiences: [] },
       ],
@@ -74,10 +74,10 @@ class StatsTest < Minitest::Test
     :"average daily-amount" => {
       input: "average daily-amount",
       # assuming 35 pages per hour (the config default)
-      result: Reading.time('1:00', config:),
+      result: Reading.time('1:00'),
       items: [
         { experiences:
-          [{ spans: [{ dates: Date.new(2023, 5, 1)..Date.new(2023, 5, 2), amount: Reading.time('1:00', config:) }] },
+          [{ spans: [{ dates: Date.new(2023, 5, 1)..Date.new(2023, 5, 2), amount: Reading.time('1:00') }] },
             { spans: [{ dates: Date.new(2023, 5, 5)..Date.new(2023, 5, 5), amount: 35 },
                       { dates: Date.new(2023, 5, 10)..Date.new(2023, 5, 11), amount: 70 }] }] },
         # 2022/9/30 because Date::today is stubbed to 2022/10/1 in test_helper.rb
@@ -96,10 +96,10 @@ class StatsTest < Minitest::Test
     :"total amount" => {
       input: "total amount",
       # assuming 35 pages per hour (the config default)
-      result: Reading.time('3:00', config:),
+      result: Reading.time('3:00'),
       items: [
         { experiences: [{ spans: [{ amount: 17.5 }] },
-                        { spans: [{ amount: 17.5 }, { amount: Reading.time('1:00', config:) }] }] },
+                        { spans: [{ amount: 17.5 }, { amount: Reading.time('1:00') }] }] },
         { experiences: [{ spans: [{ amount: 35 }] }] },
         { experiences: [] },
       ],
@@ -123,17 +123,17 @@ class StatsTest < Minitest::Test
     },
     :"top lengths" => {
       input: "top 2 length",
-      result: [["Encyclopedic", 1000], ["Longish", Reading.time('10:00', config:)]],
+      result: [["Encyclopedic", 1000], ["Longish", Reading.time('10:00')]],
       items: [
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
-        { title: "Longish", variants: [{ length: Reading.time('10:00', config:) }] },
+        { title: "Longish", variants: [{ length: Reading.time('10:00') }] },
         { title: "No length", variants: [{ length: nil }] },
       ],
     },
     :"top speeds" => {
       input: "top 2 speed",
-      result: [["Sprint", { amount: 200, days: 1 }], ["Jog", { amount: Reading.time('5:00', config:), days: 5 }]],
+      result: [["Sprint", { amount: 200, days: 1 }], ["Jog", { amount: Reading.time('5:00'), days: 5 }]],
       items: [
         { title: "Walk", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
@@ -143,7 +143,7 @@ class StatsTest < Minitest::Test
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
         ] }] },
         { title: "Jog", experiences: [{ spans: [
-          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time('5:00', config:) },
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time('5:00') },
         ] }] },
         { title: "DNF", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 300, progress: 0.10 },
@@ -167,11 +167,11 @@ class StatsTest < Minitest::Test
     },
     :"bottom lengths" => {
       input: "bottom 2 length",
-      result: [["Short", 100], ["Longish", Reading.time('10:00', config:)]],
+      result: [["Short", 100], ["Longish", Reading.time('10:00')]],
       items: [
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
-        { title: "Longish", variants: [{ length: Reading.time('10:00', config:) }] },
+        { title: "Longish", variants: [{ length: Reading.time('10:00') }] },
         { title: "No length", variants: [{ length: nil }] },
       ],
     },
@@ -187,7 +187,7 @@ class StatsTest < Minitest::Test
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
         ] }] },
         { title: "Jog", experiences: [{ spans: [
-          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time('5:00', config:) },
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time('5:00') },
         ] }] },
         { title: "DNF", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 300, progress: 0.10 },
@@ -219,14 +219,14 @@ class StatsTest < Minitest::Test
       # assuming 35 pages per hour (the config default)
       result: PASTEL.bright_blue("5:00 or 175 pages"),
       items: [
-        { variants: [{ length: Reading.time('5:00', config:) }], experiences: [{ variant_index: 0 }] },
+        { variants: [{ length: Reading.time('5:00') }], experiences: [{ variant_index: 0 }] },
       ],
     },
     :"average length (time, with custom pages per hour)" => {
       input: "average length",
       result: PASTEL.bright_blue("5:00 or 500 pages"),
       items: [
-        { variants: [{ length: Reading.time('5:00', config: { pages_per_hour: 100 }) }],
+        { variants: [{ length: Reading.time('5:00', pages_per_hour: 100) }],
                         experiences: [{ variant_index: 0 }] },
       ],
       config: { pages_per_hour: 100 },
@@ -279,7 +279,7 @@ class StatsTest < Minitest::Test
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
         ] }] },
         { title: "Jog", experiences: [{ spans: [
-          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time('6:00', config:) },
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time('6:00') },
         ] }] },
       ],
     },
@@ -290,7 +290,7 @@ class StatsTest < Minitest::Test
         "2. Longish\n     #{PASTEL.bright_blue("10:00 or 350 pages")}",
       items: [
         { title: "Short", variants: [{ length: 100 }] },
-        { title: "Longish", variants: [{ length: Reading.time('10:00', config:) }] },
+        { title: "Longish", variants: [{ length: Reading.time('10:00') }] },
       ],
     },
     :"bottom speeds" => {
