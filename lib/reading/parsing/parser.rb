@@ -1,6 +1,7 @@
 require_relative 'rows/blank'
 require_relative 'rows/regular'
 require_relative 'rows/compact_planned'
+require_relative 'rows/custom_config'
 require_relative 'rows/comment'
 
 module Reading
@@ -79,9 +80,14 @@ module Reading
         string = string.dup.force_encoding(Encoding::UTF_8)
         column_strings = string.split(config.fetch(:column_separator))
 
-        row_types = [Rows::Blank, Rows::Regular, Rows::CompactPlanned, Rows::Comment]
+        row_types = [Rows::Blank, Rows::Regular, Rows::CompactPlanned, Rows::CustomConfig, Rows::Comment]
         column_classes = row_types
           .find { |row_type| row_type.match?(string, config) }
+          .tap { |row_type|
+            if row_type == Rows::CustomConfig
+              row_type.merge_custom_config!(string, config)
+            end
+          }
           .column_classes
           .filter { |column_class|
             config.fetch(:enabled_columns).include?(column_class.to_sym)

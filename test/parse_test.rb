@@ -347,6 +347,11 @@ class ParseTest < Minitest::Test
     :"default span amount is the correct length via variants" =>
       "|Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03|2020/09/01",
   }
+  @inputs[:all_columns][:"custom config: listening speed"] = <<~EOM.freeze
+    \\{ speed: { format: { audiobook: 1.5, audio: 2 } } }
+    |🔊Dracula|||||9:00
+    |🎤Flightless Bird|||||||2022/8/1 10:00
+  EOM
   @inputs[:all_columns][:"realistic examples: in progress books"] = <<~EOM.freeze
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Start dates, Progress|End dates|Genres|Length|Notes|History
     \\------ IN PROGRESS
@@ -1268,8 +1273,23 @@ class ParseTest < Minitest::Test
         variant_index: 0
       }]
     )
-  @outputs[:all_columns][:"default span amount is the correct length via variants"] =
-    [a_variant_length_with_experience]
+  @outputs[:all_columns][:"default span amount is the correct length via variants"] = [a_variant_length_with_experience]
+
+  custom_config_a = item_hash(
+    title: "Dracula",
+    variants: [{ format: :audiobook, length: Reading.time('6:00') }],
+  )
+
+  custom_config_b = item_hash(
+    title: "Flightless Bird",
+    variants: [{ format: :audio }],
+    experiences: [{ spans: [{
+      dates: Date.new(2022,8,1)..Date.new(2022,8,1),
+      amount: Reading.time('5:00'),
+    }] }],
+  )
+
+  @outputs[:all_columns][:"custom config: listening speed"] = [custom_config_a, custom_config_b]
 
   sapiens = item_hash(
     title: "Sapiens: A Brief History of Humankind",
