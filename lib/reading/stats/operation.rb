@@ -4,10 +4,6 @@ module Reading
     class Operation
       using Util::NumericToIIfWhole
 
-      # The default number argument if one is not given, as in "top ratings"
-      # rather than "top 5 ratings".
-      DEFAULT_NUMBER_ARG = 10
-
       # Determines which type of operation is contained in the given input, and
       # then runs it to get the result. For the types of operations and their
       # actions, see the constants below.
@@ -35,10 +31,14 @@ module Reading
           end
         end
 
-        raise InputError, "Stats query input could not be matched to a valid operation."
+        raise InputError, "Stats query input could not be matched to a valid operation: #{input}"
       end
 
       private
+
+      # The default number argument if one is not given, as in "top ratings"
+      # rather than "top 5 ratings".
+      DEFAULT_NUMBER_ARG = 10
 
       ACTIONS = {
         average_rating: proc { |items|
@@ -104,21 +104,43 @@ module Reading
         },
       }
 
+      ALIASES = {
+        average_rating: %w[ar],
+        average_length: %w[al],
+        average_amount: %w[aa],
+        total_item: %w[item count ti],
+        total_amount: %w[amount ta],
+        top_rating: %w[tr],
+        top_length: %w[tl tl],
+        top_speed: %w[ts],
+        bottom_rating: %w[br],
+        bottom_length: %w[bl],
+        bottom_speed: %w[bs],
+      }
+
       REGEXES = ACTIONS.map { |key, _action|
         first_word, second_word = key.to_s.split('_')
+        aliases = ALIASES.fetch(key)
 
         regex =
           %r{\A
             \s*
-            #{first_word}
+            (
+              #{first_word}
+              |
+              #{aliases.join('|')}
+            )
+            s?
             \s*
             (?<number_arg>
               \d+
             )?
             \s*
-            #{second_word}
-            s?
-            \s*
+            (
+              #{second_word}
+              s?
+              \s*
+            )?
           \z}x
 
         [key, regex]

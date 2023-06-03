@@ -104,7 +104,7 @@ class StatsTest < Minitest::Test
     },
     :"top ratings without number arg" => {
       input: "top rating",
-      result: Reading::Stats::Operation::DEFAULT_NUMBER_ARG.times.map { ["Better", 3] },
+      result: Reading::Stats::Operation.const_get(:DEFAULT_NUMBER_ARG).times.map { ["Better", 3] },
       items: [
         { title: "Trash", rating: 2 },
         *10.times.map { { title: "Better", rating: 3 } },
@@ -310,16 +310,35 @@ class StatsTest < Minitest::Test
         )
       }
 
+      input = hash.fetch(:input)
+
       exp = hash.fetch(:result)
-      act = Reading.stats(input: hash.fetch(:input), items:)
+      act = Reading.stats(input:, items:)
       # debugger unless exp == act
 
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
 
-      # Alternate input style: pluralize the second word.
-      act = Reading.stats(input: "#{hash.fetch(:input)}s", items:)
+      # Alternate input styles
+      # a. Plural second word
+      act = Reading.stats(input: "#{input}s", items:)
       assert_equal exp, act
+
+      # b. Aliases
+      op_key = input.split(/\s*\d+\s*|\s+/).join('_').to_sym
+      number_arg = Integer(input[/\d+/], exception: false)
+      op_aliases = Reading::Stats::Operation.const_get(:ALIASES).fetch(op_key)
+
+      op_aliases.each do |op_alias|
+        act = Reading.stats(input: "#{op_alias}#{" " + number_arg.to_s if number_arg}", items:)
+        assert_equal exp, act
+      end
+
+      # c. Plural aliases
+      op_aliases.each do |op_alias|
+        act = Reading.stats(input: "#{op_alias}s#{" " + number_arg.to_s if number_arg}", items:)
+        assert_equal exp, act
+      end
     end
   end
 
