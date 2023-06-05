@@ -1,5 +1,5 @@
 require_relative 'operation'
-# require_relative 'filter'
+require_relative 'filter'
 # require_relative 'group'
 
 # average rating of in progress 3 star audiobook dnfs from Hoopla by genre
@@ -16,7 +16,7 @@ require_relative 'operation'
 # ✅ top/bottom 5 speed(s)
 
 # INPUT FILTERS
-# genre(s)=
+# ✅genre(s)=
 # rating(s)=/>/>=/</<=
 # format(s)=
 # source(s)=
@@ -27,13 +27,13 @@ require_relative 'operation'
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
 
 # OUTPUT GROUPINGS
-# group by month
-# group by year
-# group by genre
-# group by rating
-# group by format
-# group by source
-# group by length
+# by month
+# by year
+# by genre
+# by rating
+# by format
+# by source
+# by length
 
 module Reading
   module Stats
@@ -56,7 +56,9 @@ module Reading
       # Parses the query and returns the result.
       # @return [Object]
       def result
-        Operation.execute(input, items, result_formatters || {})
+        filtered_items = Stats::Filter.filter(input, items)
+
+        Operation.execute(input, filtered_items, result_formatters || {})
       end
     end
   end

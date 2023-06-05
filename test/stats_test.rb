@@ -204,6 +204,46 @@ class StatsTest < Minitest::Test
 
 
 
+  ## QUERIES: FILTERS
+  # Simple queries testing each filter.
+  @queries[:filters] = {
+    :"genres" => {
+      input: "average rating genre=history",
+      result: 4,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genres (or)" => {
+      input: "average rating genre=history,fiction",
+      result: 3.5,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genres (and)" => {
+      input: "average rating genre=history+fiction",
+      result: 3,
+      items: [
+        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genres (or, and)" => {
+      input: "average rating genre=science,history+fiction",
+      result: 2.5,
+      items: [
+        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 4, genres: ["history"] },
+        { rating: 2, genres: ["science"] },
+      ],
+    },
+  }
+
+
+
   ## QUERIES: RESULT FORMATTERS
   # Minimal queries testing result formatters.
   @queries[:terminal_result_formatters] = {
@@ -319,6 +359,7 @@ class StatsTest < Minitest::Test
 
   # ==== TESTS
 
+  # TESTS: OPERATIONS
   queries[:operations].each do |key, hash|
     define_method("test_operation_#{key}") do
       items = hash.fetch(:items).map { |item_hash|
@@ -361,6 +402,34 @@ class StatsTest < Minitest::Test
     end
   end
 
+  # TESTS: FILTERS
+  queries[:filters].each do |key, hash|
+    define_method("test_filter_#{key}") do
+      items = hash.fetch(:items).map { |item_hash|
+        Reading::Item.new(
+          item_hash,
+          config:,
+          view: false,
+        )
+      }
+
+      input = hash.fetch(:input)
+
+      exp = hash.fetch(:result)
+      act = Reading.stats(input:, items:)
+      # debugger unless exp == act
+
+      assert_equal exp, act,
+        "Unexpected result #{act} from stats query \"#{name}\""
+
+      # Alternate input style: plural
+      plural_input = input.gsub(/(\w\s*)(=|>|>=|<|<=)/, '\1s\2')
+      act = Reading.stats(input: plural_input, items:)
+      assert_equal exp, act
+    end
+  end
+
+  # TESTS: RESULT FORMATTERS
   queries[:terminal_result_formatters].each do |key, hash|
     define_method("test_result_formatter_#{key}") do
       items = hash.fetch(:items).map { |item_hash|

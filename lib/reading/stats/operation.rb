@@ -1,12 +1,13 @@
 module Reading
   module Stats
-    # The first part of a query.
+    # The beginning of a query which specifies what it does, e.g.
+    # "average rating" or "total amount".
     class Operation
       using Util::NumericToIIfWhole
 
-      # Determines which type of operation is contained in the given input, and
-      # then runs it to get the result. For the types of operations and their
-      # actions, see the constants below.
+      # Determines which operation is contained in the given input, and then
+      # runs it to get the result. For the operations and their actions, see
+      # the constants below.
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items on which to run the operation.
       # @param result_formatters [Hash{Symbol => Proc}] to alter the appearance
@@ -31,7 +32,7 @@ module Reading
           end
         end
 
-        raise InputError, "Stats query input could not be matched to a valid operation: #{input}"
+        raise InputError, "No valid operation in stats query \"#{input}\""
       end
 
       private
@@ -137,25 +138,36 @@ module Reading
         aliases = ALIASES.fetch(key)
 
         regex =
-          %r{\A
-            \s*
+          %r{
             (
+              \A
+              \s*
               #{first_word}
-              |
-              #{aliases.join('|')}
-            )
-            s?
-            \s*
-            (?<number_arg>
-              \d+
-            )?
-            \s*
-            (
-              #{second_word}
               s?
               \s*
-            )?
-          \z}x
+              (?<number_arg>
+                \d+
+              )?
+              \s*
+              (
+                #{second_word}
+                s?
+              )
+              \s*
+            )
+            |
+            (
+              \A
+              \s*
+              (#{aliases.join('|')})
+              s?
+              \s*
+              (?<number_arg>
+                \d+
+              )?
+              \s*
+            )
+          }x
 
         [key, regex]
       }.to_h
