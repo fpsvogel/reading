@@ -207,7 +207,7 @@ class StatsTest < Minitest::Test
   ## QUERIES: FILTERS
   # Simple queries testing each filter.
   @queries[:filters] = {
-    :"genres" => {
+    :"genre" => {
       input: "average rating genre=history",
       result: 4,
       items: [
@@ -215,7 +215,15 @@ class StatsTest < Minitest::Test
         { rating: 4, genres: ["history"] },
       ],
     },
-    :"genres (or)" => {
+    :"genre (not)" => {
+      input: "average rating genre!=history",
+      result: 3,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genre (or)" => {
       input: "average rating genre=history,fiction",
       result: 3.5,
       items: [
@@ -223,7 +231,7 @@ class StatsTest < Minitest::Test
         { rating: 4, genres: ["history"] },
       ],
     },
-    :"genres (and)" => {
+    :"genre (and)" => {
       input: "average rating genre=history+fiction",
       result: 3,
       items: [
@@ -231,7 +239,7 @@ class StatsTest < Minitest::Test
         { rating: 4, genres: ["history"] },
       ],
     },
-    :"genres (or, and)" => {
+    :"genre (or, and)" => {
       input: "average rating genre=science,history+fiction",
       result: 2.5,
       items: [
@@ -240,7 +248,7 @@ class StatsTest < Minitest::Test
         { rating: 2, genres: ["science"] },
       ],
     },
-    :"ratings (equal to)" => {
+    :"rating" => {
       input: "average rating rating=3",
       result: 3,
       items: [
@@ -248,7 +256,15 @@ class StatsTest < Minitest::Test
         { rating: 4 },
       ],
     },
-    :"ratings (multiple)" => {
+    :"rating (not)" => {
+      input: "average rating rating!=3",
+      result: 4,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+      ],
+    },
+    :"rating (multiple)" => {
       input: "average rating rating=3,4",
       result: 3.5,
       items: [
@@ -257,7 +273,7 @@ class StatsTest < Minitest::Test
         { rating: 5 },
       ],
     },
-    :"ratings (greater than)" => {
+    :"rating (greater than)" => {
       input: "average rating rating>4",
       result: 5,
       items: [
@@ -266,7 +282,7 @@ class StatsTest < Minitest::Test
         { rating: 5 },
       ],
     },
-    :"ratings (greater than or equal to)" => {
+    :"rating (greater than or equal to)" => {
       input: "average rating rating>=4",
       result: 4.5,
       items: [
@@ -275,7 +291,7 @@ class StatsTest < Minitest::Test
         { rating: 5 },
       ],
     },
-    :"ratings (less than)" => {
+    :"rating (less than)" => {
       input: "average rating rating<5",
       result: 3.5,
       items: [
@@ -284,7 +300,7 @@ class StatsTest < Minitest::Test
         { rating: 5 },
       ],
     },
-    :"ratings (less than or equal to)" => {
+    :"rating (less than or equal to)" => {
       input: "average rating rating<=4",
       result: 3.5,
       items: [
@@ -293,13 +309,55 @@ class StatsTest < Minitest::Test
         { rating: 5 },
       ],
     },
-    :"ratings (less than 4, greater than 4)" => {
+    :"rating (less than 4, greater than 4)" => {
       input: "average rating rating<4 rating>4",
       result: 3,
       items: [
         { rating: 1 },
         { rating: 4 },
         { rating: 5 },
+      ],
+    },
+    :"format" => {
+      input: "average rating format=print",
+      result: 3,
+      items: [
+        { rating: 3, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: :audio }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"format (not)" => {
+      input: "average rating format!=print",
+      result: 4.5,
+      items: [
+        { rating: 3, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: :audio }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"format (multiple)" => {
+      input: "average rating format=print,audio",
+      result: 3.5,
+      items: [
+        { rating: 3, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: :audio }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"format filters variants" => {
+      input: "average length format=print",
+      result: 10,
+      items: [
+        { variants: [{ format: :print, length: 10 }, { format: :audio, length: 20}] },
+      ],
+    },
+    :"format filters experiences" => {
+      input: "average item-amount format=print",
+      result: 10,
+      items: [
+        { variants: [{ format: :audio }, { format: :print }],
+          experiences: [{ variant_index: 0, spans: [{ amount: 20 }] }, { variant_index: 1, spans: [{ amount: 10 }] }] },
       ],
     },
   }
@@ -486,13 +544,13 @@ class StatsTest < Minitest::Test
 
       # Alternate input styles:
       # a. Plural
-      plural_input = input.gsub(/(\w\s*)(=|>=|>|<=|<)/, '\1s\2')
+      plural_input = input.gsub(/(\w\s*)(!=|=|>=|>|<=|<)/, '\1s\2')
       act = Reading.stats(input: plural_input, items:)
       assert_equal exp, act
 
       # b. With spaces
       spaced = input
-        .gsub(/(=|>=|>|<=|<)/, ' \1 ')
+        .gsub(/(!=|=|>=|>|<=|<)/, ' \1 ')
         .gsub(',', ', ')
         .gsub('+', ' + ')
     end

@@ -16,14 +16,14 @@ require_relative 'filter'
 # ✅ top/bottom 5 speed(s)
 
 # ITEM FILTERS
-# ✅genre(s)=
-# ✅rating(s)=/>/>=/</<=
-# format(s)=
-# source(s)=
-# status(es)=
-# length(s)=/>/>=/</<=
-# year(s)=
-# progress(es)=/>/>=/</<=
+# ✅genre(s)=/!=
+# ✅rating(s)=/>/>=/</<=/!=
+# ✅format(s)=/!=
+# source(s)=/!=
+# status(es)=/!=
+# length(s)=/>/>=/</<=/!=
+# year(s)=/!=
+# progress(es)=/>/>=/</<=/!=
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
 
 # RESULT GROUPINGS

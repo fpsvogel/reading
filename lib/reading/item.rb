@@ -12,7 +12,7 @@ module Reading
 
     ATTRIBUTES = %i[rating author title genres variants experiences notes]
 
-    private attr_reader :data, :config
+    private attr_reader :data
     attr_reader :view, :status, :last_end_date
 
     def_delegators :data, *ATTRIBUTES

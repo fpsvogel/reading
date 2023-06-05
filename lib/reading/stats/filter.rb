@@ -20,9 +20,10 @@ module Reading
             match = filter_input.match(regex)
 
             if match
-              filtered_items ||= []
-              filtered_items += ACTIONS[key].call(items, match[:value], match[:operator])
               match_found = true
+              filtered_items ||= []
+
+              filtered_items += filter_single(key, match[:predicate], match[:operator], items)
             end
           end
 
@@ -36,50 +37,73 @@ module Reading
 
       private
 
-      INPUT_SPLIT = /\s+(?=\w+\s*(?:=|>=|>|<=|<))/
+      INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|>=|>|<=|<))/
 
       ACTIONS = {
-        rating: proc { |items, value, operator|
-          filtered_items = []
+        rating: proc { |value, operator, items|
+          rating = Integer(value, exception: false) ||
+            Float(value, exception: false) ||
+            (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
 
-          operator_symbol = operator == '=' ? :== : operator.to_sym
+          items.filter { |item|
+            item.rating.send(operator, rating)
+          }
+        },
+        format: proc { |value, operator, items|
+          format = value.to_sym
 
-          or_ratings = value
-            .split(',')
-            .map(&:strip)
-            .map { |rating_str|
-              Integer(rating_str, exception: false) ||
-                Float(rating_str, exception: false) ||
-                (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
-            }
+          matches = items.filter { |item|
+            item.variants.any? { _1.format == format }
+          }
 
-          or_ratings.each do |rating|
-            matched_items = items.filter { |item|
-              item.rating.send(operator_symbol, rating)
-            }
-
-            filtered_items += matched_items
+          # Invert the matches instead of _1.format.send(operator, format) in the
+          # filter because that would exclude items without a format.
+          if operator == '!='.to_sym
+            matches = items - matches
           end
 
-          filtered_items
-        },
-        genre: proc { |items, value|
-          filtered_items = []
+          matches.each do |item|
+            kept_variant_indices = []
 
-          or_genres = value.split(',').map(&:strip)
-
-          or_genres.each do |genres|
-            and_genres = genres.split('+').map(&:strip)
-            matched_items = items.filter { |item|
-              # Whether item.genres includes all elements of and_genres.
-              item.genres.sort & and_genres.sort == and_genres.sort
+            # Within each item, remove variants that do not match.
+            item.variants.filter!.with_index { |variant, index|
+              variant.format.send(operator, format) && kept_variant_indices << index
             }
 
-            filtered_items += matched_items
+            # Also remove experiences associated with the removed variants.
+            item.experiences.filter! { |experience|
+              kept_variant_indices.include?(experience.variant_index)
+            }
+
+            # Then update the variant indices.
+            item.experiences.map! { |experience|
+              shifted_variant_index = kept_variant_indices.index(experience.variant_index)
+              experience.with(variant_index: shifted_variant_index)
+            }
           end
 
-          filtered_items
+          matches
         },
+        genre: proc { |value, operator, items|
+          and_genres = value.split('+').map(&:strip)
+
+          matches = items.filter { |item|
+            # Whether item.genres includes all elements of and_genres.
+            (item.genres.sort & and_genres.sort) == and_genres.sort
+          }
+
+          if operator == '!='.to_sym
+            matches = items - matches
+          end
+
+          matches
+        },
+      }
+
+      ALLOW_NUMERIC_OPERATORS = {
+        rating: true,
+        length: true,
+        progress: true,
       }
 
       REGEXES = ACTIONS.map { |key, _action|
@@ -88,12 +112,45 @@ module Reading
             \s*
             #{key}
             e?s?
-            (?<operator>=|>=|>|<=|<)
-            (?<value>.+)
+            (?<operator>!=|=|>=|>|<=|<)
+            (?<predicate>.+)
           \z}x
 
         [key, regex]
       }.to_h
+
+      # Applies a single filter to an array of Items.
+      # @param key [Symbol] the filter's key in the constants above.
+      # @param predicate [String] the input value(s) after the operator.
+      # @param operator_str [String] from the input.
+      # @param items [Array<Item>]
+      # @return [Array<Item>]
+      private_class_method def self.filter_single(key, predicate, operator_str, items)
+        filtered_items = []
+
+        if ALLOW_NUMERIC_OPERATORS[key]
+          allowed_operators = %w[= != > >= < <=]
+        else
+          allowed_operators = %w[= !=]
+        end
+
+        unless allowed_operators.include? operator_str
+          raise InputError, "Operator \"#{operator_str}\" not allowed in the " \
+            "#{key} filter. Allowed: #{allowed_operators.join(', ')}"
+        end
+
+        operator = operator_str == '=' ? :== : operator_str.to_sym
+
+        or_values = predicate.split(',').map(&:strip)
+
+        or_values.each do |value|
+          matched_items = ACTIONS[key].call(value, operator, items)
+
+          filtered_items += matched_items
+        end
+
+        filtered_items
+      end
     end
   end
 end
