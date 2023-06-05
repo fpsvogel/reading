@@ -36,9 +36,33 @@ module Reading
 
       private
 
-      INPUT_SPLIT = /\s+(?=\w+\s*=|>|>=|<|<=)/
+      INPUT_SPLIT = /\s+(?=\w+\s*(?:=|>=|>|<=|<))/
 
       ACTIONS = {
+        rating: proc { |items, value, operator|
+          filtered_items = []
+
+          operator_symbol = operator == '=' ? :== : operator.to_sym
+
+          or_ratings = value
+            .split(',')
+            .map(&:strip)
+            .map { |rating_str|
+              Integer(rating_str, exception: false) ||
+                Float(rating_str, exception: false) ||
+                (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
+            }
+
+          or_ratings.each do |rating|
+            matched_items = items.filter { |item|
+              item.rating.send(operator_symbol, rating)
+            }
+
+            filtered_items += matched_items
+          end
+
+          filtered_items
+        },
         genre: proc { |items, value|
           filtered_items = []
 
@@ -64,7 +88,7 @@ module Reading
             \s*
             #{key}
             e?s?
-            (?<operator>=|>|>=|<|<=)
+            (?<operator>=|>=|>|<=|<)
             (?<value>.+)
           \z}x
 

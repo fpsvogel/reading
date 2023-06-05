@@ -240,6 +240,68 @@ class StatsTest < Minitest::Test
         { rating: 2, genres: ["science"] },
       ],
     },
+    :"ratings (equal to)" => {
+      input: "average rating rating=3",
+      result: 3,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+      ],
+    },
+    :"ratings (multiple)" => {
+      input: "average rating rating=3,4",
+      result: 3.5,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+        { rating: 5 },
+      ],
+    },
+    :"ratings (greater than)" => {
+      input: "average rating rating>4",
+      result: 5,
+      items: [
+        { title: "yoyo", rating: 3 },
+        { rating: 4 },
+        { rating: 5 },
+      ],
+    },
+    :"ratings (greater than or equal to)" => {
+      input: "average rating rating>=4",
+      result: 4.5,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+        { rating: 5 },
+      ],
+    },
+    :"ratings (less than)" => {
+      input: "average rating rating<5",
+      result: 3.5,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+        { rating: 5 },
+      ],
+    },
+    :"ratings (less than or equal to)" => {
+      input: "average rating rating<=4",
+      result: 3.5,
+      items: [
+        { rating: 3 },
+        { rating: 4 },
+        { rating: 5 },
+      ],
+    },
+    :"ratings (less than 4, greater than 4)" => {
+      input: "average rating rating<4 rating>4",
+      result: 3,
+      items: [
+        { rating: 1 },
+        { rating: 4 },
+        { rating: 5 },
+      ],
+    },
   }
 
 
@@ -422,10 +484,17 @@ class StatsTest < Minitest::Test
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
 
-      # Alternate input style: plural
-      plural_input = input.gsub(/(\w\s*)(=|>|>=|<|<=)/, '\1s\2')
+      # Alternate input styles:
+      # a. Plural
+      plural_input = input.gsub(/(\w\s*)(=|>=|>|<=|<)/, '\1s\2')
       act = Reading.stats(input: plural_input, items:)
       assert_equal exp, act
+
+      # b. With spaces
+      spaced = input
+        .gsub(/(=|>=|>|<=|<)/, ' \1 ')
+        .gsub(',', ', ')
+        .gsub('+', ' + ')
     end
   end
 

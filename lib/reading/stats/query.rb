@@ -15,9 +15,9 @@ require_relative 'filter'
 # ✅ top/bottom 5 amount(s)
 # ✅ top/bottom 5 speed(s)
 
-# INPUT FILTERS
+# ITEM FILTERS
 # ✅genre(s)=
-# rating(s)=/>/>=/</<=
+# ✅rating(s)=/>/>=/</<=
 # format(s)=
 # source(s)=
 # status(es)=
@@ -26,7 +26,7 @@ require_relative 'filter'
 # progress(es)=/>/>=/</<=
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
 
-# OUTPUT GROUPINGS
+# RESULT GROUPINGS
 # by month
 # by year
 # by genre
