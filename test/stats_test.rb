@@ -31,6 +31,13 @@ class StatsTest < Minitest::Test
         { rating: nil },
       ],
     },
+    :"average rating (empty)" => {
+      input: "average rating",
+      result: nil,
+      items: [
+        { rating: nil },
+      ],
+    },
     :"average length" => {
       input: "average length",
       result: 250.5,
@@ -38,6 +45,13 @@ class StatsTest < Minitest::Test
         { variants: [{ length: 201 }] },
         { variants: [{ length: 300 }] },
         { variants: [{ length: nil }] },
+      ],
+    },
+    :"average length (empty)" => {
+      input: "average length",
+      result: nil,
+      items: [
+        { variants: [] },
       ],
     },
     :"average length with pages and time lengths" => {
@@ -71,6 +85,13 @@ class StatsTest < Minitest::Test
         { experiences: [] },
       ],
     },
+    :"average item-amount (empty)" => {
+      input: "average item-amount",
+      result: 0,
+      items: [
+        { experiences: [] },
+      ],
+    },
     :"average daily-amount" => {
       input: "average daily-amount",
       # assuming 35 pages per hour (the config default)
@@ -82,6 +103,13 @@ class StatsTest < Minitest::Test
                       { dates: Date.new(2023, 5, 10)..Date.new(2023, 5, 11), amount: 70 }] }] },
         # 2022/9/30 because Date::today is stubbed to 2022/10/1 in test_helper.rb
         { experiences: [{ spans: [{ dates: Date.new(2022, 9, 30).., amount: 105 }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"average daily-amount (empty)" => {
+      input: "average daily-amount",
+      result: nil,
+      items: [
         { experiences: [] },
       ],
     },
@@ -496,13 +524,17 @@ class StatsTest < Minitest::Test
       act = Reading.stats(input:, items:)
       # debugger unless exp == act
 
-      assert_equal exp, act,
-        "Unexpected result #{act} from stats query \"#{name}\""
+      if exp.nil?
+        assert_nil act, "Unexpected result #{act} from stats query \"#{name}\""
+      else
+        assert_equal exp, act,
+          "Unexpected result #{act} from stats query \"#{name}\""
+      end
 
       # Alternate input styles
       # a. Plural second word
       act = Reading.stats(input: "#{input}s", items:)
-      assert_equal exp, act
+      exp.nil? ? assert_nil(act) : assert_equal(exp, act)
 
       # b. Aliases
       op_key = input.split(/\s*\d+\s*|\s+/).join('_').to_sym
@@ -511,13 +543,13 @@ class StatsTest < Minitest::Test
 
       op_aliases.each do |op_alias|
         act = Reading.stats(input: "#{op_alias}#{" " + number_arg.to_s if number_arg}", items:)
-        assert_equal exp, act
+        exp.nil? ? assert_nil(act) : assert_equal(exp, act)
       end
 
       # c. Plural aliases
       op_aliases.each do |op_alias|
         act = Reading.stats(input: "#{op_alias}s#{" " + number_arg.to_s if number_arg}", items:)
-        assert_equal exp, act
+        exp.nil? ? assert_nil(act) : assert_equal(exp, act)
       end
     end
   end

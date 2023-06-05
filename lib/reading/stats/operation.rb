@@ -44,7 +44,10 @@ module Reading
       ACTIONS = {
         average_rating: proc { |items|
           ratings = items.map(&:rating).compact
-          (ratings.sum.to_f / ratings.count).to_i_if_whole
+
+          if ratings.any?
+            (ratings.sum.to_f / ratings.count).to_i_if_whole
+          end
         },
         average_length: proc { |items|
           lengths = items.flat_map { |item|
@@ -52,7 +55,9 @@ module Reading
           }
           .compact
 
-          (lengths.sum / lengths.count.to_f).to_i_if_whole
+          if lengths.any?
+            (lengths.sum / lengths.count.to_f).to_i_if_whole
+          end
         },
         :"average_item-amount" => proc { |items|
           total_amount = items.sum { |item|
@@ -66,7 +71,9 @@ module Reading
         :"average_daily-amount" => proc { |items|
           amounts_by_date = calculate_amounts_by_date(items)
 
-          amounts_by_date.values.sum / amounts_by_date.count
+          if amounts_by_date.any?
+            amounts_by_date.values.sum / amounts_by_date.count
+          end
         },
         total_item: proc { |items|
           items.count
