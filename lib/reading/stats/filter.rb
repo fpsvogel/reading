@@ -9,7 +9,7 @@ module Reading
       # @param items [Array<Item>] the Items on which to run the operation.
       # @return [Object] the return value of the action.
       def self.filter(input, items)
-        filtered_items = nil
+        filtered_items = items
 
         split_input = input.split(INPUT_SPLIT)
 
@@ -21,9 +21,8 @@ module Reading
 
             if match
               match_found = true
-              filtered_items ||= []
 
-              filtered_items += filter_single(key, match[:predicate], match[:operator], items)
+              filtered_items = filter_single(key, match[:predicate], match[:operator], filtered_items)
             end
           end
 
@@ -32,7 +31,7 @@ module Reading
           end
         end
 
-        filtered_items || items
+        filtered_items
       end
 
       private

@@ -267,6 +267,14 @@ class StatsTest < Minitest::Test
         { rating: 4, genres: ["history"] },
       ],
     },
+    :"genre (alt. and)" => {
+      input: "average rating genre=history genre=fiction",
+      result: 3,
+      items: [
+        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
     :"genre (or, and)" => {
       input: "average rating genre=science,history+fiction",
       result: 2.5,
@@ -337,9 +345,9 @@ class StatsTest < Minitest::Test
         { rating: 5 },
       ],
     },
-    :"rating (less than 4, greater than 4)" => {
-      input: "average rating rating<4 rating>4",
-      result: 3,
+    :"rating (greater than 1, less than 5)" => {
+      input: "average rating rating>1 rating<5",
+      result: 4,
       items: [
         { rating: 1 },
         { rating: 4 },
