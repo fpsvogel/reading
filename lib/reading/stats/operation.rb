@@ -41,6 +41,9 @@ module Reading
       # rather than "top 5 ratings".
       DEFAULT_NUMBER_ARG = 10
 
+      # Each action makes some calculation based on the given Items.
+      # @param items [Array<Item>]
+      # @return [Object] in most cases an Integer.
       ACTIONS = {
         average_rating: proc { |items|
           ratings = items.map(&:rating).compact

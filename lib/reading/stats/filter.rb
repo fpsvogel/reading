@@ -38,6 +38,15 @@ module Reading
 
       INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|!~|~|>=|>|<=|<))/
 
+      # Each action filters the given Items.
+      # @param operator [Symbol] e.g. the method representing the operator,
+      #   usually simply the operator string converted to a symbol, e.g.
+      #   :">=" from "rating>=2"; but in some cases the method is alphabetic,
+      #   e.g. :include? from "source~library".
+      # @param values [Array<String>] the values after the operator, split by
+      #   commas.
+      # @param items [Array<Item>]
+      # @return [Array<Item>] a subset of the given Items.
       ACTIONS = {
         rating: proc { |values, operator, items|
           ratings = values.map { |value|
@@ -63,7 +72,7 @@ module Reading
 
           # Invert the matches instead of _1.format.send(operator, format) in the
           # filter because that would exclude items without a format.
-          if operator == '!='.to_sym
+          if operator == :'!='
             matches = items - matches
           end
 
@@ -114,7 +123,7 @@ module Reading
             }
           }
 
-          if operator == '!='.to_sym
+          if operator == :'!='
             matches = items - matches
           end
 
@@ -151,7 +160,7 @@ module Reading
       # @param predicate [String] the input value(s) after the operator.
       # @param operator_str [String] from the input.
       # @param items [Array<Item>]
-      # @return [Array<Item>]
+      # @return [Array<Item>] a subset of the given Items.
       private_class_method def self.filter_single(key, predicate, operator_str, items)
         filtered_items = []
 
@@ -169,9 +178,9 @@ module Reading
         end
 
         operator = operator_str.to_sym
-        operator = :== if operator == '='.to_sym
+        operator = :== if operator == :'='
         operator = :include? if operator == :~
-        operator = :exclude? if operator == '!~'.to_sym
+        operator = :exclude? if operator == :'!~'
 
         or_values = predicate.split(',').map(&:strip)
 
