@@ -434,7 +434,7 @@ class StatsTest < Minitest::Test
     },
     :"source (excludes)" => {
       input: "average rating source!~library,archive",
-      result: 4.5,
+      result: 5,
       items: [
         { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
         { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },

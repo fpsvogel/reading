@@ -39,20 +39,26 @@ module Reading
       INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|!~|~|>=|>|<=|<))/
 
       ACTIONS = {
-        rating: proc { |value, operator, items|
-          rating = Integer(value, exception: false) ||
-            Float(value, exception: false) ||
-            (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
+        rating: proc { |values, operator, items|
+          ratings = values.map { |value|
+            Integer(value, exception: false) ||
+              Float(value, exception: false) ||
+              (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
+          }
 
           items.filter { |item|
-            item.rating.send(operator, rating)
+            ratings.any? { |rating|
+              item.rating.send(operator, rating)
+            }
           }
         },
-        format: proc { |value, operator, items|
-          format = value.to_sym
+        format: proc { |values, operator, items|
+          formats = values.map(&:to_sym)
 
           matches = items.filter { |item|
-            item.variants.any? { _1.format == format }
+            formats.any? { |format|
+              item.variants.any? { _1.format == format }
+            }
           }
 
           # Invert the matches instead of _1.format.send(operator, format) in the
@@ -62,21 +68,23 @@ module Reading
           end
 
           remove_nonmatching_variants(matches) do |variant|
-            variant.format.send(operator, format)
+            formats.any? { variant.format.send(operator, _1) }
           end
 
           matches
         },
-        source: proc { |value, operator, items|
+        source: proc { |values, operator, items|
+          fragments = values.map(&:downcase)
+
           matches = items.filter { |item|
             item.variants.any? { |variant|
               names_and_urls = (variant.sources.map(&:name) + variant.sources.map(&:url)).compact
 
-              names_and_urls.map(&:downcase).any? {
+              names_and_urls.map(&:downcase).any? { |name_or_url|
                 if %i[include? exclude?].include? operator
-                  _1.downcase.include? value
+                  fragments.any? { name_or_url.downcase.include? _1 }
                 else
-                  _1 == value.downcase
+                  fragments.any? { name_or_url.downcase == _1 }
                 end
               }
             }
@@ -89,17 +97,21 @@ module Reading
           remove_nonmatching_variants(matches) do |variant|
             names_and_urls = (variant.sources.map(&:name) + variant.sources.map(&:url)).compact
 
-            names_and_urls.any? { _1.downcase.send(operator, value.downcase) }
+            names_and_urls.any? { |name_or_url|
+              fragments.any? { name_or_url.downcase.send(operator, _1) }
+            }
           end
 
           matches
         },
-        genre: proc { |value, operator, items|
-          and_genres = value.split('+').map(&:strip)
+        genre: proc { |values, operator, items|
+          genres = values.map { _1.split('+').map(&:strip) }
 
           matches = items.filter { |item|
-            # Whether item.genres includes all elements of and_genres.
-            (item.genres.sort & and_genres.sort) == and_genres.sort
+            genres.any? { |and_genres|
+              # Whether item.genres includes all elements of and_genres.
+              (item.genres.sort & and_genres.sort) == and_genres.sort
+            }
           }
 
           if operator == '!='.to_sym
@@ -156,12 +168,9 @@ module Reading
 
         or_values = predicate.split(',').map(&:strip)
 
-        or_values.each do |value|
-          matched_items = ACTIONS[key].call(value, operator, items)
-          # debugger if key == :source && operator_str == '!~' && predicate == 'library,archive'
-
-          filtered_items += matched_items
-        end
+        matched_items = ACTIONS[key].call(or_values, operator, items)
+        # debugger if key == :source && operator_str == '!~' && predicate == 'library,archive'
+        filtered_items += matched_items
 
         filtered_items.uniq
       end

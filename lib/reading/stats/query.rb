@@ -16,10 +16,10 @@ require_relative 'filter'
 # ✅ top/bottom 5 speed(s)
 
 # ITEM FILTERS
-# ✅genre(s)=/!=
+# ✅genre(s)=/!=/
 # ✅rating(s)=/>/>=/</<=/!=
 # ✅format(s)=/!=
-# source(s)=/!=
+# ✅source(s)=/!=/~/!~
 # status(es)=/!=
 # length(s)=/>/>=/</<=/!=
 # year(s)=/!=
