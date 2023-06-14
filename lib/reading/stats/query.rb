@@ -16,15 +16,19 @@ require_relative 'filter'
 # ✅ top/bottom 5 speed(s)
 
 # ITEM FILTERS
-# ✅genre(s)=/!=/
+# ✅genre(s)=/!=
 # ✅rating(s)=/>/>=/</<=/!=
 # ✅format(s)=/!=
 # ✅source(s)=/!=/~/!~
+# title(s)=/!=/~/!~
+# author(s)=/!=/~/!~
+# series=/!=/~/!~
+# note(s)=/!=/~/!~
 # status(es)=/!=
 # length(s)=/>/>=/</<=/!=
-# year(s)=/!=
 # progress(es)=/>/>=/</<=/!=
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
+# year(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS
 # by month

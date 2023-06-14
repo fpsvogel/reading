@@ -122,10 +122,15 @@ module Reading
         },
       }
 
-      ALLOW_NUMERIC_OPERATORS = {
+      NUMERIC_OPERATORS = {
         rating: true,
         length: true,
         progress: true,
+      }
+
+      PROHIBIT_INCLUDE_EXCLUDE_OPERATORS = {
+        genre: true,
+        format: true,
       }
 
       REGEXES = ACTIONS.map { |key, _action|
@@ -150,8 +155,10 @@ module Reading
       private_class_method def self.filter_single(key, predicate, operator_str, items)
         filtered_items = []
 
-        if ALLOW_NUMERIC_OPERATORS[key]
+        if NUMERIC_OPERATORS[key]
           allowed_operators = %w[= != > >= < <=]
+        elsif PROHIBIT_INCLUDE_EXCLUDE_OPERATORS[key]
+          allowed_operators = %w[= !=]
         else
           allowed_operators = %w[= != ~ !~]
         end
