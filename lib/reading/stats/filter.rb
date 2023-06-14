@@ -36,7 +36,7 @@ module Reading
 
       private
 
-      INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|>=|>|<=|<))/
+      INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|!~|~|>=|>|<=|<))/
 
       ACTIONS = {
         rating: proc { |value, operator, items|
@@ -61,24 +61,35 @@ module Reading
             matches = items - matches
           end
 
-          matches.each do |item|
-            kept_variant_indices = []
+          remove_nonmatching_variants(matches) do |variant|
+            variant.format.send(operator, format)
+          end
 
-            # Within each item, remove variants that do not match.
-            item.variants.filter!.with_index { |variant, index|
-              variant.format.send(operator, format) && kept_variant_indices << index
-            }
+          matches
+        },
+        source: proc { |value, operator, items|
+          matches = items.filter { |item|
+            item.variants.any? { |variant|
+              names_and_urls = (variant.sources.map(&:name) + variant.sources.map(&:url)).compact
 
-            # Also remove experiences associated with the removed variants.
-            item.experiences.filter! { |experience|
-              kept_variant_indices.include?(experience.variant_index)
+              names_and_urls.map(&:downcase).any? {
+                if %i[include? exclude?].include? operator
+                  _1.downcase.include? value
+                else
+                  _1 == value.downcase
+                end
+              }
             }
+          }
 
-            # Then update the variant indices.
-            item.experiences.map! { |experience|
-              shifted_variant_index = kept_variant_indices.index(experience.variant_index)
-              experience.with(variant_index: shifted_variant_index)
-            }
+          if %i[!= exclude?].include? operator
+            matches = items - matches
+          end
+
+          remove_nonmatching_variants(matches) do |variant|
+            names_and_urls = (variant.sources.map(&:name) + variant.sources.map(&:url)).compact
+
+            names_and_urls.any? { _1.downcase.send(operator, value.downcase) }
           end
 
           matches
@@ -111,7 +122,7 @@ module Reading
             \s*
             #{key}
             e?s?
-            (?<operator>!=|=|>=|>|<=|<)
+            (?<operator>!=|=|!~|~|>=|>|<=|<)
             (?<predicate>.+)
           \z}x
 
@@ -130,7 +141,7 @@ module Reading
         if ALLOW_NUMERIC_OPERATORS[key]
           allowed_operators = %w[= != > >= < <=]
         else
-          allowed_operators = %w[= !=]
+          allowed_operators = %w[= != ~ !~]
         end
 
         unless allowed_operators.include? operator_str
@@ -138,17 +149,43 @@ module Reading
             "#{key} filter. Allowed: #{allowed_operators.join(', ')}"
         end
 
-        operator = operator_str == '=' ? :== : operator_str.to_sym
+        operator = operator_str.to_sym
+        operator = :== if operator == '='.to_sym
+        operator = :include? if operator == :~
+        operator = :exclude? if operator == '!~'.to_sym
 
         or_values = predicate.split(',').map(&:strip)
 
         or_values.each do |value|
           matched_items = ACTIONS[key].call(value, operator, items)
+          # debugger if key == :source && operator_str == '!~' && predicate == 'library,archive'
 
           filtered_items += matched_items
         end
 
-        filtered_items
+        filtered_items.uniq
+      end
+
+      private_class_method def self.remove_nonmatching_variants(items)
+        items.each do |item|
+          kept_variant_indices = []
+
+          # Within each item, remove variants that do not match.
+          item.variants.filter!.with_index { |variant, index|
+            yield(variant) && kept_variant_indices << index
+          }
+
+          # Also remove experiences associated with the removed variants.
+          item.experiences.filter! { |experience|
+            kept_variant_indices.include?(experience.variant_index)
+          }
+
+          # Then update the variant indices.
+          item.experiences.map! { |experience|
+            shifted_variant_index = kept_variant_indices.index(experience.variant_index)
+            experience.with(variant_index: shifted_variant_index)
+          }
+        end
       end
     end
   end

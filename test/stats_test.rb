@@ -376,24 +376,69 @@ class StatsTest < Minitest::Test
       input: "average rating format=print,audio",
       result: 3.5,
       items: [
-        { rating: 3, variants: [{ format: :print }] },
+        { rating: 3, variants: [{ format: :print }, { format: :audio }] },
         { rating: 4, variants: [{ format: :audio }] },
         { rating: 5, variants: [] },
       ],
     },
-    :"format filters variants" => {
+    :"format filters out non-matching variants" => {
       input: "average length format=print",
       result: 10,
       items: [
         { variants: [{ format: :print, length: 10 }, { format: :audio, length: 20}] },
       ],
     },
-    :"format filters experiences" => {
+    :"format filters out non-matching experiences" => {
       input: "average item-amount format=print",
       result: 10,
       items: [
         { variants: [{ format: :audio }, { format: :print }],
           experiences: [{ variant_index: 0, spans: [{ amount: 20 }] }, { variant_index: 1, spans: [{ amount: 10 }] }] },
+      ],
+    },
+    :"source" => {
+      input: "average rating source=little library",
+      result: 3,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
+        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"source (not)" => {
+      input: "average rating source!=little library",
+      result: 4.5,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
+        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"source (multiple)" => {
+      input: "average rating source=little library,https://archive.org",
+      result: 3.5,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
+        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"source (includes)" => {
+      input: "average rating source~library,archive",
+      result: 3.5,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
+        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"source (excludes)" => {
+      input: "average rating source!~library,archive",
+      result: 4.5,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
+        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
+        { rating: 5, variants: [] },
       ],
     },
   }
@@ -584,13 +629,13 @@ class StatsTest < Minitest::Test
 
       # Alternate input styles:
       # a. Plural
-      plural_input = input.gsub(/(\w\s*)(!=|=|>=|>|<=|<)/, '\1s\2')
+      plural_input = input.gsub(/(\w\s*)(!=|=|!~|~|>=|>|<=|<)/, '\1s\2')
       act = Reading.stats(input: plural_input, items:)
       assert_equal exp, act
 
       # b. With spaces
       spaced = input
-        .gsub(/(!=|=|>=|>|<=|<)/, ' \1 ')
+        .gsub(/(!=|=|!~|~|>=|>|<=|<)/, ' \1 ')
         .gsub(',', ', ')
         .gsub('+', ' + ')
     end
