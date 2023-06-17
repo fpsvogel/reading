@@ -45,7 +45,6 @@ module Reading
     #
     class Parser
       using Util::HashArrayDeepFetch
-      using Util::StringRemove
 
       attr_reader :config
 
@@ -153,7 +152,7 @@ module Reading
         # Parse each format-plus-string into an array of segments.
         heads = format_strings.map { |string|
           format_emoji = string[config.deep_fetch(:regex, :formats)]
-          string.remove!(format_emoji)
+          string.sub!(format_emoji, '')
           format = config.fetch(:formats).key(format_emoji)
 
           parse_segments(column_class, string)
