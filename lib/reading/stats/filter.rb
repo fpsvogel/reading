@@ -82,6 +82,33 @@ module Reading
 
           matches
         },
+        title: proc { |values, operator, items|
+          fragments = values
+            .map(&:downcase)
+            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').squeeze }
+
+          matches = items.filter { |item|
+            next unless item.title
+
+            title = item
+              .title
+              .downcase
+              .gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
+              .squeeze
+
+            if %i[include? exclude?].include? operator
+              fragments.any? { title.include? _1 }
+            else
+              fragments.any? { title == _1 }
+            end
+          }
+
+          if %i[!= exclude?].include? operator
+            matches = items - matches
+          end
+
+          matches
+        },
         source: proc { |values, operator, items|
           fragments = values.map(&:downcase)
 

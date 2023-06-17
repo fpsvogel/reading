@@ -396,6 +396,42 @@ class StatsTest < Minitest::Test
           experiences: [{ variant_index: 0, spans: [{ amount: 20 }] }, { variant_index: 1, spans: [{ amount: 10 }] }] },
       ],
     },
+    :"title" => {
+      input: "average rating title=hello mr smith life of secret agent",
+      result: 3,
+      items: [
+        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 5 },
+      ],
+    },
+    :"title (includes)" => {
+      input: "average rating title~mr smith",
+      result: 3.5,
+      items: [
+        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 5 },
+      ],
+    },
+    :"title (excludes)" => {
+      input: "average rating title!~hello",
+      result: 4.5,
+      items: [
+        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 5 },
+      ],
+    },
+    :"title (or)" => {
+      input: "average rating title~hello,returns",
+      result: 3.5,
+      items: [
+        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 5 },
+      ],
+    },
     :"source" => {
       input: "average rating source=little library",
       result: 3,
@@ -414,7 +450,7 @@ class StatsTest < Minitest::Test
         { rating: 5, variants: [] },
       ],
     },
-    :"source (multiple)" => {
+    :"source (or)" => {
       input: "average rating source=little library,https://archive.org",
       result: 3.5,
       items: [

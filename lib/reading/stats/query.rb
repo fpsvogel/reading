@@ -20,7 +20,7 @@ require_relative 'filter'
 # ✅rating(s)=/>/>=/</<=/!=
 # ✅format(s)=/!=
 # ✅source(s)=/!=/~/!~
-# title(s)=/!=/~/!~
+# ✅title(s)=/!=/~/!~
 # author(s)=/!=/~/!~
 # series=/!=/~/!~
 # note(s)=/!=/~/!~
