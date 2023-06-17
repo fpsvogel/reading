@@ -136,6 +136,35 @@ module Reading
 
           matches
         },
+        series: proc { |values, operator, items|
+          fragments = values
+            .map(&:downcase)
+            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
+
+          matches = items.filter { |item|
+            item.variants.any? { |variant|
+              variant.series.any? { |series|
+                series_name = series
+                  .name
+                  .downcase
+                  .gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
+                  .gsub(/\s/, '')
+
+                if %i[include? exclude?].include? operator
+                  fragments.any? { series_name.include? _1 }
+                else
+                  fragments.any? { series_name == _1 }
+                end
+              }
+            }
+          }
+
+          if %i[!= exclude?].include? operator
+            matches = items - matches
+          end
+
+          matches
+        },
         source: proc { |values, operator, items|
           fragments = values.map(&:downcase)
 
@@ -178,6 +207,31 @@ module Reading
           }
 
           if operator == :'!='
+            matches = items - matches
+          end
+
+          matches
+        },
+        note: proc { |values, operator, items|
+          fragments = values
+            .map(&:downcase)
+            .map { _1.gsub(/[^a-zA-Z0-9 ]/, '') }
+
+          matches = items.filter { |item|
+            item.notes.any? { |original_note|
+              note = original_note
+                .downcase
+                .gsub(/[^a-zA-Z0-9 ]/, '')
+
+              if %i[include? exclude?].include? operator
+                fragments.any? { note.include? _1 }
+              else
+                fragments.any? { note == _1 }
+              end
+            }
+          }
+
+          if %i[!= exclude?].include? operator
             matches = items - matches
           end
 

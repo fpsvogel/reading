@@ -438,7 +438,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: '' },
       ],
     },
     :"title (includes)" => {
@@ -447,7 +447,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: '' },
       ],
     },
     :"title (excludes)" => {
@@ -456,7 +456,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: '' },
       ],
     },
     :"title (or)" => {
@@ -465,6 +465,42 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 5, title: '' },
+      ],
+    },
+    :"series" => {
+      input: "average rating series=goose bumps begin",
+      result: 3,
+      items: [
+        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+        { rating: 5 },
+      ],
+    },
+    :"series (includes)" => {
+      input: "average rating series~goose bumps",
+      result: 3.5,
+      items: [
+        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+        { rating: 5 },
+      ],
+    },
+    :"series (excludes)" => {
+      input: "average rating series!~goose bumps",
+      result: 5,
+      items: [
+        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+        { rating: 5 },
+      ],
+    },
+    :"series (or)" => {
+      input: "average rating series~begin,return",
+      result: 3.5,
+      items: [
+        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
         { rating: 5 },
       ],
     },
@@ -511,6 +547,42 @@ class StatsTest < Minitest::Test
         { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
         { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
         { rating: 5, variants: [] },
+      ],
+    },
+    :"note" => {
+      input: "average rating note=must reread",
+      result: 3,
+      items: [
+        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 4, notes: ["Will re-read"] },
+        { rating: 5 },
+      ],
+    },
+    :"note (include)" => {
+      input: "average rating note~reread",
+      result: 3.5,
+      items: [
+        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 4, notes: ["Will re-read"] },
+        { rating: 5 },
+      ],
+    },
+    :"note (exclude)" => {
+      input: "average rating note!~not bad",
+      result: 4.5,
+      items: [
+        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 4, notes: ["Will re-read"] },
+        { rating: 5 },
+      ],
+    },
+    :"note (or)" => {
+      input: "average rating note~not bad,will",
+      result: 3.5,
+      items: [
+        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 4, notes: ["Will re-read"] },
+        { rating: 5 },
       ],
     },
   }
