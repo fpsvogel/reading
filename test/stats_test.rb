@@ -396,6 +396,42 @@ class StatsTest < Minitest::Test
           experiences: [{ variant_index: 0, spans: [{ amount: 20 }] }, { variant_index: 1, spans: [{ amount: 10 }] }] },
       ],
     },
+    :"author" => {
+      input: "average rating author=jrr tolkien",
+      result: 3,
+      items: [
+        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 4, author: "Christopher Tolkien" },
+        { rating: 5 },
+      ],
+    },
+    :"author (includes)" => {
+      input: "average rating author~tolkien",
+      result: 3.5,
+      items: [
+        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 4, author: "Christopher Tolkien" },
+        { rating: 5 },
+      ],
+    },
+    :"author (excludes)" => {
+      input: "average rating author!~jrr",
+      result: 4.5,
+      items: [
+        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 4, author: "Christopher Tolkien" },
+        { rating: 5 },
+      ],
+    },
+    :"author (or)" => {
+      input: "average rating author~jrr,chris",
+      result: 3.5,
+      items: [
+        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 4, author: "Christopher Tolkien" },
+        { rating: 5 },
+      ],
+    },
     :"title" => {
       input: "average rating title=hello mr smith life of secret agent",
       result: 3,

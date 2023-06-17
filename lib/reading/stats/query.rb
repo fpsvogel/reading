@@ -21,7 +21,7 @@ require_relative 'filter'
 # ✅format(s)=/!=
 # ✅source(s)=/!=/~/!~
 # ✅title(s)=/!=/~/!~
-# author(s)=/!=/~/!~
+# ✅author(s)=/!=/~/!~
 # series=/!=/~/!~
 # note(s)=/!=/~/!~
 # status(es)=/!=

@@ -82,10 +82,37 @@ module Reading
 
           matches
         },
+        author: proc { |values, operator, items|
+          fragments = values
+            .map(&:downcase)
+            .map { _1.gsub(/[^a-zA-Z ]/, '').gsub(/\s/, '') }
+
+          matches = items.filter { |item|
+            next unless item.author
+
+            author = item
+              .author
+              .downcase
+              .gsub(/[^a-zA-Z ]/, '')
+              .gsub(/\s/, '')
+
+            if %i[include? exclude?].include? operator
+              fragments.any? { author.include? _1 }
+            else
+              fragments.any? { author == _1 }
+            end
+          }
+
+          if %i[!= exclude?].include? operator
+            matches = items - matches
+          end
+
+          matches
+        },
         title: proc { |values, operator, items|
           fragments = values
             .map(&:downcase)
-            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').squeeze }
+            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
 
           matches = items.filter { |item|
             next unless item.title
@@ -94,7 +121,7 @@ module Reading
               .title
               .downcase
               .gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
-              .squeeze
+              .gsub(/\s/, '')
 
             if %i[include? exclude?].include? operator
               fragments.any? { title.include? _1 }
