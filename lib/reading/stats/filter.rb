@@ -196,6 +196,19 @@ module Reading
 
           matches
         },
+        status: proc { |values, operator, items|
+          statuses = values.map { _1.squeeze(' ').gsub(' ', '_').to_sym }
+
+          matches = items.filter { |item|
+            statuses.include? item.status
+          }
+
+          if operator == :'!='
+            matches = items - matches
+          end
+
+          matches
+        },
         genre: proc { |values, operator, items|
           genres = values.map { _1.split('+').map(&:strip) }
 
@@ -248,6 +261,7 @@ module Reading
       PROHIBIT_INCLUDE_EXCLUDE_OPERATORS = {
         genre: true,
         format: true,
+        status: true,
       }
 
       REGEXES = ACTIONS.map { |key, _action|

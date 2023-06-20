@@ -235,55 +235,6 @@ class StatsTest < Minitest::Test
   ## QUERIES: FILTERS
   # Simple queries testing each filter.
   @queries[:filters] = {
-    :"genre" => {
-      input: "average rating genre=history",
-      result: 4,
-      items: [
-        { rating: 3, genres: ["fiction"] },
-        { rating: 4, genres: ["history"] },
-      ],
-    },
-    :"genre (not)" => {
-      input: "average rating genre!=history",
-      result: 3,
-      items: [
-        { rating: 3, genres: ["fiction"] },
-        { rating: 4, genres: ["history"] },
-      ],
-    },
-    :"genre (or)" => {
-      input: "average rating genre=history,fiction",
-      result: 3.5,
-      items: [
-        { rating: 3, genres: ["fiction"] },
-        { rating: 4, genres: ["history"] },
-      ],
-    },
-    :"genre (and)" => {
-      input: "average rating genre=history+fiction",
-      result: 3,
-      items: [
-        { rating: 3, genres: ["fiction", "history"] },
-        { rating: 4, genres: ["history"] },
-      ],
-    },
-    :"genre (alt. and)" => {
-      input: "average rating genre=history genre=fiction",
-      result: 3,
-      items: [
-        { rating: 3, genres: ["fiction", "history"] },
-        { rating: 4, genres: ["history"] },
-      ],
-    },
-    :"genre (or, and)" => {
-      input: "average rating genre=science,history+fiction",
-      result: 2.5,
-      items: [
-        { rating: 3, genres: ["fiction", "history"] },
-        { rating: 4, genres: ["history"] },
-        { rating: 2, genres: ["science"] },
-      ],
-    },
     :"rating" => {
       input: "average rating rating=3",
       result: 3,
@@ -547,6 +498,82 @@ class StatsTest < Minitest::Test
         { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
         { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
         { rating: 5, variants: [] },
+      ],
+    },
+    :"status" => {
+      input: "average rating status=in progress",
+      result: 3,
+      items: [
+        { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
+        { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
+        { rating: 5 }
+      ],
+    },
+    :"status (not)" => {
+      input: "average rating status!=in progress",
+      result: 4.5,
+      items: [
+        { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
+        { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
+        { rating: 5 }
+      ],
+    },
+    :"status (multiple)" => {
+      input: "average rating status=done, planned",
+      result: 4.5,
+      items: [
+        { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
+        { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
+        { rating: 5 }
+      ],
+    },
+    :"genre" => {
+      input: "average rating genre=history",
+      result: 4,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genre (not)" => {
+      input: "average rating genre!=history",
+      result: 3,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genre (or)" => {
+      input: "average rating genre=history,fiction",
+      result: 3.5,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genre (and)" => {
+      input: "average rating genre=history+fiction",
+      result: 3,
+      items: [
+        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genre (alt. and)" => {
+      input: "average rating genre=history genre=fiction",
+      result: 3,
+      items: [
+        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 4, genres: ["history"] },
+      ],
+    },
+    :"genre (or, and)" => {
+      input: "average rating genre=science,history+fiction",
+      result: 2.5,
+      items: [
+        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 4, genres: ["history"] },
+        { rating: 2, genres: ["science"] },
       ],
     },
     :"note" => {

@@ -24,7 +24,7 @@ require_relative 'filter'
 # ✅author(s)=/!=/~/!~
 # ✅series=/!=/~/!~
 # ✅note(s)=/!=/~/!~
-# status(es)=/!=
+# ✅status(es)=/!=
 # length(s)=/>/>=/</<=/!=
 # progress(es)=/>/>=/</<=/!=
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
