@@ -142,13 +142,13 @@ class ParseTest < Minitest::Test
   :"URL source with a name from config" =>
     "Goatsong|https://archive.org/details/walledorchard0000holt",
   :"multiple sources must be separated with commas" =>
-    "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub",
+    "Goatsong|Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub",
   :"source with ISBN" =>
     "Goatsong|Little Library 0312038380",
   :"sources with ISBN" =>
-    "Goatsong|Little Library, https://www.edlin.org/holt, Lexpub 0312038380",
+    "Goatsong|Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380",
   :"comma not required before and after URL source" =>
-    "Goatsong|Little Library https://www.edlin.org/holt Lexpub 0312038380",
+    "Goatsong|Little Library https://www.edlin.org/holt https://tomholt.com Lexpub 0312038380",
   :"simple variants" =>
     "Goatsong|📕Little Library 📕Lexpub",
   :"variant with extra info" =>
@@ -162,9 +162,9 @@ class ParseTest < Minitest::Test
   :"length after sources ISBN and before extra info" =>
     "Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
-    "Goatsong|📕Little Library, https://www.edlin.org/holt, Lexpub 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"optional commas can be added within and between variants" =>
-    "Goatsong|📕Little Library, https://www.edlin.org/holt, Lexpub, 0312038380, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
+    "Goatsong|📕Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub, 0312038380, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
   }
 
   @inputs[:features_start_dates] =
@@ -394,10 +394,6 @@ class ParseTest < Minitest::Test
     "a|Sapiens",
   :"comment containing a format emoji (matched as compact planned)" =>
     "\\Testing a row with 📕",
-  :"OK: no comma before and after URL source" =>
-    "|Goatsong|Little Library https://www.edlin.org/holt Hoopla",
-  :"OK: no comma between URL sources" =>
-    "|Goatsong|https://www.edlin.org/holt https://www.holt.com",
   :"ISBN/ASIN before sources" =>
     "|Goatsong|0312038380 Little Library",
   :"OK: ISBN/ASIN as part of a source name" =>
@@ -695,24 +691,20 @@ class ParseTest < Minitest::Test
   a_source = a.deep_merge(variants: [{ sources: [library] }])
   @outputs[:features_sources][:"source"] = [a_source]
 
-  site = { name: nil,
-           url: "https://www.edlin.org/holt" }
-  a_site = a.deep_merge(variants: [{ sources: [site] }])
-  @outputs[:features_sources][:"URL source"] = [a_site]
+  site_1 = { name: nil,
+             url: "https://www.edlin.org/holt" }
+  a_site_1 = a.deep_merge(variants: [{ sources: [site_1] }])
+  @outputs[:features_sources][:"URL source"] = [a_site_1]
 
-  site_named = { name: nil, url: "https://www.edlin.org/holt" }
+  site_named = { name: "Internet Archive",
+                 url: "https://archive.org/details/walledorchard0000holt" }
   a_site_named = a.deep_merge(variants: [{ sources: [site_named] }])
-  @outputs[:features_sources][:"URL source with name"] = [a_site_named]
+  @outputs[:features_sources][:"URL source with a name from config"] = [a_site_named]
 
-  @outputs[:features_sources][:"URL source with name after"] = [a_site_named]
-
-  site_auto_named = { name: "Internet Archive",
-                      url: "https://archive.org/details/walledorchard0000holt" }
-  a_site_auto_named = a.deep_merge(variants: [{ sources: [site_auto_named] }])
-  @outputs[:features_sources][:"URL source with a name from config"] = [a_site_auto_named]
-
+  site_2 = { name: nil,
+             url: "https://tomholt.com" }
   lexpub = { name: "Lexpub", url: nil }
-  three_sources = [library, site, lexpub]
+  three_sources = [library, site_1, site_2, lexpub]
   a_commas = a.deep_merge(variants: [{ sources: three_sources }])
   @outputs[:features_sources][:"multiple sources must be separated with commas"] = [a_commas]
 

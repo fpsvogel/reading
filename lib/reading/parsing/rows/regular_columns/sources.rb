@@ -12,7 +12,6 @@ module Reading
               },
           }
 
-
           def self.split_by_format?
             true
           end
