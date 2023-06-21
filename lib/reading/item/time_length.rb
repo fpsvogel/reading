@@ -19,8 +19,10 @@ module Reading
       # Builds an Item::TimeLength from a string.
       # @param string [String] a time duration in "h:mm" format.
       # @param pages_per_hour [Integer]
-      # @return [TimeLength]
+      # @return [TimeLength, nil]
       def self.parse(string, pages_per_hour:)
+        return nil unless string.match? /\A\d+:\d\d\z/
+
         hours, minutes = string.split(':').map(&:to_i)
         new((hours * 60) + minutes, pages_per_hour:)
       end

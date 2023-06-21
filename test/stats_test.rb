@@ -236,73 +236,77 @@ class StatsTest < Minitest::Test
   # Simple queries testing each filter.
   @queries[:filters] = {
     :"rating" => {
-      input: "average rating rating=3",
-      result: 3,
+      input: "average length rating=3",
+      result: 30,
       items: [
-        { rating: 3 },
-        { rating: 4 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (not)" => {
-      input: "average rating rating!=3",
-      result: 4,
+      input: "average length rating!=3,4",
+      result: 150,
       items: [
-        { rating: 3 },
-        { rating: 4 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 5, variants: [{ length: 100 }] },
+        { variants: [{ length: 200 }] },
       ],
     },
     :"rating (multiple)" => {
-      input: "average rating rating=3,4",
-      result: 3.5,
+      input: "average length rating=3,4",
+      result: 35,
       items: [
-        { rating: 3 },
-        { rating: 4 },
-        { rating: 5 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (greater than)" => {
-      input: "average rating rating>4",
-      result: 5,
+      input: "average length rating>3",
+      result: 40,
       items: [
-        { title: "yoyo", rating: 3 },
-        { rating: 4 },
-        { rating: 5 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (greater than or equal to)" => {
-      input: "average rating rating>=4",
-      result: 4.5,
+      input: "average length rating>=3",
+      result: 35,
       items: [
-        { rating: 3 },
-        { rating: 4 },
-        { rating: 5 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (less than)" => {
-      input: "average rating rating<5",
-      result: 3.5,
+      input: "average length rating<4",
+      result: 30,
       items: [
-        { rating: 3 },
-        { rating: 4 },
-        { rating: 5 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (less than or equal to)" => {
-      input: "average rating rating<=4",
-      result: 3.5,
+      input: "average length rating<=4",
+      result: 35,
       items: [
-        { rating: 3 },
-        { rating: 4 },
-        { rating: 5 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (greater than 1, less than 5)" => {
-      input: "average rating rating>1 rating<5",
-      result: 4,
+      input: "average length rating>3 rating<5",
+      result: 40,
       items: [
-        { rating: 1 },
-        { rating: 4 },
-        { rating: 5 },
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 5, variants: [{ length: 50 }] },
+        { variants: [{ length: 100 }] },
       ],
     },
     :"format" => {
@@ -315,8 +319,8 @@ class StatsTest < Minitest::Test
       ],
     },
     :"format (not)" => {
-      input: "average rating format!=print",
-      result: 4.5,
+      input: "average rating format!=print,audio",
+      result: 5,
       items: [
         { rating: 3, variants: [{ format: :print }] },
         { rating: 4, variants: [{ format: :audio }] },
@@ -366,8 +370,8 @@ class StatsTest < Minitest::Test
       ],
     },
     :"author (excludes)" => {
-      input: "average rating author!~jrr",
-      result: 4.5,
+      input: "average rating author!~jrr,chris",
+      result: 5,
       items: [
         { rating: 3, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
@@ -389,7 +393,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: '' },
+        { rating: 5 },
       ],
     },
     :"title (includes)" => {
@@ -398,16 +402,16 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: '' },
+        { rating: 5 },
       ],
     },
     :"title (excludes)" => {
-      input: "average rating title!~hello",
-      result: 4.5,
+      input: "average rating title!~hello,return",
+      result: 5,
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: '' },
+        { rating: 5 },
       ],
     },
     :"title (or)" => {
@@ -416,7 +420,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: '' },
+        { rating: 5 },
       ],
     },
     :"series" => {
@@ -438,7 +442,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"series (excludes)" => {
-      input: "average rating series!~goose bumps",
+      input: "average rating series!~begin,return",
       result: 5,
       items: [
         { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
@@ -465,8 +469,8 @@ class StatsTest < Minitest::Test
       ],
     },
     :"source (not)" => {
-      input: "average rating source!=little library",
-      result: 4.5,
+      input: "average rating source!=little library,https://archive.org",
+      result: 5,
       items: [
         { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
         { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
@@ -495,7 +499,7 @@ class StatsTest < Minitest::Test
       input: "average rating source!~library,archive",
       result: 5,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
+        { title: 'yoyo',rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
         { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
         { rating: 5, variants: [] },
       ],
@@ -510,8 +514,8 @@ class StatsTest < Minitest::Test
       ],
     },
     :"status (not)" => {
-      input: "average rating status!=in progress",
-      result: 4.5,
+      input: "average rating status!=in progress,done",
+      result: 5,
       items: [
         { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
         { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
@@ -536,11 +540,12 @@ class StatsTest < Minitest::Test
       ],
     },
     :"genre (not)" => {
-      input: "average rating genre!=history",
-      result: 3,
+      input: "average rating genre!=history,fiction",
+      result: 5,
       items: [
         { rating: 3, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
+        { rating: 5 },
       ],
     },
     :"genre (or)" => {
@@ -595,8 +600,8 @@ class StatsTest < Minitest::Test
       ],
     },
     :"note (exclude)" => {
-      input: "average rating note!~not bad",
-      result: 4.5,
+      input: "average rating note!~not bad,reread",
+      result: 5,
       items: [
         { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },

@@ -55,11 +55,22 @@ module Reading
               (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
           }
 
-          items.filter { |item|
+          positive_operator = operator == :'!=' ? :== : operator
+
+          matches = items.filter { |item|
             ratings.any? { |rating|
-              item.rating.send(operator, rating)
+              item.rating.send(positive_operator, rating) if item.rating
             }
           }
+
+          # Instead of using item.rating.send(operator, format) above, invert
+          # the matches here so that the not-equal operator with multiple values
+          # means "not x and not y". The other way would mean "not x or not y".
+          if operator == :'!='
+            matches = items - matches
+          end
+
+          matches
         },
         format: proc { |values, operator, items|
           formats = values.map(&:to_sym)
@@ -70,8 +81,6 @@ module Reading
             }
           }
 
-          # Invert the matches instead of _1.format.send(operator, format) in the
-          # filter because that would exclude items without a format.
           if operator == :'!='
             matches = items - matches
           end
