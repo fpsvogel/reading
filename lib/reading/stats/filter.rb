@@ -234,6 +234,36 @@ module Reading
 
           matches
         },
+        length: proc { |values, operator, items|
+          lengths = values.map { |value|
+            Integer(value, exception: false) ||
+              Item::TimeLength.parse(
+                value,
+                # TODO: somehow provide the user with control over the pages per hour.
+                pages_per_hour: Reading.default_config.fetch(:pages_per_hour),
+              ) ||
+              (raise InputError, "Length must be a number of pages or " \
+                "time as hh:mm in \"length#{operator}#{value}\"")
+          }
+
+          positive_operator = operator == :'!=' ? :== : operator
+
+          matches = items.filter { |item|
+            lengths.any? { |length|
+              item.variants.any? { _1.length.send(positive_operator, length) }
+            }
+          }
+
+          if operator == :'!='
+            matches = items - matches
+          end
+
+          remove_nonmatching_variants(matches) do |variant|
+            lengths.any? { variant.length.send(operator, _1) }
+          end
+
+          matches
+        },
         note: proc { |values, operator, items|
           fragments = values
             .map(&:downcase)

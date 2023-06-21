@@ -25,19 +25,19 @@ require_relative 'filter'
 # ✅series=/!=/~/!~
 # ✅note(s)=/!=/~/!~
 # ✅status(es)=/!=
-# length(s)=/>/>=/</<=/!=
+# ✅length(s)=/>/>=/</<=/!=
 # progress(es)=/>/>=/</<=/!=
 #   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
 # year(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS
-# by month
-# by year
-# by genre
-# by rating
-# by format
-# by source
-# by length
+# by month(s)
+# by year(s)
+# by genre(s)
+# by rating(s)
+# by format(s)
+# by source(s)
+# by length(s)
 
 module Reading
   module Stats

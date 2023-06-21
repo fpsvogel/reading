@@ -244,6 +244,15 @@ class StatsTest < Minitest::Test
         { variants: [{ length: 100 }] },
       ],
     },
+    :"rating (multiple)" => {
+      input: "average length rating=3,4",
+      result: 35,
+      items: [
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { variants: [{ length: 100 }] },
+      ],
+    },
     :"rating (not)" => {
       input: "average length rating!=3,4",
       result: 150,
@@ -252,15 +261,6 @@ class StatsTest < Minitest::Test
         { rating: 4, variants: [{ length: 40 }] },
         { rating: 5, variants: [{ length: 100 }] },
         { variants: [{ length: 200 }] },
-      ],
-    },
-    :"rating (multiple)" => {
-      input: "average length rating=3,4",
-      result: 35,
-      items: [
-        { rating: 3, variants: [{ length: 30 }] },
-        { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
       ],
     },
     :"rating (greater than)" => {
@@ -299,7 +299,11 @@ class StatsTest < Minitest::Test
         { variants: [{ length: 100 }] },
       ],
     },
-    :"rating (greater than 1, less than 5)" => {
+    # The inverse (e.g. less than 3 and greater than 4) doesn't work because
+    # that "and" applies to each rating, and a single rating can't be both less
+    # than 3 and greater than 5. Instead do "rating!=3,4". (Or if decimal ratings
+    # are in use, "rating!=3,3.5,4", or whatever your decimal intervals are.)
+    :"rating (greater than 3, less than 5)" => {
       input: "average length rating>3 rating<5",
       result: 40,
       items: [
@@ -579,6 +583,93 @@ class StatsTest < Minitest::Test
         { rating: 3, genres: ["fiction", "history"] },
         { rating: 4, genres: ["history"] },
         { rating: 2, genres: ["science"] },
+      ],
+    },
+    :"length" => {
+      input: "average rating length=20",
+      result: 2,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (time)" => {
+      input: "average rating length=1:00",
+      result: 2,
+      items: [
+        { rating: 2, variants: [{ length: 35 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (multiple)" => {
+      input: "average rating length=20,40",
+      result: 2.5,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (not)" => {
+      input: "average rating length!=20,40",
+      result: 4.5,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 4, variants: [{ length: 100 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (greater than)" => {
+      input: "average rating length>20",
+      result: 3.5,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 4, variants: [{ length: 100 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (greater than or equal to)" => {
+      input: "average rating length>=100",
+      result: 4,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 4, variants: [{ length: 100 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (less than)" => {
+      input: "average rating length<40",
+      result: 2,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 4, variants: [{ length: 100 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (less than or equal to)" => {
+      input: "average rating length<=40",
+      result: 2.5,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 4, variants: [{ length: 100 }] },
+        { rating: 5 },
+      ],
+    },
+    :"length (greater than 20, less than 100)" => {
+      input: "average rating length>3 rating<5",
+      result: 3,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 3, variants: [{ length: 40 }] },
+        { rating: 4, variants: [{ length: 100 }] },
+        { rating: 5 },
       ],
     },
     :"note" => {
