@@ -17,6 +17,9 @@ module Minitest
 end
 
 
+# For some reason, this doesn't work outside the test environment if the gem is
+# not installed. So elsewhere it's
+# Dir[File.join(__dir__, 'reading', 'util', '*.rb')].each { |file| require file }
 Gem.find_files('reading/util/*.rb').each { |f| require f }
 
 

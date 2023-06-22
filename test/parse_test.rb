@@ -264,6 +264,8 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|2021/12/6 0:35 -- .. 0:45",
   :"open range" =>
     "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- ..12/13",
+  :"open range with repeated name (re-listen)" =>
+    "Fullstack Ruby|2021/12/6.. 0:35 #1 -- 0:25 #2 -- ..12/13 #1",
   :"open range with dates in the middle" =>
     "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45 -- ..13",
   :"open range with implied end" => # implies ..12/8 0:25
@@ -297,6 +299,8 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0)",
   :"names" =>
     "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
+  :"repeated name means re-listen" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs -- 5/1 0:35 #1 Why Ruby2JS is a Game Changer",
   :"favorites" =>
     "Fullstack Ruby|2021/12/6..8 0:35 ⭐#1 Why Ruby2JS is a Game Changer -- 12/21 0:45 ⭐#2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
   :"multiple experiences" =>
@@ -1008,6 +1012,15 @@ class ParseTest < Minitest::Test
   )
   @outputs[:features_history][:"open range"] = [a_open_range]
 
+  a_open_range_with_names = a_open_range.deep_merge(
+    experiences: [{ spans: [
+      { name: "#1" },
+      { name: "#2" },
+      { name: "#1" },
+    ] }],
+  )
+  @outputs[:features_history][:"open range with repeated name (re-listen)"] = [a_open_range_with_names]
+
   a_open_range_dates_in_middle = item_hash(
     title: title_a,
     experiences: [{ spans: [
@@ -1116,6 +1129,19 @@ class ParseTest < Minitest::Test
     ] }],
   )
   @outputs[:features_history][:"names"] = [a_names]
+
+  a_names_repeat = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      *a_names[:experiences].first[:spans],
+      {
+        dates: Date.new(2022,5,1)..Date.new(2022,5,1),
+        amount: Reading.time('0:35'),
+        name: "#1 Why Ruby2JS is a Game Changer",
+      },
+    ]} ],
+  )
+  @outputs[:features_history][:"repeated name means re-listen"] = [a_names_repeat]
 
   a_favorites = a_names.deep_merge(
     experiences: [{ spans: [

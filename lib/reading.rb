@@ -1,4 +1,4 @@
-Gem.find_files("reading/util/*.rb").each { |f| require f }
+Dir[File.join(__dir__, 'reading', 'util', '*.rb')].each { |file| require file }
 require_relative 'reading/errors'
 require_relative 'reading/config'
 require_relative 'reading/parsing/csv'

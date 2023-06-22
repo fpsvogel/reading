@@ -233,10 +233,9 @@ module Reading
 
               key = [date, span_without_dates[:name]]
 
-              # When any entry in an open range lacks a name, add a random
-              # number to the key so that it does not overwrite a different
-              # entry in the open range that also lacks a name.
-              if in_open_range && !entry[:name]
+              # For entries in an open range, add a random number to the key to
+              # avoid overwriting entries with the same name, or lacking a name.
+              if in_open_range
                 key << rand
               end
 
