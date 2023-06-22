@@ -50,16 +50,20 @@ module Reading
       ACTIONS = {
         rating: proc { |values, operator, items|
           ratings = values.map { |value|
-            Integer(value, exception: false) ||
-              Float(value, exception: false) ||
-              (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
+            if value
+              Integer(value, exception: false) ||
+                Float(value, exception: false) ||
+                (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
+            end
           }
 
           positive_operator = operator == :'!=' ? :== : operator
 
           matches = items.filter { |item|
             ratings.any? { |rating|
-              item.rating.send(positive_operator, rating) if item.rating
+              if item.rating || %i[== !=].include?(operator)
+                item.rating.send(positive_operator, rating)
+              end
             }
           }
 
@@ -73,11 +77,12 @@ module Reading
           matches
         },
         format: proc { |values, operator, items|
-          formats = values.map(&:to_sym)
+          formats = values.map { _1.to_sym if _1 }
 
           matches = items.filter { |item|
             formats.any? { |format|
-              item.variants.any? { _1.format == format }
+              item.variants.any? { _1.format == format } ||
+                (item.variants.empty? && format.nil?)
             }
           }
 
@@ -93,20 +98,18 @@ module Reading
         },
         author: proc { |values, operator, items|
           fragments = values
-            .map(&:downcase)
-            .map { _1.gsub(/[^a-zA-Z ]/, '').gsub(/\s/, '') }
+            .map { _1.downcase if _1 }
+            .map { _1.gsub(/[^a-zA-Z ]/, '').gsub(/\s/, '') if _1 }
 
           matches = items.filter { |item|
-            next unless item.author
-
             author = item
-              .author
-              .downcase
-              .gsub(/[^a-zA-Z ]/, '')
-              .gsub(/\s/, '')
+              &.author
+              &.downcase
+              &.gsub(/[^a-zA-Z ]/, '')
+              &.gsub(/\s/, '')
 
             if %i[include? exclude?].include? operator
-              fragments.any? { author.include? _1 }
+              fragments.any? { author.include?(_1) if author }
             else
               fragments.any? { author == _1 }
             end
@@ -119,6 +122,11 @@ module Reading
           matches
         },
         title: proc { |values, operator, items|
+          if values.any?(&:nil?)
+            raise InputError, "The \"title\" filter cannot take a \"none\" value" \
+              " in \"title#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
+          end
+
           fragments = values
             .map(&:downcase)
             .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
@@ -147,8 +155,10 @@ module Reading
         },
         series: proc { |values, operator, items|
           fragments = values
-            .map(&:downcase)
-            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
+            .map { _1.downcase if _1 }
+            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') if _1 }
+
+          none_comparison = fragments.include?(nil) && %i[== !=].include?(operator)
 
           matches = items.filter { |item|
             item.variants.any? { |variant|
@@ -164,8 +174,8 @@ module Reading
                 else
                   fragments.any? { series_name == _1 }
                 end
-              }
-            }
+              } || (variant.series.empty? && none_comparison)
+            } || (item.variants.empty? && none_comparison)
           }
 
           if %i[!= exclude?].include? operator
@@ -175,7 +185,8 @@ module Reading
           matches
         },
         source: proc { |values, operator, items|
-          fragments = values.map(&:downcase)
+          fragments = values.map { _1.downcase if _1 }
+          none_comparison = fragments.include?(nil) && %i[== !=].include?(operator)
 
           matches = items.filter { |item|
             item.variants.any? { |variant|
@@ -187,8 +198,8 @@ module Reading
                 else
                   fragments.any? { name_or_url.downcase == _1 }
                 end
-              }
-            }
+              } || (names_and_urls.empty? && none_comparison)
+            } || (item.variants.empty? && none_comparison)
           }
 
           if %i[!= exclude?].include? operator
@@ -206,6 +217,11 @@ module Reading
           matches
         },
         status: proc { |values, operator, items|
+          if values.any?(&:nil?)
+            raise InputError, "The \"status\" filter cannot take a \"none\" value" \
+              " in \"status#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
+          end
+
           statuses = values.map { _1.squeeze(' ').gsub(' ', '_').to_sym }
 
           matches = items.filter { |item|
@@ -219,12 +235,14 @@ module Reading
           matches
         },
         genre: proc { |values, operator, items|
-          genres = values.map { _1.split('+').map(&:strip) }
+          genres = values.map { _1 ? _1.split('+').map(&:strip) : [_1] }
+          none_comparison = genres.include?([nil]) && %i[== !=].include?(operator)
 
           matches = items.filter { |item|
             genres.any? { |and_genres|
               # Whether item.genres includes all elements of and_genres.
-              (item.genres.sort & and_genres.sort) == and_genres.sort
+              (item.genres.sort & and_genres.sort) == and_genres.sort ||
+                (item.genres.empty? && none_comparison)
             }
           }
 
@@ -236,21 +254,26 @@ module Reading
         },
         length: proc { |values, operator, items|
           lengths = values.map { |value|
-            Integer(value, exception: false) ||
-              Item::TimeLength.parse(
-                value,
-                # TODO: somehow provide the user with control over the pages per hour.
-                pages_per_hour: Reading.default_config.fetch(:pages_per_hour),
-              ) ||
-              (raise InputError, "Length must be a number of pages or " \
-                "time as hh:mm in \"length#{operator}#{value}\"")
+            if value
+              Integer(value, exception: false) ||
+                Item::TimeLength.parse(
+                  value,
+                  # TODO: somehow provide the user with control over the pages per hour.
+                  pages_per_hour: Reading.default_config.fetch(:pages_per_hour),
+                ) ||
+                (raise InputError, "Length must be a number of pages or " \
+                  "time as hh:mm in \"length#{operator}#{value}\"")
+            end
           }
+
+          none_comparison = lengths.include?(nil) && %i[== !=].include?(operator)
 
           positive_operator = operator == :'!=' ? :== : operator
 
           matches = items.filter { |item|
             lengths.any? { |length|
-              item.variants.any? { _1.length.send(positive_operator, length) }
+              item.variants.any? { _1.length.send(positive_operator, length) } ||
+                (item.variants.empty? && none_comparison)
             }
           }
 
@@ -266,8 +289,10 @@ module Reading
         },
         note: proc { |values, operator, items|
           fragments = values
-            .map(&:downcase)
-            .map { _1.gsub(/[^a-zA-Z0-9 ]/, '') }
+            .map { _1.downcase if _1 }
+            .map { _1.gsub(/[^a-zA-Z0-9 ]/, '') if _1 }
+
+          none_comparison = fragments.include?(nil) && %i[== !=].include?(operator)
 
           matches = items.filter { |item|
             item.notes.any? { |original_note|
@@ -280,7 +305,7 @@ module Reading
               else
                 fragments.any? { note == _1 }
               end
-            }
+            } || (item.notes.empty? && none_comparison)
           }
 
           if %i[!= exclude?].include? operator
@@ -343,10 +368,12 @@ module Reading
         operator = :include? if operator == :~
         operator = :exclude? if operator == :'!~'
 
-        or_values = predicate.split(',').map(&:strip)
+        or_values = predicate
+          .split(',')
+          .map(&:strip)
+          .map { _1.downcase == 'none' ? nil : _1 }
 
         matched_items = ACTIONS[key].call(or_values, operator, items)
-        # debugger if key == :source && operator_str == '!~' && predicate == 'library,archive'
         filtered_items += matched_items
 
         filtered_items.uniq

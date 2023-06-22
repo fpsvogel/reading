@@ -241,16 +241,16 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
-    :"rating (multiple)" => {
+    :"rating (or)" => {
       input: "average length rating=3,4",
       result: 35,
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
     :"rating (not)" => {
@@ -260,7 +260,23 @@ class StatsTest < Minitest::Test
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
         { rating: 5, variants: [{ length: 100 }] },
-        { variants: [{ length: 200 }] },
+        { rating: nil, variants: [{ length: 200 }] },
+      ],
+    },
+    :"rating (none)" => {
+      input: "average length rating=none",
+      result: 40,
+      items: [
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: nil, variants: [{ length: 40 }] },
+      ],
+    },
+    :"rating (not none)" => {
+      input: "average length rating!=none",
+      result: 30,
+      items: [
+        { rating: 3, variants: [{ length: 30 }] },
+        { rating: nil, variants: [{ length: 40 }] },
       ],
     },
     :"rating (greater than)" => {
@@ -269,7 +285,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
     :"rating (greater than or equal to)" => {
@@ -278,7 +294,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
     :"rating (less than)" => {
@@ -287,7 +303,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
     :"rating (less than or equal to)" => {
@@ -296,7 +312,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
     # The inverse (e.g. less than 3 and greater than 4) doesn't work because
@@ -310,7 +326,7 @@ class StatsTest < Minitest::Test
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
         { rating: 5, variants: [{ length: 50 }] },
-        { variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 100 }] },
       ],
     },
     :"format" => {
@@ -318,6 +334,15 @@ class StatsTest < Minitest::Test
       result: 3,
       items: [
         { rating: 3, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: :audio }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"format (or)" => {
+      input: "average rating format=print,audio",
+      result: 3.5,
+      items: [
+        { rating: 3, variants: [{ format: :print }, { format: :audio }] },
         { rating: 4, variants: [{ format: :audio }] },
         { rating: 5, variants: [] },
       ],
@@ -331,12 +356,21 @@ class StatsTest < Minitest::Test
         { rating: 5, variants: [] },
       ],
     },
-    :"format (multiple)" => {
-      input: "average rating format=print,audio",
-      result: 3.5,
+    :"format (none)" => {
+      input: "average rating format=none",
+      result: 4.5,
+      items: [
+        { rating: 3, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: nil }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"format (not none)" => {
+      input: "average rating format!=none",
+      result: 3,
       items: [
         { rating: 3, variants: [{ format: :print }, { format: :audio }] },
-        { rating: 4, variants: [{ format: :audio }] },
+        { rating: 4, variants: [{ format: nil }] },
         { rating: 5, variants: [] },
       ],
     },
@@ -361,7 +395,23 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5 },
+        { rating: 5, author: nil },
+      ],
+    },
+    :"author (none)" => {
+      input: "average rating author=none",
+      result: 4,
+      items: [
+        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 4, author: nil },
+      ],
+    },
+    :"author (not none)" => {
+      input: "average rating author!=none",
+      result: 3,
+      items: [
+        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 4, author: nil },
       ],
     },
     :"author (includes)" => {
@@ -370,7 +420,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5 },
+        { rating: 5, author: nil },
       ],
     },
     :"author (excludes)" => {
@@ -379,7 +429,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5 },
+        { rating: 5, author: nil },
       ],
     },
     :"author (or)" => {
@@ -388,7 +438,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5 },
+        { rating: 5, author: nil },
       ],
     },
     :"title" => {
@@ -397,16 +447,18 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: "" },
       ],
     },
+    # (Test cases for "title=none" and "title!=none" are omitted because a
+    # title is always required.)
     :"title (includes)" => {
       input: "average rating title~mr smith",
       result: 3.5,
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: "" },
       ],
     },
     :"title (excludes)" => {
@@ -415,7 +467,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: "" },
       ],
     },
     :"title (or)" => {
@@ -424,7 +476,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5 },
+        { rating: 5, title: "" },
       ],
     },
     :"series" => {
@@ -433,7 +485,25 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
         { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"series (none)" => {
+      input: "average rating series=none",
+      result: 4.5,
+      items: [
+        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [{ series: [] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"series (not none)" => {
+      input: "average rating series!=none",
+      result: 3,
+      items: [
+        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [{ series: [] }] },
+        { rating: 5, variants: [] },
       ],
     },
     :"series (includes)" => {
@@ -442,7 +512,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
         { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"series (excludes)" => {
@@ -451,7 +521,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
         { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"series (or)" => {
@@ -460,7 +530,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
         { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"source" => {
@@ -469,6 +539,24 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
         { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"source (none)" => {
+      input: "average rating source=none",
+      result: 4.5,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
+        { rating: 4, variants: [{ sources: [] }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"source (not none)" => {
+      input: "average rating source!=none",
+      result: 3,
+      items: [
+        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
+        { rating: 4, variants: [{ sources: [] }] },
         { rating: 5, variants: [] },
       ],
     },
@@ -514,7 +602,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
         { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
-        { rating: 5 }
+        { rating: 5, experiences: [] }
       ],
     },
     :"status (not)" => {
@@ -523,16 +611,16 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
         { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
-        { rating: 5 }
+        { rating: 5, experiences: [] }
       ],
     },
-    :"status (multiple)" => {
-      input: "average rating status=done, planned",
+    :"status (or)" => {
+      input: "average rating status=done,planned",
       result: 4.5,
       items: [
         { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
         { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
-        { rating: 5 }
+        { rating: 5, experiences: [] }
       ],
     },
     :"genre" => {
@@ -541,6 +629,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
+        { rating: 5, genres: [] },
       ],
     },
     :"genre (not)" => {
@@ -549,7 +638,25 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5 },
+        { rating: 5, genres: [] },
+      ],
+    },
+    :"genre (none)" => {
+      input: "average rating genre=none",
+      result: 5,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+        { rating: 5, genres: [] },
+      ],
+    },
+    :"genre (not none)" => {
+      input: "average rating genre!=none",
+      result: 3.5,
+      items: [
+        { rating: 3, genres: ["fiction"] },
+        { rating: 4, genres: ["history"] },
+        { rating: 5, genres: [] },
       ],
     },
     :"genre (or)" => {
@@ -558,6 +665,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
+        { rating: 5, genres: [] },
       ],
     },
     :"genre (and)" => {
@@ -566,6 +674,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, genres: ["fiction", "history"] },
         { rating: 4, genres: ["history"] },
+        { rating: 5, genres: [] },
       ],
     },
     :"genre (alt. and)" => {
@@ -574,15 +683,17 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, genres: ["fiction", "history"] },
         { rating: 4, genres: ["history"] },
+        { rating: 5, genres: [] },
       ],
     },
     :"genre (or, and)" => {
       input: "average rating genre=science,history+fiction",
       result: 2.5,
       items: [
+        { rating: 2, genres: ["science"] },
         { rating: 3, genres: ["fiction", "history"] },
         { rating: 4, genres: ["history"] },
-        { rating: 2, genres: ["science"] },
+        { rating: 5, genres: [] },
       ],
     },
     :"length" => {
@@ -591,7 +702,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (time)" => {
@@ -600,16 +711,34 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 2, variants: [{ length: 35 }] },
         { rating: 3, variants: [{ length: 40 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
-    :"length (multiple)" => {
+    :"length (none)" => {
+      input: "average rating length=none",
+      result: 4.5,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 4, variants: [{ length: nil }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"length (not none)" => {
+      input: "average rating length!=none",
+      result: 2,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 4, variants: [{ length: nil }] },
+        { rating: 5, variants: [] },
+      ],
+    },
+    :"length (or)" => {
       input: "average rating length=20,40",
       result: 2.5,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (not)" => {
@@ -619,7 +748,7 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
         { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (greater than)" => {
@@ -629,7 +758,7 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
         { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (greater than or equal to)" => {
@@ -639,7 +768,7 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
         { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (less than)" => {
@@ -649,7 +778,7 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
         { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (less than or equal to)" => {
@@ -659,7 +788,7 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
         { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"length (greater than 20, less than 100)" => {
@@ -669,7 +798,7 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [{ length: 20 }] },
         { rating: 3, variants: [{ length: 40 }] },
         { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5 },
+        { rating: 5, variants: [] },
       ],
     },
     :"note" => {
@@ -678,7 +807,25 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5 },
+        { rating: 5, notes: [] },
+      ],
+    },
+    :"note (none)" => {
+      input: "average rating note=none",
+      result: 5,
+      items: [
+        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 4, notes: ["Will re-read"] },
+        { rating: 5, notes: [] },
+      ],
+    },
+    :"note (not none)" => {
+      input: "average rating note!=none",
+      result: 3.5,
+      items: [
+        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 4, notes: ["Will re-read"] },
+        { rating: 5, notes: [] },
       ],
     },
     :"note (include)" => {
@@ -687,7 +834,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5 },
+        { rating: 5, notes: [] },
       ],
     },
     :"note (exclude)" => {
@@ -696,7 +843,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5 },
+        { rating: 5, notes: [] },
       ],
     },
     :"note (or)" => {
@@ -705,7 +852,7 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5 },
+        { rating: 5, notes: [] },
       ],
     },
   }
@@ -825,6 +972,27 @@ class StatsTest < Minitest::Test
     },
   }
 
+
+
+  ## QUERIES: ERRORS
+  # Bad input that should raise an error.
+  @queries[:errors] = {}
+
+  @queries[:errors][Reading::InputError] = {
+    :"nonexistent filter" =>
+      "average rating lengthiness=10",
+    :"inapplicable operator" =>
+      "average rating genre>history",
+    :"non-numeric rating" =>
+      "average length rating=great",
+    :"non-numeric length" =>
+      "average rating length=short",
+    :"none value for title" =>
+      "average rating title=none",
+    :"none value for status" =>
+      "average rating status=none",
+  }
+
   # ==== TESTS
 
   # TESTS: OPERATIONS
@@ -930,6 +1098,22 @@ class StatsTest < Minitest::Test
       # debugger unless exp == act
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
+    end
+  end
+
+  ## TESTS: ERRORS
+  queries[:errors].each do |error, hash|
+    hash.each do |name, input|
+      define_method("test_error_#{name}") do
+        if name.start_with? "OK: " # Should not raise an error.
+          exp = hash.fetch(:result)
+          refute_nil Reading.stats(input:, items: [])
+        else
+          assert_raises error, "Failed to raise #{error} for: #{name}" do
+            refute_nil Reading.stats(input:, items: [])
+          end
+        end
+      end
     end
   end
 end
