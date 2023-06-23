@@ -26,9 +26,10 @@ require_relative 'filter'
 # ✅note(s)=/!=/~/!~
 # ✅status(es)=/!=
 # ✅length(s)=/>/>=/</<=/!=
-# progress(es)=/>/>=/</<=/!=
-#   ->(item) { item.done? && (progress = item.experiences.last.spans.last.progress) && progress < 1 }
-# year(s)=/>/>=/</<=/!=
+# ✅done(s)=/>/>=/</<=/!=
+# experience(s)=/>/>=/</<=/!=
+# daysago=/!=
+# date(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS
 # by month(s)

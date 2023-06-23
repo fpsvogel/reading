@@ -76,6 +76,38 @@ module Reading
 
           matches
         },
+        done: proc { |values, operator, items|
+          if values.any?(&:nil?)
+            raise InputError, "The \"done\" filter cannot take a \"none\" value" \
+              " in \"done#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
+          end
+
+          done_progresses = values.map { |value|
+            (value.match(/\A(\d+)?%/).captures.first.to_f.clamp(0.0, 100.0) / 100) ||
+            (raise InputError, "Progress must be a percentage " \
+              "in \"dnf#{operator}#{value}\"")
+          }
+
+          positive_operator = operator == :'!=' ? :== : operator
+
+          matches = items.filter { |item|
+            if item.done?
+              done_progresses.any? { |done_progress|
+                item.experiences.any? { |experience|
+                  experience.spans.last.progress.send(positive_operator, done_progress)
+                } || (item.experiences.empty? && done_progress.zero?)
+              }
+            end
+          }
+
+          if operator == :'!='
+            matches = items - matches
+          end
+
+          # TODO: remove nonmatching experiences
+
+          matches
+        },
         format: proc { |values, operator, items|
           formats = values.map { _1.to_sym if _1 }
 
@@ -232,6 +264,8 @@ module Reading
             matches = items - matches
           end
 
+          # TODO: remove nonmatching experiences for :in_progress
+
           matches
         },
         genre: proc { |values, operator, items|
@@ -318,14 +352,17 @@ module Reading
 
       NUMERIC_OPERATORS = {
         rating: true,
-        length: true,
+        done: true,
         progress: true,
+        length: true,
+        date: true,
       }
 
       PROHIBIT_INCLUDE_EXCLUDE_OPERATORS = {
-        genre: true,
         format: true,
+        daysago: true,
         status: true,
+        genre: true,
       }
 
       REGEXES = ACTIONS.map { |key, _action|
