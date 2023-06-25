@@ -28,8 +28,8 @@ require_relative 'filter'
 # ✅length(s)=/>/>=/</<=/!=
 # ✅done(s)=/>/>=/</<=/!=
 # experience(s)=/>/>=/</<=/!=
-# daysago=/!=
 # date(s)=/>/>=/</<=/!=
+# enddate(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS
 # by month(s)

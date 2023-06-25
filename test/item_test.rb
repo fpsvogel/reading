@@ -27,29 +27,27 @@ class ItemTest < Minitest::Test
 
   describe "any attribute from the item hash" do
     it "can be accessed" do
-      # Convert to Data and back again because #to_data converts nested Hashes
-      # to Datas, but #to_h converts only the top level back to a Hash.
-      BOOK.to_data.to_h.each do |key, value|
-        assert_equal value, book.send(key)
-      end
+      items = { BOOK => book, PODCAST => podcast }
 
-      PODCAST.to_data.to_h.each do |key, value|
-        debugger if value.nil?
-        assert_equal value, podcast.send(key)
-      end
-    end
-  end
+      items.each do |hash, item|
+        # Convert to Data and back again because #to_data converts nested Hashes
+        # to Datas, but #to_h converts only the top level back to a Hash.
+        hash.to_data.to_h.each do |key, value|
+          item_value = item.send(key)
 
-  describe "#definite_length" do
-    context "when the Item has a non-nil #length" do
-      it "is true" do
-        assert book.definite_length?
-      end
-    end
+          # :experiences is the only place where the item's data adds keys
+          # (:status and :last_end_date) to the original hash.
+          if key == :experiences
+            value.map!.with_index { |experience, i|
+              experience.to_h.merge(
+                status: item_value[i].status,
+                last_end_date: item_value[i].last_end_date,
+              ).to_data
+            }
+          end
 
-    context "when the Item has a nil #length" do
-      it "is false" do
-        refute podcast.definite_length?
+          assert_equal value, item_value
+        end
       end
     end
   end

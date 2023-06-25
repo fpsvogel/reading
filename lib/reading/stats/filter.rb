@@ -68,8 +68,8 @@ module Reading
           }
 
           # Instead of using item.rating.send(operator, format) above, invert
-          # the matches here so that the not-equal operator with multiple values
-          # means "not x and not y". The other way would mean "not x or not y".
+          # the matches here to ensure multiple values after a negative operator
+          # have an "and" relation: "not(x and y)", rather than "not(x or y)".
           if operator == :'!='
             matches = items - matches
           end
@@ -84,52 +84,71 @@ module Reading
 
           done_progresses = values.map { |value|
             (value.match(/\A(\d+)?%/).captures.first.to_f.clamp(0.0, 100.0) / 100) ||
-            (raise InputError, "Progress must be a percentage " \
-              "in \"dnf#{operator}#{value}\"")
+              (raise InputError,
+                "Progress must be a percentage in \"dnf#{operator}#{value}\"")
           }
 
-          positive_operator = operator == :'!=' ? :== : operator
-
-          matches = items.filter { |item|
-            if item.done?
-              done_progresses.any? { |done_progress|
-                item.experiences.any? { |experience|
-                  experience.spans.last.progress.send(positive_operator, done_progress)
-                } || (item.experiences.empty? && done_progress.zero?)
+          filtered_items = items.map { |item|
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if operator == :'!='
+              item_done_progresses = item.experiences.map { |experience|
+                experience.spans.last.progress if experience.status == :done
               }
+
+              next if (item_done_progresses - done_progresses).empty?
             end
+
+            # Filter out non-matching experiences.
+            filtered_experiences = item.experiences.filter { |experience|
+              done_progresses.any? { |done_progress|
+                experience.status == :done &&
+                  experience.spans.last.progress.send(operator, done_progress)
+              }
+            }
+
+            item.with_experiences(filtered_experiences) if filtered_experiences.any?
           }
+          .compact
 
-          if operator == :'!='
-            matches = items - matches
-          end
-
-          # TODO: remove nonmatching experiences
-
-          matches
+          filtered_items
         },
         format: proc { |values, operator, items|
           formats = values.map { _1.to_sym if _1 }
 
-          matches = items.filter { |item|
-            formats.any? { |format|
-              item.variants.any? { _1.format == format } ||
-                (item.variants.empty? && format.nil?)
+          filtered_items = items.map { |item|
+            # Treat empty variants as if they were a variant with a nil format.
+            if item.variants.empty?
+              if operator == :'!='
+                next item unless formats.include?(nil)
+              else
+                next item if formats.include?(nil)
+              end
+            end
+
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if operator == :'!='
+              item_formats = item.variants.map(&:format)
+
+              next if (item_formats - formats).empty?
+            end
+
+            # Filter out non-matching variants.
+            filtered_variants = item.variants.filter { |variant|
+              formats.any? { |format|
+                variant.format.send(operator, format)
+              }
             }
+
+            item.with_variants(filtered_variants) if filtered_variants.any?
           }
+          .compact
 
-          if operator == :'!='
-            matches = items - matches
-          end
-
-          remove_nonmatching_variants(matches) do |variant|
-            formats.any? { variant.format.send(operator, _1) }
-          end
-
-          matches
+          filtered_items
         },
         author: proc { |values, operator, items|
-          fragments = values
+          authors = values
             .map { _1.downcase if _1 }
             .map { _1.gsub(/[^a-zA-Z ]/, '').gsub(/\s/, '') if _1 }
 
@@ -141,9 +160,15 @@ module Reading
               &.gsub(/\s/, '')
 
             if %i[include? exclude?].include? operator
-              fragments.any? { author.include?(_1) if author }
+              authors.any? {
+                if _1.nil?
+                  _1 == author
+                else
+                  author.include?(_1) if author
+                end
+              }
             else
-              fragments.any? { author == _1 }
+              authors.any? { author == _1 }
             end
           }
 
@@ -159,7 +184,7 @@ module Reading
               " in \"title#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
           end
 
-          fragments = values
+          titles = values
             .map(&:downcase)
             .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
 
@@ -173,9 +198,9 @@ module Reading
               .gsub(/\s/, '')
 
             if %i[include? exclude?].include? operator
-              fragments.any? { title.include? _1 }
+              titles.any? { title.include? _1 }
             else
-              fragments.any? { title == _1 }
+              titles.any? { title == _1 }
             end
           }
 
@@ -186,67 +211,142 @@ module Reading
           matches
         },
         series: proc { |values, operator, items|
-          fragments = values
-            .map { _1.downcase if _1 }
-            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') if _1 }
-
-          none_comparison = fragments.include?(nil) && %i[== !=].include?(operator)
-
-          matches = items.filter { |item|
-            item.variants.any? { |variant|
-              variant.series.any? { |series|
-                series_name = series
-                  .name
-                  .downcase
-                  .gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
-                  .gsub(/\s/, '')
-
-                if %i[include? exclude?].include? operator
-                  fragments.any? { series_name.include? _1 }
-                else
-                  fragments.any? { series_name == _1 }
-                end
-              } || (variant.series.empty? && none_comparison)
-            } || (item.variants.empty? && none_comparison)
+          format_name = ->(str) {
+            str
+              &.downcase
+              &.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
+              &.gsub(/\s/, '')
           }
 
-          if %i[!= exclude?].include? operator
-            matches = items - matches
-          end
+          series_names = values.map { format_name.call(_1) }
 
-          matches
+          filtered_items = items.map { |item|
+            # Treat empty variants as if they were a variant with no series.
+            if item.variants.empty?
+              if %i[!= exclude?].include? operator
+                next item unless series_names.include?(nil)
+              elsif %i[== include?].include? operator
+                next item if series_names.include?(nil)
+              end
+            end
+
+            item_series_names = item.variants.flat_map { |variant|
+              variant.series.map { format_name.call(_1.name) }
+            }
+
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if %i[!= exclude?].include? operator
+              next if operator == :'!=' && (item_series_names - series_names).empty?
+              next if operator == :exclude? &&
+                item_series_names.all? { |item_series_name|
+                  series_names.any? { |series_name|
+                    if series_name.nil?
+                      item_series_name == series_name
+                    else
+                      item_series_name.include?(series_name)
+                    end
+                  }
+                }
+            end
+
+            # Filter out non-matching variants.
+            filtered_variants = item.variants.filter { |variant|
+              # Treat empty series as if they were a series with a nil name.
+              if variant.series.empty?
+                if %i[!= exclude?].include? operator
+                  next variant unless series_names.include?(nil)
+                elsif %i[== include?].include? operator
+                  next variant if series_names.include?(nil)
+                end
+              end
+
+              variant.series.any? { |series|
+                item_series_name = format_name.call(series.name)
+
+                series_names.any? {
+                  if _1.nil?
+                    nil_operator = { include?: :==, exclude?: :'!=' }[operator]
+                  end
+
+                  item_series_name.send(nil_operator || operator, _1)
+                }
+              }
+            }
+
+            item.with_variants(filtered_variants) if filtered_variants.any?
+          }
+          .compact
+
+          filtered_items
         },
         source: proc { |values, operator, items|
-          fragments = values.map { _1.downcase if _1 }
-          none_comparison = fragments.include?(nil) && %i[== !=].include?(operator)
+          sources = values.map { _1.downcase if _1 }
 
-          matches = items.filter { |item|
-            item.variants.any? { |variant|
-              names_and_urls = (variant.sources.map(&:name) + variant.sources.map(&:url)).compact
+          filtered_items = items.map { |item|
+            # Treat empty variants as if they were a variant with no sources.
+            if item.variants.empty?
+              if %i[!= exclude?].include? operator
+                next item unless sources.include?(nil)
+              elsif %i[== include?].include? operator
+                next item if sources.include?(nil)
+              end
+            end
 
-              names_and_urls.map(&:downcase).any? { |name_or_url|
-                if %i[include? exclude?].include? operator
-                  fragments.any? { name_or_url.downcase.include? _1 }
-                else
-                  fragments.any? { name_or_url.downcase == _1 }
-                end
-              } || (names_and_urls.empty? && none_comparison)
-            } || (item.variants.empty? && none_comparison)
-          }
-
-          if %i[!= exclude?].include? operator
-            matches = items - matches
-          end
-
-          remove_nonmatching_variants(matches) do |variant|
-            names_and_urls = (variant.sources.map(&:name) + variant.sources.map(&:url)).compact
-
-            names_and_urls.any? { |name_or_url|
-              fragments.any? { name_or_url.downcase.send(operator, _1) }
+            item_source_names_and_urls = item.variants.flat_map { |variant|
+              variant.sources.map { [_1.name&.downcase, _1.url&.downcase] }
             }
-          end
 
-          matches
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if %i[!= exclude?].include? operator
+              remainder_names_and_urls = item_source_names_and_urls.reject { |name, url|
+                name_nil_match = name.nil? && url.nil? && sources.include?(name)
+                url_nil_match = url.nil? && name.nil? && sources.include?(url)
+
+                (name.nil? ? name_nil_match : sources.include?(name)) ||
+                  (url.nil? ? url_nil_match : sources.include?(url))
+              }
+
+              next if operator == :'!=' && remainder_names_and_urls.empty?
+              next if operator == :exclude? &&
+                item_source_names_and_urls.all? { |item_source_name_and_url|
+                  sources.any? { |source|
+                    item_source_name_and_url.any? {
+                      _1.nil? ? _1 == source : _1.include?(source) if source
+                    }
+                  }
+                }
+            end
+
+            # Filter out non-matching variants.
+            filtered_variants = item.variants.filter { |variant|
+              # Treat empty sources as if they were a source with a nil name.
+              if variant.sources.empty?
+                if %i[!= exclude?].include? operator
+                  next variant unless sources.include?(nil)
+                elsif %i[== include?].include? operator
+                  next variant if sources.include?(nil)
+                end
+              end
+
+              variant.sources.any? { |source|
+                sources.any?  {
+                  if _1.nil?
+                    nil_operator = { include?: :==, exclude?: :'!=' }[operator]
+                  end
+
+                  source.name&.downcase&.send(nil_operator || operator, _1) ||
+                    source.url&.downcase&.send(nil_operator || operator, _1)
+                }
+              }
+            }
+
+            item.with_variants(filtered_variants) if filtered_variants.any?
+          }
+          .compact
+
+          filtered_items
         },
         status: proc { |values, operator, items|
           if values.any?(&:nil?)
@@ -256,27 +356,40 @@ module Reading
 
           statuses = values.map { _1.squeeze(' ').gsub(' ', '_').to_sym }
 
-          matches = items.filter { |item|
-            statuses.include? item.status
+          filtered_items = items.map { |item|
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if operator == :'!='
+              item_statuses = item.experiences.map(&:status).presence || [:planned]
+
+              next unless (item_statuses - statuses).any?
+            end
+
+            # Check for a match on a planned Item (no experiences).
+            is_planned = item.experiences.empty?
+            next item if is_planned && statuses.include?(:planned)
+
+            # Filter out non-matching experiences.
+            filtered_experiences = item.experiences.filter { |experience|
+              statuses.any? { |status|
+                experience.status.send(operator, status)
+              }
+            }
+
+            item.with_experiences(filtered_experiences) if filtered_experiences.any?
           }
+          .compact
 
-          if operator == :'!='
-            matches = items - matches
-          end
-
-          # TODO: remove nonmatching experiences for :in_progress
-
-          matches
+          filtered_items
         },
         genre: proc { |values, operator, items|
           genres = values.map { _1 ? _1.split('+').map(&:strip) : [_1] }
-          none_comparison = genres.include?([nil]) && %i[== !=].include?(operator)
 
           matches = items.filter { |item|
             genres.any? { |and_genres|
               # Whether item.genres includes all elements of and_genres.
               (item.genres.sort & and_genres.sort) == and_genres.sort ||
-                (item.genres.empty? && none_comparison)
+                (item.genres.empty? && genres.include?([nil]))
             }
           }
 
@@ -300,33 +413,41 @@ module Reading
             end
           }
 
-          none_comparison = lengths.include?(nil) && %i[== !=].include?(operator)
+          filtered_items = items.map { |item|
+            # Treat empty variants as if they were a variant with a nil length.
+            if item.variants.empty?
+              if operator == :'!='
+                next item unless lengths.include?(nil)
+              else
+                next item if lengths.include?(nil)
+              end
+            end
 
-          positive_operator = operator == :'!=' ? :== : operator
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if operator == :'!='
+              item_lengths = item.variants.map(&:length)
 
-          matches = items.filter { |item|
-            lengths.any? { |length|
-              item.variants.any? { _1.length.send(positive_operator, length) } ||
-                (item.variants.empty? && none_comparison)
+              next if (item_lengths - lengths).empty?
+            end
+
+            # Filter out non-matching variants.
+            filtered_variants = item.variants.filter { |variant|
+              lengths.any? { |length|
+                variant.length.send(operator, length)
+              }
             }
+
+            item.with_variants(filtered_variants) if filtered_variants.any?
           }
+          .compact
 
-          if operator == :'!='
-            matches = items - matches
-          end
-
-          remove_nonmatching_variants(matches) do |variant|
-            lengths.any? { variant.length.send(operator, _1) }
-          end
-
-          matches
+          filtered_items
         },
         note: proc { |values, operator, items|
-          fragments = values
+          notes = values
             .map { _1.downcase if _1 }
             .map { _1.gsub(/[^a-zA-Z0-9 ]/, '') if _1 }
-
-          none_comparison = fragments.include?(nil) && %i[== !=].include?(operator)
 
           matches = items.filter { |item|
             item.notes.any? { |original_note|
@@ -335,11 +456,11 @@ module Reading
                 .gsub(/[^a-zA-Z0-9 ]/, '')
 
               if %i[include? exclude?].include? operator
-                fragments.any? { note.include? _1 }
+                notes.any? { _1.nil? ? note == _1 : note.include?(_1) }
               else
-                fragments.any? { note == _1 }
+                notes.any? { note == _1 }
               end
-            } || (item.notes.empty? && none_comparison)
+            } || (item.notes.empty? && notes.include?(nil))
           }
 
           if %i[!= exclude?].include? operator
@@ -356,11 +477,11 @@ module Reading
         progress: true,
         length: true,
         date: true,
+        enddate: true,
       }
 
       PROHIBIT_INCLUDE_EXCLUDE_OPERATORS = {
         format: true,
-        daysago: true,
         status: true,
         genre: true,
       }
@@ -410,13 +531,22 @@ module Reading
           .map(&:strip)
           .map { _1.downcase == 'none' ? nil : _1 }
 
+        if or_values.include?(nil) && !%i[== != include? exclude?].include?(operator)
+          raise InputError,
+            "\"none\" can only be used after these operators: ==, !=, ~, !~"
+        end
+
         matched_items = ACTIONS[key].call(or_values, operator, items)
         filtered_items += matched_items
 
         filtered_items.uniq
       end
 
-      private_class_method def self.remove_nonmatching_variants(items)
+      # Removes variants from the given Items wherever a variant does not match
+      # according to the block.
+      # @param items [Array<Item>]
+      # @return [Array<Item>]
+      private_class_method def self.remove_nonmatching_variants!(items)
         items.each do |item|
           kept_variant_indices = []
 

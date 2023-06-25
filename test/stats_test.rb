@@ -7,6 +7,8 @@ require 'reading/stats/terminal_result_formatters'
 require 'pastel'
 
 class StatsTest < Minitest::Test
+  using Reading::Util::HashArrayDeepFetch
+
   self.class.attr_reader :queries, :config
 
   PASTEL = Pastel.new
@@ -126,9 +128,10 @@ class StatsTest < Minitest::Test
       # assuming 35 pages per hour (the config default)
       result: Reading.time('3:00'),
       items: [
-        { experiences: [{ spans: [{ amount: 17.5 }] },
-                        { spans: [{ amount: 17.5 }, { amount: Reading.time('1:00') }] }] },
-        { experiences: [{ spans: [{ amount: 35 }] }] },
+        { experiences: [{ spans: [{ amount: 17.5, progress: 1.0 }] },
+                        { spans: [{ amount: 17.5, progress: 1.0 },
+                                  { amount: Reading.time('1:00'), progress: 1.0 }] }] },
+        { experiences: [{ spans: [{ amount: 70, progress: 0.5 }] }] },
         { experiences: [] },
       ],
     },
@@ -234,6 +237,12 @@ class StatsTest < Minitest::Test
 
   ## QUERIES: FILTERS
   # Simple queries testing each filter.
+
+  # Long enough ago that an item of indefinite length is considered done.
+  grace_period = Reading.default_config.deep_fetch(
+    :item, :indefinite_in_progress_grace_period_days)
+  long_ago = (Date.today - grace_period - 1)..(Date.today - grace_period - 1)
+
   @queries[:filters] = {
     :"rating" => {
       input: "average length rating=3",
@@ -244,39 +253,24 @@ class StatsTest < Minitest::Test
         { rating: nil, variants: [{ length: 100 }] },
       ],
     },
-    :"rating (or)" => {
-      input: "average length rating=3,4",
-      result: 35,
+    :"rating (or, none)" => {
+      input: "average length rating=3,4,none",
+      result: 170/3.0,
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
+        { rating: 5, variants: [{ length: 50 }] },
         { rating: nil, variants: [{ length: 100 }] },
       ],
     },
-    :"rating (not)" => {
-      input: "average length rating!=3,4",
-      result: 150,
+    :"rating (not, none)" => {
+      input: "average length rating!=3,4,none",
+      result: 100,
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
         { rating: 5, variants: [{ length: 100 }] },
         { rating: nil, variants: [{ length: 200 }] },
-      ],
-    },
-    :"rating (none)" => {
-      input: "average length rating=none",
-      result: 40,
-      items: [
-        { rating: 3, variants: [{ length: 30 }] },
-        { rating: nil, variants: [{ length: 40 }] },
-      ],
-    },
-    :"rating (not none)" => {
-      input: "average length rating!=none",
-      result: 30,
-      items: [
-        { rating: 3, variants: [{ length: 30 }] },
-        { rating: nil, variants: [{ length: 40 }] },
       ],
     },
     :"rating (greater than)" => {
@@ -325,480 +319,653 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 3, variants: [{ length: 30 }] },
         { rating: 4, variants: [{ length: 40 }] },
-        { rating: 5, variants: [{ length: 50 }] },
-        { rating: nil, variants: [{ length: 100 }] },
+        { rating: 5, variants: [{ length: 100 }] },
+        { rating: nil, variants: [{ length: 200 }] },
       ],
     },
     :"done" => {
-      input: "average rating done=30%",
-      result: 3,
+      input: "average rating done=20%",
+      result: 2,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 0.40, dates: long_ago }] }] },
+        { rating: 8,
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 16, experiences: [{ spans: [] }] },
+        { rating: 32, experiences: [] },
       ],
     },
+    # (Test cases for "done=none" and "done!=none" are omitted because the done
+    # done filter always excludes items that are not done.)
     :"done (or)" => {
-      input: "average rating done=40%,100%",
-      result: 4.5,
+      input: "average rating done=20%,100%",
+      result: 5,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 0.40, dates: long_ago }] }] },
+        { rating: 8,
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 16, experiences: [] },
       ],
     },
     :"done (not)" => {
-      input: "average rating done!=30%,40%",
-      result: 5,
+      input: "average rating done!=20%,40%",
+      result: 8,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 0.40, dates: long_ago }] }] },
+        { rating: 8,
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 16, experiences: [] },
+      ],
+    },
+    :"done filters out non-matching experiences" => {
+      input: "total amount done=20%",
+      result: 20,
+      items: [
+        { experiences: [
+            { spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
+            { spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }] },
+        { experiences: [{ spans: [] }] },
+        { experiences: [] },
+      ],
+    },
+    :"done filters out empty experiences" => {
+      input: "average rating done=20%",
+      result: 2,
+      items: [
+        { rating: 2,
+          experiences: [{ spans: [
+            { progress: 0.20, dates: long_ago }] }] },
+        { rating: 4, experiences: [{ spans: [] }] },
+        { rating: 8, experiences: [] },
+      ],
+    },
+    :"done filters out non-matching experiences (not)" => {
+      input: "total amount done!=40%",
+      result: 20,
+      items: [
+        { experiences: [
+            { spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
+            { spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"done filters out empty experiences (not)" => {
+      input: "average rating done!=40%",
+      result: 2,
+      items: [
+        { rating: 2,
+          experiences: [{ spans: [
+            { progress: 0.20, dates: long_ago }] }] },
+        { rating: 4, experiences: [] },
       ],
     },
     :"done (greater than)" => {
-      input: "average rating done>30%",
-      result: 4.5,
+      input: "average rating done>20%",
+      result: 4,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 8, experiences: [] },
       ],
     },
     :"done (greater than or equal to)" => {
-      input: "average rating done>=40%",
-      result: 4.5,
+      input: "average rating done>=20%",
+      result: 3,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 8, experiences: [] },
       ],
     },
     :"done (less than)" => {
-      input: "average rating done<40%",
-      result: 3,
+      input: "average rating done<100%",
+      result: 2,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 8, experiences: [] },
       ],
     },
     :"done (less than or equal to)" => {
-      input: "average rating done<=40%",
-      result: 3.5,
+      input: "average rating done<=100%",
+      result: 3,
       items: [
-        { rating: 3,
-          experiences: [{ spans: [{ progress: 0.30, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+        { rating: 2,
+          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
-        { rating: 5,
-          experiences: [{ spans: [{ progress: 1.0, dates: (Date.today)..(Date.today) }] }],
-          variants: [{ length: 100 }] },
+          experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
+        { rating: 8, experiences: [] },
       ],
     },
     :"format" => {
       input: "average rating format=print",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, variants: [{ format: :print }] },
+        { rating: 2, variants: [{ format: :print }] },
         { rating: 4, variants: [{ format: :audio }] },
-        { rating: 5, variants: [] },
+        { rating: 8, variants: [] },
       ],
     },
-    :"format (or)" => {
-      input: "average rating format=print,audio",
-      result: 3.5,
+    :"format (or, none)" => {
+      input: "average rating format=print,audio,none",
+      result: 22/3.0,
       items: [
-        { rating: 3, variants: [{ format: :print }, { format: :audio }] },
-        { rating: 4, variants: [{ format: :audio }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: :audio }, { format: :ebook }] },
+        { rating: 8, variants: [{ format: :clay_tablet }] },
+        { rating: 16, variants: [] },
       ],
     },
-    :"format (not)" => {
-      input: "average rating format!=print,audio",
-      result: 5,
+    :"format (not, none)" => {
+      input: "average rating format!=print,audio,none",
+      result: 6,
       items: [
-        { rating: 3, variants: [{ format: :print }] },
-        { rating: 4, variants: [{ format: :audio }] },
-        { rating: 5, variants: [] },
-      ],
-    },
-    :"format (none)" => {
-      input: "average rating format=none",
-      result: 4.5,
-      items: [
-        { rating: 3, variants: [{ format: :print }] },
-        { rating: 4, variants: [{ format: nil }] },
-        { rating: 5, variants: [] },
-      ],
-    },
-    :"format (not none)" => {
-      input: "average rating format!=none",
-      result: 3,
-      items: [
-        { rating: 3, variants: [{ format: :print }, { format: :audio }] },
-        { rating: 4, variants: [{ format: nil }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [{ format: :print }] },
+        { rating: 4, variants: [{ format: :audio }, { format: :ebook }] },
+        { rating: 8, variants: [{ format: :clay_tablet }] },
+        { rating: 16, variants: [] },
       ],
     },
     :"format filters out non-matching variants" => {
       input: "average length format=print",
       result: 10,
       items: [
-        { variants: [{ format: :print, length: 10 }, { format: :audio, length: 20}] },
+        { variants: [
+            { format: :print, length: 10 },
+            { format: :audio, length: 20 }] },
+      ],
+    },
+    :"format filters out non-matching variants (not)" => {
+      input: "average length format!=print",
+      result: 20,
+      items: [
+        { variants: [
+            { format: :print, length: 10 },
+            { format: :audio, length: 20 }] },
       ],
     },
     :"format filters out non-matching experiences" => {
       input: "average item-amount format=print",
       result: 10,
       items: [
-        { variants: [{ format: :audio }, { format: :print }],
-          experiences: [{ variant_index: 0, spans: [{ amount: 20 }] }, { variant_index: 1, spans: [{ amount: 10 }] }] },
+        { variants: [
+            { format: :print },
+            { format: :audio }],
+          experiences: [
+            { variant_index: 0, spans: [{ amount: 10 }] },
+            { variant_index: 1, spans: [{ amount: 20 }] }] },
+      ],
+    },
+    :"format filters out non-matching experiences (not)" => {
+      input: "average item-amount format!=print",
+      result: 20,
+      items: [
+        { variants: [
+            { format: :print },
+            { format: :audio }],
+          experiences: [
+            { variant_index: 0, spans: [{ amount: 10 }] },
+            { variant_index: 1, spans: [{ amount: 20 }] }] },
       ],
     },
     :"author" => {
       input: "average rating author=jrr tolkien",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 2, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5, author: nil },
+        { rating: 8, author: nil },
       ],
     },
-    :"author (none)" => {
-      input: "average rating author=none",
+    :"author (or, none)" => {
+      input: "average rating author=jrr tolkien,christopher tolkien,none",
+      result: 22/3.0,
+      items: [
+        { rating: 2, author: "J. R. R. Tolkien" },
+        { rating: 4, author: "Christopher Tolkien" },
+        { rating: 8, author: "some rando" },
+        { rating: 16, author: nil },
+      ],
+    },
+    :"author (not, none)" => {
+      input: "average rating author!=jrr tolkien,none",
       result: 4,
       items: [
-        { rating: 3, author: "J. R. R. Tolkien" },
-        { rating: 4, author: nil },
-      ],
-    },
-    :"author (not none)" => {
-      input: "average rating author!=none",
-      result: 3,
-      items: [
-        { rating: 3, author: "J. R. R. Tolkien" },
-        { rating: 4, author: nil },
-      ],
-    },
-    :"author (includes)" => {
-      input: "average rating author~tolkien",
-      result: 3.5,
-      items: [
-        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 2, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5, author: nil },
+        { rating: 8, author: nil },
       ],
     },
-    :"author (excludes)" => {
-      input: "average rating author!~jrr,chris",
-      result: 5,
+    :"author (includes, none)" => {
+      input: "average rating author~tolkien,none",
+      result: 22/3.0,
       items: [
-        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 2, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5, author: nil },
+        { rating: 8, author: "some rando" },
+        { rating: 16, author: nil },
       ],
     },
-    :"author (or)" => {
-      input: "average rating author~jrr,chris",
-      result: 3.5,
+    :"author (excludes, none)" => {
+      input: "average rating author!~jrr,chris,none",
+      result: 8,
       items: [
-        { rating: 3, author: "J. R. R. Tolkien" },
+        { rating: 2, author: "J. R. R. Tolkien" },
         { rating: 4, author: "Christopher Tolkien" },
-        { rating: 5, author: nil },
+        { rating: 8, author: "some rando" },
+        { rating: 16, author: nil },
       ],
     },
     :"title" => {
-      input: "average rating title=hello mr smith life of secret agent",
-      result: 3,
+      input: "average rating title=hello mr. smith: the life of a secret agent",
+      result: 2,
       items: [
-        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 2, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: "" },
+        { rating: 8, title: "" },
       ],
     },
-    # (Test cases for "title=none" and "title!=none" are omitted because a
-    # title is always required.)
+    :"title ('the', 'a', and non-alphabetic omitted)" => {
+      input: "average rating title=hello mrsmith life of secretagent",
+      result: 2,
+      items: [
+        { rating: 2, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 8, title: "" },
+      ],
+    },
+    # (Test cases for "title=none" and "title!=none" are omitted because a title
+    # is always required.)
+    :"title (or)" => {
+      input: "average rating title=mr smith returns, hello mr. smith: the life of a secret agent",
+      result: 3,
+      items: [
+        { rating: 2, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 4, title: "Mr. Smith Returns" },
+        { rating: 8, title: "" },
+      ],
+    },
     :"title (includes)" => {
       input: "average rating title~mr smith",
-      result: 3.5,
+      result: 3,
       items: [
-        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 2, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: "" },
+        { rating: 8, title: "" },
       ],
     },
     :"title (excludes)" => {
       input: "average rating title!~hello,return",
-      result: 5,
+      result: 8,
       items: [
-        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
+        { rating: 2, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
         { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: "" },
-      ],
-    },
-    :"title (or)" => {
-      input: "average rating title~hello,returns",
-      result: 3.5,
-      items: [
-        { rating: 3, title: "Hello, Mr. Smith: The Life of a Secret Agent" },
-        { rating: 4, title: "Mr. Smith Returns" },
-        { rating: 5, title: "" },
+        { rating: 8, title: "" },
       ],
     },
     :"series" => {
       input: "average rating series=goose bumps begin",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
-        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [
+            { series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+        { rating: 8, variants: [] },
       ],
     },
-    :"series (none)" => {
-      input: "average rating series=none",
-      result: 4.5,
+    :"series (or, none)" => {
+      input: "average rating series=goose bumps begin,goose bumps return,none",
+      result: 54/4.0,
       items: [
-        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
-        { rating: 4, variants: [{ series: [] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [
+            { series: [{ name: "Goosebumps Return", volume: 10 }] },
+            { series: [{ name: "The Last Goosebumps", volume: 2 }] }] },
+        { rating: 8, variants: [
+            { series: [{ name: "The Last Goosebumps", volume: 1 }] }] },
+        { rating: 16, variants: [{ series: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"series (not none)" => {
-      input: "average rating series!=none",
-      result: 3,
+    :"series (not, none)" => {
+      input: "average rating series!=goosebumps begin,goosebumps return,none",
+      result: 8,
       items: [
-        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
-        { rating: 4, variants: [{ series: [] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] },
+            { series: [{ name: "Goosebumps Return", volume: 4 }] }] },
+        { rating: 4, variants: [
+            { series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+        { rating: 8, variants: [
+            { series: [{ name: "The Last Goosebumps", volume: 5 }] },
+            { series: [{ name: "Goosebumps Return", volume: 4 }] }] },
+        { rating: 16, variants: [{ series: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"series (includes)" => {
-      input: "average rating series~goose bumps",
-      result: 3.5,
+    :"series (includes, none)" => {
+      input: "average rating series~begin,return,none",
+      result: 54/4.0,
       items: [
-        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
-        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
+        { rating: 4, variants: [
+            { series: [{ name: "Goosebumps Return", volume: 10 }] },
+            { series: [{ name: "The Last Goosebumps", volume: 2 }] }] },
+        { rating: 8, variants: [
+            { series: [{ name: "The Last Goosebumps", volume: 1 }] }] },
+        { rating: 16, variants: [{ series: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"series (excludes)" => {
-      input: "average rating series!~begin,return",
-      result: 5,
+    :"series (excludes, none)" => {
+      input: "average rating series!~begin,return,none",
+      result: 8,
       items: [
-        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
-        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] },
+            { series: [{ name: "Goosebumps Return", volume: 4 }] }] },
+        { rating: 4, variants: [
+            { series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+        { rating: 8, variants: [
+            { series: [{ name: "The Last Goosebumps", volume: 5 }] },
+            { series: [{ name: "Goosebumps Return", volume: 4 }] }] },
+        { rating: 16, variants: [{ series: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"series (or)" => {
-      input: "average rating series~begin,return",
-      result: 3.5,
+    :"series filters out non-matching variants" => {
+      input: "average length series=goosebumps begin",
+      result: 10,
       items: [
-        { rating: 3, variants: [{ series: [{ name: "Goosebumps Begin", volume: 1 }] }] },
-        { rating: 4, variants: [{ series: [{ name: "Goosebumps Return", volume: 10 }] }] },
-        { rating: 5, variants: [] },
+        { variants: [
+            { length: 10, series: [{ name: "Goosebumps Begin", volume: 1 }] },
+            { length: 20, series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+      ],
+    },
+    :"series filters out non-matching variants (not)" => {
+      input: "average length series!=goosebumps begin",
+      result: 20,
+      items: [
+        { variants: [
+            { length: 10, series: [{ name: "Goosebumps Begin", volume: 1 }] },
+            { length: 20, series: [{ name: "Goosebumps Return", volume: 10 }] }] },
+      ],
+    },
+    :"series filters out non-matching experiences" => {
+      input: "average item-amount series=goosebumps begin",
+      result: 10,
+      items: [
+        { variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] },
+            { series: [{ name: "Goosebumps Return", volume: 10 }] }],
+          experiences: [
+            { variant_index: 0, spans: [{ amount: 10 }] },
+            { variant_index: 1, spans: [{ amount: 20 }] }] },
+      ],
+    },
+    :"series filters out non-matching experiences (not)" => {
+      input: "average item-amount series!=goosebumps begin",
+      result: 20,
+      items: [
+        { variants: [
+            { series: [{ name: "Goosebumps Begin", volume: 1 }] },
+            { series: [{ name: "Goosebumps Return", volume: 10 }] }],
+          experiences: [
+            { variant_index: 0, spans: [{ amount: 10 }] },
+            { variant_index: 1, spans: [{ amount: 20 }] }] },
       ],
     },
     :"source" => {
       input: "average rating source=little library",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
-        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { sources: [{ name: "Little Library", url: nil }] }] },
+        { rating: 4, variants: [
+            { sources: [{ name: nil, url: "https://archive.org" }] }] },
+        { rating: 8, variants: [] },
       ],
     },
-    :"source (none)" => {
-      input: "average rating source=none",
-      result: 4.5,
+    :"source (or, none)" => {
+      input: "average rating source=little library,https://archive.org, none",
+      result: 54/4.0,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
-        { rating: 4, variants: [{ sources: [] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { sources: [
+                { name: "Little Library", url: nil },
+                { name: nil, url: "https://archive.org" }] }] },
+        { rating: 4, variants: [
+            { sources: [{ name: nil, url: "https://archive.org" }] }] },
+        { rating: 8, variants: [
+            { sources: [{ name: nil, url: "https://home.com" }] }] },
+        { rating: 16, variants: [{ sources: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"source (not none)" => {
-      input: "average rating source!=none",
-      result: 3,
+    :"source (not, none)" => {
+      input: "average rating source!=little library,https://archive.org, none",
+      result: 8,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
-        { rating: 4, variants: [{ sources: [] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { sources: [{ name: "Little Library", url: nil }] }] },
+        { rating: 4, variants: [
+            { sources: [{ name: nil, url: "https://archive.org" }] }] },
+        { rating: 8, variants: [
+            { sources: [{ name: nil, url: "https://home.com" }] }] },
+        { rating: 16, variants: [{ sources: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"source (not)" => {
-      input: "average rating source!=little library,https://archive.org",
-      result: 5,
+    :"source (includes, none)" => {
+      input: "average rating source~library,archive,none",
+      result: 54/4.0,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }] }] },
-        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { sources: [
+                { name: "Little Library", url: nil },
+                { name: nil, url: "https://archive.org" }] }] },
+        { rating: 4, variants: [
+            { sources: [{ name: nil, url: "https://archive.org" }] }] },
+        { rating: 8, variants: [
+            { sources: [{ name: nil, url: "https://home.com" }] }] },
+        { rating: 16, variants: [{ sources: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"source (or)" => {
-      input: "average rating source=little library,https://archive.org",
-      result: 3.5,
+    :"source (excludes, none)" => {
+      input: "average rating source!~library,archive,none",
+      result: 8,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
-        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
-        { rating: 5, variants: [] },
+        { rating: 2, variants: [
+            { sources: [
+                { name: "Little Library", url: nil },
+                { name: nil, url: "https://archive.org" }] }] },
+        { rating: 4, variants: [
+            { sources: [{ name: nil, url: "https://archive.org" }] }] },
+        { rating: 8, variants: [
+            { sources: [{ name: nil, url: "https://home.com" }] }] },
+        { rating: 16, variants: [{ sources: [] }] },
+        { rating: 32, variants: [] },
       ],
     },
-    :"source (includes)" => {
-      input: "average rating source~library,archive",
-      result: 3.5,
+    :"source filters out non-matching variants" => {
+      input: "average length source=little library",
+      result: 10,
       items: [
-        { rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
-        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
-        { rating: 5, variants: [] },
+        { variants: [
+            { length: 10, sources: [{ name: "Little Library", url: nil }] },
+            { length: 20, sources: [{ name: nil, url: "https://archive.org" }] }] },
       ],
     },
-    :"source (excludes)" => {
-      input: "average rating source!~library,archive",
-      result: 5,
+    :"source filters out non-matching variants (not)" => {
+      input: "average length source!=little library",
+      result: 20,
       items: [
-        { title: 'yoyo',rating: 3, variants: [{ sources: [{ name: "Little Library", url: nil }, { name: nil, url: "https://archive.org"}] }] },
-        { rating: 4, variants: [{ sources: [{ name: nil, url: "https://archive.org"}] }] },
-        { rating: 5, variants: [] },
+        { variants: [
+            { length: 10, sources: [{ name: "Little Library", url: nil }] },
+            { length: 20, sources: [{ name: nil, url: "https://archive.org" }] }] },
+      ],
+    },
+    :"source filters out non-matching experiences" => {
+      input: "average length source=little library",
+      result: 10,
+      items: [
+        { variants: [
+            { length: 10, sources: [{ name: "Little Library", url: nil }] },
+            { length: 20, sources: [{ name: nil, url: "https://archive.org" }] }],
+          experiences: [
+            { variant_index: 0, spans: [{ amount: 10 }] },
+            { variant_index: 1, spans: [{ amount: 20 }] }] },
+      ],
+    },
+    :"source filters out non-matching experiences (not)" => {
+      input: "average length source!=little library",
+      result: 20,
+      items: [
+        { variants: [
+            { length: 10, sources: [{ name: "Little Library", url: nil }] },
+            { length: 20, sources: [{ name: nil, url: "https://archive.org" }] }],
+          experiences: [
+            { variant_index: 0, spans: [{ amount: 10 }] },
+            { variant_index: 1, spans: [{ amount: 20 }] }] },
       ],
     },
     :"status" => {
       input: "average rating status=in progress",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
-        { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
-        { rating: 5, experiences: [] }
+        { rating: 2, experiences: [{ spans: [{ dates: Date.today.. }] }] },
+        { rating: 4, experiences: [{ spans: [{ dates: long_ago }] }] },
+        { rating: 8, experiences: [] }
+      ],
+    },
+    # (Test cases for "status=none" and "status!=none" are omitted because a
+    # status is never nil.)
+    :"status (or)" => {
+      input: "average rating status=done,planned",
+      result: 6,
+      items: [
+        { rating: 2, experiences: [{ spans: [{ dates: Date.today.. }] }] },
+        { rating: 4, experiences: [{ spans: [{ dates: long_ago }] }] },
+        { rating: 8, experiences: [] }
       ],
     },
     :"status (not)" => {
-      input: "average rating status!=in progress,done",
-      result: 5,
+      input: "average rating status!=planned,done",
+      result: 2,
       items: [
-        { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
-        { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
-        { rating: 5, experiences: [] }
+        { rating: 2, experiences: [{ spans: [{ dates: Date.today.. }] }] },
+        { rating: 4, experiences: [{ spans: [{ dates: long_ago }] }] },
+        { rating: 8, experiences: [] }
       ],
     },
-    :"status (or)" => {
-      input: "average rating status=done,planned",
-      result: 4.5,
+    :"status filters out non-matching experiences" => {
+      input: "total amount status=in progress",
+      result: 100,
       items: [
-        { rating: 3, experiences: [{ spans: [{ dates: Date.today.. }] }] },
-        { rating: 4, experiences: [{ spans: [{ dates: (Date.today - 100)..(Date.today - 90) }] }] },
-        { rating: 5, experiences: [] }
+        { experiences: [
+          { spans: [{ dates: Date.today.., amount: 100, progress: 1.0 }] },
+          { spans: [{ dates: long_ago, amount: 150, progress: 1.0 }] }] },
+      ],
+    },
+    :"status filters out non-matching experiences (not)" => {
+      input: "total amount status!=done",
+      result: 100,
+      items: [
+        { experiences: [
+          { spans: [{ dates: Date.today.., amount: 100, progress: 1.0 }] },
+          { spans: [{ dates: long_ago, amount: 150, progress: 1.0 }] }] },
       ],
     },
     :"genre" => {
       input: "average rating genre=history",
       result: 4,
       items: [
-        { rating: 3, genres: ["fiction"] },
+        { rating: 2, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 8, genres: [] },
       ],
     },
     :"genre (not)" => {
-      input: "average rating genre!=history,fiction",
-      result: 5,
+      input: "average rating genre!=history,fiction,none",
+      result: 8,
       items: [
-        { rating: 3, genres: ["fiction"] },
-        { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 2, genres: ["fiction"] },
+        { rating: 4, genres: ["history", "biography"] },
+        { rating: 8, genres: ["cats"] },
+        { rating: 16, genres: [] },
       ],
     },
     :"genre (none)" => {
       input: "average rating genre=none",
-      result: 5,
+      result: 8,
       items: [
-        { rating: 3, genres: ["fiction"] },
+        { rating: 2, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 8, genres: [] },
       ],
     },
     :"genre (not none)" => {
       input: "average rating genre!=none",
-      result: 3.5,
+      result: 3,
       items: [
-        { rating: 3, genres: ["fiction"] },
+        { rating: 2, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 8, genres: [] },
       ],
     },
     :"genre (or)" => {
       input: "average rating genre=history,fiction",
-      result: 3.5,
+      result: 3,
       items: [
-        { rating: 3, genres: ["fiction"] },
+        { rating: 2, genres: ["fiction"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 8, genres: [] },
       ],
     },
     :"genre (and)" => {
       input: "average rating genre=history+fiction",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 2, genres: ["fiction", "history"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 8, genres: [] },
       ],
     },
     :"genre (alt. and)" => {
       input: "average rating genre=history genre=fiction",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, genres: ["fiction", "history"] },
+        { rating: 2, genres: ["fiction", "history"] },
         { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 8, genres: [] },
       ],
     },
     :"genre (or, and)" => {
       input: "average rating genre=science,history+fiction",
-      result: 2.5,
+      result: 3,
       items: [
         { rating: 2, genres: ["science"] },
-        { rating: 3, genres: ["fiction", "history"] },
-        { rating: 4, genres: ["history"] },
-        { rating: 5, genres: [] },
+        { rating: 4, genres: ["fiction", "history"] },
+        { rating: 8, genres: ["history"] },
+        { rating: 16, genres: [] },
       ],
     },
     :"length" => {
@@ -806,8 +973,8 @@ class StatsTest < Minitest::Test
       result: 2,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [] },
       ],
     },
     :"length (time)" => {
@@ -815,65 +982,48 @@ class StatsTest < Minitest::Test
       result: 2,
       items: [
         { rating: 2, variants: [{ length: 35 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [] },
       ],
     },
-    :"length (none)" => {
-      input: "average rating length=none",
-      result: 4.5,
+    :"length (or, none)" => {
+      input: "average rating length=20,40,none",
+      result: 22/3.0,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 4, variants: [{ length: nil }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [{ length: 80 }] },
+        { rating: 16, variants: [] },
       ],
     },
-    :"length (not none)" => {
-      input: "average rating length!=none",
-      result: 2,
+    :"length (not, none)" => {
+      input: "average rating length!=20,40,none",
+      result: 6,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 4, variants: [{ length: nil }] },
-        { rating: 5, variants: [] },
-      ],
-    },
-    :"length (or)" => {
-      input: "average rating length=20,40",
-      result: 2.5,
-      items: [
-        { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 5, variants: [] },
-      ],
-    },
-    :"length (not)" => {
-      input: "average rating length!=20,40",
-      result: 4.5,
-      items: [
-        { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }, { length: 50 }] },
+        { rating: 8, variants: [{ length: 80 }] },
+        { rating: 16, variants: [] },
       ],
     },
     :"length (greater than)" => {
       input: "average rating length>20",
-      result: 3.5,
+      result: 6,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [{ length: 100 }] },
+        { rating: 16, variants: [] },
       ],
     },
     :"length (greater than or equal to)" => {
       input: "average rating length>=100",
-      result: 4,
+      result: 8,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [{ length: 100 }] },
+        { rating: 16, variants: [] },
       ],
     },
     :"length (less than)" => {
@@ -881,83 +1031,58 @@ class StatsTest < Minitest::Test
       result: 2,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [{ length: 100 }] },
+        { rating: 16, variants: [] },
       ],
     },
     :"length (less than or equal to)" => {
       input: "average rating length<=40",
-      result: 2.5,
-      items: [
-        { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5, variants: [] },
-      ],
-    },
-    :"length (greater than 20, less than 100)" => {
-      input: "average rating length>3 rating<5",
       result: 3,
       items: [
         { rating: 2, variants: [{ length: 20 }] },
-        { rating: 3, variants: [{ length: 40 }] },
-        { rating: 4, variants: [{ length: 100 }] },
-        { rating: 5, variants: [] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [{ length: 100 }] },
+        { rating: 16, variants: [] },
+      ],
+    },
+    :"length (greater than 20, less than 100)" => {
+      input: "average rating length>20 length<100",
+      result: 4,
+      items: [
+        { rating: 2, variants: [{ length: 20 }] },
+        { rating: 4, variants: [{ length: 40 }] },
+        { rating: 8, variants: [{ length: 100 }] },
+        { rating: 16, variants: [] },
       ],
     },
     :"note" => {
       input: "average rating note=must reread",
-      result: 3,
+      result: 2,
       items: [
-        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 2, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5, notes: [] },
+        { rating: 8, notes: [] },
       ],
     },
-    :"note (none)" => {
-      input: "average rating note=none",
-      result: 5,
+    :"note (or, include, none)" => {
+      input: "average rating note~not bad, will, none",
+      result: 22/3.0,
       items: [
-        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 2, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5, notes: [] },
+        { rating: 8, notes: ["Definitely a favorite."] },
+        { rating: 16, notes: [] },
       ],
     },
-    :"note (not none)" => {
-      input: "average rating note!=none",
-      result: 3.5,
+    :"note (exclude, none)" => {
+      input: "average rating note!~not bad,reread,none",
+      result: 8,
       items: [
-        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
+        { rating: 2, notes: ["Intriguing, not bad.", "Must re-read."] },
         { rating: 4, notes: ["Will re-read"] },
-        { rating: 5, notes: [] },
-      ],
-    },
-    :"note (include)" => {
-      input: "average rating note~reread",
-      result: 3.5,
-      items: [
-        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
-        { rating: 4, notes: ["Will re-read"] },
-        { rating: 5, notes: [] },
-      ],
-    },
-    :"note (exclude)" => {
-      input: "average rating note!~not bad,reread",
-      result: 5,
-      items: [
-        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
-        { rating: 4, notes: ["Will re-read"] },
-        { rating: 5, notes: [] },
-      ],
-    },
-    :"note (or)" => {
-      input: "average rating note~not bad,will",
-      result: 3.5,
-      items: [
-        { rating: 3, notes: ["Intriguing, not bad.", "Must re-read."] },
-        { rating: 4, notes: ["Will re-read"] },
-        { rating: 5, notes: [] },
+        { rating: 8, notes: ["Definitely a favorite."] },
+        { rating: 16, notes: [] },
       ],
     },
   }
@@ -1010,7 +1135,7 @@ class StatsTest < Minitest::Test
       input: "total amount",
       result: PASTEL.bright_blue("2 pages"),
       items: [
-        { experiences: [{ spans: [{ amount: 2 }] }] },
+        { experiences: [{ spans: [{ amount: 2, progress: 1.0 }] }] },
       ],
     },
     :"total amount (zero)" => {
@@ -1024,7 +1149,8 @@ class StatsTest < Minitest::Test
       input: "total amount",
       result: PASTEL.bright_blue("5:00 or 500 pages"),
       items: [
-        { experiences: [{ spans: [{ amount: Reading.time('5:00', pages_per_hour: 100) }] }] },
+        { experiences: [{ spans: [
+          { amount: Reading.time('5:00', pages_per_hour: 100), progress: 1.0 }] }] },
       ],
       config: { pages_per_hour: 100 },
     },
@@ -1088,6 +1214,8 @@ class StatsTest < Minitest::Test
       "average rating lengthiness=10",
     :"inapplicable operator" =>
       "average rating genre>history",
+    :"inapplicable none" =>
+      "average length rating>none",
     :"non-numeric rating" =>
       "average length rating=great",
     :"non-numeric length" =>

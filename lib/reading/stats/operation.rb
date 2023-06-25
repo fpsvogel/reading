@@ -84,10 +84,12 @@ module Reading
         total_amount: proc { |items|
           items.sum { |item|
             item.experiences.sum { |experience|
-              experience.spans.sum(&:amount)
+              experience.spans.sum { |span|
+                (span.amount * span.progress).to_i_if_whole
               }
             }
-          },
+          }
+        },
         top_rating: proc { |items, number_arg|
           items
             .max_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
