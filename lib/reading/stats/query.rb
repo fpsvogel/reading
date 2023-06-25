@@ -29,7 +29,7 @@ require_relative 'filter'
 # ✅done(s)=/>/>=/</<=/!=
 # ✅experience(s)=/>/>=/</<=/!=
 # date(s)=/>/>=/</<=/!=
-# enddate(s)=/>/>=/</<=/!=
+# ✅enddate(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS
 # by month(s)

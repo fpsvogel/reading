@@ -847,6 +847,182 @@ class StatsTest < Minitest::Test
             { variant_index: 1, spans: [{ amount: 20 }] }] },
       ],
     },
+    :"end date" => {
+      input: "average rating enddate=2022/10",
+      result: 4,
+      items: [
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 10, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 11, 1) }] }] },
+        { rating: 16, experiences: [{ spans: [] }] },
+        { rating: 32, experiences: [] }
+      ],
+    },
+    :"end date (year only)" => {
+      input: "average rating enddate=2022",
+      result: 6,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date (range)" => {
+      input: "average rating enddate=2022/10-2022/11",
+      result: 3,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 10, 1) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 11, 30) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 12, 1) }] }] },
+        { rating: 16, experiences: [{ spans: [] }] },
+        { rating: 32, experiences: [] }
+      ],
+    },
+    :"end date (range without end year)" => {
+      input: "average rating enddate=2022/10-11",
+      result: 6,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 9, 30) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 10, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 11, 30) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 12, 1) }] }] },
+      ],
+    },
+    :"end date (range without start month)" => {
+      input: "average rating enddate=2022-2022/11",
+      result: 6,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 11, 30) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 9, 1)..Date.new(2022, 12, 1) }] }] },
+      ],
+    },
+    :"end date (range without either month)" => {
+      input: "average rating enddate=2022-2023",
+      result: 6,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2023, 12, 1)..Date.new(2023, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2023, 12, 1)..Date.new(2024, 1, 1) }] }] },
+      ],
+    },
+    :"end date (less than)" => {
+      input: "average rating enddate<2022",
+      result: 2,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date (less than or equal to)" => {
+      input: "average rating enddate<=2022",
+      result: 14/3.0,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date (greater than)" => {
+      input: "average rating enddate>2022",
+      result: 16,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date (greater than or equal to)" => {
+      input: "average rating enddate>=2022",
+      result: 28/3.0,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date (not)" => {
+      input: "average rating enddate!=2022",
+      result: 9,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date (or)" => {
+      input: "average rating enddate=2021,2023",
+      result: 9,
+      items: [
+        { rating: 2, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
+        { rating: 4, experiences: [{ spans: [
+            { dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] }] },
+        { rating: 8, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2022, 12, 31) }] }] },
+        { rating: 16, experiences: [{ spans: [
+            { dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
+    :"end date filters out non-matching experiences" => {
+      input: "average item-amount enddate=2022",
+      result: 10,
+      items: [
+        { rating: 2,
+          experiences: [
+            { spans: [{ amount: 10, dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] },
+            { spans: [{ amount: 20, dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+      ],
+    },
     :"experiences" => {
       input: "average rating experience=2",
       result: 4,

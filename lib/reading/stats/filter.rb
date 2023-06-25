@@ -42,6 +42,22 @@ module Reading
 
       INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|!~|~|>=|>|<=|<))/
 
+      DATES_REGEX = %r{\A
+        (?<start_year>\d{4})
+        (
+          \/
+          (?<start_month>\d\d?)
+        )?
+        (
+          -
+          (
+            (?<end_year>\d{4})
+          )?
+          \/?
+          (?<end_month>\d\d?)?
+        )?
+      \z}x
+
       # Each action filters the given Items.
       # @param operator [Symbol] e.g. the method representing the operator,
       #   usually simply the operator string converted to a symbol, e.g.
@@ -349,6 +365,66 @@ module Reading
 
           filtered_items
         },
+        enddate: proc { |values, operator, items|
+          if values.any?(&:nil?)
+            raise InputError,
+              "The \"enddate\" filter cannot take a \"none\" value"
+          end
+
+          end_date_ranges = values.map { |value|
+            match = value.match(DATES_REGEX) ||
+              (raise InputError,
+                "End date must be in a date (yyyy/[mm]) or a date range " \
+                "(yyyy/[mm]-[yyyy]/[mm])")
+
+            start_date = Date.new(
+              match[:start_year].to_i,
+              match[:start_month]&.to_i || 1,
+              1,
+            )
+            end_date = Date.new(
+              match[:end_year]&.to_i || start_date.year,
+              match[:end_month]&.to_i || match[:start_month]&.to_i || 12,
+              -1
+            )
+
+            start_date..end_date
+          }
+
+          filtered_items = items.map { |item|
+            # Ensure multiple values after a negative operator have an "and"
+            # relation: "not(x and y)", rather than "not(x or y)".
+            if operator == :'!='
+              item_end_dates = item.experiences.map(&:last_end_date)
+
+              next if item_end_dates.all? { |item_end_date|
+                end_date_ranges.any? { |end_date_range|
+                  end_date_range.include? item_end_date
+                }
+              }
+            end
+
+            # Filter out non-matching experiences.
+            filtered_experiences = item.experiences.filter { |experience|
+              end_date_ranges.any? { |end_date_range|
+                if %i[== !=].include? operator
+                  end_date_range
+                    .include?(experience.last_end_date)
+                    .send(operator, true)
+                elsif %i[< >=].include? operator
+                  experience.last_end_date.send(operator, end_date_range.begin)
+                elsif %i[> <=].include? operator
+                  experience.last_end_date.send(operator, end_date_range.end)
+                end
+              }
+            }
+
+            item.with_experiences(filtered_experiences) if filtered_experiences.any?
+          }
+          .compact
+
+          filtered_items
+        },
         experience: proc { |values, operator, items|
           if values.any?(&:nil?)
             raise InputError,
@@ -356,10 +432,8 @@ module Reading
           end
 
           experience_counts = values.map { |value|
-            if value
-              Integer(value, exception: false) ||
-                (raise InputError, "Experience count must be an integer")
-            end
+            Integer(value, exception: false) ||
+              (raise InputError, "Experience count must be an integer")
           }
 
           positive_operator = operator == :'!=' ? :== : operator
@@ -567,32 +641,6 @@ module Reading
         filtered_items += matched_items
 
         filtered_items.uniq
-      end
-
-      # Removes variants from the given Items wherever a variant does not match
-      # according to the block.
-      # @param items [Array<Item>]
-      # @return [Array<Item>]
-      private_class_method def self.remove_nonmatching_variants!(items)
-        items.each do |item|
-          kept_variant_indices = []
-
-          # Within each item, remove variants that do not match.
-          item.variants.filter!.with_index { |variant, index|
-            yield(variant) && kept_variant_indices << index
-          }
-
-          # Also remove experiences associated with the removed variants.
-          item.experiences.filter! { |experience|
-            kept_variant_indices.include?(experience.variant_index)
-          }
-
-          # Then update the variant indices.
-          item.experiences.map! { |experience|
-            shifted_variant_index = kept_variant_indices.index(experience.variant_index)
-            experience.with(variant_index: shifted_variant_index)
-          }
-        end
       end
     end
   end
