@@ -337,8 +337,8 @@ class StatsTest < Minitest::Test
         { rating: 32, experiences: [] },
       ],
     },
-    # (Test cases for "done=none" and "done!=none" are omitted because the done
-    # done filter always excludes items that are not done.)
+    # Test cases for "done=none" and "done!=none" are omitted because the done
+    # done filter always excludes items that are not done.
     :"done (or)" => {
       input: "average rating done=20%,100%",
       result: 5,
@@ -588,8 +588,8 @@ class StatsTest < Minitest::Test
         { rating: 8, title: "" },
       ],
     },
-    # (Test cases for "title=none" and "title!=none" are omitted because a title
-    # is always required.)
+    # Test cases for "title=none" and "title!=none" are omitted because a title
+    # is always required.
     :"title (or)" => {
       input: "average rating title=mr smith returns, hello mr. smith: the life of a secret agent",
       result: 3,
@@ -847,6 +847,86 @@ class StatsTest < Minitest::Test
             { variant_index: 1, spans: [{ amount: 20 }] }] },
       ],
     },
+    :"experiences" => {
+      input: "average rating experience=2",
+      result: 4,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences ('none' means zero)" => {
+      input: "average rating experience=none",
+      result: 16,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences (or)" => {
+      input: "average rating experience=2,3",
+      result: 3,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences (not)" => {
+      input: "average rating experience!=2,3",
+      result: 12,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences (greater than)" => {
+      input: "average rating experience>1",
+      result: 3,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences (greater than or equal to)" => {
+      input: "average rating experience>=2",
+      result: 3,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences (less than)" => {
+      input: "average rating experience<2",
+      result: 12,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
+    :"experiences (less than or equal to)" => {
+      input: "average rating experience<=1",
+      result: 12,
+      items: [
+        { rating: 2, experiences: [{}, {}, {}] },
+        { rating: 4, experiences: [{}, {}] },
+        { rating: 8, experiences: [{}] },
+        { rating: 16, experiences: [] }
+      ],
+    },
     :"status" => {
       input: "average rating status=in progress",
       result: 2,
@@ -856,8 +936,8 @@ class StatsTest < Minitest::Test
         { rating: 8, experiences: [] }
       ],
     },
-    # (Test cases for "status=none" and "status!=none" are omitted because a
-    # status is never nil.)
+    # Test cases for "status=none" and "status!=none" are omitted because a
+    # status is never nil.
     :"status (or)" => {
       input: "average rating status=done,planned",
       result: 6,
@@ -1226,7 +1306,7 @@ class StatsTest < Minitest::Test
       "average rating status=none",
     :"none value for done" =>
       "average rating done=none",
-    :"none value for experiences" =>
+    :"OK: none value for experiences" => # "none" is converted to zero there.
       "average rating experiences=none",
     :"none value for daysago" =>
       "average rating daysago=none",
@@ -1345,11 +1425,10 @@ class StatsTest < Minitest::Test
     hash.each do |name, input|
       define_method("test_error_#{name}") do
         if name.start_with? "OK: " # Should not raise an error.
-          exp = hash.fetch(:result)
-          refute_nil Reading.stats(input:, items: [])
+          Reading.stats(input:, items: [])
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            refute_nil Reading.stats(input:, items: [])
+            Reading.stats(input:, items: [])
           end
         end
       end

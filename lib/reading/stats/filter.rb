@@ -348,6 +348,31 @@ module Reading
 
           filtered_items
         },
+        experience: proc { |values, operator, items|
+          # "none" means zero for this filter.
+          values = values.map { _1.nil? ? '0' : _1 }
+
+          experience_counts = values.map { |value|
+            if value
+              Integer(value, exception: false) ||
+                (raise InputError, "Experience count must be an integer in \"experiences#{operator}#{value}\"")
+            end
+          }
+
+          positive_operator = operator == :'!=' ? :== : operator
+
+          matches = items.filter { |item|
+            experience_counts.any? { |experience_count|
+              item.experiences.count.send(positive_operator, experience_count)
+            }
+          }
+
+          if operator == :'!='
+            matches = items - matches
+          end
+
+          matches
+        },
         status: proc { |values, operator, items|
           if values.any?(&:nil?)
             raise InputError, "The \"status\" filter cannot take a \"none\" value" \
@@ -475,9 +500,10 @@ module Reading
         rating: true,
         done: true,
         progress: true,
-        length: true,
+        experience: true,
         date: true,
         enddate: true,
+        length: true,
       }
 
       PROHIBIT_INCLUDE_EXCLUDE_OPERATORS = {

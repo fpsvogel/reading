@@ -27,7 +27,7 @@ require_relative 'filter'
 # ✅status(es)=/!=
 # ✅length(s)=/>/>=/</<=/!=
 # ✅done(s)=/>/>=/</<=/!=
-# experience(s)=/>/>=/</<=/!=
+# ✅experience(s)=/>/>=/</<=/!=
 # date(s)=/>/>=/</<=/!=
 # enddate(s)=/>/>=/</<=/!=
 
