@@ -38,7 +38,7 @@ class ItemTest < Minitest::Test
           # :experiences is the only place where the item's data adds keys
           # (:status and :last_end_date) to the original hash.
           if key == :experiences
-            value.map!.with_index { |experience, i|
+            value = value.map.with_index { |experience, i|
               experience.to_h.merge(
                 status: item_value[i].status,
                 last_end_date: item_value[i].last_end_date,

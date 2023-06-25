@@ -12,7 +12,7 @@ module Reading
             if v.is_a?(Hash)
               v.to_data
             elsif v.is_a?(Array) && v.all? { |el| el.is_a?(Hash) }
-              v.map(&:to_data)#.freeze #TODO
+              v.map(&:to_data).freeze
             else
               v.freeze
             end
