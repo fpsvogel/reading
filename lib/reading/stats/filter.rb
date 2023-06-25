@@ -22,12 +22,16 @@ module Reading
             if match
               match_found = true
 
-              filtered_items = filter_single(key, match[:predicate], match[:operator], filtered_items)
+              begin
+                filtered_items = filter_single(key, match[:predicate], match[:operator], filtered_items)
+              rescue InputError => e
+                raise InputError, "#{e.message} in \"#{input}\""
+              end
             end
           end
 
           unless match_found
-            raise InputError, "Invalid filter \"#{filter_input}\""
+            raise InputError, "Invalid filter \"#{filter_input}\" in \"#{input}\""
           end
         end
 
@@ -53,7 +57,7 @@ module Reading
             if value
               Integer(value, exception: false) ||
                 Float(value, exception: false) ||
-                (raise InputError, "Rating must be a number in \"rating#{operator}#{value}\"")
+                (raise InputError, "Rating must be a number")
             end
           }
 
@@ -78,14 +82,12 @@ module Reading
         },
         done: proc { |values, operator, items|
           if values.any?(&:nil?)
-            raise InputError, "The \"done\" filter cannot take a \"none\" value" \
-              " in \"done#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
+            raise InputError, "The \"done\" filter cannot take a \"none\" value"
           end
 
           done_progresses = values.map { |value|
             (value.match(/\A(\d+)?%/).captures.first.to_f.clamp(0.0, 100.0) / 100) ||
-              (raise InputError,
-                "Progress must be a percentage in \"dnf#{operator}#{value}\"")
+              (raise InputError, "Progress must be a percentage")
           }
 
           filtered_items = items.map { |item|
@@ -180,8 +182,7 @@ module Reading
         },
         title: proc { |values, operator, items|
           if values.any?(&:nil?)
-            raise InputError, "The \"title\" filter cannot take a \"none\" value" \
-              " in \"title#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
+            raise InputError, "The \"title\" filter cannot take a \"none\" value"
           end
 
           titles = values
@@ -349,13 +350,15 @@ module Reading
           filtered_items
         },
         experience: proc { |values, operator, items|
-          # "none" means zero for this filter.
-          values = values.map { _1.nil? ? '0' : _1 }
+          if values.any?(&:nil?)
+            raise InputError,
+              "The \"experiences\" filter cannot take a \"none\" value"
+          end
 
           experience_counts = values.map { |value|
             if value
               Integer(value, exception: false) ||
-                (raise InputError, "Experience count must be an integer in \"experiences#{operator}#{value}\"")
+                (raise InputError, "Experience count must be an integer")
             end
           }
 
@@ -375,8 +378,7 @@ module Reading
         },
         status: proc { |values, operator, items|
           if values.any?(&:nil?)
-            raise InputError, "The \"status\" filter cannot take a \"none\" value" \
-              " in \"status#{operator}#{values.map { _1 ? _1 : 'none' }.join(',')}\""
+            raise InputError, "The \"status\" filter cannot take a \"none\" value"
           end
 
           statuses = values.map { _1.squeeze(' ').gsub(' ', '_').to_sym }
@@ -433,8 +435,7 @@ module Reading
                   # TODO: somehow provide the user with control over the pages per hour.
                   pages_per_hour: Reading.default_config.fetch(:pages_per_hour),
                 ) ||
-                (raise InputError, "Length must be a number of pages or " \
-                  "time as hh:mm in \"length#{operator}#{value}\"")
+                (raise InputError, "Length must be a number of pages or time as hh:mm")
             end
           }
 
@@ -544,7 +545,7 @@ module Reading
 
         unless allowed_operators.include? operator_str
           raise InputError, "Operator \"#{operator_str}\" not allowed in the " \
-            "#{key} filter. Allowed: #{allowed_operators.join(', ')}"
+            "#{key} filter, only #{allowed_operators.join(', ')} allowed"
         end
 
         operator = operator_str.to_sym
@@ -559,7 +560,7 @@ module Reading
 
         if or_values.include?(nil) && !%i[== != include? exclude?].include?(operator)
           raise InputError,
-            "\"none\" can only be used after these operators: ==, !=, ~, !~"
+            "\"none\" can only be used after the operators ==, !=, ~, !~"
         end
 
         matched_items = ACTIONS[key].call(or_values, operator, items)

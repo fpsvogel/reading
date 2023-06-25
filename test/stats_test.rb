@@ -857,16 +857,6 @@ class StatsTest < Minitest::Test
         { rating: 16, experiences: [] }
       ],
     },
-    :"experiences ('none' means zero)" => {
-      input: "average rating experience=none",
-      result: 16,
-      items: [
-        { rating: 2, experiences: [{}, {}, {}] },
-        { rating: 4, experiences: [{}, {}] },
-        { rating: 8, experiences: [{}] },
-        { rating: 16, experiences: [] }
-      ],
-    },
     :"experiences (or)" => {
       input: "average rating experience=2,3",
       result: 3,
@@ -1306,7 +1296,7 @@ class StatsTest < Minitest::Test
       "average rating status=none",
     :"none value for done" =>
       "average rating done=none",
-    :"OK: none value for experiences" => # "none" is converted to zero there.
+    :"none value for experiences" =>
       "average rating experiences=none",
     :"none value for daysago" =>
       "average rating daysago=none",
