@@ -370,8 +370,11 @@ class StatsTest < Minitest::Test
       result: 20,
       items: [
         { experiences: [
-            { spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
-            { spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }] },
+            { variant_index: 0,
+              spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
+            { variant_index: 0,
+              spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }],
+          variants: [{}] },
         { experiences: [{ spans: [] }] },
         { experiences: [] },
       ],
@@ -392,8 +395,11 @@ class StatsTest < Minitest::Test
       result: 20,
       items: [
         { experiences: [
-            { spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
-            { spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }] },
+            { variant_index: 0,
+              spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
+            { variant_index: 0,
+              spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }],
+          variants: [{}] },
         { experiences: [] },
       ],
     },
@@ -1019,8 +1025,27 @@ class StatsTest < Minitest::Test
       items: [
         { rating: 2,
           experiences: [
-            { spans: [{ amount: 10, dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] },
-            { spans: [{ amount: 20, dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }] },
+            { variant_index: 0,
+              spans: [{ amount: 10, dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] },
+            { variant_index: 0,
+              spans: [{ amount: 20, dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }],
+          variants: [{}] },
+      ],
+    },
+    :"end date filters out non-matching variants" => {
+      input: "average length enddate=2022",
+      result: 10,
+      items: [
+        { rating: 2,
+          experiences: [
+            { variant_index: 0,
+              spans: [{ dates: Date.new(2021, 12, 1)..Date.new(2022, 1, 1) }] },
+            { variant_index: 1,
+              spans: [{ dates: Date.new(2022, 12, 1)..Date.new(2023, 1, 1) }] }],
+          variants: [
+            { length: 10 },
+            { length: 20 },
+        ]},
       ],
     },
     :"experiences" => {
@@ -1127,8 +1152,11 @@ class StatsTest < Minitest::Test
       result: 100,
       items: [
         { experiences: [
-          { spans: [{ dates: Date.today.., amount: 100, progress: 1.0 }] },
-          { spans: [{ dates: long_ago, amount: 150, progress: 1.0 }] }] },
+            { variant_index: 0,
+              spans: [{ dates: Date.today.., amount: 100, progress: 1.0 }] },
+            { variant_index: 0,
+              spans: [{ dates: long_ago, amount: 150, progress: 1.0 }] }],
+          variants: [{}] },
       ],
     },
     :"status filters out non-matching experiences (not)" => {
@@ -1136,8 +1164,11 @@ class StatsTest < Minitest::Test
       result: 100,
       items: [
         { experiences: [
-          { spans: [{ dates: Date.today.., amount: 100, progress: 1.0 }] },
-          { spans: [{ dates: long_ago, amount: 150, progress: 1.0 }] }] },
+          { variant_index: 0,
+            spans: [{ dates: Date.today.., amount: 100, progress: 1.0 }] },
+          { variant_index: 0,
+            spans: [{ dates: long_ago, amount: 150, progress: 1.0 }] }],
+        variants: [{}] },
       ],
     },
     :"genre" => {

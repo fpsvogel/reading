@@ -57,14 +57,19 @@ module Reading
       data.experiences.last&.last_end_date
     end
 
-    # Returns a new Item containing shallow copy of @data, with its experiences
+        # Returns a new Item containing shallow copy of @data, with its experiences
     # replaced with new_experiences.
     # @param new_experiences [Array<Data>]
     # @param view [Class, nil, Boolean]
     # @return [Item]
     def with_experiences(new_experiences, view: false)
-      self.class.new(
-        data.with(experiences: new_experiences),
+      new_variants = variants.filter.with_index { |variant, old_index|
+        new_experiences.any? { _1.variant_index == old_index }
+      }
+
+      with_variants(
+        new_variants,
+        new_experiences:,
         view:,
       )
     end
@@ -72,9 +77,10 @@ module Reading
     # Returns a new Item containing shallow copy of @data, with its variants
     # replaced with new_variants.
     # @param new_variants [Array<Data>]
+    # @param new_experiences [Array<Data>]
     # @param view [Class, nil, Boolean]
     # @return [Item]
-    def with_variants(new_variants, view: false)
+    def with_variants(new_variants, new_experiences: nil, view: false)
       updated_variant_indices = []
 
       # Map old to new indices, omitting those of variants that are not in new_variants.
@@ -84,8 +90,12 @@ module Reading
       }
 
       # Remove experiences associated with the removed variants.
-      kept_experiences = experiences.filter { |experience|
-        !!updated_variant_indices[experience.variant_index]
+      kept_experiences = (new_experiences || experiences).filter { |experience|
+        # Conditional in case Item was created with fragmentary experience hashes,
+        # as in stats_test.rb
+        variant_index = experience.variant_index if experience.members.include?(:variant_index)
+
+        !!updated_variant_indices[variant_index || 0]
       }
 
       # Then update the kept experiences' variant indices.
@@ -95,10 +105,12 @@ module Reading
       }
 
       self.class.new(
-        data.with(variants: new_variants),
+        data.with(
+          variants: new_variants,
+          experiences: updated_kept_experiences,
+        ),
         view:,
       )
-      .with_experiences(updated_kept_experiences)
     end
 
     # Equality to another Item.
