@@ -1367,6 +1367,42 @@ class StatsTest < Minitest::Test
 
 
   ## QUERIES: RESULT FORMATTERS
+  # Simple queries testing each group.
+  @queries[:groups] = {
+    :"with filter (no results)" => {
+      input: "average length by rating status=in progress",
+      plural_input: "average lengths by rating status=in progress",
+      result: {},
+      items: [
+        { rating: 1, variants: [{ length: 50 }] },
+      ],
+    },
+    :"with filter" => {
+      input: "average length by rating status=planned",
+      plural_input: "average lengths by rating status=planned",
+      result: { 1 => 50, 2 => nil, 3 => 40 },
+      items: [
+        { rating: 3, variants: [{ length: 70 }] },
+        { rating: 1, variants: [{ length: 50 }] },
+        { rating: 3, variants: [{ length: 20 }, { length: 30 }] },
+        { rating: 2, variants: [] },
+      ],
+    },
+    rating: {
+      input: "average length by rating",
+      result: { 1 => 50, 2 => nil, 3 => 40 },
+      items: [
+        { rating: 3, variants: [{ length: 70 }] },
+        { rating: 1, variants: [{ length: 50 }] },
+        { rating: 3, variants: [{ length: 20 }, { length: 30 }] },
+        { rating: 2, variants: [] },
+      ],
+    },
+  }
+
+
+
+  ## QUERIES: RESULT FORMATTERS
   # Minimal queries testing result formatters.
   @queries[:terminal_result_formatters] = {
     :"average length (pages)" => {
@@ -1589,6 +1625,32 @@ class StatsTest < Minitest::Test
         .gsub(/(!=|=|!~|~|>=|>|<=|<)/, ' \1 ')
         .gsub(',', ', ')
         .gsub('+', ' + ')
+    end
+  end
+
+  # TESTS: GROUPS
+  queries[:groups].each do |key, hash|
+    define_method("test_group_#{key}") do
+      items = hash.fetch(:items).map { |item_hash|
+        Reading::Item.new(
+          item_hash,
+          config:,
+          view: false,
+        )
+      }
+
+      input = hash.fetch(:input)
+
+      exp = hash.fetch(:result)
+      act = Reading.stats(input:, items:)
+      # debugger unless exp == act
+
+      assert_equal exp, act,
+        "Unexpected result #{act} from stats query \"#{name}\""
+
+      # Alternate input style: plural
+      act = Reading.stats(input: hash[:plural_input] || "#{input}s", items:)
+      assert_equal(exp, act)
     end
   end
 

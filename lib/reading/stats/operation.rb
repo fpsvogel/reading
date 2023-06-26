@@ -9,11 +9,14 @@ module Reading
       # runs it to get the result. For the operations and their actions, see
       # the constants below.
       # @param input [String] the query string.
-      # @param items [Array<Item>] the Items on which to run the operation.
+      # @param grouped_items [Hash{Symbol => Array<Item>}] if no group was used,
+      #   the hash is just { all: items }
       # @param result_formatters [Hash{Symbol => Proc}] to alter the appearance
       #   of results. Keys should be from among the keys of Operation::ACTIONS.
-      # @return [Object] the return value of the action.
-      def self.execute(input, items, result_formatters)
+      # @return [Object] the return value of the action; if items are grouped
+      #   then a hash is returned with the same keys as grouped_items, otherwise
+      #   just the array of all results (not grouped) is returned.
+      def self.execute(input, grouped_items, result_formatters)
         REGEXES.each do |key, regex|
           match = input.match(regex)
 
@@ -23,12 +26,21 @@ module Reading
                 (raise InputError, "Argument must be an integer. Example: top 5 ratings")
             end
 
-            result = ACTIONS[key].call(items, number_arg)
+            grouped_results = grouped_items.map { |group_name, items|
+              result = ACTIONS[key].call(items, number_arg)
 
-            default_formatter = :itself.to_proc # Just the result itself.
-            result_formatter = result_formatters[key] || default_formatter
+              default_formatter = :itself.to_proc # Just the result itself.
+              result_formatter = result_formatters[key] || default_formatter
 
-            return result_formatter.call(result)
+              [group_name, result_formatter.call(result)]
+            }
+            .to_h
+
+            if grouped_results.keys == [:all]
+              return grouped_results[:all]
+            else
+              return grouped_results
+            end
           end
         end
 
