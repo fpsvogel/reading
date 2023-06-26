@@ -854,7 +854,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date" => {
-      input: "average rating enddate=2022/10",
+      input: "average rating end-date=2022/10",
       result: 4,
       items: [
         { rating: 4, experiences: [{ spans: [
@@ -866,7 +866,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (year only)" => {
-      input: "average rating enddate=2022",
+      input: "average rating end-date=2022",
       result: 6,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -880,7 +880,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (range)" => {
-      input: "average rating enddate=2022/10-2022/11",
+      input: "average rating end-date=2022/10-2022/11",
       result: 3,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -894,7 +894,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (range without end year)" => {
-      input: "average rating enddate=2022/10-11",
+      input: "average rating end-date=2022/10-11",
       result: 6,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -908,7 +908,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (range without start month)" => {
-      input: "average rating enddate=2022-2022/11",
+      input: "average rating end-date=2022-2022/11",
       result: 6,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -922,7 +922,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (range without either month)" => {
-      input: "average rating enddate=2022-2023",
+      input: "average rating end-date=2022-2023",
       result: 6,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -936,7 +936,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (less than)" => {
-      input: "average rating enddate<2022",
+      input: "average rating end-date<2022",
       result: 2,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -950,7 +950,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (less than or equal to)" => {
-      input: "average rating enddate<=2022",
+      input: "average rating end-date<=2022",
       result: 14/3.0,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -964,7 +964,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (greater than)" => {
-      input: "average rating enddate>2022",
+      input: "average rating end-date>2022",
       result: 16,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -978,7 +978,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (greater than or equal to)" => {
-      input: "average rating enddate>=2022",
+      input: "average rating end-date>=2022",
       result: 28/3.0,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -992,7 +992,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (not)" => {
-      input: "average rating enddate!=2022",
+      input: "average rating end-date!=2022",
       result: 9,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -1006,7 +1006,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (or)" => {
-      input: "average rating enddate=2021,2023",
+      input: "average rating end-date=2021,2023",
       result: 9,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -1020,7 +1020,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date filters out non-matching experiences" => {
-      input: "average item-amount enddate=2022",
+      input: "average item-amount end-date=2022",
       result: 10,
       items: [
         { rating: 2,
@@ -1033,7 +1033,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date filters out non-matching variants" => {
-      input: "average length enddate=2022",
+      input: "average length end-date=2022",
       result: 10,
       items: [
         { rating: 2,

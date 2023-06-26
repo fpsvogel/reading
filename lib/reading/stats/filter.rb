@@ -40,7 +40,7 @@ module Reading
 
       private
 
-      INPUT_SPLIT = /\s+(?=\w+\s*(?:!=|=|!~|~|>=|>|<=|<))/
+      INPUT_SPLIT = /\s+(?=[\w\-]+\s*(?:!=|=|!~|~|>=|>|<=|<))/
 
       DATES_REGEX = %r{\A
         (?<start_year>\d{4})
@@ -365,7 +365,7 @@ module Reading
 
           filtered_items
         },
-        enddate: proc { |values, operator, items|
+        :'end-date' => proc { |values, operator, items|
           if values.any?(&:nil?)
             raise InputError,
               "The \"enddate\" filter cannot take a \"none\" value"
@@ -577,7 +577,7 @@ module Reading
         progress: true,
         experience: true,
         date: true,
-        enddate: true,
+        :'end-date' => true,
         length: true,
       }
 
