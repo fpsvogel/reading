@@ -1366,9 +1366,9 @@ class StatsTest < Minitest::Test
 
 
 
-  ## QUERIES: RESULT FORMATTERS
-  # Simple queries testing each group.
-  @queries[:groups] = {
+  ## QUERIES: GROUPINGS
+  # Simple queries testing each grouping.
+  @queries[:groupings] = {
     :"with filter (no results)" => {
       input: "average length by rating status=in progress",
       plural_input: "average lengths by rating status=in progress",
@@ -1396,6 +1396,18 @@ class StatsTest < Minitest::Test
         { rating: 1, variants: [{ length: 50 }] },
         { rating: 3, variants: [{ length: 20 }, { length: 30 }] },
         { rating: 2, variants: [] },
+      ],
+    },
+    genre: {
+      input: "average rating by genre",
+      result: { "cats" => 16, "fiction" => 3, "history" => 5, "memoir" => nil },
+      items: [
+        { rating: 2, genres: %w[fiction history] },
+        { rating: 4, genres: %w[fiction] },
+        { rating: 8, genres: %w[history] },
+        { rating: 16, genres: %w[cats] },
+        { rating: nil, genres: %w[cats] },
+        { rating: nil, genres: %w[memoir] },
       ],
     },
   }
@@ -1628,9 +1640,9 @@ class StatsTest < Minitest::Test
     end
   end
 
-  # TESTS: GROUPS
-  queries[:groups].each do |key, hash|
-    define_method("test_group_#{key}") do
+  # TESTS: GROUPINGS
+  queries[:groupings].each do |key, hash|
+    define_method("test_grouping_#{key}") do
       items = hash.fetch(:items).map { |item_hash|
         Reading::Item.new(
           item_hash,

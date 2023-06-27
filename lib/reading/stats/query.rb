@@ -1,6 +1,6 @@
 require_relative 'operation'
 require_relative 'filter'
-require_relative 'group'
+require_relative 'grouping'
 
 # average rating of in progress 3 star audiobook dnfs from Hoopla by genre
 
@@ -34,7 +34,7 @@ require_relative 'group'
 # RESULT GROUPINGS
 # by month(s)
 # by year(s)
-# by genre(s)
+# ✅by genre(s)
 # ✅by rating(s)
 # by format(s)
 # by source(s)
@@ -62,7 +62,7 @@ module Reading
       # @return [Object]
       def result
         filtered_items = Stats::Filter.filter(input, items)
-        grouped_items = Group.group(input, filtered_items)
+        grouped_items = Grouping.group(input, filtered_items)
 
         Operation.execute(input, grouped_items, result_formatters || {})
       end

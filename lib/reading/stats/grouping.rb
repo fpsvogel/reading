@@ -2,7 +2,7 @@ module Reading
   module Stats
     # The part of the query right after the operation, which groups the results,
     # e.g. "by genre".
-    class Group
+    class Grouping
       # Determines which group is indicated in the given input, and then groups
       # the Items accordingly. For the groups and their actions, see the
       # constants below.
@@ -19,7 +19,7 @@ module Reading
           action = ACTIONS[group_name.to_sym]
 
           unless action
-            raise InputError, "Invalid group \"#{group_name}\" in \"#{input}\""
+            raise InputError, "Invalid grouping \"#{group_name}\" in \"#{input}\""
           end
 
           return action.call(items)
@@ -41,6 +41,15 @@ module Reading
             item.rating
           }
           .sort
+        },
+        genre: proc { |items|
+          groups = Hash.new { |h, k| h[k] = [] }
+
+          items.each do |item|
+            item.genres.each { |genre| groups[genre] << item }
+          end
+
+          groups.sort
         },
       }
 
