@@ -1398,6 +1398,19 @@ class StatsTest < Minitest::Test
         { rating: 2, variants: [] },
       ],
     },
+    format: {
+      input: "average rating by format",
+      result: { audio: 5, ebook: 16, print: 3, website: nil },
+      items: [
+        { rating: 2, variants: [{ format: :print }, { format: :audio }] },
+        { rating: 4, variants: [{ format: :print }] },
+        { rating: 8, variants: [{ format: :audio }] },
+        { rating: 16, variants: [{ format: :ebook }] },
+        { rating: nil, variants: [{ format: :ebook }] },
+        { rating: nil, variants: [{ format: :website }] },
+        { rating: nil, variants: [] },
+      ],
+    },
     genre: {
       input: "average rating by genre",
       result: { "cats" => 16, "fiction" => 3, "history" => 5, "memoir" => nil },
@@ -1408,6 +1421,7 @@ class StatsTest < Minitest::Test
         { rating: 16, genres: %w[cats] },
         { rating: nil, genres: %w[cats] },
         { rating: nil, genres: %w[memoir] },
+        { rating: nil, genres: [] },
       ],
     },
   }

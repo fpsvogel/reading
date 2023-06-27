@@ -42,6 +42,15 @@ module Reading
           }
           .sort
         },
+        format: proc { |items|
+          groups = Hash.new { |h, k| h[k] = [] }
+
+          items.each do |item|
+            item.variants.map(&:format).each { |format| groups[format] << item }
+          end
+
+          groups.sort
+        },
         genre: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
 

@@ -36,7 +36,7 @@ require_relative 'grouping'
 # by year(s)
 # ✅by genre(s)
 # ✅by rating(s)
-# by format(s)
+# ✅by format(s)
 # by source(s)
 # by length(s)
 
