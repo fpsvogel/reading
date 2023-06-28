@@ -37,7 +37,7 @@ require_relative 'grouping'
 # ✅by genre(s)
 # ✅by rating(s)
 # ✅by format(s)
-# by source(s)
+# ✅by source(s)
 # ✅by length(s)
 
 module Reading

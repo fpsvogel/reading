@@ -51,6 +51,20 @@ module Reading
 
           groups.sort
         },
+        source: proc { |items|
+          groups = Hash.new { |h, k| h[k] = [] }
+
+          items.each do |item|
+            item.variants.flat_map { |variant|
+              variant.sources.map { |source|
+                source.name || source.url
+              }
+            }
+            .each { |source| groups[source] << item }
+          end
+
+          groups.sort
+        },
         genre: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
 

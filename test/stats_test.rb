@@ -1411,6 +1411,21 @@ class StatsTest < Minitest::Test
         { rating: nil, variants: [] },
       ],
     },
+    source: {
+      input: "average rating by source",
+      result: { "Internet Archive" => 5, "Lexpub" => 3, "Little Library" => nil, "https://home.com" => 16 },
+      items: [
+        { rating: 2, variants: [
+          { sources: [{ name: "Lexpub", url: nil }] },
+          { sources: [{ name: "Internet Archive", url: "https://archive.org"}] }] },
+        { rating: 4, variants: [{ sources: [{ name: "Lexpub", url: nil }] }] },
+        { rating: 8, variants: [{ sources: [{ name: "Internet Archive", url: "https://archive.org"}] }] },
+        { rating: 16, variants: [{ sources: [{ name: nil, url: "https://home.com"}] }] },
+        { rating: nil, variants: [{ sources: [{ name: nil, url: "https://home.com"}] }] },
+        { rating: nil, variants: [{ sources: [{ name: "Little Library"}] }] },
+        { rating: nil, variants: [] },
+      ],
+    },
     genre: {
       input: "average rating by genre",
       result: { "cats" => 16, "fiction" => 3, "history" => 5, "memoir" => nil },
