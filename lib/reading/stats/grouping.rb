@@ -60,6 +60,15 @@ module Reading
 
           groups.sort
         },
+        length: proc { |items|
+          groups = Hash.new { |h, k| h[k] = [] }
+
+          items.each do |item|
+            item.variants.map(&:length).each { |length| groups[length] << item }
+          end
+
+          groups.sort
+        },
       }
 
       REGEX = %r{\A

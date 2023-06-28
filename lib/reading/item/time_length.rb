@@ -150,6 +150,7 @@ module Reading
       end
 
       # @param other [TimeLength, Numeric]
+      # @return  [Integer]
       def <=>(other)
         return 1 if other.nil?
 
@@ -162,6 +163,19 @@ module Reading
         end
 
         value <=> other.value
+      end
+
+      # Must be implemented for hash key equality checks.
+      # @param other [TimeLength, Numeric]
+      # @return [Boolean]
+      def eql?(other)
+        hash == other.hash
+      end
+
+      # Must be implemented along with #eql? for hash key equality checks.
+      # @return [Integer]
+      def hash
+        value
       end
     end
   end
