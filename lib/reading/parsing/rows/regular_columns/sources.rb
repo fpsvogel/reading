@@ -33,7 +33,6 @@ module Reading
 
                 # Split by space after URL.
                 sources = sources.flat_map { |src|
-                  debugger if src.is_a? Array
                   if src.match?(/\Ahttps?:\/\//)
                     src.split(" ", 2)
                   else

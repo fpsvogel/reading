@@ -90,7 +90,7 @@ module Reading
             def validate_end_dates_are_in_order(experiences)
               experiences
                 .filter { |exp| exp[:spans].first&.dig(:dates) }
-                .map { |exp| exp[:spans].last[:dates].end }
+                .map { |exp| exp[:spans].last[:dates]&.end }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
                     raise InvalidDateError, "End dates are not in order"
@@ -116,7 +116,7 @@ module Reading
             end
 
             # Raises an error if the spans within an experience are out of order
-            # or if the spans overlap.
+            # or if the spans overlap. Spans with nil dates are not considered.
             # @raise [InvalidDateError]
             def validate_spans_are_in_order_and_not_overlapping(experiences)
               experiences

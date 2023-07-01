@@ -310,6 +310,8 @@ class ParseTest < Minitest::Test
   :"group" =>
     "Fullstack Ruby|2021/12/6 0:30 ---- 🤝🏼with Sam 2022/4/1 0:30",
   :"planned" =>
+    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- ?? #3 String-Based Templates vs. DSLs",
+  :"planned in middle" =>
     "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- ?? 0:45 #2 Componentized View Architecture FTW! -- #3 String-Based Templates vs. DSLs -- 4/18 #4 Design Patterns on the Frontend",
   :"DNF" =>
     "Fullstack Ruby|2021/12/6..8 DNF 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 DNF @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 DNF 0:45 #3 String-Based Templates vs. DSLs",
@@ -1184,6 +1186,15 @@ class ParseTest < Minitest::Test
 
   a_planned = a_names.deep_merge(
     experiences: [{ spans: [
+      {},
+      {},
+      { dates: nil, progress: 0.0 },
+    ] }],
+  )
+  @outputs[:features_history][:"planned"] = [a_planned]
+
+  a_planned_mid = a_names.deep_merge(
+    experiences: [{ spans: [
       { },
       { dates: nil, progress: 0.0 },
       { dates: nil, progress: 0.0 },
@@ -1194,7 +1205,7 @@ class ParseTest < Minitest::Test
         favorite?: false },
     ] }],
   )
-  @outputs[:features_history][:"planned"] = [a_planned]
+  @outputs[:features_history][:"planned in middle"] = [a_planned_mid]
 
   a_dnf = a_names.deep_merge(
     experiences: [{ spans: [

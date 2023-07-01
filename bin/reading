@@ -37,7 +37,7 @@ if ARGV[1]
   config = { enabled_columns: }
 end
 
-input_is_csv_path = input.end_with?('.csv') || input.include?('/')
+input_is_csv_path = input.end_with?('.csv')
 
 if input_is_csv_path
   items = Reading.parse(path: input, config:, item_view: false)

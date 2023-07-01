@@ -42,7 +42,6 @@ module Reading
             }.presence
 
             if experiences_with_dates
-              # Raises an error if any sequence of dates does not make sense.
               Experiences::SpansValidator.validate(experiences_with_dates, config)
             end
 

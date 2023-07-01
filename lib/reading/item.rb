@@ -121,20 +121,38 @@ module Reading
         raise ArgumentError, "The date for Item#split must be the first of a month."
       end
 
-      experiences_before = experiences.filter { _1.last_end_date < date }
-      experiences_after = experiences.filter { _1.spans.first.dates.begin >= date }
-
-      experiences_middle = experiences.filter {
-        _1.spans.first.dates.begin < date && _1.last_end_date >= date
+      middle_indices = experiences.map.with_index { |experience, i|
+        i if experience.spans.first.dates.begin < date &&
+          experience.last_end_date &&
+          experience.last_end_date >= date
       }
+      .compact
+
+      # There are no experiences with done spans that overlap the date. (I.e.
+      # date is before/after all spans, or overlaps with an in-progress span.)
+      return [self] if middle_indices.none?
+
+      if middle_indices.first == 0
+        experiences_before = []
+      else
+        experiences_before = experiences[..(middle_indices.first - 1)]
+      end
+      experiences_after = experiences[(middle_indices.first + middle_indices.count)..]
+      experiences_middle = experiences.values_at(*middle_indices)
+
+      # TODO remove this check?
+      unless middle_indices == (middle_indices.min..middle_indices.max).to_a
+        raise Reading::Error, "Non-consecutive experiences found during Item#split."
+      end
+
       experiences_middle.each do |experience_middle|
-        spans_before = experience_middle.spans.filter { _1.dates.end < date }
-        spans_after = experience_middle.spans.filter { _1.dates.begin >= date }
+        span_middle_index = experience_middle
+          .spans
+          .index { _1.dates && _1.dates.begin < date && _1.dates.end >= date }
 
-        span_middle = experience_middle.spans
-          .find { _1.dates.begin < date && _1.dates.end >= date }
+        if span_middle_index
+          span_middle = experience_middle.spans[span_middle_index]
 
-        if span_middle
           dates_before = span_middle.dates.begin..date.prev_day
           amount_before = span_middle.amount * (dates_before.count / span_middle.dates.count.to_f)
           span_middle_before = span_middle.with(
@@ -149,21 +167,108 @@ module Reading
             amount: amount_after,
           )
 
-          spans_before << span_middle_before
-          spans_after = [span_middle_after, *spans_after]
+          if span_middle_index.zero?
+            spans_before = [span_middle_before]
+          else
+            spans_before = [
+              *experience_middle.spans[..(span_middle_index - 1)],
+              span_middle_before,
+            ]
+          end
+
+          spans_after = [
+            span_middle_after,
+            *experience_middle.spans[(span_middle_index + 1)..],
+          ]
         end
 
         experience_middle_before = experience_middle.with(
           spans: spans_before,
-          last_end_date: spans_before.last.dates.end,
+          last_end_date: spans_before.map { _1.dates&.end }.compact.last,
         )
         experience_middle_after = experience_middle.with(
           spans: spans_after,
         )
 
         experiences_before << experience_middle_before
-        experiences_after = [experience_middle_after, *experiences_after]
+        experiences_after.unshift(*experience_middle_after)
       end
+
+      # RM (alternate implementation)
+      # experiences_before = experiences
+      #   .filter(&:last_end_date)
+      #   .filter { _1.last_end_date < date }
+      # experiences_after = experiences
+      #   .filter { _1.spans.first.dates.nil? || _1.spans.first.dates.begin >= date }
+
+      # experiences_middle = experiences.filter {
+      #   _1.spans.first.dates.begin < date && _1.last_end_date >= date
+      # }
+      # experiences_middle.each do |experience_middle|
+      #   spans_before = experience_middle
+      #     .spans
+      #     .filter { _1.dates&.end }
+      #     .filter { _1.dates.end < date }
+      #   spans_after = experience_middle
+      #     .spans
+      #     .filter(&:dates)
+      #     .filter { _1.dates.begin >= date }
+
+      #   span_middle = experience_middle
+      #     .spans
+      #     .find { _1.dates && _1.dates.begin < date && _1.dates.end >= date }
+
+      #   middle_index = experience_middle.spans.index(span_middle)
+      #   planned_spans_before = experience_middle
+      #     .spans
+      #     .map.with_index { |span, i|
+      #       [i, span] if span.dates.nil? && i < middle_index
+      #     }
+      #     .compact
+      #   planned_spans_after = experience_middle
+      #     .spans
+      #     .map.with_index { |span, i|
+      #       [i, span] if span.dates.nil? && i > middle_index
+      #     }
+      #     .compact
+
+      #   if span_middle
+      #     dates_before = span_middle.dates.begin..date.prev_day
+      #     amount_before = span_middle.amount * (dates_before.count / span_middle.dates.count.to_f)
+      #     span_middle_before = span_middle.with(
+      #       dates: dates_before,
+      #       amount: amount_before,
+      #     )
+
+      #     dates_after = date..span_middle.dates.end
+      #     amount_after = span_middle.amount * (dates_after.count / span_middle.dates.count.to_f)
+      #     span_middle_after = span_middle.with(
+      #       dates: dates_after,
+      #       amount: amount_after,
+      #     )
+
+      #     spans_before = [*spans_before, span_middle_before]
+      #     spans_after = [span_middle_after, *spans_after]
+
+      #     planned_spans_before.each { |i, planned_span|
+      #       spans_before.insert(i, planned_span)
+      #     }
+      #     planned_spans_after.each { |i, planned_span|
+      #       spans_after.insert(i - middle_index, planned_span)
+      #     }
+      #   end
+
+      #   experience_middle_before = experience_middle.with(
+      #     spans: spans_before,
+      #     last_end_date: spans_before.last.dates.end,
+      #   )
+      #   experience_middle_after = experience_middle.with(
+      #     spans: spans_after,
+      #   )
+
+      #   experiences_before << experience_middle_before
+      #   experiences_after = [experience_middle_after, *experiences_after]
+      # end
 
       item_before = with_experiences(experiences_before)
       item_after = with_experiences(experiences_after)

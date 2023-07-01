@@ -39,7 +39,6 @@ module Reading
               }
             }
 
-            # Raises an error if experiences overlap or are out of order.
             Experiences::SpansValidator.validate(experiences, config, history_column: true)
 
             experiences

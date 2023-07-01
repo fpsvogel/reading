@@ -26,93 +26,166 @@ class ItemTest < Minitest::Test
   end
 
   describe "#split" do
-    it "returns two Items with experiences before/after the given date" do
-      experience_template =
-        Reading.default_config.deep_fetch(:item, :template, :experiences).first
-      variant_template =
-        Reading.default_config.deep_fetch(:item, :template, :variants).first
-
-      span_template = experience_template[:spans].first.merge(amount: 100)
-      experiences = [
-        experience_template.merge(
-          spans: [span_template.merge(dates: Date.new(2021,1,1)..Date.new(2021,1,10))],
-          variant_index: 1,
-        ),
-        experience_template.merge(
-          spans: [span_template.merge(dates: Date.new(2021,1,15)..Date.new(2021,2,5))],
-          variant_index: 1,
-        ),
-        experience_template.merge(
-          spans: [span_template.merge(dates: Date.new(2021,2,20)..Date.new(2021,3,3))],
-          variant_index: 0,
-        ),
-      ]
-      variants = [
-        variant_template.merge(format: :print),
-        variant_template.merge(format: :audio),
-      ]
-      item = book(:merge, experiences:, variants:)
-
-      split_item_a, split_item_b = item.split(Date.new(2021,2,1))
-
-      expected_experiences_a = [
-        experience_template.merge(
-          spans: [span_template.merge(dates: Date.new(2021,1,1)..Date.new(2021,1,10))],
-          variant_index: 0,
-          status: :done,
-          last_end_date: Date.new(2021,1,10),
-        ),
-        experience_template.merge(
-          spans: [span_template.merge(
-            dates: Date.new(2021,1,15)..Date.new(2021,1,31),
-            amount: 77.27272727272727,
-          )],
-          variant_index: 0,
-          status: :done,
-          last_end_date: Date.new(2021,1,31),
-        ),
-      ]
-      expected_variants_a = [
-        variant_template.merge(format: :audio),
-      ]
-
-      expected_experiences_b = [
-        experience_template.merge(
-          spans: [span_template.merge(
-            dates: Date.new(2021,2,1)..Date.new(2021,2,5),
-            amount: 22.727272727272727,
-          )],
-          variant_index: 1,
-          status: :done,
-          last_end_date: Date.new(2021,2,5),
-        ),
-        experience_template.merge(
-          spans: [span_template.merge(dates: Date.new(2021,2,20)..Date.new(2021,3,3))],
-          variant_index: 0,
-          status: :done,
-          last_end_date: Date.new(2021,3,3),
-        ),
-      ]
-      expected_variants_b = [
-        variant_template.merge(format: :print),
-        variant_template.merge(format: :audio),
-      ]
-
-      assert_equal expected_experiences_a.map(&:to_data),
-        split_item_a.experiences
-
-      assert_equal expected_experiences_b.map(&:to_data),
-        split_item_b.experiences
-    end
-
-    context "when an Item has planned spans" do
-
-    end
-
     context "when a date is given that is not the first of the month" do
       it "raises an exception" do
         assert_raises ArgumentError do
           book.split(Date.new(2021,1,2))
+        end
+      end
+    end
+
+    context "with a planned Item" do
+      it "returns the original Item" do
+        item = Reading::Item.new({ title: "Planning for Dummies", experiences: [] })
+        any_date = Date.new(2022,1,1)
+
+        assert_equal [item], item.split(any_date)
+      end
+    end
+
+    context "with the book example" do
+      context "when the date is within an in-progress experience with only one span" do
+        it "returns the original Item" do
+          item = book
+          split_at = Date.new(2021,1,1)
+
+          assert_equal [item], item.split(split_at)
+        end
+      end
+
+      context "when the date is before all experiences" do
+        it "returns the original Item" do
+          item = book
+          split_at = Date.new(2018,2,1)
+
+          assert_equal [item], item.split(split_at)
+        end
+      end
+
+      context "when the date is after all experiences and they are all done" do
+        it "returns the original Item" do
+          done_experiences = BOOK[:experiences][0..1]
+          item = book(:merge, experiences: done_experiences)
+          split_at = Date.new(2019,7,1)
+
+          assert_equal [item], item.split(split_at)
+        end
+      end
+
+      context "when the date is within a done experience" do
+        it "returns two Items with experiences before/after the given date" do
+          item = book
+          split_at = Date.new(2019,6,1)
+          split_item_a, split_item_b = item.split(split_at)
+
+          mid_span = item.experiences[1].spans.first
+          expected_experiences_a = [
+            item.experiences[0].to_h,
+            item.experiences[1].to_h.merge(
+              spans: [mid_span.to_h.merge(
+                dates: mid_span.dates.begin..split_at.prev_day,
+                amount: mid_span.amount * (31/41.0),
+              )],
+              last_end_date: split_at.prev_day,
+            ),
+          ]
+          expected_variants_a = [item.variants.first]
+
+          expected_experiences_b = [
+            item.experiences[1].to_h.merge(
+              spans: [mid_span.to_h.merge(
+                dates: split_at..mid_span.dates.end,
+                amount: mid_span.amount * (10/41.0),
+              )],
+            ),
+            item.experiences[2].to_h,
+          ]
+          expected_variants_b = item.variants
+
+          assert_equal expected_experiences_a.map(&:to_data),
+            split_item_a.experiences
+          assert_equal expected_variants_a, split_item_a.variants
+
+          assert_equal expected_experiences_b.map(&:to_data),
+            split_item_b.experiences
+          assert_equal expected_variants_b, split_item_b.variants
+        end
+      end
+    end
+
+    context "with the podcast example" do
+      context "when the date is within an in-progress span" do
+        it "returns the original Item" do
+          last_span = PODCAST[:experiences].first[:spans].last
+          in_progress_last_span = last_span.merge(dates: last_span[:dates].begin..)
+          item = podcast(experiences: [
+            { spans: [
+              *([{}] * (PODCAST[:experiences].first[:spans].count - 1)),
+              in_progress_last_span,
+            ]},
+          ])
+          split_at = last_span[:dates].begin
+
+          assert_equal [item], item.split(split_at)
+        end
+      end
+
+      context "when the date is before all spans" do
+        it "returns the original Item" do
+          item = podcast
+          split_at = Date.new(2021,10,1)
+
+          assert_equal [item], item.split(split_at)
+        end
+      end
+
+      context "when the date is after all spans and they are all done or planned" do
+        it "returns the original Item" do
+          item = podcast
+          split_at = Date.new(2022,2,1)
+
+          assert_equal [item], item.split(split_at)
+        end
+      end
+
+      context "when the date is within a done span" do
+        it "returns two Items with experiences before/after the given date" do
+          item = podcast
+          split_at = Date.new(2021,11,1)
+          split_item_a, split_item_b = item.split(split_at)
+
+          mid_span_index = 4
+          mid_span = item.experiences[0].spans[mid_span_index]
+          expected_experiences_a = [
+            item.experiences[0].to_h.merge(
+              spans: [
+                *item.experiences[0].spans[0..(mid_span_index - 1)].map(&:to_h),
+                mid_span.to_h.merge(
+                  dates: mid_span.dates.begin..split_at.prev_day,
+                  amount: mid_span.amount * (7/19.0),
+                ),
+              ],
+              last_end_date: split_at.prev_day,
+            ),
+          ]
+
+          expected_experiences_b = [
+            item.experiences[0].to_h.merge(
+              spans: [
+                mid_span.to_h.merge(
+                  dates: split_at..mid_span.dates.end,
+                  amount: mid_span.amount * (12/19.0),
+                ),
+                *item.experiences[0].spans[(mid_span_index + 1)..].map(&:to_h)
+              ],
+            ),
+          ]
+
+          assert_equal expected_experiences_a.map(&:to_data),
+            split_item_a.experiences
+
+          assert_equal expected_experiences_b.map(&:to_data),
+            split_item_b.experiences
         end
       end
     end
@@ -185,7 +258,10 @@ class ItemTest < Minitest::Test
         context "when the in-progress grace period is not yet over" do
           it "is :in_progress" do
             podcast_with_recent_listen = podcast(experiences: [
-              { spans: [{}, {}, {}, {}, {}, {}, { dates: Date.new(2022,9,15)..Date.new(2022,9,15) }] },
+              { spans: [
+                *([{}] * PODCAST[:experiences].first[:spans].count),
+                { dates: Date.new(2022,9,15)..Date.new(2022,9,15) },
+              ]},
             ])
 
             assert_equal :in_progress, podcast_with_recent_listen.status
@@ -584,64 +660,78 @@ class ItemTest < Minitest::Test
             [{
               dates: Date.new(2021,10,6)..Date.new(2021,10,10),
               progress: 1.0,
-              amount: "8:00",
+              amount: Reading.time('8:00'),
               name: nil,
               favorite?: false,
             },
             {
-              dates: Date.new(2021,10,11)..Date.new(2021,11,17),
+              dates: Date.new(2021,10,11)..Date.new(2021,10,17),
               progress: 1.0,
-              amount: "1:00",
+              amount: Reading.time('1:00'),
               name: nil,
               favorite?: false,
             },
             {
               dates: Date.new(2021,10,18)..Date.new(2021,10,24),
               progress: 1.0,
-              amount: "3:00",
+              amount: Reading.time('3:00'),
               name: nil,
+              favorite?: false,
+            },
+            {
+              dates: nil,
+              progress: nil,
+              amount: Reading.time('1:00'),
+              name: "The Amish",
               favorite?: false,
             },
             {
               dates: Date.new(2021,10,25)..Date.new(2021,11,12),
               progress: 1.0,
-              amount: "2:00",
+              amount: Reading.time('2:00'),
               name: nil,
               favorite?: false,
             },
             {
               dates: Date.new(2021,11,14)..Date.new(2021,11,14),
               progress: 1.0,
-              amount: "0:50",
+              amount: Reading.time('0:50'),
               name: "#30 Leaf Blowers",
               favorite?: true,
             },
             {
               dates: Date.new(2021,11,15)..Date.new(2021,11,15),
               progress: Reading.time('0:15'),
-              amount: "1:00",
+              amount: Reading.time('1:00'),
               name: "Baseball",
               favorite?: false,
             },
             {
               dates: Date.new(2021,11,15)..Date.new(2021,11,15),
               progress: 1.0,
-              amount: "3:00",
+              amount: Reading.time('3:00'),
               name: nil,
               favorite?: false,
             },
             {
               dates: nil,
               progress: nil,
-              amount: "1:00",
+              amount: Reading.time('1:00'),
               name: "#32 Soft Drinks",
               favorite?: false,
             },
             {
               dates: nil,
               progress: nil,
-              amount: "1:00",
+              amount: Reading.time('1:00'),
               name: "Christmas",
+              favorite?: false,
+            },
+            {
+              dates: Date.new(2022,1,1)..Date.new(2022,1,1),
+              progress: 1.0,
+              amount: Reading.time('1:00'),
+              name: "New Year's",
               favorite?: false,
             }],
           group: nil,
