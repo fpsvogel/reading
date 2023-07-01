@@ -25,6 +25,99 @@ class ItemTest < Minitest::Test
     Reading::Config.hash(custom_config)
   end
 
+  describe "#split" do
+    it "returns two Items with experiences before/after the given date" do
+      experience_template =
+        Reading.default_config.deep_fetch(:item, :template, :experiences).first
+      variant_template =
+        Reading.default_config.deep_fetch(:item, :template, :variants).first
+
+      span_template = experience_template[:spans].first.merge(amount: 100)
+      experiences = [
+        experience_template.merge(
+          spans: [span_template.merge(dates: Date.new(2021,1,1)..Date.new(2021,1,10))],
+          variant_index: 1,
+        ),
+        experience_template.merge(
+          spans: [span_template.merge(dates: Date.new(2021,1,15)..Date.new(2021,2,5))],
+          variant_index: 1,
+        ),
+        experience_template.merge(
+          spans: [span_template.merge(dates: Date.new(2021,2,20)..Date.new(2021,3,3))],
+          variant_index: 0,
+        ),
+      ]
+      variants = [
+        variant_template.merge(format: :print),
+        variant_template.merge(format: :audio),
+      ]
+      item = book(:merge, experiences:, variants:)
+
+      split_item_a, split_item_b = item.split(Date.new(2021,2,1))
+
+      expected_experiences_a = [
+        experience_template.merge(
+          spans: [span_template.merge(dates: Date.new(2021,1,1)..Date.new(2021,1,10))],
+          variant_index: 0,
+          status: :done,
+          last_end_date: Date.new(2021,1,10),
+        ),
+        experience_template.merge(
+          spans: [span_template.merge(
+            dates: Date.new(2021,1,15)..Date.new(2021,1,31),
+            amount: 77.27272727272727,
+          )],
+          variant_index: 0,
+          status: :done,
+          last_end_date: Date.new(2021,1,31),
+        ),
+      ]
+      expected_variants_a = [
+        variant_template.merge(format: :audio),
+      ]
+
+      expected_experiences_b = [
+        experience_template.merge(
+          spans: [span_template.merge(
+            dates: Date.new(2021,2,1)..Date.new(2021,2,5),
+            amount: 22.727272727272727,
+          )],
+          variant_index: 1,
+          status: :done,
+          last_end_date: Date.new(2021,2,5),
+        ),
+        experience_template.merge(
+          spans: [span_template.merge(dates: Date.new(2021,2,20)..Date.new(2021,3,3))],
+          variant_index: 0,
+          status: :done,
+          last_end_date: Date.new(2021,3,3),
+        ),
+      ]
+      expected_variants_b = [
+        variant_template.merge(format: :print),
+        variant_template.merge(format: :audio),
+      ]
+
+      assert_equal expected_experiences_a.map(&:to_data),
+        split_item_a.experiences
+
+      assert_equal expected_experiences_b.map(&:to_data),
+        split_item_b.experiences
+    end
+
+    context "when an Item has planned spans" do
+
+    end
+
+    context "when a date is given that is not the first of the month" do
+      it "raises an exception" do
+        assert_raises ArgumentError do
+          book.split(Date.new(2021,1,2))
+        end
+      end
+    end
+  end
+
   describe "any attribute from the item hash" do
     it "can be accessed" do
       items = { BOOK => book, PODCAST => podcast }

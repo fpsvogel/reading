@@ -57,7 +57,7 @@ module Reading
       data.experiences.last&.last_end_date
     end
 
-        # Returns a new Item containing shallow copy of @data, with its experiences
+    # Returns a new Item containing shallow copy of @data, with its experiences
     # replaced with new_experiences.
     # @param new_experiences [Array<Data>]
     # @param view [Class, nil, Boolean]
@@ -86,7 +86,7 @@ module Reading
       # Map old to new indices, omitting those of variants that are not in new_variants.
       variants.each.with_index { |variant, old_index|
         new_index = new_variants.index(variant)
-        updated_variant_indices[old_index] = [new_index] if new_index
+        updated_variant_indices[old_index] = new_index if new_index
       }
 
       # Remove experiences associated with the removed variants.
@@ -111,6 +111,64 @@ module Reading
         ),
         view:,
       )
+    end
+
+    # Splits this Item into two Items: one < the given date, and the other >= it.
+    # @date [Date] must be the first day of a month.
+    # @return [Array(Item, Item)]
+    def split(date)
+      if date.day != 1
+        raise ArgumentError, "The date for Item#split must be the first of a month."
+      end
+
+      experiences_before = experiences.filter { _1.last_end_date < date }
+      experiences_after = experiences.filter { _1.spans.first.dates.begin >= date }
+
+      experiences_middle = experiences.filter {
+        _1.spans.first.dates.begin < date && _1.last_end_date >= date
+      }
+      experiences_middle.each do |experience_middle|
+        spans_before = experience_middle.spans.filter { _1.dates.end < date }
+        spans_after = experience_middle.spans.filter { _1.dates.begin >= date }
+
+        span_middle = experience_middle.spans
+          .find { _1.dates.begin < date && _1.dates.end >= date }
+
+        if span_middle
+          dates_before = span_middle.dates.begin..date.prev_day
+          amount_before = span_middle.amount * (dates_before.count / span_middle.dates.count.to_f)
+          span_middle_before = span_middle.with(
+            dates: dates_before,
+            amount: amount_before,
+          )
+
+          dates_after = date..span_middle.dates.end
+          amount_after = span_middle.amount * (dates_after.count / span_middle.dates.count.to_f)
+          span_middle_after = span_middle.with(
+            dates: dates_after,
+            amount: amount_after,
+          )
+
+          spans_before << span_middle_before
+          spans_after = [span_middle_after, *spans_after]
+        end
+
+        experience_middle_before = experience_middle.with(
+          spans: spans_before,
+          last_end_date: spans_before.last.dates.end,
+        )
+        experience_middle_after = experience_middle.with(
+          spans: spans_after,
+        )
+
+        experiences_before << experience_middle_before
+        experiences_after = [experience_middle_after, *experiences_after]
+      end
+
+      item_before = with_experiences(experiences_before)
+      item_after = with_experiences(experiences_after)
+
+      [item_before, item_after]
     end
 
     # Equality to another Item.
