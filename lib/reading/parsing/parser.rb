@@ -88,7 +88,7 @@ module Reading
             end
           }
           .column_classes
-          .filter { |column_class|
+          .select { |column_class|
             config.fetch(:enabled_columns).include?(column_class.to_sym)
           }
 

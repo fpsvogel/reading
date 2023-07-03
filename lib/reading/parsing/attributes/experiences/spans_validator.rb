@@ -60,7 +60,7 @@ module Reading
             # @raise [InvalidDateError]
             def validate_number_of_start_dates_and_end_dates(experiences)
               _both_dates, not_both_dates = experiences
-                .filter { |exp| exp[:spans].first&.dig(:dates) }
+                .select { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| [exp[:spans].first[:dates].begin, exp[:spans].last[:dates].end] }
                 .partition { |start_date, end_date| start_date && end_date }
 
@@ -76,7 +76,7 @@ module Reading
             # @raise [InvalidDateError]
             def validate_start_dates_are_in_order(experiences)
               experiences
-                .filter { |exp| exp[:spans].first&.dig(:dates) }
+                .select { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| exp[:spans].first[:dates].begin }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
@@ -89,7 +89,7 @@ module Reading
             # @raise [InvalidDateError]
             def validate_end_dates_are_in_order(experiences)
               experiences
-                .filter { |exp| exp[:spans].first&.dig(:dates) }
+                .select { |exp| exp[:spans].first&.dig(:dates) }
                 .map { |exp| exp[:spans].last[:dates]&.end }
                 .each_cons(2) do |a, b|
                   if (a.nil? && b.nil?) || (a && b && a > b )
@@ -104,7 +104,7 @@ module Reading
               experiences
                 .group_by { |exp| exp[:variant_index] }
                 .each do |_variant_index, exps|
-                  exps.filter { |exp| exp[:spans].any? }.each_cons(2) do |a, b|
+                  exps.select { |exp| exp[:spans].any? }.each_cons(2) do |a, b|
                     a_metaspan = a[:spans].first[:dates].begin..a[:spans].last[:dates].end
                     b_metaspan = b[:spans].first[:dates].begin..b[:spans].last[:dates].end
                     if a_metaspan.cover?(b_metaspan.begin || a_metaspan.begin || a_metaspan.end) ||
@@ -120,7 +120,7 @@ module Reading
             # @raise [InvalidDateError]
             def validate_spans_are_in_order_and_not_overlapping(experiences)
               experiences
-                .filter { |exp| exp[:spans].first&.dig(:dates) }
+                .select { |exp| exp[:spans].first&.dig(:dates) }
                 .each do |exp|
                   exp[:spans]
                     .map { |span| span[:dates] }

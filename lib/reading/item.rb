@@ -90,7 +90,7 @@ module Reading
       }
 
       # Remove experiences associated with the removed variants.
-      kept_experiences = (new_experiences || experiences).filter { |experience|
+      kept_experiences = (new_experiences || experiences).select { |experience|
         # Conditional in case Item was created with fragmentary experience hashes,
         # as in stats_test.rb
         variant_index = experience.variant_index if experience.members.include?(:variant_index)
@@ -196,23 +196,23 @@ module Reading
 
       # RM (alternate implementation)
       # experiences_before = experiences
-      #   .filter(&:last_end_date)
-      #   .filter { _1.last_end_date < date }
+      #   .select(&:last_end_date)
+      #   .select { _1.last_end_date < date }
       # experiences_after = experiences
-      #   .filter { _1.spans.first.dates.nil? || _1.spans.first.dates.begin >= date }
+      #   .select { _1.spans.first.dates.nil? || _1.spans.first.dates.begin >= date }
 
-      # experiences_middle = experiences.filter {
+      # experiences_middle = experiences.select {
       #   _1.spans.first.dates.begin < date && _1.last_end_date >= date
       # }
       # experiences_middle.each do |experience_middle|
       #   spans_before = experience_middle
       #     .spans
-      #     .filter { _1.dates&.end }
-      #     .filter { _1.dates.end < date }
+      #     .select { _1.dates&.end }
+      #     .select { _1.dates.end < date }
       #   spans_after = experience_middle
       #     .spans
-      #     .filter(&:dates)
-      #     .filter { _1.dates.begin >= date }
+      #     .select(&:dates)
+      #     .select { _1.dates.begin >= date }
 
       #   span_middle = experience_middle
       #     .spans

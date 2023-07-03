@@ -79,7 +79,7 @@ module Reading
 
           positive_operator = operator == :'!=' ? :== : operator
 
-          matches = items.filter { |item|
+          matches = items.select { |item|
             ratings.any? { |rating|
               if item.rating || %i[== !=].include?(operator)
                 item.rating.send(positive_operator, rating)
@@ -118,7 +118,7 @@ module Reading
             end
 
             # Filter out non-matching experiences.
-            filtered_experiences = item.experiences.filter { |experience|
+            filtered_experiences = item.experiences.select { |experience|
               done_progresses.any? { |done_progress|
                 experience.status == :done &&
                   experience.spans.last.progress.send(operator, done_progress)
@@ -153,7 +153,7 @@ module Reading
             end
 
             # Filter out non-matching variants.
-            filtered_variants = item.variants.filter { |variant|
+            filtered_variants = item.variants.select { |variant|
               formats.any? { |format|
                 variant.format.send(operator, format)
               }
@@ -170,7 +170,7 @@ module Reading
             .map { _1.downcase if _1 }
             .map { _1.gsub(/[^a-zA-Z ]/, '').gsub(/\s/, '') if _1 }
 
-          matches = items.filter { |item|
+          matches = items.select { |item|
             author = item
               &.author
               &.downcase
@@ -205,7 +205,7 @@ module Reading
             .map(&:downcase)
             .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
 
-          matches = items.filter { |item|
+          matches = items.select { |item|
             next unless item.title
 
             title = item
@@ -268,7 +268,7 @@ module Reading
             end
 
             # Filter out non-matching variants.
-            filtered_variants = item.variants.filter { |variant|
+            filtered_variants = item.variants.select { |variant|
               # Treat empty series as if they were a series with a nil name.
               if variant.series.empty?
                 if %i[!= exclude?].include? operator
@@ -337,7 +337,7 @@ module Reading
             end
 
             # Filter out non-matching variants.
-            filtered_variants = item.variants.filter { |variant|
+            filtered_variants = item.variants.select { |variant|
               # Treat empty sources as if they were a source with a nil name.
               if variant.sources.empty?
                 if %i[!= exclude?].include? operator
@@ -405,7 +405,7 @@ module Reading
             end
 
             # Filter out non-matching experiences.
-            filtered_experiences = item.experiences.filter { |experience|
+            filtered_experiences = item.experiences.select { |experience|
               end_date_ranges.any? { |end_date_range|
                 if %i[== !=].include? operator
                   end_date_range
@@ -438,7 +438,7 @@ module Reading
 
           positive_operator = operator == :'!=' ? :== : operator
 
-          matches = items.filter { |item|
+          matches = items.select { |item|
             experience_counts.any? { |experience_count|
               item.experiences.count.send(positive_operator, experience_count)
             }
@@ -471,7 +471,7 @@ module Reading
             next item if is_planned && statuses.include?(:planned)
 
             # Filter out non-matching experiences.
-            filtered_experiences = item.experiences.filter { |experience|
+            filtered_experiences = item.experiences.select { |experience|
               statuses.any? { |status|
                 experience.status.send(operator, status)
               }
@@ -486,7 +486,7 @@ module Reading
         genre: proc { |values, operator, items|
           genres = values.map { _1 ? _1.split('+').map(&:strip) : [_1] }
 
-          matches = items.filter { |item|
+          matches = items.select { |item|
             genres.any? { |and_genres|
               # Whether item.genres includes all elements of and_genres.
               (item.genres.sort & and_genres.sort) == and_genres.sort ||
@@ -532,7 +532,7 @@ module Reading
             end
 
             # Filter out non-matching variants.
-            filtered_variants = item.variants.filter { |variant|
+            filtered_variants = item.variants.select { |variant|
               lengths.any? { |length|
                 variant.length.send(operator, length)
               }
@@ -549,7 +549,7 @@ module Reading
             .map { _1.downcase if _1 }
             .map { _1.gsub(/[^a-zA-Z0-9 ]/, '') if _1 }
 
-          matches = items.filter { |item|
+          matches = items.select { |item|
             item.notes.any? { |original_note|
               note = original_note
                 .downcase
