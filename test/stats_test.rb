@@ -76,8 +76,8 @@ class StatsTest < Minitest::Test
         { variants: [{ length: nil }] },
       ],
     },
-    :"average item-amount" => {
-      input: "average item-amount",
+    :"average amount" => {
+      input: "average amount",
       # assuming 35 pages per hour (the config default)
       result: Reading.time('1:00'),
       items: [
@@ -87,8 +87,8 @@ class StatsTest < Minitest::Test
         { experiences: [] },
       ],
     },
-    :"average item-amount (empty)" => {
-      input: "average item-amount",
+    :"average amount (empty)" => {
+      input: "average amount",
       result: 0,
       items: [
         { experiences: [] },
@@ -505,7 +505,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"format filters out non-matching experiences" => {
-      input: "average item-amount format=print",
+      input: "average amount format=print",
       result: 10,
       items: [
         { variants: [
@@ -517,7 +517,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"format filters out non-matching experiences (not)" => {
-      input: "average item-amount format!=print",
+      input: "average amount format!=print",
       result: 20,
       items: [
         { variants: [
@@ -715,7 +715,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"series filters out non-matching experiences" => {
-      input: "average item-amount series=goosebumps begin",
+      input: "average amount series=goosebumps begin",
       result: 10,
       items: [
         { variants: [
@@ -727,7 +727,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"series filters out non-matching experiences (not)" => {
-      input: "average item-amount series!=goosebumps begin",
+      input: "average amount series!=goosebumps begin",
       result: 20,
       items: [
         { variants: [
@@ -1020,7 +1020,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date filters out non-matching experiences" => {
-      input: "average item-amount end-date=2022",
+      input: "average amount end-date=2022",
       result: 10,
       items: [
         { rating: 2,

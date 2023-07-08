@@ -74,7 +74,7 @@ module Reading
             (lengths.sum / lengths.count.to_f).to_i_if_whole
           end
         },
-        :"average_item-amount" => proc { |items|
+        :"average_amount" => proc { |items|
           total_amount = items.sum { |item|
             item.experiences.sum { |experience|
               experience.spans.sum(&:amount)
@@ -145,7 +145,7 @@ module Reading
       ALIASES = {
         average_rating: %w[ar],
         average_length: %w[al],
-        :"average_item-amount" => %w[aia ai],
+        average_amount: %w[aia ai],
         :"average_daily-amount" => %w[ada ad],
         total_item: %w[item count ti],
         total_amount: %w[amount ta],
