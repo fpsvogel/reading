@@ -1643,6 +1643,78 @@ class StatsTest < Minitest::Test
         { rating: nil, variants: [] },
       ],
     },
+    year: {
+      input: "average rating by year",
+      result: {
+        2021 => 2,
+        2022 => 3,
+        2023 => nil,
+        2024 => 2,
+      },
+      items: [
+        { rating: 2, variants: [{}], experiences: [
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2021,10,10)..Date.new(2022,1,10) }] },
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2024,4,10)..Date.new(2024,4,15) }] }] },
+        { rating: 4, variants: [{}], experiences: [
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2022,12,10)..Date.new(2022,12,15) }] }] },
+        { rating: 8, experiences: [] },
+      ],
+    },
+    month: {
+      input: "average rating by month",
+      result: {
+        [2021, 1] => nil,
+        [2021, 2] => nil,
+        [2021, 3] => nil,
+        [2021, 4] => nil,
+        [2021, 5] => nil,
+        [2021, 6] => nil,
+        [2021, 7] => nil,
+        [2021, 8] => nil,
+        [2021, 9] => nil,
+        [2021, 10] => 2,
+        [2021, 11] => 2,
+        [2021, 12] => 3,
+        [2022, 1] => 3,
+        [2022, 2] => 4,
+        [2022, 3] => nil,
+        [2022, 4] => 2,
+        [2022, 5] => nil,
+        [2022, 6] => nil,
+        [2022, 7] => nil,
+        [2022, 8] => nil,
+        [2022, 9] => nil,
+        [2022, 10] => nil,
+        [2022, 11] => nil,
+        [2022, 12] => nil,
+      },
+      items: [
+        { rating: 2, variants: [{}], experiences: [
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2021,10,10)..Date.new(2022,1,10) }] },
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2022,4,10)..Date.new(2022,4,15) }] }] },
+        { rating: 4, variants: [{}], experiences: [
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2021,12,10)..Date.new(2022,2,10) }] }] },
+        { rating: 8, experiences: [] },
+      ],
+    },
     genre: {
       input: "average rating by genre",
       result: { "cats" => 16, "fiction" => 3, "history" => 5, "memoir" => nil },

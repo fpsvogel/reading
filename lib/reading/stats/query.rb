@@ -32,8 +32,8 @@ require_relative 'grouping'
 # ✅end-date(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS
-# by month(s)
-# by year(s)
+# ✅by month(s)
+# ✅by year(s)
 # ✅by genre(s)
 # ✅by rating(s)
 # ✅by format(s)

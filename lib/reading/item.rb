@@ -278,12 +278,12 @@ module Reading
       #     spans_before = [*spans_before, span_middle_before]
       #     spans_after = [span_middle_after, *spans_after]
 
-      #     planned_spans_before.each { |i, planned_span|
+      #     planned_spans_before.each do |i, planned_span|
       #       spans_before.insert(i, planned_span)
-      #     }
-      #     planned_spans_after.each { |i, planned_span|
+      #     end
+      #     planned_spans_after.each do |i, planned_span|
       #       spans_after.insert(i - middle_index, planned_span)
-      #     }
+      #     end
       #   end
 
       #   experience_middle_before = experience_middle.with(
