@@ -992,8 +992,8 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (not)" => {
-      input: "average rating end-date!=2022",
-      result: 9,
+      input: "average rating end-date!=2022, 2021",
+      result: 16,
       items: [
         { rating: 2, experiences: [{ spans: [
             { dates: Date.new(2021, 12, 1)..Date.new(2021, 12, 31) }] }] },
@@ -1006,7 +1006,7 @@ class StatsTest < Minitest::Test
       ],
     },
     :"end date (or)" => {
-      input: "average rating end-date=2021,2023",
+      input: "average rating end-date=2021, 2023",
       result: 9,
       items: [
         { rating: 2, experiences: [{ spans: [
@@ -1046,6 +1046,223 @@ class StatsTest < Minitest::Test
             { length: 10 },
             { length: 20 },
         ]},
+      ],
+    },
+    :"date" => {
+      input: "total amount date=2022/9",
+      result: 100,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"date (or)" => {
+      input: "total amount date=2022/10, 2022/8",
+      result: 1250,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"date (not)" => {
+      input: "total amount date!=2022/9, 2022/11",
+      result: 750,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 2)..Date.new(2022, 11, 30) }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"date (greater than)" => {
+      input: "total amount date>2022/9",
+      result: 1100,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"date (greater than or equal to)" => {
+      input: "total amount date>=2022/9",
+      result: 1200,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"date (less than)" => {
+      input: "total amount date<2022/9",
+      result: 150,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
+      ],
+    },
+    :"date (less than or equal to)" => {
+      input: "total amount date<=2022/9",
+      result: 250,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 2)..Date.new(2022, 10, 30) }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
       ],
     },
     :"experiences" => {
@@ -1597,6 +1814,10 @@ class StatsTest < Minitest::Test
       "average rating experiences=none",
     :"none value for daysago" =>
       "average rating daysago=none",
+    :"overlapping end-date ranges" =>
+      "average rating end-date=2022/8-9, 2022/9-10",
+    :"overlapping date ranges" =>
+      "average rating date=2022/8-9, 2022/9-10",
   }
 
   # ==== TESTS

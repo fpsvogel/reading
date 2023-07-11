@@ -13,7 +13,7 @@ module Reading
 
         split_input = input.split(INPUT_SPLIT)
 
-        split_input[1..-1].each do |filter_input|
+        split_input[1..].each do |filter_input|
           match_found = false
 
           REGEXES.each do |key, regex|
@@ -97,10 +97,6 @@ module Reading
           matches
         },
         done: proc { |values, operator, items|
-          if values.any?(&:nil?)
-            raise InputError, "The \"done\" filter cannot take a \"none\" value"
-          end
-
           done_progresses = values.map { |value|
             (value.match(/\A(\d+)?%/).captures.first.to_f.clamp(0.0, 100.0) / 100) ||
               (raise InputError, "Progress must be a percentage")
@@ -197,10 +193,6 @@ module Reading
           matches
         },
         title: proc { |values, operator, items|
-          if values.any?(&:nil?)
-            raise InputError, "The \"title\" filter cannot take a \"none\" value"
-          end
-
           titles = values
             .map(&:downcase)
             .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
@@ -366,15 +358,10 @@ module Reading
           filtered_items
         },
         :'end-date' => proc { |values, operator, items|
-          if values.any?(&:nil?)
-            raise InputError,
-              "The \"enddate\" filter cannot take a \"none\" value"
-          end
-
           end_date_ranges = values.map { |value|
             match = value.match(DATES_REGEX) ||
               (raise InputError,
-                "End date must be in a date (yyyy/[mm]) or a date range " \
+                "End date must be in yyyy/[mm] format, or a date range " \
                 "(yyyy/[mm]-[yyyy]/[mm])")
 
             start_date = Date.new(
@@ -390,6 +377,16 @@ module Reading
 
             start_date..end_date
           }
+
+          end_date_ranges.each.with_index do |a, i_a|
+            end_date_ranges.each.with_index do |b, i_b|
+              next if i_a == i_b
+
+              if b.begin <= a.end && a.begin <= b.end
+                raise InputError, "Overlapping date ranges"
+              end
+            end
+          end
 
           filtered_items = items.map { |item|
             # Ensure multiple values after a negative operator have an "and"
@@ -425,12 +422,80 @@ module Reading
 
           filtered_items
         },
-        experience: proc { |values, operator, items|
-          if values.any?(&:nil?)
-            raise InputError,
-              "The \"experiences\" filter cannot take a \"none\" value"
+        date: proc { |values, operator, items|
+          date_ranges = values.map { |value|
+            match = value.match(DATES_REGEX) ||
+              (raise InputError,
+                "Date must be in yyyy/[mm] format, or a date range " \
+                "(yyyy/[mm]-[yyyy]/[mm])")
+
+            start_date = Date.new(
+              match[:start_year].to_i,
+              match[:start_month]&.to_i || 1,
+              1,
+            )
+            end_date = Date.new(
+              match[:end_year]&.to_i || start_date.year,
+              match[:end_month]&.to_i || match[:start_month]&.to_i || 12,
+              -1
+            )
+
+            start_date..end_date
+          }
+
+          date_ranges.each.with_index do |a, i_a|
+            date_ranges.each.with_index do |b, i_b|
+              next if i_a == i_b
+
+              if b.begin <= a.end && a.begin <= b.end
+                raise InputError, "Overlapping date ranges"
+              end
+            end
           end
 
+          filtered_items = items.map { |item|
+            case operator
+            when :==
+              split_items = date_ranges.sort_by(&:begin).flat_map { |date_range|
+                without_before = item.split(date_range.end.next_day).first
+                without_before_or_after = without_before&.split(date_range.begin)&.last
+
+                without_before_or_after
+              }
+              .compact
+            when :'!='
+              split_item = item
+
+              date_ranges.each do |date_range|
+                before = split_item.split(date_range.begin).first
+                after = split_item.split(date_range.end.next_day).last
+
+                split_item = split_item.with_experiences(
+                  (before&.experiences || []) +
+                  (after&.experiences || [])
+                )
+              end
+
+              split_items = [split_item]
+            when :<=
+              split_items = [item.split(date_ranges[0].end.next_day).first]
+            when :>=
+              split_items = [item.split(date_ranges[0].begin).last]
+            when :<
+              split_items = [item.split(date_ranges[0].begin).first]
+            when :>
+              split_items = [item.split(date_ranges[0].end.next_day).last]
+            end
+
+            split_items.reduce { |merged, split_item|
+              merged.with_experiences(merged.experiences + split_item.experiences)
+            }
+          }
+          .compact
+
+          filtered_items
+        },
+        experience: proc { |values, operator, items|
           experience_counts = values.map { |value|
             Integer(value, exception: false) ||
               (raise InputError, "Experience count must be an integer")
@@ -451,10 +516,6 @@ module Reading
           matches
         },
         status: proc { |values, operator, items|
-          if values.any?(&:nil?)
-            raise InputError, "The \"status\" filter cannot take a \"none\" value"
-          end
-
           statuses = values.map { _1.squeeze(' ').gsub(' ', '_').to_sym }
 
           filtered_items = items.map { |item|
@@ -587,6 +648,24 @@ module Reading
         genre: true,
       }
 
+      PROHIBIT_NONE_VALUE = {
+        done: true,
+        title: true,
+        :'end-date' => true,
+        date: true,
+        experience: true,
+        status: true,
+      }
+
+      PROHIBIT_MULTIPLE_VALUES_AFTER_NOT = {
+        done: true,
+        title: true,
+        :'end-date' => true,
+        date: true,
+        experience: true,
+        status: true,
+      }
+
       REGEXES = ACTIONS.map { |key, _action|
         regex =
           %r{\A
@@ -619,7 +698,7 @@ module Reading
 
         unless allowed_operators.include? operator_str
           raise InputError, "Operator \"#{operator_str}\" not allowed in the " \
-            "#{key} filter, only #{allowed_operators.join(', ')} allowed"
+            "\"#{key}\" filter, only #{allowed_operators.join(', ')} allowed"
         end
 
         operator = operator_str.to_sym
@@ -627,17 +706,28 @@ module Reading
         operator = :include? if operator == :~
         operator = :exclude? if operator == :'!~'
 
-        or_values = predicate
+        values = predicate
           .split(',')
           .map(&:strip)
           .map { _1.downcase == 'none' ? nil : _1 }
 
-        if or_values.include?(nil) && !%i[== != include? exclude?].include?(operator)
+        # if values.count > 1 && operator == :'!=' && PROHIBIT_MULTIPLE_VALUES_AFTER_NOT[key]
+        # end
+
+        if values.count > 1 && %i[> < >= <=].include?(operator)
+          raise InputError, "Multiple values not allowed after the operators >, <, >=, or <="
+        end
+
+        if values.include?(nil) && !%i[== != include? exclude?].include?(operator)
           raise InputError,
             "\"none\" can only be used after the operators ==, !=, ~, !~"
         end
 
-        matched_items = ACTIONS[key].call(or_values, operator, items)
+        if values.any?(&:nil?) && PROHIBIT_NONE_VALUE[key]
+          raise InputError, "The \"#{key}\" filter cannot take a \"none\" value"
+        end
+
+        matched_items = ACTIONS[key].call(values, operator, items)
         filtered_items += matched_items
 
         filtered_items.uniq

@@ -28,7 +28,7 @@ require_relative 'grouping'
 # ✅length(s)=/>/>=/</<=/!=
 # ✅done(s)=/>/>=/</<=/!=
 # ✅experience(s)=/>/>=/</<=/!=
-# date(s)=/>/>=/</<=/!=
+# ✅date(s)=/>/>=/</<=/!=
 # ✅end-date(s)=/>/>=/</<=/!=
 
 # RESULT GROUPINGS

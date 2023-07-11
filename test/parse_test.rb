@@ -1768,7 +1768,7 @@ class ParseTest < Minitest::Test
   ## TESTS: FEATURES OF SINGLE COLUMNS
   inputs.keys.select { |key| key.start_with?("features_") }.each do |group_name|
     inputs[group_name].each do |name, file_str|
-      columns_sym = group_name[group_name.to_s.index("_") + 1..-1].to_sym
+      columns_sym = group_name[(group_name.to_s.index("_") + 1)..].to_sym
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
       define_method("test_#{columns_sym}_feature_#{name}") do

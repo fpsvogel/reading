@@ -117,20 +117,38 @@ module Reading
     # @date [Date] must be the first day of a month.
     # @return [Array(Item, Item)]
     def split(date)
-      if date.day != 1
-        raise ArgumentError, "The date for Item#split must be the first of a month."
-      end
-
+      before_index = nil
       middle_indices = experiences.map.with_index { |experience, i|
-        i if experience.spans.first.dates.begin < date &&
-          experience.last_end_date &&
-          experience.last_end_date >= date
+        if experience.spans.first.dates.begin < date && experience.last_end_date
+          before_index = i
+
+          if experience.last_end_date >= date
+            i
+          else
+            nil
+          end
+        end
       }
       .compact
 
-      # There are no experiences with done spans that overlap the date. (I.e.
-      # date is before/after all spans, or overlaps with an in-progress span.)
-      return [self] if middle_indices.none?
+      # There are no experiences with done spans that overlap the date.
+      if middle_indices.none?
+        # The Item is planned.
+        return [] if experiences.none? { _1.spans.first.dates }
+        # date is after all spans.
+        return [self, nil] if experiences.all? { _1.last_end_date && date > _1.last_end_date }
+        # date is before all spans, or overlaps with an in-progress span.
+        return [nil, self] if experiences.all? { _1.spans.first.dates.begin >= date } ||
+          experiences.any? { _1.spans.first.dates.begin < date && _1.last_end_date.nil? }
+
+        # Date is in between experiences.
+        if before_index
+          item_before = with_experiences(experiences[..before_index])
+          item_after = with_experiences(experiences[(before_index + 1)..])
+
+          return [item_before, item_after]
+        end
+      end
 
       if middle_indices.first == 0
         experiences_before = []
@@ -146,11 +164,21 @@ module Reading
       end
 
       experiences_middle.each do |experience_middle|
+        before_index = nil
         span_middle_index = experience_middle
           .spans
-          .index { _1.dates && _1.dates.begin < date && _1.dates.end >= date }
+          .index.with_index { |span, i|
+            if span.dates && span.dates.begin < date
+              before_index = i
 
-        if span_middle_index
+              span.dates.end >= date
+            end
+          }
+
+        if span_middle_index.nil? # date is between spans.
+          spans_before = experience_middle.spans[..before_index]
+          spans_after = experience_middle.spans[(before_index + 1)..]
+        else
           span_middle = experience_middle.spans[span_middle_index]
 
           dates_before = span_middle.dates.begin..date.prev_day

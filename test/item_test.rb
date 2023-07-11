@@ -26,20 +26,12 @@ class ItemTest < Minitest::Test
   end
 
   describe "#split" do
-    context "when a date is given that is not the first of the month" do
-      it "raises an exception" do
-        assert_raises ArgumentError do
-          book.split(Date.new(2021,1,2))
-        end
-      end
-    end
-
     context "with a planned Item" do
-      it "returns the original Item" do
+      it "returns an empty array" do
         item = Reading::Item.new({ title: "Planning for Dummies", experiences: [] })
         any_date = Date.new(2022,1,1)
 
-        assert_equal [item], item.split(any_date)
+        assert_equal [], item.split(any_date)
       end
     end
 
@@ -49,7 +41,7 @@ class ItemTest < Minitest::Test
           item = book
           split_at = Date.new(2021,1,1)
 
-          assert_equal [item], item.split(split_at)
+          assert_equal [nil, item], item.split(split_at)
         end
       end
 
@@ -58,17 +50,37 @@ class ItemTest < Minitest::Test
           item = book
           split_at = Date.new(2018,2,1)
 
-          assert_equal [item], item.split(split_at)
+          assert_equal [nil, item], item.split(split_at)
         end
       end
 
       context "when the date is after all experiences and they are all done" do
         it "returns the original Item" do
-          done_experiences = BOOK[:experiences][0..1]
+          done_experiences = BOOK[:experiences][..1]
           item = book(:merge, experiences: done_experiences)
           split_at = Date.new(2019,7,1)
 
-          assert_equal [item], item.split(split_at)
+          assert_equal [item, nil], item.split(split_at)
+        end
+      end
+
+      context "when the date is between experiences" do
+        it "returns two Items with experiences before/after the given date" do
+          item = book
+          split_at = Date.new(2018,6,1)
+          split_item_a, split_item_b = item.split(split_at)
+
+          expected_experiences_a = [item.experiences.first]
+          expected_variants_a = [item.variants.first]
+
+          expected_experiences_b = item.experiences[1..]
+          expected_variants_b = item.variants
+
+          assert_equal expected_experiences_a, split_item_a.experiences
+          assert_equal expected_variants_a, split_item_a.variants
+
+          assert_equal expected_experiences_b, split_item_b.experiences
+          assert_equal expected_variants_b, split_item_b.variants
         end
       end
 
@@ -126,7 +138,7 @@ class ItemTest < Minitest::Test
           ])
           split_at = last_span[:dates].begin
 
-          assert_equal [item], item.split(split_at)
+          assert_equal [nil, item], item.split(split_at)
         end
       end
 
@@ -135,7 +147,7 @@ class ItemTest < Minitest::Test
           item = podcast
           split_at = Date.new(2021,10,1)
 
-          assert_equal [item], item.split(split_at)
+          assert_equal [nil, item], item.split(split_at)
         end
       end
 
@@ -144,7 +156,36 @@ class ItemTest < Minitest::Test
           item = podcast
           split_at = Date.new(2022,2,1)
 
-          assert_equal [item], item.split(split_at)
+          assert_equal [item, nil], item.split(split_at)
+        end
+      end
+
+      context "when the date is between spans" do
+        it "returns two Items with experiences before/after the given date" do
+          item = podcast(title: 'lol')
+          split_at = Date.new(2021,11,14)
+          split_item_a, split_item_b = item.split(split_at)
+
+          before_span_index = 4
+          before_span = item.experiences[0].spans[before_span_index]
+          expected_experiences_a = [
+            item.experiences[0].to_h.merge(
+              spans: item.experiences[0].spans[..before_span_index],
+              last_end_date: before_span.dates.end,
+            ),
+          ]
+
+          expected_experiences_b = [
+            item.experiences[0].to_h.merge(
+              spans: item.experiences[0].spans[(before_span_index + 1)..],
+            ),
+          ]
+
+          assert_equal expected_experiences_a.map(&:to_data),
+            split_item_a.experiences
+
+          assert_equal expected_experiences_b.map(&:to_data),
+            split_item_b.experiences
         end
       end
 
@@ -159,7 +200,7 @@ class ItemTest < Minitest::Test
           expected_experiences_a = [
             item.experiences[0].to_h.merge(
               spans: [
-                *item.experiences[0].spans[0..(mid_span_index - 1)].map(&:to_h),
+                *item.experiences[0].spans[..(mid_span_index - 1)].map(&:to_h),
                 mid_span.to_h.merge(
                   dates: mid_span.dates.begin..split_at.prev_day,
                   amount: mid_span.amount * (7/19.0),
