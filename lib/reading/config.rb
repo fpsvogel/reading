@@ -18,7 +18,7 @@ module Reading
 
     # @param custom_config [Hash] a custom config which overrides the defaults,
     #   e.g. { enabled_columns: [:head, :end_dates] }
-    def initialize(custom_config)
+    def initialize(custom_config = {})
       @custom_config = custom_config
 
       build_hash

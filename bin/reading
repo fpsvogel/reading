@@ -31,10 +31,11 @@ unless input
     "parsereading '3|📕Trying|Little Library 1970147288'"
 end
 
-config = {}
 if ARGV[1]
   enabled_columns = ARGV[1].split(",").map(&:strip).map(&:to_sym)
-  config = { enabled_columns: }
+  config = Reading::Config.new({ enabled_columns: })
+else
+  config = Reading.default_config
 end
 
 input_is_csv_path = input.end_with?('.csv')
@@ -53,6 +54,7 @@ if input_is_csv_path
     puts Reading.stats(
       input:,
       items:,
+      config:,
       result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
     )
   end

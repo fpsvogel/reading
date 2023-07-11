@@ -7,8 +7,9 @@ module Reading
       # the constants below.
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items on which to run the operation.
+      # @param config [Hash] an entire config.
       # @return [Object] the return value of the action.
-      def self.filter(input, items)
+      def self.filter(input, items, config)
         filtered_items = items
 
         split_input = input.split(INPUT_SPLIT)
@@ -23,7 +24,13 @@ module Reading
               match_found = true
 
               begin
-                filtered_items = filter_single(key, match[:predicate], match[:operator], filtered_items)
+                filtered_items = filter_single(
+                  key,
+                  match[:predicate],
+                  match[:operator],
+                  filtered_items,
+                  config,
+                )
               rescue InputError => e
                 raise InputError, "#{e.message} in \"#{input}\""
               end
@@ -561,14 +568,13 @@ module Reading
 
           matches
         },
-        length: proc { |values, operator, items|
+        length: proc { |values, operator, items, config|
           lengths = values.map { |value|
             if value
               Integer(value, exception: false) ||
                 Item::TimeLength.parse(
                   value,
-                  # TODO: somehow provide the user with control over the pages per hour.
-                  pages_per_hour: Reading.default_config.fetch(:pages_per_hour),
+                  pages_per_hour: config.fetch(:pages_per_hour),
                 ) ||
                 (raise InputError, "Length must be a number of pages or time as hh:mm")
             end
@@ -684,8 +690,9 @@ module Reading
       # @param predicate [String] the input value(s) after the operator.
       # @param operator_str [String] from the input.
       # @param items [Array<Item>]
+      # @param config [Hash] an entire config.
       # @return [Array<Item>] a subset of the given Items.
-      private_class_method def self.filter_single(key, predicate, operator_str, items)
+      private_class_method def self.filter_single(key, predicate, operator_str, items, config)
         filtered_items = []
 
         if NUMERIC_OPERATORS[key]
@@ -727,7 +734,7 @@ module Reading
           raise InputError, "The \"#{key}\" filter cannot take a \"none\" value"
         end
 
-        matched_items = ACTIONS[key].call(values, operator, items)
+        matched_items = ACTIONS[key].call(values, operator, items, config)
         filtered_items += matched_items
 
         filtered_items.uniq

@@ -26,8 +26,11 @@ module Reading
       # @param path [String] path to the CSV file; used if no lines are given.
       # @param lines [Object] an object responding to #each_line with CSV row(s);
       #   if nil, path is used instead.
-      # @param config [Hash] a custom config which overrides the defaults,
-      #   e.g. { errors: { styling: :html } }
+      # @param config [Hash, Config] a custom config which overrides the defaults,
+      #   e.g. { errors: { styling: :html } } or a Config containing that hash.
+      #   You want to pass in a Config rather than a hash in cases where you
+      #   want the original hash to be mutated according to custom config
+      #   contained at the top of a CSV reading log.
       # @param hash_output [Boolean] whether an array of raw Hashes should be
       #   returned, without Items being created from them.
       # @param view [Class, nil, Boolean] the class that will be used to build
@@ -36,7 +39,7 @@ module Reading
       #   #initialize take an Item and a full config as arguments.
       def initialize(path: nil, lines: nil, config: {}, hash_output: false, item_view: Item::View)
         validate_path_or_lines(path, lines)
-        full_config = Config.hash(config)
+        full_config = config.is_a?(Config) ? config.hash : Config.hash(config)
 
         @path = path
         @lines = lines
