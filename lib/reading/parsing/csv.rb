@@ -19,7 +19,7 @@ module Reading
     # inspired by the Parslet gem: https://kschiess.github.io/parslet/transform.html
     #
     class CSV
-      private attr_reader :parser, :transformer, :hash_output, :item_view
+      private attr_reader :parser, :transformer, :hash_output, :item_view, :error_handler, :pastel
 
       # Validates a path or lines (string, file, etc.) of a CSV reading log,
       # builds the config, and initializes the parser and transformer.
@@ -33,11 +33,12 @@ module Reading
       #   contained at the top of a CSV reading log.
       # @param hash_output [Boolean] whether an array of raw Hashes should be
       #   returned, without Items being created from them.
-      # @param view [Class, nil, Boolean] the class that will be used to build
+      # @param item_view [Class, nil, Boolean] the class that will be used to build
       #   each Item's view object, or nil/false if no view object should be built.
       #   If you use a custom view class, the only requirement is that its
       #   #initialize take an Item and a full config as arguments.
-      def initialize(path: nil, lines: nil, config: {}, hash_output: false, item_view: Item::View)
+      # @param error_handler [Proc] if not provided, errors are raised.
+      def initialize(path: nil, lines: nil, config: {}, hash_output: false, item_view: Item::View, error_handler: nil)
         validate_path_or_lines(path, lines)
         full_config = config.is_a?(Config) ? config.hash : Config.hash(config)
 
@@ -47,6 +48,8 @@ module Reading
         @item_view = item_view
         @parser = Parser.new(full_config)
         @transformer = Transformer.new(full_config)
+        @error_handler = error_handler
+        @pastel = Pastel.new
       end
 
       # Parses and transforms the reading log into item data.
@@ -61,10 +64,20 @@ module Reading
         input.each_line do |line|
           begin
             intermediate = parser.parse_row_to_intermediate_hash(line)
+
             next if intermediate.empty? # When the row is blank or a comment.
+
             row_items = transformer.transform_intermediate_hash_to_item_hashes(intermediate)
           rescue Reading::Error => e
-            raise e.class, "#{e.message} in the row \"#{line}\""
+            colored_e =
+              e.class.new("#{pastel.bright_red(e.message)} in the row #{pastel.bright_yellow(line.chomp)}")
+
+            if error_handler
+              error_handler.call(colored_e)
+              next
+            else
+              raise colored_e
+            end
           end
 
           items += row_items

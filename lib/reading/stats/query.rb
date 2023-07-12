@@ -2,49 +2,11 @@ require_relative 'operation'
 require_relative 'filter'
 require_relative 'grouping'
 
-# average rating of in progress 3 star audiobook dnfs from Hoopla by genre
-
-# OPERATIONS:
-# ✅ average rating(s)
-# ✅ average length(s)
-# ✅ average amount(s)
-# ✅ total item(s)
-# ✅ total amount(s)
-# ✅ top/bottom 5 rating(s)
-# ✅ top/bottom 5 length(s)
-# ✅ top/bottom 5 amount(s)
-# ✅ top/bottom 5 speed(s)
-
-# ITEM FILTERS
-# ✅genre(s)=/!=
-# ✅rating(s)=/>/>=/</<=/!=
-# ✅format(s)=/!=
-# ✅source(s)=/!=/~/!~
-# ✅title(s)=/!=/~/!~
-# ✅author(s)=/!=/~/!~
-# ✅series=/!=/~/!~
-# ✅note(s)=/!=/~/!~
-# ✅status(es)=/!=
-# ✅length(s)=/>/>=/</<=/!=
-# ✅done(s)=/>/>=/</<=/!=
-# ✅experience(s)=/>/>=/</<=/!=
-# ✅date(s)=/>/>=/</<=/!=
-# ✅end-date(s)=/>/>=/</<=/!=
-
-# RESULT GROUPINGS
-# ✅by month(s)
-# ✅by year(s)
-# ✅by genre(s)
-# ✅by rating(s)
-# ✅by format(s)
-# ✅by source(s)
-# ✅by length(s)
-
 module Reading
   module Stats
     # Gives statistics on an array of Items.
     class Query
-      private attr_reader :input, :items, :config, :result_formatters
+      private attr_reader :input, :items, :config, :result_formatters, :pastel
 
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items to be queried.
@@ -58,6 +20,7 @@ module Reading
         @items = items
         @config = config
         @result_formatters = result_formatters
+        @pastel = Pastel.new
       end
 
       # Parses the query and returns the result.
@@ -67,6 +30,8 @@ module Reading
         grouped_items = Grouping.group(input, filtered_items, config)
 
         Operation.execute(input, grouped_items, result_formatters || {})
+      rescue Reading::Error => e
+        raise e.class, pastel.bright_red(e.message)
       end
     end
   end

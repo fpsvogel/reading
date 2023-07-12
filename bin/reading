@@ -41,7 +41,9 @@ end
 input_is_csv_path = input.end_with?('.csv')
 
 if input_is_csv_path
-  items = Reading.parse(path: input, config:, item_view: false)
+  error_handler = ->(e) { puts "Skipped a row due to a parsing error: #{e}" }
+
+  items = Reading.parse(path: input, config:, item_view: false, error_handler:)
 
   loop do
     raw_input = Readline.readline(PASTEL.bright_cyan("> "), true)
@@ -57,9 +59,15 @@ if input_is_csv_path
       config:,
       result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
     )
+  rescue Reading::Error => e
+    puts e
   end
 else # CSV string arg
-  item_hashes = Reading.parse(lines: input, config:, hash_output: true, item_view: false)
+  begin
+    item_hashes = Reading.parse(lines: input, config:, hash_output: true, item_view: false)
+  rescue Reading::Error => e
+    puts "Skipped a row due to a parsing error: #{e}"
+  end
 
   ap item_hashes
 end
