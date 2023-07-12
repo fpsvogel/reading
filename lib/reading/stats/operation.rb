@@ -113,6 +113,20 @@ module Reading
             .reject { |_title, length| length.nil? }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
+        top_amount: proc { |items, number_arg|
+          items
+            .map { |item|
+              amount = item.experiences.sum { |experience|
+                experience.spans.sum { |span|
+                  (span.amount * span.progress).to_i_if_whole
+                }
+              }
+
+              [item.title, amount]
+            }
+            .reject { |_title, amount| amount.zero? }
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount| amount }
+        },
         top_speed: proc { |items, number_arg|
           items
             .map { |item| calculate_speed(item) }
@@ -132,6 +146,20 @@ module Reading
             .reject { |_title, length| length.nil? }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
+        bottom_amount: proc { |items, number_arg|
+          items
+            .map { |item|
+              amount = item.experiences.sum { |experience|
+                experience.spans.sum { |span|
+                  (span.amount * span.progress).to_i_if_whole
+                }
+              }
+
+              [item.title, amount]
+            }
+            .reject { |_title, amount| amount.zero? }
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount| amount }
+        },
         bottom_speed: proc { |items, number_arg|
           items
             .map { |item| calculate_speed(item) }
@@ -147,13 +175,15 @@ module Reading
         average_length: %w[al],
         average_amount: %w[aia ai],
         :"average_daily-amount" => %w[ada ad],
-        total_item: %w[item count ti],
-        total_amount: %w[amount ta],
+        total_item: %w[item count],
+        total_amount: %w[amount],
         top_rating: %w[tr],
-        top_length: %w[tl tl],
+        top_length: %w[tl],
+        top_amount: %w[ta],
         top_speed: %w[ts],
         bottom_rating: %w[br],
         bottom_length: %w[bl],
+        bottom_amount: %w[ba],
         bottom_speed: %w[bs],
       }
 

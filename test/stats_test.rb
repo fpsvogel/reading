@@ -162,6 +162,18 @@ class StatsTest < Minitest::Test
         { title: "No length", variants: [{ length: nil }] },
       ],
     },
+    :"top amounts" => {
+      input: "top 2 amount",
+      result: [["So much", 140], ["Much", Reading.time('3:00')]],
+      items: [
+        { title: "Little", experiences: [
+          { spans: [{ amount: Reading.time('1:00'), progress: 1.0 }] },
+          { spans: [{ amount: 70, progress: 0.5 }] }] },
+        { title: "So much", experiences: [{ spans: [{ amount: 140, progress: 1.0 }] }] },
+        { title: "Much", experiences: [{ spans: [{ amount: Reading.time('6:00'), progress: 0.5 }] }] },
+        { title: "Nothing", experiences: [] },
+      ],
+    },
     :"top speeds" => {
       input: "top 2 speed",
       result: [["Sprint", { amount: 200, days: 1 }], ["Jog", { amount: Reading.time('5:00'), days: 5 }]],
@@ -204,6 +216,18 @@ class StatsTest < Minitest::Test
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
         { title: "Longish", variants: [{ length: Reading.time('10:00') }] },
         { title: "No length", variants: [{ length: nil }] },
+      ],
+    },
+    :"bottom amounts" => {
+      input: "bottom 2 amount",
+      result: [["Little", 70], ["Much", Reading.time('3:00')]],
+      items: [
+        { title: "Little", experiences: [
+          { spans: [{ amount: Reading.time('1:00'), progress: 1.0 }] },
+          { spans: [{ amount: 70, progress: 0.5 }] }] },
+        { title: "So much", experiences: [{ spans: [{ amount: 140, progress: 1.0 }] }] },
+        { title: "Much", experiences: [{ spans: [{ amount: Reading.time('6:00'), progress: 0.5 }] }] },
+        { title: "Nothing", experiences: [] },
       ],
     },
     :"bottom speeds" => {
