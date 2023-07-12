@@ -8,30 +8,29 @@ require_relative 'reading/item/time_length.rb'
 
 # The gem's public API. See https://github.com/fpsvogel/reading#usage
 #
-# ARCHITECTURAL OVERVIEW:
+# Architectural overview:
 #
-# ::parse and ::filter:
 #                                         (filtered    (stats input*
 #        (CSV input)             (Items)   Items)       and Items)    (results)
 #             |                   Λ   |        Λ             |          Λ
 #             V                   |   V        |             V          |
-#           ::parse               |  ::filter  |           ::stats      |
-#              \                  |        |   |             |          |
-#               \                 |        |   |             |          |
-# errors.rb,     \                |        |   |             |          |
-# Config --- Parsing::CSV -----> Item      Filter            Stats::Query
-#                / \              / \                         / | \
-#               /   \   Item::View  Item::TimeLength         /  |  \
-#              /     \                                      /   |   \
-#   Parsing::Parser  Parsing::Transformer         Stats::Filter |  Stats::Operation
-#          |                 |                           Stats::Grouping
-#    parsing/rows/*   parsing/attributes/*
-#                                              * Stats input is either from the
-#                                                command line (via the `reading`
-#                                                command) or provided via Ruby
-#                                                code that uses this gem.
-#                                                Results likewise go either to
-#                                                stdout or to the gem user.
+#          ::parse                |  ::filter  |           ::stats      |
+#             |                   |        |   |             |          |
+#             |                   |        |   |             |          |
+#             |                   |        |   |             |          |
+#        Parsing::CSV ---------> Item      Filter            Stats::Query
+#            /   \               / \                          / | \
+#           /     \    Item::View  Item::TimeLength          /  |  \
+#          /       \                                        /   |   \
+# Parsing::Parser  Parsing::Transformer           Stats::Filter |  Stats::Operation
+#        |                 |                             Stats::Grouping
+#  parsing/rows/*   parsing/attributes/*
+#                                               * Stats input is either from the
+#                                                 command line (via the `reading`
+#                                                 command) or provided via Ruby
+#                                                 code that uses this gem.
+#                                                 Results likewise go either to
+#                                                 stdout or to the gem user.
 #
 module Reading
   # Parses a CSV file or string. See Parsing::CSV#initialize and #parse for details.
@@ -51,17 +50,10 @@ module Reading
     query.result
   end
 
-  # The default config.
-  # @return [Hash]
-  def self.default_config
-    @default_config ||= Config.hash
-  end
-
   # A shortcut for getting a time from a string.
   # @param string [String] a time duration in "h:mm" format.
-  # @param pages_per_hour [Integer] from config.
   # @return [Item::TimeLength]
-  def self.time(string, pages_per_hour: default_config.fetch(:pages_per_hour))
-    Item::TimeLength.parse(string, pages_per_hour:)
+  def self.time(string)
+    Item::TimeLength.parse(string)
   end
 end

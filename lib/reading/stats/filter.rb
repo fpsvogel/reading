@@ -7,9 +7,8 @@ module Reading
       # the constants below.
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items on which to run the operation.
-      # @param config [Hash] an entire config.
       # @return [Object] the return value of the action.
-      def self.filter(input, items, config)
+      def self.filter(input, items)
         filtered_items = items
 
         split_input = input.split(INPUT_SPLIT)
@@ -29,7 +28,6 @@ module Reading
                   match[:predicate],
                   match[:operator],
                   filtered_items,
-                  config,
                 )
               rescue InputError => e
                 raise InputError, "#{e.message} in \"#{input}\""
@@ -568,14 +566,11 @@ module Reading
 
           matches
         },
-        length: proc { |values, operator, items, config|
+        length: proc { |values, operator, items|
           lengths = values.map { |value|
             if value
               Integer(value, exception: false) ||
-                Item::TimeLength.parse(
-                  value,
-                  pages_per_hour: config.fetch(:pages_per_hour),
-                ) ||
+                Item::TimeLength.parse(value) ||
                 (raise InputError, "Length must be a number of pages or time as hh:mm")
             end
           }
@@ -690,9 +685,8 @@ module Reading
       # @param predicate [String] the input value(s) after the operator.
       # @param operator_str [String] from the input.
       # @param items [Array<Item>]
-      # @param config [Hash] an entire config.
       # @return [Array<Item>] a subset of the given Items.
-      private_class_method def self.filter_single(key, predicate, operator_str, items, config)
+      private_class_method def self.filter_single(key, predicate, operator_str, items)
         filtered_items = []
 
         if NUMERIC_OPERATORS[key]
@@ -734,7 +728,7 @@ module Reading
           raise InputError, "The \"#{key}\" filter cannot take a \"none\" value"
         end
 
-        matched_items = ACTIONS[key].call(values, operator, items, config)
+        matched_items = ACTIONS[key].call(values, operator, items)
         filtered_items += matched_items
 
         filtered_items.uniq

@@ -13,16 +13,12 @@ class ItemTest < Minitest::Test
   using Reading::Util::HashArrayDeepFetch
   using Reading::Util::HashToData
 
-  def book(merge_type = :deep_merge, config: {}, **merge_hash)
-    Reading::Item.new(BOOK.send(merge_type, merge_hash), config: full_config(config))
+  def book(merge_type = :deep_merge, **merge_hash)
+    Reading::Item.new(BOOK.send(merge_type, merge_hash))
   end
 
-  def podcast(merge_type = :deep_merge, config: {}, **merge_hash)
-    Reading::Item.new(PODCAST.send(merge_type, merge_hash), config: full_config(config))
-  end
-
-  def full_config(custom_config = {})
-    Reading::Config.hash(custom_config)
+  def podcast(merge_type = :deep_merge, **merge_hash)
+    Reading::Item.new(PODCAST.send(merge_type, merge_hash))
   end
 
   describe "#split" do
@@ -162,7 +158,7 @@ class ItemTest < Minitest::Test
 
       context "when the date is between spans" do
         it "returns two Items with experiences before/after the given date" do
-          item = podcast(title: 'lol')
+          item = podcast
           split_at = Date.new(2021,11,14)
           split_item_a, split_item_b = item.split(split_at)
 
@@ -325,7 +321,7 @@ class ItemTest < Minitest::Test
       context "when the custom view is a custom class" do
         it "is built via that class" do
           custom_view = Class.new do
-            def initialize(item, config)
+            def initialize(item)
             end
 
             def something_custom
@@ -404,9 +400,13 @@ class ItemTest < Minitest::Test
 
       context "when the star minimum is nil" do
         it "is the item's rating" do
-          book_no_stars = book(config: { item: { view: { minimum_rating_for_star: nil } } })
+          Reading::Config.build(item: { view: { minimum_rating_for_star: nil } })
+
+          book_no_stars = book
 
           assert_equal book_no_stars.rating, book_no_stars.view.rating
+
+          Reading::Config.build # reset config to default
         end
       end
     end # #view#rating
@@ -420,10 +420,9 @@ class ItemTest < Minitest::Test
 
       context "when the item doesn't have a format" do
         it "is the default type emoji" do
-          config = Reading.default_config
-          podcast = podcast(config:, variants: [{ format: nil }])
-          default_type = config.deep_fetch(:item, :view, :default_type)
-          default_type_emoji = config.deep_fetch(:item, :view, :types, default_type, :emoji)
+          podcast = podcast(variants: [{ format: nil }])
+          default_type = Reading::Config.hash.deep_fetch(:item, :view, :default_type)
+          default_type_emoji = Reading::Config.hash.deep_fetch(:item, :view, :types, default_type, :emoji)
 
           assert_equal default_type_emoji, podcast.view.type_emoji
         end
@@ -502,9 +501,8 @@ class ItemTest < Minitest::Test
       context "when a variant has an ISBN/ASIN or URL" do
         context "when the second variant has both, the first has neither" do
           it "is from the second variant's ISBN" do
-            config = Reading.default_config
-            book_without_first_isbn = book(config:, variants: [{ isbn: nil }])
-            url_from_isbn = config
+            book_without_first_isbn = book(variants: [{ isbn: nil }])
+            url_from_isbn = Reading::Config.hash
               .deep_fetch(:item, :view, :url_from_isbn)
               .sub('%{isbn}', book_without_first_isbn.variants[1].isbn)
 

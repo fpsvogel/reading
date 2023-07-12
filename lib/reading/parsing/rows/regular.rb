@@ -24,10 +24,9 @@ module Reading
         # *after* calling ::match? on Rows::Blank, because that one catches
         # blank lines.
         # @param row_string [String]
-        # @param config [Hash]
         # @return [Boolean]
-        def self.match?(row_string, config)
-          !row_string.lstrip.start_with?(config.fetch(:comment_character))
+        def self.match?(row_string)
+          !row_string.lstrip.start_with?(Config.hash.fetch(:comment_character))
         end
       end
     end

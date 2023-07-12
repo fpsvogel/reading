@@ -33,9 +33,7 @@ end
 
 if ARGV[1]
   enabled_columns = ARGV[1].split(",").map(&:strip).map(&:to_sym)
-  config = Reading::Config.new({ enabled_columns: })
-else
-  config = Reading.default_config
+  Reading::Config.build(enabled_columns:)
 end
 
 input_is_csv_path = input.end_with?('.csv')
@@ -43,7 +41,7 @@ input_is_csv_path = input.end_with?('.csv')
 if input_is_csv_path
   error_handler = ->(e) { puts "Skipped a row due to a parsing error: #{e}" }
 
-  items = Reading.parse(path: input, config:, item_view: false, error_handler:)
+  items = Reading.parse(path: input, item_view: false, error_handler:)
 
   loop do
     raw_input = Readline.readline(PASTEL.bright_cyan("> "), true)
@@ -56,7 +54,6 @@ if input_is_csv_path
     results = Reading.stats(
       input:,
       items:,
-      config:,
       result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
     )
 
@@ -74,7 +71,7 @@ if input_is_csv_path
   end
 else # CSV string arg
   begin
-    item_hashes = Reading.parse(lines: input, config:, hash_output: true, item_view: false)
+    item_hashes = Reading.parse(lines: input, hash_output: true, item_view: false)
   rescue Reading::Error => e
     puts "Skipped a row due to a parsing error: #{e}"
   end

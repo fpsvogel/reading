@@ -1,7 +1,7 @@
 require_relative 'errors'
 
 module Reading
-  # Builds a hash config.
+  # Builds a singleton hash config.
   class Config
     using Util::HashDeepMerge
     using Util::HashArrayDeepFetch
@@ -12,8 +12,13 @@ module Reading
     # not an entire config, but it can be, in which case a copy is returned).
     # @param custom_config [Hash, Config]
     # @return [Hash]
-    def self.hash(custom_config = {})
-      new(custom_config).hash
+    def self.build(custom_config = {})
+      @hash = new(custom_config).hash
+    end
+
+    # @return [Hash]
+    def self.hash
+      @hash ||= build
     end
 
     # @param custom_config [Hash] a custom config which overrides the defaults,

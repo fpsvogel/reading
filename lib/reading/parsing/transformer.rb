@@ -20,13 +20,9 @@ module Reading
       using Util::HashArrayDeepFetch
       using Util::HashCompactByTemplate
 
-      attr_reader :config
       private attr_reader :attributes
 
-      # @param config [Hash] an entire config.
-      def initialize(config)
-        @config = config
-
+      def initialize
         set_attributes
       end
 
@@ -40,7 +36,7 @@ module Reading
           raise InvalidHeadError, "Blank or missing Head column"
         end
 
-        template = config.deep_fetch(:item, :template)
+        template = Config.hash.deep_fetch(:item, :template)
 
         parsed_row[:head].map.with_index { |_head, head_index|
           template.map { |attribute_name, default_value|
@@ -58,11 +54,11 @@ module Reading
       # Sets the attributes classes which do all the transforming work.
       # See parsing/attributes/*.
       def set_attributes
-        @attributes ||= config.deep_fetch(:item, :template).map { |attribute_name, _default|
+        @attributes ||= Config.hash.deep_fetch(:item, :template).map { |attribute_name, _default|
           attribute_name_camelcase = attribute_name.to_s.split("_").map(&:capitalize).join
           attribute_class = Attributes.const_get(attribute_name_camelcase)
 
-          [attribute_name, attribute_class.new(config)]
+          [attribute_name, attribute_class.new]
         }.to_h
       end
     end

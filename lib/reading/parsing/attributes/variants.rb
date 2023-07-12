@@ -22,8 +22,8 @@ module Reading
               series: (series(head) + series(variant)).presence,
               sources: sources(variant) || sources(head),
               isbn: variant[:isbn] || variant[:asin],
-              length: Attributes::Shared.length(variant, config, format:) ||
-                Attributes::Shared.length(parsed_row[:length], config, format:),
+              length: Attributes::Shared.length(variant, format:) ||
+                Attributes::Shared.length(parsed_row[:length], format:),
               extra_info: Array(head[:extra_info]) + Array(variant[:extra_info]),
             }.map { |k, v| [k, v || template.fetch(k)] }.to_h
           }&.compact&.presence
@@ -32,7 +32,7 @@ module Reading
         # A shortcut to the variant template.
         # @return [Hash]
         def template
-          config.deep_fetch(:item, :template, :variants).first
+          Config.hash.deep_fetch(:item, :template, :variants).first
         end
 
         # The :series sub-attribute for the given parsed hash.
@@ -60,11 +60,11 @@ module Reading
         end
 
         # The name for the given URL string, according to
-        # config[:source_names_from_urls], or nil.
+        # Config.hash[:source_names_from_urls], or nil.
         # @param url [String] a URL.
         # @return [String, nil]
         def url_name(url)
-          config
+          Config.hash
             .fetch(:source_names_from_urls)
             .each do |url_part, name|
               if url.include?(url_part)

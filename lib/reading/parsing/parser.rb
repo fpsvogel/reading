@@ -46,20 +46,13 @@ module Reading
     class Parser
       using Util::HashArrayDeepFetch
 
-      attr_reader :config
-
-      # @param config [Hash] an entire config.
-      def initialize(config)
-        @config = config
-      end
-
       # Parses a row string into a hash that mirrors the structure of the row.
       # @param string [String] a string containing a row of a CSV reading log.
       # @return [Hash]
       def parse_row_to_intermediate_hash(string)
         columns = extract_columns(string)
 
-        if config.fetch(:skip_compact_planned) && columns.has_key?(Rows::CompactPlanned::Head)
+        if Config.hash.fetch(:skip_compact_planned) && columns.has_key?(Rows::CompactPlanned::Head)
           return {}
         end
 
@@ -77,19 +70,19 @@ module Reading
       #   Parsing::Rows::Column.
       def extract_columns(string)
         string = string.dup.force_encoding(Encoding::UTF_8)
-        column_strings = string.split(config.fetch(:column_separator))
+        column_strings = string.split(Config.hash.fetch(:column_separator))
 
         row_types = [Rows::Blank, Rows::Regular, Rows::CompactPlanned, Rows::CustomConfig, Rows::Comment]
         column_classes = row_types
-          .find { |row_type| row_type.match?(string, config) }
+          .find { |row_type| row_type.match?(string) }
           .tap { |row_type|
             if row_type == Rows::CustomConfig
-              row_type.merge_custom_config!(string, config)
+              row_type.merge_custom_config!(string)
             end
           }
           .column_classes
           .select { |column_class|
-            config.fetch(:enabled_columns).include?(column_class.to_sym)
+            Config.hash.fetch(:enabled_columns).include?(column_class.to_sym)
           }
 
         if !column_classes.count.zero? && column_strings.count > column_classes.count
@@ -129,7 +122,7 @@ module Reading
         # it doesn't contain any format emojis, return the same as above but
         # with an extra level of nesting (except when the parsed result is nil).
         if column_class.split_by_format? &&
-            !column_string.match?(config.deep_fetch(:regex, :formats))
+            !column_string.match?(Config.hash.deep_fetch(:regex, :formats))
 
           parsed_column = parse_segments(column_class, column_string)
           # Wrap a non-empty value in an array so that e.g. a head without
@@ -142,18 +135,18 @@ module Reading
         # The rest is the complex case: if the column *can and is* split by format.
 
         # Each format plus the string after it.
-        format_strings = column_string.split(config.deep_fetch(:regex, :formats_split))
+        format_strings = column_string.split(Config.hash.deep_fetch(:regex, :formats_split))
 
         # If there's a string before the first format, e.g. "DNF" in Head column.
-        unless format_strings.first.match?(config.deep_fetch(:regex, :formats))
+        unless format_strings.first.match?(Config.hash.deep_fetch(:regex, :formats))
           before_formats = parse_segment(column_class, format_strings.shift, before_formats: true)
         end
 
         # Parse each format-plus-string into an array of segments.
         heads = format_strings.map { |string|
-          format_emoji = string[config.deep_fetch(:regex, :formats)]
+          format_emoji = string[Config.hash.deep_fetch(:regex, :formats)]
           string.sub!(format_emoji, '')
-          format = config.fetch(:formats).key(format_emoji)
+          format = Config.hash.fetch(:formats).key(format_emoji)
 
           parse_segments(column_class, string)
             .merge(format: format)
@@ -258,7 +251,7 @@ module Reading
       # @return [Hash{Symbol => String}] e.g. { author: "Bram Stoker", title: "Dracula"}
       def parse_segment_with_regex(segment, regex)
         segment
-          .tr(config.fetch(:ignored_characters), "")
+          .tr(Config.hash.fetch(:ignored_characters), "")
           .strip
           .match(regex)
           &.named_captures

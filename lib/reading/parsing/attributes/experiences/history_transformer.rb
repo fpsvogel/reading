@@ -16,15 +16,13 @@ module Reading
           # many days, for example.
           AVERAGE_DAYS_IN_A_MONTH = 30.437r
 
-          private attr_reader :parsed_row, :head_index, :config
+          private attr_reader :parsed_row, :head_index
 
           # @param parsed_row [Hash] a parsed row (the intermediate hash).
           # @param head_index [Integer] current item's position in the Head column.
-          # @param config [Hash] an entire config
-          def initialize(parsed_row, head_index, config)
+          def initialize(parsed_row, head_index)
             @parsed_row = parsed_row
             @head_index = head_index
-            @config = config
           end
 
           # Extracts experiences from the parsed row.
@@ -39,7 +37,7 @@ module Reading
               }
             }
 
-            Experiences::SpansValidator.validate(experiences, config, history_column: true)
+            Experiences::SpansValidator.validate(experiences, history_column: true)
 
             experiences
           end
@@ -49,7 +47,7 @@ module Reading
           # A shortcut to the span template.
           # @return [Hash]
           def span_template
-            @span_template ||= config.deep_fetch(:item, :template, :experiences, 0, :spans).first
+            @span_template ||= Config.hash.deep_fetch(:item, :template, :experiences, 0, :spans).first
           end
 
           # The :spans sub-attribute for the given History column entries.
@@ -177,11 +175,11 @@ module Reading
               parsed_row[:head][head_index][:format]
 
             amount =
-              Attributes::Shared.length(entry, config, format:, key_name: :amount, ignore_repetitions: true) ||
-              Attributes::Shared.length(parsed_row[:length], config, format:, episodic: true)
+              Attributes::Shared.length(entry, format:, key_name: :amount, ignore_repetitions: true) ||
+              Attributes::Shared.length(parsed_row[:length], format:, episodic: true)
             active[:amount] = amount if amount
 
-            progress = Attributes::Shared.progress(entry, config)
+            progress = Attributes::Shared.progress(entry)
 
             # If the entry has no amount and the item has no episodic length,
             # then use progress as amount instead. The typical scenario for this
@@ -189,7 +187,7 @@ module Reading
             # https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#history-pages-and-stopping-points-books
             if !amount && progress
               if progress.is_a? Float
-                total_length = Attributes::Shared.length(parsed_row[:length], config, format:)
+                total_length = Attributes::Shared.length(parsed_row[:length], format:)
                 amount = total_length * progress
               else
                 amount = progress

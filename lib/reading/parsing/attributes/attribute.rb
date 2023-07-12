@@ -6,13 +6,6 @@ module Reading
       # parsed row (an intermediate hash) into item attributes, as in
       # Config#default_config[:item][:template].
       class Attribute
-        private attr_reader :config
-
-        # @param config [Hash] an entire config.
-        def initialize(config)
-          @config = config
-        end
-
         # Extracts this attribute's value from a parsed row.
         # @param parsed_row [Hash] a parsed row (the intermediate hash).
         # @param head_index [Integer] current item's position in the Head column.

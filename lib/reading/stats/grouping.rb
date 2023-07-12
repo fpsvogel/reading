@@ -8,9 +8,8 @@ module Reading
       # constants below.
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items on which to run the operation.
-      # @param config [Hash] an entire config.
       # @return [Object] the return value of the action.
-      def self.group(input, items, config)
+      def self.group(input, items)
         grouped_items = {}
 
         match = input.match(REGEX)
@@ -23,7 +22,7 @@ module Reading
             raise InputError, "Invalid grouping \"#{group_name}\" in \"#{input}\""
           end
 
-          return action.call(items, config)
+          return action.call(items)
         end
 
         { all: items }
@@ -149,8 +148,8 @@ module Reading
 
           groups.sort
         },
-        length: proc { |items, config|
-          boundaries = config.fetch(:length_group_boundaries)
+        length: proc { |items|
+          boundaries = Config.hash.fetch(:length_group_boundaries)
 
           groups = boundaries.each_cons(2).map { |a, b|
             [a..b, []]

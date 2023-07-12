@@ -13,9 +13,8 @@ module Reading
 
         # Is a blank line.
         # @param row_string [String]
-        # @param config [Hash]
         # @return [Boolean]
-        def self.match?(row_string, config)
+        def self.match?(row_string)
           row_string == "\n"
         end
       end

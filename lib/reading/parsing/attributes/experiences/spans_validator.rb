@@ -11,24 +11,23 @@ module Reading
             # Checks the dates in the given experiences hash, and raises an error
             # at the first invalid date found.
             # @param experiences [Array<Hash>] experience hashes.
-            # @param config [Hash] an entire config.
             # @param history_column [Boolean] whether this validation is for
             #   experiences from the History column.
             # @raise [InvalidDateError] if any date is invalid.
-            def validate(experiences, config, history_column: false)
-              if both_date_columns?(config)
+            def validate(experiences, history_column: false)
+              if both_date_columns?
                 validate_number_of_start_dates_and_end_dates(experiences)
               end
 
-              if start_dates_column?(config) || history_column
+              if start_dates_column? || history_column
                 validate_start_dates_are_in_order(experiences)
               end
 
-              if end_dates_column?(config) || history_column
+              if end_dates_column? || history_column
                 validate_end_dates_are_in_order(experiences)
               end
 
-              if both_date_columns?(config) || history_column
+              if both_date_columns? || history_column
                 validate_experiences_of_same_variant_do_not_overlap(experiences)
               end
 
@@ -39,20 +38,20 @@ module Reading
 
             # Whether the Start Dates column is enabled.
             # @return [Boolean]
-            def start_dates_column?(config)
-              config.fetch(:enabled_columns).include?(:start_dates)
+            def start_dates_column?
+              Config.hash.fetch(:enabled_columns).include?(:start_dates)
             end
 
             # Whether the End Dates column is enabled.
             # @return [Boolean]
-            def end_dates_column?(config)
-              config.fetch(:enabled_columns).include?(:end_dates)
+            def end_dates_column?
+              Config.hash.fetch(:enabled_columns).include?(:end_dates)
             end
 
             # Whether both the Start Dates and End Dates columns are enabled.
             # @return [Boolean]
-            def both_date_columns?(config)
-              start_dates_column?(config) && end_dates_column?(config)
+            def both_date_columns?
+              start_dates_column? && end_dates_column?
             end
 
             # Raises an error if there are more end dates than start dates, or

@@ -28,10 +28,7 @@ module Reading
       # @param lines [Object] an object responding to #each_line with CSV row(s);
       #   if nil, path is used instead.
       # @param config [Hash, Config] a custom config which overrides the defaults,
-      #   e.g. { errors: { styling: :html } } or a Config containing that hash.
-      #   You want to pass in a Config rather than a hash in cases where you
-      #   want the original hash to be mutated according to custom config
-      #   contained at the top of a CSV reading log.
+      #   e.g. { errors: { styling: :html } }
       # @param hash_output [Boolean] whether an array of raw Hashes should be
       #   returned, without Items being created from them.
       # @param item_view [Class, nil, Boolean] the class that will be used to build
@@ -39,16 +36,17 @@ module Reading
       #   If you use a custom view class, the only requirement is that its
       #   #initialize take an Item and a full config as arguments.
       # @param error_handler [Proc] if not provided, errors are raised.
-      def initialize(path: nil, lines: nil, config: {}, hash_output: false, item_view: Item::View, error_handler: nil)
+      def initialize(path: nil, lines: nil, config: nil, hash_output: false, item_view: Item::View, error_handler: nil)
         validate_path_or_lines(path, lines)
-        full_config = config.is_a?(Config) ? config.hash : Config.hash(config)
+
+        Config.build(config) if config
 
         @path = path
         @lines = lines
         @hash_output = hash_output
         @item_view = item_view
-        @parser = Parser.new(full_config)
-        @transformer = Transformer.new(full_config)
+        @parser = Parser.new
+        @transformer = Transformer.new
         @error_handler = error_handler
         @pastel = Pastel.new
       end

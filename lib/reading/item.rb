@@ -19,24 +19,23 @@ module Reading
 
     # @param item_hash_or_data [Hash, Data] a parsed item Hash like the template
     #   in Config#default_config[:item][:template]; or a Data from another Item.
-    # @param config [Hash] an entire config.
     # @param view [Class, nil, Boolean] the class that will be used to build the
     #   view object, or nil/false if no view object should be built. If you use
     #   a custom view class, the only requirement is that its #initialize take
-    #   an Item and a full config as arguments.
-    def initialize(item_hash_or_data, config: Reading.default_config, view: Item::View)
+    #   an Item.
+    def initialize(item_hash_or_data, view: Item::View)
       if item_hash_or_data.is_a? Data
         @data = item_hash_or_data
       elsif item_hash_or_data.is_a? Hash
         item_hash = item_hash_or_data.dup
 
-        add_missing_attributes_with_filler_values!(item_hash, config)
-        add_statuses_and_last_end_dates!(item_hash, config)
+        add_missing_attributes_with_filler_values!(item_hash)
+        add_statuses_and_last_end_dates!(item_hash)
 
         @data = item_hash.to_data
       end
 
-      @view = view.new(self, config) if view
+      @view = view.new(self) if view
     end
 
     # This item's status.
@@ -317,12 +316,11 @@ module Reading
 
     private
 
-    # For each missing item attribute (key in config[:item][:template]) in
+    # For each missing item attribute (key in Config.hash[:item][:template]) in
     # item_hash, adds the key and a filler value.
     # @param item_hash [Hash]
-    # @param config [Hash] an entire config.
-    def add_missing_attributes_with_filler_values!(item_hash, config)
-      config.deep_fetch(:item, :template).each do |k, v|
+    def add_missing_attributes_with_filler_values!(item_hash)
+      Config.hash.deep_fetch(:item, :template).each do |k, v|
         next if item_hash.has_key?(k)
 
         filler = v.is_a?(Array) ? [] : nil
@@ -336,9 +334,8 @@ module Reading
     # :in_progress after the last activity. If that grace period is over, the
     # status is :done. It's :planned if there are no spans with dates.
     # @param item_hash [Hash]
-    # @param config [Hash] an entire config.
     # @return [Array(Symbol, Date)]
-    def add_statuses_and_last_end_dates!(item_hash, config)
+    def add_statuses_and_last_end_dates!(item_hash)
       item_hash[:experiences] = item_hash[:experiences].dup
 
       item_hash[:experiences].each do |experience|
@@ -366,7 +363,7 @@ module Reading
         if has_definite_length
           experience[:status] = :done
         else
-          grace_period = config.deep_fetch(
+          grace_period = Config.hash.deep_fetch(
             :item,
             :indefinite_in_progress_grace_period_days,
           )

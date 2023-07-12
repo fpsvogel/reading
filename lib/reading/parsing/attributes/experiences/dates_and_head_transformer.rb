@@ -10,13 +10,11 @@ module Reading
         class DatesAndHeadTransformer
           using Util::HashArrayDeepFetch
 
-          private attr_reader :config, :parsed_row, :head_index
+          private attr_reader :parsed_row, :head_index
 
           # @param parsed_row [Hash] a parsed row (the intermediate hash).
           # @param head_index [Integer] current item's position in the Head column.
-          # @param config [Hash] an entire config.
-          def initialize(parsed_row, head_index, config)
-            @config = config
+          def initialize(parsed_row, head_index)
             @parsed_row = parsed_row
             @head_index = head_index
           end
@@ -42,7 +40,7 @@ module Reading
             }.presence
 
             if experiences_with_dates
-              Experiences::SpansValidator.validate(experiences_with_dates, config)
+              Experiences::SpansValidator.validate(experiences_with_dates)
             end
 
             experiences_with_dates
@@ -53,13 +51,13 @@ module Reading
           # A shortcut to the experience template.
           # @return [Hash]
           def template
-            config.deep_fetch(:item, :template, :experiences).first
+            Config.hash.deep_fetch(:item, :template, :experiences).first
           end
 
           # A shortcut to the span template.
           # @return [Hash]
           def span_template
-            config.deep_fetch(:item, :template, :experiences, 0, :spans).first
+            Config.hash.deep_fetch(:item, :template, :experiences, 0, :spans).first
           end
 
           # The :spans sub-attribute for the given pair of date entries.
@@ -85,15 +83,15 @@ module Reading
             variant_index = (start_entry[:variant] || 1).to_i - 1
             format = parsed_row[:sources]&.dig(variant_index)&.dig(:format) ||
               parsed_row[:head][head_index][:format]
-            length = Attributes::Shared.length(parsed_row[:sources]&.dig(variant_index), config, format:) ||
-              Attributes::Shared.length(parsed_row[:length], config, format:)
+            length = Attributes::Shared.length(parsed_row[:sources]&.dig(variant_index), format:) ||
+              Attributes::Shared.length(parsed_row[:length], format:)
 
             [
               {
                 dates: dates,
                 amount: (length if dates),
-                progress: Attributes::Shared.progress(start_entry, config) ||
-                  Attributes::Shared.progress(parsed_row[:head][head_index], config) ||
+                progress: Attributes::Shared.progress(start_entry) ||
+                  Attributes::Shared.progress(parsed_row[:head][head_index]) ||
                   (1.0 if end_entry),
                 name: span_template.fetch(:name),
                 favorite?: span_template.fetch(:favorite?),

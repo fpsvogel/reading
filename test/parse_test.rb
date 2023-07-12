@@ -8,17 +8,11 @@ class ParseTest < Minitest::Test
   using Reading::Util::HashDeepMerge
   using Reading::Util::HashArrayDeepFetch
 
-  self.class.attr_reader :inputs, :outputs, :config
+  self.class.attr_reader :inputs, :outputs
 
   def inputs = self.class.inputs
 
   def outputs = self.class.outputs
-
-  def config = self.class.config
-
-  def self.pages_per_hour =  config.fetch(:pages_per_hour)
-
-  @config = Reading.default_config
 
   # ==== INPUT
 
@@ -200,7 +194,7 @@ class ParseTest < Minitest::Test
   }
 
   # The compact_planned part (unlike in other :features_x) is merely semantic;
-  # it has no effect in with_columns below.
+  # it has no effect in set_config_columns below.
   @inputs[:features_compact_planned] =
   {
   :"title only" =>
@@ -540,7 +534,7 @@ class ParseTest < Minitest::Test
     # This merge is not the same as Reading::Util::HashDeepMerge. This one uses the
     # first (empty) subhashes in the item template, for example in :variants and
     # :experiences in the item template.
-    config.deep_fetch(:item, :template).merge(partial_hash) do |key, old_value, new_value|
+    Reading::Config.hash.deep_fetch(:item, :template).merge(partial_hash) do |key, old_value, new_value|
       item_template_merge(key, old_value, new_value)
     end
   end
@@ -1069,7 +1063,7 @@ class ParseTest < Minitest::Test
     title: title_a,
     experiences: [{ spans: [
       { dates: start_date..end_date_june,
-        amount: Reading::Item::TimeLength.new(minutes_175, pages_per_hour:) },
+        amount: Reading::Item::TimeLength.new(minutes_175) },
     ] }],
   )
   @outputs[:features_history][:"frequency"] = [a_frequency]
@@ -1085,7 +1079,7 @@ class ParseTest < Minitest::Test
     experiences: [{ spans: [
       a_frequency.deep_fetch(:experiences, 0, :spans, 0),
       { dates: start_date..Date.today,
-        amount: Reading::Item::TimeLength.new(minutes_240, pages_per_hour:) },
+        amount: Reading::Item::TimeLength.new(minutes_240) },
     ] }],
   )
   @outputs[:features_history][:"frequency until present"] = [a_frequency_present]
@@ -1506,15 +1500,15 @@ class ParseTest < Minitest::Test
         spans:
           [{
             dates: Date.new(2021,10,6)..Date.new(2021,10,11),
-            amount: Reading::Item::TimeLength.new(1150, pages_per_hour:),
+            amount: Reading::Item::TimeLength.new(1150),
           },
           {
             dates: Date.new(2021,10,12)..Date.new(2021,12,14),
-            amount: Reading::Item::TimeLength.new(3200/7r, pages_per_hour:),
+            amount: Reading::Item::TimeLength.new(3200/7r),
           },
           {
             dates: Date.new(2022,3,1)..Date.today,
-            amount: Reading::Item::TimeLength.new(21500/7r, pages_per_hour:),
+            amount: Reading::Item::TimeLength.new(21500/7r),
           }],
       }],
   )
@@ -1704,14 +1698,10 @@ class ParseTest < Minitest::Test
 
   # ==== UTILITY METHODS
 
-  def with_columns(columns)
-    if columns.empty? || columns == :all || columns.delete(:compact_planned)
-      columns_config = config
-    else
-      columns_config = config.merge(enabled_columns: columns)
+  def set_config_columns(columns)
+    unless columns.empty? || columns.delete(:compact_planned)
+      Reading::Config.build(enabled_columns: columns)
     end
-
-    columns_config
   end
 
   # Removes any blank hashes in arrays, i.e. any that are the same as in the
@@ -1724,7 +1714,7 @@ class ParseTest < Minitest::Test
   end
 
   def without_blank_hashes(item_hash)
-    template = config.deep_fetch(:item, :template)
+    template = Reading::Config.hash.deep_fetch(:item, :template)
 
     %i[variants experiences notes].each do |attribute|
       item_hash[attribute] =
@@ -1756,12 +1746,15 @@ class ParseTest < Minitest::Test
   inputs[:enabled_columns].each do |name, file_str|
     columns = name.to_s.split(", ").map(&:to_sym)
     define_method("test_enabled_columns_#{columns.join("_")}") do
-      columns_config = with_columns(columns)
+      set_config_columns(columns)
+
       exp = tidy(outputs[:enabled_columns], name)
-      act = Reading.parse(lines: file_str, config: columns_config, hash_output: true)
-      # debugger unless exp == act
+      act = Reading.parse(lines: file_str, hash_output: true)
+
       assert_equal exp, act,
         "Failed to parse with these columns enabled: #{name}"
+
+      Reading::Config.build # reset config to default
     end
   end
 
@@ -1771,13 +1764,17 @@ class ParseTest < Minitest::Test
       columns_sym = group_name[(group_name.to_s.index("_") + 1)..].to_sym
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
+
       define_method("test_#{columns_sym}_feature_#{name}") do
-        columns_config = with_columns(columns + [:head])
+        set_config_columns(columns + [:head])
+
         exp = tidy(outputs[group_name], name)
-        act = Reading.parse(lines: file_str, config: columns_config, hash_output: true)
-        # debugger unless exp == act
+        act = Reading.parse(lines: file_str, hash_output: true)
+
         assert_equal exp, act,
           "Failed to parse this #{main_column_humanized} column feature: #{name}"
+
+        Reading::Config.build # reset config to default
       end
     end
   end
@@ -1785,10 +1782,9 @@ class ParseTest < Minitest::Test
   ## TESTS: ALL COLUMNS
   inputs[:all_columns].each do |name, file_str|
     define_method("test_all_columns_#{name}") do
-      columns_config = with_columns(:all)
       exp = tidy(outputs[:all_columns], name)
-      act = Reading.parse(lines: file_str, config: columns_config, hash_output: true)
-      # debugger unless exp == act
+      act = Reading.parse(lines: file_str, hash_output: true)
+
       assert_equal exp, act,
         "Failed to parse this all-columns example: #{name}"
     end
@@ -1798,12 +1794,11 @@ class ParseTest < Minitest::Test
   inputs[:errors].each do |error, inputs_hash|
     inputs_hash.each do |name, file_str|
       define_method("test_error_#{name}") do
-        columns_config = with_columns(:all)
         if name.start_with? "OK: " # Should not raise an error.
-          refute_nil Reading.parse(lines: file_str, config: columns_config, hash_output: true)
+          refute_nil Reading.parse(lines: file_str, hash_output: true)
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            Reading.parse(lines: file_str, config: columns_config, hash_output: true)
+            Reading.parse(lines: file_str, hash_output: true)
           end
         end
       end
@@ -1813,11 +1808,15 @@ class ParseTest < Minitest::Test
   ## TESTS: CUSTOM CONFIG
   inputs[:config].each do |name, (file_str, custom_config)|
     define_method("test_config_#{name}") do
+      Reading::Config.build(custom_config)
+
       exp = tidy(outputs[:config], name)
-      act = Reading.parse(lines: file_str, config: custom_config, hash_output: true)
-      # debugger unless exp == act
+      act = Reading.parse(lines: file_str, hash_output: true)
+
       assert_equal exp, act,
         "Failed to parse this config example: #{name}"
+
+      Reading::Config.build # reset config to default
     end
   end
 end

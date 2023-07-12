@@ -9,13 +9,9 @@ require 'pastel'
 class StatsTest < Minitest::Test
   using Reading::Util::HashArrayDeepFetch
 
-  self.class.attr_reader :queries, :config
+  self.class.attr_reader :queries
 
   PASTEL = Pastel.new
-
-  def config = self.class.config
-
-  @config = Reading.default_config
 
   # ==== QUERIES FOR TESTS
 
@@ -263,7 +259,7 @@ class StatsTest < Minitest::Test
   # Simple queries testing each filter.
 
   # Long enough ago that an item of indefinite length is considered done.
-  grace_period = Reading.default_config.deep_fetch(
+  grace_period = Reading::Config.hash.deep_fetch(
     :item, :indefinite_in_progress_grace_period_days)
   long_ago = (Date.today - grace_period - 1)..(Date.today - grace_period - 1)
 
@@ -1798,7 +1794,7 @@ class StatsTest < Minitest::Test
       input: "average length",
       result: PASTEL.bright_blue("5:00 or 500 pages"),
       items: [
-        { variants: [{ length: Reading.time('5:00', pages_per_hour: 100) }],
+        { variants: [{ length: Reading.time('5:00') }],
                         experiences: [{ variant_index: 0 }] },
       ],
       config: { pages_per_hour: 100 },
@@ -1837,7 +1833,7 @@ class StatsTest < Minitest::Test
       result: PASTEL.bright_blue("5:00 or 500 pages"),
       items: [
         { experiences: [{ spans: [
-          { amount: Reading.time('5:00', pages_per_hour: 100), progress: 1.0 }] }] },
+          { amount: Reading.time('5:00'), progress: 1.0 }] }] },
       ],
       config: { pages_per_hour: 100 },
     },
@@ -1931,7 +1927,6 @@ class StatsTest < Minitest::Test
       items = hash.fetch(:items).map { |item_hash|
         Reading::Item.new(
           item_hash,
-          config:,
           view: false,
         )
       }
@@ -1940,7 +1935,6 @@ class StatsTest < Minitest::Test
 
       exp = hash.fetch(:result)
       act = Reading.stats(input:, items:)
-      # debugger unless exp == act
 
       if exp.nil?
         assert_nil act, "Unexpected result #{act} from stats query \"#{name}\""
@@ -1978,7 +1972,6 @@ class StatsTest < Minitest::Test
       items = hash.fetch(:items).map { |item_hash|
         Reading::Item.new(
           item_hash,
-          config:,
           view: false,
         )
       }
@@ -1987,7 +1980,6 @@ class StatsTest < Minitest::Test
 
       exp = hash.fetch(:result)
       act = Reading.stats(input:, items:)
-      # debugger unless exp == act
 
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
@@ -2012,7 +2004,6 @@ class StatsTest < Minitest::Test
       items = hash.fetch(:items).map { |item_hash|
         Reading::Item.new(
           item_hash,
-          config:,
           view: false,
         )
       }
@@ -2021,7 +2012,6 @@ class StatsTest < Minitest::Test
 
       exp = hash.fetch(:result)
       act = Reading.stats(input:, items:)
-      # debugger unless exp == act
 
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
@@ -2036,11 +2026,10 @@ class StatsTest < Minitest::Test
   queries[:terminal_result_formatters].each do |key, hash|
     define_method("test_result_formatter_#{key}") do
       items = hash.fetch(:items).map { |item_hash|
-        custom_config = Reading::Config.hash(hash[:config]) if hash[:config]
+        Reading::Config.build(hash[:config]) if hash[:config]
 
         Reading::Item.new(
           item_hash,
-          config: custom_config || config,
           view: false,
         )
       }
@@ -2051,9 +2040,11 @@ class StatsTest < Minitest::Test
         items:,
         result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
       )
-      # debugger unless exp == act
+
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
+
+      Reading::Config.build # reset config to default
     end
   end
 

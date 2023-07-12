@@ -5,15 +5,17 @@ require_relative 'test_helpers/test_helper'
 require 'reading/config'
 
 class ParseTest < Minitest::Test
-  def test_builder_method
-    config = Reading::Config.new(pages_per_hour: 10)
-    hash = Reading::Config.hash(pages_per_hour: 10)
+  def test_singleton
+    Reading::Config.build(pages_per_hour: 10)
+    hash = Reading::Config.new(pages_per_hour: 10).hash
 
-    assert_equal hash, config.hash
+    assert_equal Reading::Config.hash, hash
+
+    Reading::Config.build # reset config to default
   end
 
   def test_blank_custom_config_results_in_default_config
-    config = Reading::Config.new({})
+    config = Reading::Config.new
     default_config = config.send(:default_config).merge(regex: config.send(:regex_config))
 
     assert_equal default_config, config.hash
