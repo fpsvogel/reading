@@ -179,7 +179,7 @@ module Reading
       REGEX = %r{\A
         [^=]+ # the operation
         by
-        \s+
+        \s*
         (?<group>\w+)
       }x
     end

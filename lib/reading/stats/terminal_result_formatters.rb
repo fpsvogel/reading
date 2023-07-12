@@ -5,12 +5,15 @@ module Reading
     module ResultFormatters
       TERMINAL = {
         average_length: ->(result) { length_to_s(result) },
-        average_amount: ->(result) { "#{length_to_s(result)} per day" },
+        average_amount: ->(result) { length_to_s(result) },
+        :'average_daily-amount' => ->(result) { "#{length_to_s(result)} per day" },
         total_item: ->(result) { color("#{result} #{result == 1 ? "item" : "items"}") },
         total_amount: ->(result) { length_to_s(result) },
         top_length: ->(result) { top_or_bottom_lengths(result) },
+        top_amount: ->(result) { top_or_bottom_lengths(result) },
         top_speed: ->(result) { top_or_bottom_speeds(result) },
         bottom_length: ->(result) { top_or_bottom_lengths(result) },
+        botom_amount: ->(result) { top_or_bottom_lengths(result) },
         bottom_speed: ->(result) { top_or_bottom_speeds(result) },
       }
 

@@ -53,12 +53,22 @@ if input_is_csv_path
     input = raw_input.presence
     next if raw_input.blank?
 
-    puts Reading.stats(
+    results = Reading.stats(
       input:,
       items:,
       config:,
       result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
     )
+
+    if results.is_a? Hash # if grouped
+      results.each do |group_name, items|
+        puts PASTEL.magenta.on_white(group_name)
+        puts items.presence || PASTEL.bright_black("none")
+        puts ''
+      end
+    else
+      puts results.presence || PASTEL.bright_black("none")
+    end
   rescue Reading::Error => e
     puts e
   end
