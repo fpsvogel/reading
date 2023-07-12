@@ -24,10 +24,10 @@ My CSV reading log serves the same role as Goodreads used to, but it lets me do 
 
 - Add items of any format: podcasts, documentaries, etc.
 - Own my data.
-- Edit and search in a plain text file, which is faster than navigating a site or app. I can even pull up my reading log on my phone via a Dropbox-syncing text editor app—[Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox) is the one I use.
+- Edit and search in a plain text file, which I prefer over navigating a site or app. I can even pull up my reading log on my phone via a Dropbox-syncing text editor app—[Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox) is the one I use.
 - Get the features I need by adding them myself, instead of wishing and waiting for the perfect Goodreads-esque service. For example, when I started listening to more podcasts, I added automatic progress tracking based on episode length and frequency, so that I didn't have to count episodes and sum up hours.
 
-So a CSV reading log is great, but there's one problem: how to share it with friends? No one wants to wade through a massive CSV file.
+So a CSV reading log is great, but there's one problem: **how to share it with friends?** No one wants to wade through a massive CSV file, and anyway I only want to share my favorite reads.
 
 That's where this gem helps: it transforms my `reading.csv` into data that I can selectively display on a page on my site.
 

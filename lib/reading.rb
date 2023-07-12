@@ -8,22 +8,30 @@ require_relative 'reading/item/time_length.rb'
 
 # The gem's public API. See https://github.com/fpsvogel/reading#usage
 #
-# Architectural overview:
+# ARCHITECTURAL OVERVIEW:
 #
-#                 (CSV input)                    (Items)   (filtered Items)
-#                      |                          Λ   |           Λ
-#                      |                          |   ·---.       |
-#                      |                          |       |       |
-#                      V                          |       V       |
-#                   ::parse                       |     ::filter  |
-#                      |                          |          |    |
-#                      |            .----------> Item        Filter
-#  Config,             |           /             / \
-#  errors.rb ----- Parsing::CSV --·    Item::View  Item::TimeLength
-#                     / \
-#      Parsing::Parser  Parsing::Transformer
-#             |                 |
-#       parsing/rows/*   parsing/attributes/*
+# ::parse and ::filter:
+#                                         (filtered    (stats input*
+#        (CSV input)             (Items)   Items)       and Items)    (results)
+#             |                   Λ   |        Λ             |          Λ
+#             V                   |   V        |             V          |
+#           ::parse               |  ::filter  |           ::stats      |
+#              \                  |        |   |             |          |
+#               \                 |        |   |             |          |
+# errors.rb,     \                |        |   |             |          |
+# Config --- Parsing::CSV -----> Item      Filter            Stats::Query
+#                / \              / \                         / | \
+#               /   \   Item::View  Item::TimeLength         /  |  \
+#              /     \                                      /   |   \
+#   Parsing::Parser  Parsing::Transformer         Stats::Filter |  Stats::Operation
+#          |                 |                           Stats::Grouping
+#    parsing/rows/*   parsing/attributes/*
+#                                              * Stats input is either from the
+#                                                command line (via the `reading`
+#                                                command) or provided via Ruby
+#                                                code that uses this gem.
+#                                                Results likewise go either to
+#                                                stdout or to the gem user.
 #
 module Reading
   # Parses a CSV file or string. See Parsing::CSV#initialize and #parse for details.
