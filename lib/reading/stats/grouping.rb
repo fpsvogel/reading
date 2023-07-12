@@ -8,8 +8,9 @@ module Reading
       # constants below.
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items on which to run the operation.
+      # @param config [Hash] an entire config.
       # @return [Object] the return value of the action.
-      def self.group(input, items)
+      def self.group(input, items, config)
         grouped_items = {}
 
         match = input.match(REGEX)
@@ -22,7 +23,7 @@ module Reading
             raise InputError, "Invalid grouping \"#{group_name}\" in \"#{input}\""
           end
 
-          return action.call(items)
+          return action.call(items, config)
         end
 
         { all: items }
@@ -148,16 +149,30 @@ module Reading
 
           groups.sort
         },
-        # TODO: from config, groups of 200 pages except for longer:
-        # 0-200, 200-400, 400-600, 600-1000, 1000-2000, 2000+
-        length: proc { |items|
-          groups = Hash.new { |h, k| h[k] = [] }
+        length: proc { |items, config|
+          boundaries = config.fetch(:length_group_boundaries)
+
+          groups = boundaries.each_cons(2).map { |a, b|
+            [a..b, []]
+          }
+
+          groups.unshift([0..boundaries.first, []])
+          groups << [boundaries.last.., []]
+
+          groups = groups.to_h
 
           items.each do |item|
-            item.variants.map(&:length).each { |length| groups[length] << item }
+            item.variants.map(&:length).each { |length|
+              groups.each do |length_range, items_of_length|
+                if length_range.include?(length)
+                  items_of_length << item unless items_of_length.include?(item)
+                  break
+                end
+              end
+            }
           end
 
-          groups.sort
+          groups
         },
       }
 

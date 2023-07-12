@@ -1730,14 +1730,21 @@ class StatsTest < Minitest::Test
     },
     length: {
       input: "average rating by length",
-      result: { 120 => 3, 200 => 16, 1000 => nil, Reading.time('2:00') => 5 },
+      result: {
+        0..200 => 7.5,
+        200..400 => nil,
+        400..600 => nil,
+        600..1000 => nil,
+        1000..2000 => nil,
+        2000.. => 32,
+      },
       items: [
         { rating: 2, variants: [{ length: 120 }, { length: Reading.time('2:00') }] },
         { rating: 4, variants: [{ length: 120 }] },
         { rating: 8, variants: [{ length: Reading.time('2:00') }] },
         { rating: 16, variants: [{ length: 200 }] },
+        { rating: 32, variants: [{ length: 2001 }] },
         { rating: nil, variants: [{ length: 200 }] },
-        { rating: nil, variants: [{ length: 1000 }] },
         { rating: nil, variants: [] },
       ],
     },

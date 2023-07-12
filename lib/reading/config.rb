@@ -62,6 +62,7 @@ module Reading
         ignored_characters:       "✅❌💲❓⏳",
         skip_compact_planned:     false,
         pages_per_hour:           35,
+        length_group_boundaries:  [200, 400, 600, 1000, 2000],
         speed: # e.g. listening speed for audiobooks and podcasts.
           {
             format:

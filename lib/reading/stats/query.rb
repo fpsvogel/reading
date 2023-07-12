@@ -64,7 +64,7 @@ module Reading
       # @return [Object]
       def result
         filtered_items = Stats::Filter.filter(input, items, config)
-        grouped_items = Grouping.group(input, filtered_items)
+        grouped_items = Grouping.group(input, filtered_items, config)
 
         Operation.execute(input, grouped_items, result_formatters || {})
       end
