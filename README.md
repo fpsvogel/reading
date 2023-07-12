@@ -12,6 +12,7 @@ Reading is a Ruby gem that parses a CSV reading log. [My personal site's Reading
   - [Parse in Ruby](#parse-in-ruby)
   - [Parse with custom config](#parse-with-custom-config)
   - [Filtering the output](#filtering-the-output)
+  - [Get statistics on your reading](#get-statistics-on-your-reading)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
 - [Contributing](#contributing)
 - [License](#license)
@@ -77,6 +78,8 @@ An optional second argument specifies enabled columns. The CSV string above alre
 $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 ```
 
+The `reading` command can also start a prompt to query for reading statistics. For more on that, see ["Get statistics on your reading"](#get-statistics-on-your-reading) below.
+
 ### Parse in Ruby
 
 To parse a CSV reading log in Ruby rather than on the command line:
@@ -127,6 +130,69 @@ filtered_items = Reading.filter(
   excluded_genres: ["cats", "memoir"],
 )
 ```
+
+### Get statistics on your reading
+
+The `reading` command can also start an interactive statistics-querying mode if the command is given the path to a CSV file:
+
+```
+$ reading /home/user/reading.csv
+```
+
+Then a prompt will appear, in which you can type commands made up of an **operation** optionally followed by one or more **filters** and/or a **grouping**.
+
+Here's an example query that contains all three elements:
+
+`average length status!=in progress rating>1 format=audiobook,ebook done<100% source=Hoopla by genre`
+
+<!-- omit in toc -->
+#### Stats operations
+
+The last word may be pluralized.
+
+- `average rating`
+- `average length`
+- `average amount`
+- `average daily-amount`
+- `total items`
+- `total amount`
+- `top/bottom [N] ratings`
+- `top/bottom [N] lengths`
+- `top/bottom [N] amounts`
+- `top/bottom [N] speeds`
+
+<!-- omit in toc -->
+#### Stats filters
+
+These may be pluralized, and may be followed by any of the operators listed for each. The operators `~` and `!~` mean "contains" and "does not contain", respectively.
+
+- `genre` (`=`, `!=`)
+- `rating` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `format` (`=`, `!=`)
+- `source` (`=`, `!=`, `~`, `!~`)
+- `title` (`=`, `!=`, `~`, `!~`)
+- `author` (`=`, `!=`, `~`, `!~`)
+- `series =`, `!=`, `~`, `!~
+- `note` (`=`, `!=`, `~`, `!~`)
+- `status` (`=`, `!=`)
+- `length` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `done` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `experiences` (i.e. number of reads) (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `date` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `end-date` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+
+<!-- omit in toc -->
+#### Stats groupings
+
+These too may be pluralized.
+
+- `by month`
+- `by year`
+- `by genre`
+- `by rating`
+- `by format`
+- `by source`
+- `by length`
 
 ## How to add a reading page to your site
 
