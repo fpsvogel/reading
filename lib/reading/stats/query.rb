@@ -1,3 +1,4 @@
+require 'pastel'
 require_relative 'operation'
 require_relative 'filter'
 require_relative 'grouping'
