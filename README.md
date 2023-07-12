@@ -143,7 +143,7 @@ Then a prompt will appear, in which you can type commands made up of an **operat
 
 Here's an example query that contains all three elements:
 
-`average length status!=in progress rating>1 format=audiobook,ebook done<100% source=Hoopla by genre`
+`top 3 amounts status!=in progress rating>1 format=audiobook,ebook done<100% source=Hoopla by genre`
 
 <!-- omit in toc -->
 #### Stats operations
