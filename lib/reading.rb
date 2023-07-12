@@ -50,6 +50,11 @@ module Reading
     query.result
   end
 
+  # @return [Hash]
+  def self.config
+    Config.hash
+  end
+
   # A shortcut for getting a time from a string.
   # @param string [String] a time duration in "h:mm" format.
   # @return [Item::TimeLength]
