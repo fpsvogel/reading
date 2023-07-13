@@ -139,11 +139,14 @@ The `reading` command can also start an interactive statistics-querying mode if 
 $ reading /home/user/reading.csv
 ```
 
-Then a prompt will appear, in which you can type commands made up of an **operation** optionally followed by one or more **filters** and/or a **grouping**.
+Then a prompt will appear, in which you can type commands made up of an **operation** optionally followed by a **grouping** and/or one or more **filters**.
 
 Here's an example query that contains all three elements:
 
-`top 3 amounts status!=in progress rating>1 format=audiobook,ebook done<100% source=Hoopla by genre`
+`top 3 amounts by genre status!=in progress rating>1 format=audiobook,ebook done<100% source=Hoopla`
+
+> **Warning**
+> The operation, grouping, and filter(s) *must* appear in that order, or else the query may yield unexpected results.
 
 <!-- omit in toc -->
 #### Stats operations
@@ -160,6 +163,19 @@ The last word may be pluralized.
 - `top/bottom [N] lengths`
 - `top/bottom [N] amounts`
 - `top/bottom [N] speeds`
+
+<!-- omit in toc -->
+#### Stats groupings
+
+These too may be pluralized.
+
+- `by month`
+- `by year`
+- `by genre`
+- `by rating`
+- `by format`
+- `by source`
+- `by length`
 
 <!-- omit in toc -->
 #### Stats filters
@@ -180,19 +196,6 @@ These may be pluralized, and may be followed by any of the operators listed for 
 - `experiences` (i.e. number of reads) (`=`, `>`, `>=`, `<`, `<=`, `!=`)
 - `date` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
 - `end-date` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
-
-<!-- omit in toc -->
-#### Stats groupings
-
-These too may be pluralized.
-
-- `by month`
-- `by year`
-- `by genre`
-- `by rating`
-- `by format`
-- `by source`
-- `by length`
 
 ## How to add a reading page to your site
 
