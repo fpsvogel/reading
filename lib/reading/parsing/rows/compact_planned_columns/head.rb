@@ -15,7 +15,7 @@ module Reading
                 \\ # comment character
                 \s*
                 (
-                  (?<genres>[^a-z]+)?
+                  (?<genres>[^a-z@]+)?
                   \s*
                   (?<sources>@.+)?
                   \s*:
