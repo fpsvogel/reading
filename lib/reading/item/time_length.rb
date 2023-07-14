@@ -57,7 +57,7 @@ module Reading
       # To pages.
       # @return [Integer]
       def to_i
-        (value / 60.0) * Config.hash.fetch(:pages_per_hour)
+        ((value / 60.0) * Config.hash.fetch(:pages_per_hour)).to_i
       end
 
       # @return [Boolean]
