@@ -54,6 +54,12 @@ module Reading
         "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * Config.hash.fetch(:pages_per_hour)).round} pages"
       end
 
+      # To pages.
+      # @return [Integer]
+      def to_i
+        (value / 60.0) * Config.hash.fetch(:pages_per_hour)
+      end
+
       # @return [Boolean]
       def zero?
         value.zero?
