@@ -109,75 +109,85 @@ module Reading
             .compact
             .min
 
-          end_date = items
-            .flat_map { _1.experiences.map(&:last_end_date) }
-            .compact
-            .max
+          if begin_date.nil?
+            {}
+          else
+            end_date = items
+              .flat_map { _1.experiences.map(&:last_end_date) }
+              .compact
+              .max
 
-          year_ranges = (begin_date.year..end_date.year).flat_map { |year|
-            beginning_of_year = Date.new(year, 1, 1)
-            end_of_year = Date.new(year + 1, 1, 1).prev_day
+            year_ranges = (begin_date.year..end_date.year).flat_map { |year|
+              beginning_of_year = Date.new(year, 1, 1)
+              end_of_year = Date.new(year + 1, 1, 1).prev_day
 
-            beginning_of_year..end_of_year
-          }
+              beginning_of_year..end_of_year
+            }
 
-          groups = year_ranges.map { [_1, []] }.to_h
+            groups = year_ranges.map { [_1, []] }.to_h
 
-          groups.each do |year_range, year_items|
-            items.each do |item|
-              without_before = item.split(year_range.end.next_day).first
-              without_before_or_after = without_before&.split(year_range.begin)&.last
+            groups.each do |year_range, year_items|
+              items.each do |item|
+                without_before = item.split(year_range.end.next_day).first
+                without_before_or_after = without_before&.split(year_range.begin)&.last
 
-              year_items << without_before_or_after if without_before_or_after
+                year_items << without_before_or_after if without_before_or_after
+              end
             end
+
+            groups.transform_keys! { |year_range|
+              year_range.begin.year
+            }
+
+            groups
           end
-
-          groups.transform_keys! { |year_range|
-            year_range.begin.year
-          }
-
-          groups
         },
         month: proc { |items|
-          begin_date = items.first.experiences.first.spans.first.dates.begin
-
-          end_date = items
-            .flat_map { _1.experiences.map(&:last_end_date) }
+          begin_date = items
+            .map { _1.experiences.first&.spans&.first&.dates&.begin }
             .compact
-            .sort
-            .last
+            .min
 
-          month_ranges = (begin_date.year..end_date.year).flat_map { |year|
-            (1..12).map { |month|
-              beginning_of_month = Date.new(year, month, 1)
+          if begin_date.nil?
+            {}
+          else
+            end_date = items
+              .flat_map { _1.experiences.map(&:last_end_date) }
+              .compact
+              .max
 
-              end_of_month =
-                if month == 12
-                  Date.new(year + 1, 1, 1).prev_day
-                else
-                  Date.new(year, month + 1, 1).prev_day
-                end
+            month_ranges = (begin_date.year..end_date.year).flat_map { |year|
+              (1..12).map { |month|
+                beginning_of_month = Date.new(year, month, 1)
 
-              beginning_of_month..end_of_month
+                end_of_month =
+                  if month == 12
+                    Date.new(year + 1, 1, 1).prev_day
+                  else
+                    Date.new(year, month + 1, 1).prev_day
+                  end
+
+                beginning_of_month..end_of_month
+              }
             }
-          }
 
-          groups = month_ranges.map { [_1, []] }.to_h
+            groups = month_ranges.map { [_1, []] }.to_h
 
-          groups.each do |month_range, month_items|
-            items.each do |item|
-              without_before = item.split(month_range.end.next_day).first
-              without_before_or_after = without_before&.split(month_range.begin)&.last
+            groups.each do |month_range, month_items|
+              items.each do |item|
+                without_before = item.split(month_range.end.next_day).first
+                without_before_or_after = without_before&.split(month_range.begin)&.last
 
-              month_items << without_before_or_after if without_before_or_after
+                month_items << without_before_or_after if without_before_or_after
+              end
             end
+
+            groups.transform_keys! { |month_range|
+              [month_range.begin.year, month_range.begin.month]
+            }
+
+            groups
           end
-
-          groups.transform_keys! { |month_range|
-            [month_range.begin.year, month_range.begin.month]
-          }
-
-          groups
         },
         genre: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }

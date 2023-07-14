@@ -38,15 +38,11 @@ GROUP_HEADING_FORMATTERS = [
 def print_grouped_results(grouped_results, group_heading_formatters)
   indent_level = GROUP_HEADING_FORMATTERS.count - group_heading_formatters.count
 
-  unless grouped_results.is_a? Hash
-    if grouped_results
-      puts "  " * indent_level + grouped_results.gsub("\n", "\n" + "  " * indent_level)
-    else
-      puts "  " * indent_level + PASTEL.bright_black("none")
-    end
-
-    puts
-
+  if grouped_results.nil? || grouped_results.empty?
+    puts "  " * indent_level + PASTEL.bright_black("none") + "\n"
+    return
+  elsif !grouped_results.is_a? Hash
+    puts "  " * indent_level + grouped_results.gsub("\n", "\n" + "  " * indent_level) + "\n"
     return
   end
 

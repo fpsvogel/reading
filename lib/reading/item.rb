@@ -118,7 +118,10 @@ module Reading
     def split(date)
       before_index = nil
       middle_indices = experiences.map.with_index { |experience, i|
-        if experience.spans.first.dates.begin < date && experience.last_end_date
+        if experience.spans.first.dates &&
+          experience.spans.first.dates.begin < date &&
+          experience.last_end_date
+
           before_index = i
 
           if experience.last_end_date >= date
