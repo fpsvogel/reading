@@ -1636,31 +1636,31 @@ class StatsTest < Minitest::Test
       ],
     },
     format: {
-      input: "average rating by format",
-      result: { audio: 5, ebook: 16, print: 3, website: nil },
+      input: "average length by format",
+      result: { audio: 6, ebook: 16, print: 3, website: nil },
       items: [
-        { rating: 2, variants: [{ format: :print }, { format: :audio }] },
-        { rating: 4, variants: [{ format: :print }] },
-        { rating: 8, variants: [{ format: :audio }] },
-        { rating: 16, variants: [{ format: :ebook }] },
-        { rating: nil, variants: [{ format: :ebook }] },
-        { rating: nil, variants: [{ format: :website }] },
-        { rating: nil, variants: [] },
+        { variants: [{ length: 2, format: :print }, { length: 4, format: :audio }] },
+        { variants: [{ length: 4, format: :print }] },
+        { variants: [{ length: 8, format: :audio }] },
+        { variants: [{ length: 16, format: :ebook }] },
+        { variants: [{ length: nil, format: :ebook }] },
+        { variants: [{ length: nil, format: :website }] },
+        { variants: [] },
       ],
     },
     source: {
-      input: "average rating by source",
-      result: { "Internet Archive" => 5, "Lexpub" => 3, "Little Library" => nil, "https://home.com" => 16 },
+      input: "average length by source",
+      result: { "Internet Archive" => 6, "Lexpub" => 3, "Little Library" => nil, "https://home.com" => 16 },
       items: [
-        { rating: 2, variants: [
-          { sources: [{ name: "Lexpub", url: nil }] },
-          { sources: [{ name: "Internet Archive", url: "https://archive.org"}] }] },
-        { rating: 4, variants: [{ sources: [{ name: "Lexpub", url: nil }] }] },
-        { rating: 8, variants: [{ sources: [{ name: "Internet Archive", url: "https://archive.org"}] }] },
-        { rating: 16, variants: [{ sources: [{ name: nil, url: "https://home.com"}] }] },
-        { rating: nil, variants: [{ sources: [{ name: nil, url: "https://home.com"}] }] },
-        { rating: nil, variants: [{ sources: [{ name: "Little Library"}] }] },
-        { rating: nil, variants: [] },
+        { variants: [
+          { length: 2, sources: [{ name: "Lexpub", url: nil }] },
+          { length: 4, sources: [{ name: "Internet Archive", url: "https://archive.org"}] }] },
+        { variants: [{ length: 4, sources: [{ name: "Lexpub", url: nil }] }] },
+        { variants: [{ length: 8, sources: [{ name: "Internet Archive", url: "https://archive.org"}] }] },
+        { variants: [{ length: 16, sources: [{ name: nil, url: "https://home.com"}] }] },
+        { variants: [{ length: nil, sources: [{ name: nil, url: "https://home.com"}] }] },
+        { variants: [{ length: nil, sources: [{ name: "Little Library"}] }] },
+        { variants: [] },
       ],
     },
     year: {
@@ -1749,25 +1749,45 @@ class StatsTest < Minitest::Test
       ],
     },
     length: {
-      input: "average rating by length",
+      input: "average length by length",
       result: {
-        0..200 => 7.5,
-        200..400 => nil,
+        0..200 => 150,
+        200..400 => 350,
         400..600 => nil,
         600..1000 => nil,
         1000..2000 => nil,
-        2000.. => 32,
+        2000.. => 3500,
       },
       items: [
-        { rating: 2, variants: [{ length: 120 }, { length: Reading.time('2:00') }] },
-        { rating: 4, variants: [{ length: 120 }] },
-        { rating: 8, variants: [{ length: Reading.time('2:00') }] },
-        { rating: 16, variants: [{ length: 200 }] },
-        { rating: 32, variants: [{ length: 2001 }] },
-        { rating: nil, variants: [{ length: 200 }] },
-        { rating: nil, variants: [] },
+        { variants: [{ length: 100 }, { length: 300 }] },
+        { variants: [{ length: 200 }] },
+        { variants: [{ length: 400 }] },
+        { variants: [{ length: 3000 }] },
+        { variants: [{ length: 4000 }] },
+        { variants: [{ length: nil }] },
+        { variants: [] },
       ],
     },
+    multiple: {
+      input: "average length by rating, format",
+      result: {
+        1 => { print: 9, audio: 20 },
+        2 => {},
+        3 => { print: 90, audio: 190 },
+      },
+      items: [
+        { rating: 3, variants: [
+          { format: :print, length: 100 },
+          { format: :audio, length: 200 }] },
+        { rating: 1, variants: [
+          { format: :print, length: 10 },
+          { format: :audio, length: 20 }] },
+        { rating: 3, variants: [{ format: :print, length: 80 }] },
+        { rating: 1, variants: [{ format: :print, length: 8 }] },
+        { rating: 3, variants: [{ format: :audio, length: 180 }] },
+        { rating: 2, variants: [] },
+      ],
+    }
   }
 
 
@@ -1917,6 +1937,8 @@ class StatsTest < Minitest::Test
       "average rating end-date=2022/8-9, 2022/9-10",
     :"overlapping date ranges" =>
       "average rating date=2022/8-9, 2022/9-10",
+    :"duplicate grouping" =>
+      "average rating by genre, year, genre",
   }
 
   # ==== TESTS

@@ -26,25 +26,40 @@ module Reading
                 (raise InputError, "Argument must be an integer. Example: top 5 ratings")
             end
 
-            grouped_results = grouped_items.map { |group_name, items|
-              result = ACTIONS[key].call(items, number_arg)
+            results = apply_to_inner_items(grouped_items) do |inner_items|
+              result = ACTIONS[key].call(inner_items, number_arg)
 
-              default_formatter = :itself.to_proc # Just the result itself.
+              default_formatter = :itself.to_proc # just the result itself
               result_formatter = result_formatters[key] || default_formatter
 
-              [group_name, result_formatter.call(result)]
-            }
-            .to_h
+              result_formatter.call(result)
+            end
 
-            if grouped_results.keys == [:all]
-              return grouped_results[:all]
+            if results.keys == [:all] # no groupings
+              return results[:all]
             else
-              return grouped_results
+              return results
             end
           end
         end
 
         raise InputError, "No valid operation in stats query \"#{input}\""
+      end
+
+      # A recursive method that applies the block to the leaf nodes (arrays of
+      # Items) of the given hash of grouped items.
+      # @param grouped_items [Hash]
+      # @yield [Array<Item>]
+      def self.apply_to_inner_items(grouped_items, &)
+        if grouped_items.values.first.is_a? Array
+          grouped_items.transform_values! { |inner_items|
+            yield inner_items
+          }
+        else # It's a Hash, so go one level deeper.
+          grouped_items.each do |group_name, grouped|
+            apply_to_inner_items(grouped, &)
+          end
+        end
       end
 
       private

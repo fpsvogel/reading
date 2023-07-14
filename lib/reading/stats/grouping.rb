@@ -1,31 +1,58 @@
 module Reading
   module Stats
     # The part of the query right after the operation, which groups the results,
-    # e.g. "by genre".
+    # e.g. "by genre, rating".
     class Grouping
-      # Determines which group is indicated in the given input, and then groups
-      # the Items accordingly. For the groups and their actions, see the
-      # constants below.
+      # Determines which group(s) the input indicates, and then groups the
+      # Items accordingly. For the groups and their actions, see the constants
+      # below.
       # @param input [String] the query string.
       # @param items [Array<Item>] the Items on which to run the operation.
-      # @return [Object] the return value of the action.
+      # @return [Hash] the return value of the group action(s).
       def self.group(input, items)
         grouped_items = {}
 
         match = input.match(REGEX)
 
         if match
-          group_name = match[:group].delete_suffix('s')
-          action = ACTIONS[group_name.to_sym]
+          group_names = match[:groups]
+            .split(',')
+            .tap { _1.last.sub!(/(\w)\s+\w+/, '\1') }
+            .map(&:strip)
+            .map { _1.delete_suffix('s') }
+            .map(&:to_sym)
 
-          unless action
-            raise InputError, "Invalid grouping \"#{group_name}\" in \"#{input}\""
+          if group_names.uniq.count < group_names.count
+            raise InputError, "Each grouping can be applied only once in a query."
           end
 
-          return action.call(items)
+          begin
+            return group_hash(items, group_names)
+          rescue InputError => e
+            raise e.class, "#{e.message} in \"#{input}\""
+          end
         end
 
         { all: items }
+      end
+
+      # Recursively builds a tree of groupings based on group_names.
+      # @group_names [Array<Symbol>]
+      # @items [Array<Item>]
+      # @return [Hash, Array<Item>]
+      private_class_method def self.group_hash(items, group_names)
+        return items if group_names.empty?
+
+        key = group_names.first
+        action = ACTIONS[key]
+
+        unless action
+          raise InputError, "Invalid grouping \"#{key}\""
+        end
+
+        action.call(items).transform_values do |grouped_items|
+          group_hash(grouped_items, group_names[1..])
+        end
       end
 
       private
@@ -37,42 +64,55 @@ module Reading
       # @return [Hash{Symbol => Array<Item>}] the Items separated into groups.
       ACTIONS = {
         rating: proc { |items|
-          items.group_by { |item|
-            item.rating
-          }
-          .sort
+          items
+            .group_by(&:rating)
+            .sort
+            .to_h
         },
         format: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
 
           items.each do |item|
-            item.variants.map(&:format).each { |format| groups[format] << item }
+            item.variants.group_by(&:format).each do |format, variants|
+              groups[format] << item.with_variants(variants)
+            end
           end
 
-          groups.sort
+          groups.sort.to_h
         },
         source: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
 
           items.each do |item|
-            item.variants.flat_map { |variant|
-              variant.sources.map { |source|
-                source.name || source.url
+            item
+              .variants
+              .map { |variant|
+                variant.sources.map { |source|
+                  [variant, source.name || source.url]
+                }
               }
-            }
-            .each { |source| groups[source] << item }
+              .flatten(1)
+              .group_by { |_variant, source| source }
+              .transform_values { |variants_and_sources|
+                variants_and_sources.map(&:first)
+              }
+              .each do |source, variants|
+                groups[source] << item.with_variants(variants)
+              end
           end
 
-          groups.sort
+          groups.sort.to_h
         },
         year: proc { |items|
-          begin_date = items.first.experiences.first.spans.first.dates.begin
+          begin_date = items
+            .map { _1.experiences.first&.spans&.first&.dates&.begin }
+            .compact
+            .min
 
           end_date = items
             .flat_map { _1.experiences.map(&:last_end_date) }
             .compact
-            .sort
-            .last
+            .max
 
           year_ranges = (begin_date.year..end_date.year).flat_map { |year|
             beginning_of_year = Date.new(year, 1, 1)
@@ -146,7 +186,7 @@ module Reading
             item.genres.each { |genre| groups[genre] << item }
           end
 
-          groups.sort
+          groups.sort.to_h
         },
         length: proc { |items|
           boundaries = Config.hash.fetch(:length_group_boundaries)
@@ -161,14 +201,19 @@ module Reading
           groups = groups.to_h
 
           items.each do |item|
-            item.variants.map(&:length).each { |length|
-              groups.each do |length_range, items_of_length|
-                if length_range.include?(length)
-                  items_of_length << item unless items_of_length.include?(item)
-                  break
-                end
+            item
+              .variants
+              .map { |variant| [variant, variant.length] }
+              .group_by { |_variant, length|
+                groups.keys.find { |length_range| length_range.include?(length) }
+              }
+              .transform_values { |variants_and_lengths|
+                variants_and_lengths.map(&:first)
+              }
+              .reject { |length_range, _variants| length_range.nil? }
+              .each do |length_range, variants|
+                groups[length_range] << item.with_variants(variants)
               end
-            }
           end
 
           groups
@@ -179,7 +224,7 @@ module Reading
         [^=]+ # the operation
         by
         \s*
-        (?<group>\w+)
+        (?<groups>[\w,\s]+)
       }x
     end
   end

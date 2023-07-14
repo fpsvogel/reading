@@ -22,6 +22,39 @@ require 'pastel'
 
 EXIT_COMMANDS = %w[exit e quit q]
 PASTEL = Pastel.new
+GROUP_HEADING_FORMATTERS = [
+  -> { PASTEL.magenta.bold.underline(_1) },
+  -> { PASTEL.green.bold.underline(_1) },
+  -> { PASTEL.yellow.bold.underline(_1) },
+  -> { PASTEL.cyan.bold.underline(_1) },
+  -> { PASTEL.magenta.on_white(_1) },
+  -> { PASTEL.green.on_white(_1) },
+  -> { PASTEL.yellow.on_white(_1) },
+]
+
+# Recursively prints a hash of results (possibly grouped).
+# @param grouped_results [Hash, Array]
+# @param group_heading_formatters [Array<Proc>] a subset of GROUP_HEADING_FORMATTERS
+def print_grouped_results(grouped_results, group_heading_formatters)
+  indent_level = GROUP_HEADING_FORMATTERS.count - group_heading_formatters.count
+
+  unless grouped_results.is_a? Hash
+    if grouped_results
+      puts "  " * indent_level + grouped_results.gsub("\n", "\n" + "  " * indent_level)
+    else
+      puts "  " * indent_level + PASTEL.bright_black("none")
+    end
+
+    puts
+
+    return
+  end
+
+  grouped_results.each do |group_name, grouped|
+    puts "  " * indent_level + group_heading_formatters.first.call(group_name)
+    print_grouped_results(grouped, group_heading_formatters[1..])
+  end
+end
 
 input = ARGV[0]
 unless input
@@ -57,15 +90,7 @@ if input_is_csv_path
       result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
     )
 
-    if results.is_a? Hash # if grouped
-      results.each do |group_name, items|
-        puts PASTEL.magenta.on_white(group_name)
-        puts items.presence || PASTEL.bright_black("none")
-        puts ''
-      end
-    else
-      puts results.presence || PASTEL.bright_black("none")
-    end
+    print_grouped_results(results, GROUP_HEADING_FORMATTERS)
   rescue Reading::Error => e
     puts e
   end

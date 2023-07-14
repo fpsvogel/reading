@@ -139,11 +139,17 @@ The `reading` command can also start an interactive statistics-querying mode if 
 $ reading /home/user/reading.csv
 ```
 
-Then a prompt will appear, in which you can type commands made up of an **operation** optionally followed by a **grouping** and/or one or more **filters**.
+Then a prompt will appear, in which you can type commands made up of an **operation** optionally followed by one or more **groupings** and/or one or more **filters**.
 
-Here's an example query that contains all three elements:
+Here are a few examples:
 
-`top 3 amounts by genre status!=in progress rating>1 format=audiobook,ebook done<100% source=Hoopla`
+```
+average rating
+total amount by month
+total items by year, genre
+top 5 lengths status!=planned format=print,ebook
+top 3 amounts by year rating>1 done<100% source=Hoopla
+```
 
 > **Warning**
 > The operation, grouping, and filter(s) *must* appear in that order, or else the query may yield unexpected results.
