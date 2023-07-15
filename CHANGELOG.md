@@ -1,5 +1,6 @@
-## [0.9.0] - in progress
+## [0.9.0] - 2023-07-15
 
+- Added statistics-querying functionality (`Reading::stats`).
 - In the top-level API, renamed `stream` keyword argument to `lines`.
 - In the top-level API, made the `path` argument into a keyword argument.
 - Added the `reading` command for querying a file for statistics, or for showing raw output from parsing a CSV string. (Replaces the former `reading` and `readingfile` commands.)
