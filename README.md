@@ -147,12 +147,23 @@ Here are a few examples:
 average rating
 total amount by month
 total items by year, genre
-top 5 lengths status!=planned format=print,ebook
-top 3 amounts by year rating>1 done<100% source=Hoopla
+top 5 lengths status!=planned format=print, ebook
+top 3 amounts by year rating>1 done<100% source~library
 ```
 
 > **Warning**
 > The operation, grouping, and filter(s) *must* appear in that order, or else the query may yield unexpected results.
+
+You can also get statistics via Ruby code rather than on the command line:
+
+```ruby
+# ...
+# (Already parsed a reading log into `items` as above.)
+results = Reading.stats(
+  input: "total amount by month"
+  items: items,
+)
+```
 
 <!-- omit in toc -->
 #### Stats operations
