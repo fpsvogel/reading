@@ -7,7 +7,13 @@ module Reading
         average_length: ->(result) { length_to_s(result) },
         average_amount: ->(result) { length_to_s(result) },
         :'average_daily-amount' => ->(result) { "#{length_to_s(result)} per day" },
-        total_item: ->(result) { color("#{result} #{result == 1 ? "item" : "items"}") },
+        total_item: ->(result) {
+          if result.zero?
+            PASTEL.bright_black("none")
+          else
+            color("#{result} #{result == 1 ? "item" : "items"}")
+          end
+        },
         total_amount: ->(result) { length_to_s(result) },
         top_length: ->(result) { top_or_bottom_lengths(result) },
         top_amount: ->(result) { top_or_bottom_lengths(result) },
