@@ -66,7 +66,9 @@ module Reading
         rating: proc { |items|
           items
             .group_by(&:rating)
-            .sort
+            .reject { |rating, _items| rating.nil? }
+            .sort_by { |rating, _items| rating }
+            .reverse
             .to_h
         },
         format: proc { |items|

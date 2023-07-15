@@ -1633,6 +1633,7 @@ class StatsTest < Minitest::Test
         { rating: 1, variants: [{ length: 50 }] },
         { rating: 3, variants: [{ length: 20 }, { length: 30 }] },
         { rating: 2, variants: [] },
+        { rating: nil, variants: [] },
       ],
     },
     format: {
