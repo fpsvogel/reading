@@ -120,11 +120,11 @@ module Reading
         top_rating: proc { |items, number_arg|
           items
             .max_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
-            .map { |item| [item.title, item.rating] }
+            .map { |item| [author_and_title(item), item.rating] }
         },
         top_length: proc { |items, number_arg|
           items
-            .map { |item| [item.title, item.variants.map(&:length).max] }
+            .map { |item| [author_and_title(item), item.variants.map(&:length).max] }
             .reject { |_title, length| length.nil? }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
@@ -137,7 +137,7 @@ module Reading
                 }
               }
 
-              [item.title, amount]
+              [author_and_title(item), amount]
             }
             .reject { |_title, amount| amount.zero? }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount| amount }
@@ -153,11 +153,11 @@ module Reading
         bottom_rating: proc { |items, number_arg|
           items
             .min_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
-            .map { |item| [item.title, item.rating] }
+            .map { |item| [author_and_title(item), item.rating] }
         },
         bottom_length: proc { |items, number_arg|
           items
-            .map { |item| [item.title, item.variants.map(&:length).max] }
+            .map { |item| [author_and_title(item), item.variants.map(&:length).max] }
             .reject { |_title, length| length.nil? }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
@@ -170,7 +170,7 @@ module Reading
                 }
               }
 
-              [item.title, amount]
+              [author_and_title(item), amount]
             }
             .reject { |_title, amount| amount.zero? }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount| amount }
@@ -299,7 +299,14 @@ module Reading
         speed = speeds
           .max_by { |hash| hash[:amount] / hash[:days].to_f }
 
-        [item.title, speed]
+        [author_and_title(item), speed]
+      end
+
+      # A shorter version of Item::View#name.
+      # @param item [Item]
+      # @return [String]
+      private_class_method def self.author_and_title(item)
+        "#{item.author + " – " if item.author}#{item.title}"
       end
     end
   end
