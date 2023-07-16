@@ -23,6 +23,7 @@ This guide is written to show you what your reading log CSV file should look lik
   - [Compact planned items: single line with Sources and Length columns](#compact-planned-items-single-line-with-sources-and-length-columns)
   - [Compact planned items: ignored emojis](#compact-planned-items-ignored-emojis)
 - [Advanced](#advanced)
+  - [Custom config row](#custom-config-row)
   - [Head column: DNF](#head-column-dnf)
   - [Head column: series and volume](#head-column-series-and-volume)
   - [Head column: extra info](#head-column-extra-info)
@@ -285,6 +286,20 @@ One reason I like this form is that my shortcut scripts for creating a new row (
 Especially in a row of compact planned items, it can be useful to sprinkle emojis to mark items in various ways, such as "I'll need to buy this" (`💲`) or "I have this on hold" (`⏳`)—but the emojis and their meanings are up to you. The point here is that certain emojis are ignored by the parser. For the default list, see `Config#default_config[:ignored_characters]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
 ## Advanced
+
+### Custom config row
+
+If you want to customize your config, you can add a commented row consisting of a config hash. For example, I listen to most audiobooks and podcasts at 1.5x speed, so I have this row at the top of my reading log:
+
+```
+\{ speed: { format: { audiobook: 1.5, audio: 1.5 } } }
+```
+
+Or if you want to customize your average reading speed:
+
+```
+\{ pages_per_hour: 50 }
+```
 
 ### Head column: DNF
 
