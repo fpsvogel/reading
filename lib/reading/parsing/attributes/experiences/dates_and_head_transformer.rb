@@ -85,12 +85,14 @@ module Reading
               parsed_row[:head][head_index][:format]
             length = Attributes::Shared.length(parsed_row[:sources]&.dig(variant_index), format:) ||
               Attributes::Shared.length(parsed_row[:length], format:)
+            no_end_date = !dates.end if dates &&
+              Config.hash.fetch(:enabled_columns).include?(:end_dates)
 
             [
               {
                 dates: dates,
                 amount: (length if dates),
-                progress: Attributes::Shared.progress(start_entry) ||
+                progress: Attributes::Shared.progress(start_entry, no_end_date:) ||
                   Attributes::Shared.progress(parsed_row[:head][head_index]) ||
                   (1.0 if end_entry),
                 name: span_template.fetch(:name),

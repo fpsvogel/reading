@@ -571,14 +571,15 @@ class ParseTest < Minitest::Test
   b_start = b.deep_merge(experiences: [{ spans: [{ dates: Date.new(2020, 5, 1).. }] }])
   @outputs[:enabled_columns][:"head, start_dates"] = [a_start, b_start, c]
 
+  a_start_unfinished = a_start.deep_merge(experiences: [{ spans: [{ progress: 0.0 }] }])
   b_end = item_hash(
     title: "Goatsong",
     experiences: [{ spans: [{ dates: Date.new(2020, 5, 1)..Date.new(2020, 5, 30),
                               progress: 1.0}] }],
   )
-  @outputs[:enabled_columns][:"head, start_dates, end_dates"] = [a_start, b_end, c]
+  @outputs[:enabled_columns][:"head, start_dates, end_dates"] = [a_start_unfinished, b_end, c]
 
-  a_rating = a_start.merge(rating: nil)
+  a_rating = a_start_unfinished.merge(rating: nil)
   b_rating = b_end.merge(rating: 5)
   @outputs[:enabled_columns][:"rating, head, start_dates, end_dates"] = [a_rating, b_rating, c]
 
@@ -1279,7 +1280,7 @@ class ParseTest < Minitest::Test
   @outputs[:all_columns] = {}
 
   a = item_hash(title: "Sapiens")
-  start = { experiences: [{ spans: [{ dates: Date.new(2020, 9, 1).. }] }] }
+  start = { experiences: [{ spans: [{ dates: Date.new(2020, 9, 1).., progress: 0.0 }] }] }
   a_start = a.deep_merge(start)
   a_start_format = a_start.deep_merge(variants: [{ format: :print }])
   @outputs[:all_columns][:"empty Sources column doesn't prevent variant from elsewhere"] = [a_start_format]
@@ -1292,7 +1293,7 @@ class ParseTest < Minitest::Test
   a_variant_length_with_experience =
     a_variant_length.deep_merge(
       experiences: [{
-        spans: [{ dates: Date.new(2020, 9, 1).., amount: 247 }],
+        spans: [{ dates: Date.new(2020, 9, 1).., progress: 0.0, amount: 247 }],
         variant_index: 0
       }]
     )
@@ -1321,7 +1322,8 @@ class ParseTest < Minitest::Test
                     isbn: "B00ICN066A",
                     length: Reading.time('15:17') }],
     experiences: [{ spans: [{ dates: Date.new(2021, 9, 20)..,
-                              amount: Reading.time('15:17') }] }],
+                              amount: Reading.time('15:17'),
+                              progress: 0.0 }] }],
     genres: ["history"],
     notes: [
       { content: "Easy to criticize, but I like the emphasis on human happiness." },
@@ -1341,7 +1343,8 @@ class ParseTest < Minitest::Test
                               amount: 247,
                               progress: 1.0 }] },
                   { spans: [{ dates: Date.new(2020, 5, 1)..,
-                              amount: 247 }] }],
+                              amount: 247,
+                              progress: 0.0 }] }],
     genres: %w[history fiction],
   )
   @outputs[:all_columns][:"realistic examples: in progress books"] = [sapiens, goatsong]

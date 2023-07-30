@@ -9,13 +9,16 @@ module Reading
         # Extracts the :progress sub-attribute (percent, pages, or time) from
         # the given hash.
         # @param hash [Hash] any parsed hash that contains progress.
+        # @param no_end_date [Boolean] for start and end dates (as opposed to
+        #   the History column), whether an end date is present.
         # @return [Float, Integer, Item::TimeLength]
-        def self.progress(hash)
+        def self.progress(hash, no_end_date: nil)
           hash[:progress_percent]&.to_f&./(100) ||
             hash[:progress_pages]&.to_i ||
             hash[:progress_time]&.then { Item::TimeLength.parse(_1) } ||
             (0 if hash[:progress_dnf]) ||
             (1.0 if hash[:progress_done]) ||
+            (0.0 if no_end_date) ||
             nil
         end
 
