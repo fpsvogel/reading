@@ -276,6 +276,8 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|2021/12/6..6/1 0:30/month -- x2/month",
   :"exception list" =>
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
+  :"exception list can be an open range at the end" =>
+    "Fullstack Ruby|2022/09/24.. 1:00/day -- not 9/25..26 -- 9/28.. 2:00/day -- not 9/30..",
   # 13:00 here gives the same result as 1:00/day, though it's unexpected. We
   # would expect that over these 10 days (not counting the exception days),
   # 10:00 means 1:00/day. However, the amounts are distributed across the days
@@ -1099,6 +1101,19 @@ class ParseTest < Minitest::Test
     ] }],
   )
   @outputs[:features_history][:"exception list"] = [a_except]
+
+  except_at_end = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: Date.new(2022, 9, 24)..Date.new(2022, 9, 24),
+        amount: Reading.time('1:00') },
+      { dates: Date.new(2022, 9, 27)..Date.new(2022, 9, 27),
+        amount: Reading.time('1:00') },
+      { dates: Date.new(2022, 9, 28)..Date.new(2022, 9, 29),
+        amount: Reading.time('4:00') },
+    ] }],
+  )
+  @outputs[:features_history][:"exception list can be an open range at the end"] = [except_at_end]
 
   @outputs[:features_history][:"exception list doesn't work as expected with fixed amount"] = [a_except]
 

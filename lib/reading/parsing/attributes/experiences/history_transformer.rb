@@ -68,9 +68,12 @@ module Reading
               last_start_month: nil,
             }
 
+            # Dates after "not" entries.
+            except_dates = []
+
             entries.each do |entry|
               if entry[:except_dates]
-                reject_exception_dates!(entry, daily_spans, active)
+                except_dates += reject_exception_dates!(entry, daily_spans, active)
                 next
               end
 
@@ -79,7 +82,7 @@ module Reading
 
             spans = merge_daily_spans(daily_spans)
 
-            fix_open_ranges!(spans)
+            fix_open_ranges!(spans, except_dates)
 
             relativize_amounts_from_progress!(spans)
 
@@ -92,6 +95,7 @@ module Reading
           #   date-and-name combination.
           # @param active [Hash] variables that persist across entries, such as
           #   amount and implied date.
+          # @return [Array<Date>] the rejected dates.
           def reject_exception_dates!(entry, daily_spans, active)
             except_active = {
               year: active[:last_start_year],
@@ -122,6 +126,8 @@ module Reading
             daily_spans.reject! do |(date, _name), _span|
               except_dates.include?(date)
             end
+
+            except_dates
           end
 
           # Expands the given entry into one span per day, then adds them to daily_spans.
@@ -368,8 +374,18 @@ module Reading
           # At the same time, distribute each open range's spans evenly.
           # Lastly, remove the :in_open_range key from spans.
           # @param spans [Array<Hash>] spans after being merged from daily_spans.
+          # @param except_dates [Date] dates after "not" entries which were
+          #   rejected from spans.
           # @return [Array<Hash>]
-          def fix_open_ranges!(spans)
+          def fix_open_ranges!(spans, except_dates)
+            # The last date which could've been applied to open ranges is today
+            # except in cases where the last History entry is a "not" entry
+            # (e.g. "not 4/21..").
+            last_possible_open_range_end = Date.today
+            while except_dates.include?(last_possible_open_range_end)
+              last_possible_open_range_end = last_possible_open_range_end.prev_day
+            end
+
             chunked_by_open_range = spans.chunk_while { |a, b|
               a[:dates] && b[:dates] && # in case of planned entry
               a[:dates].begin == b[:dates].begin &&
@@ -379,15 +395,23 @@ module Reading
             next_chunk_start_date = nil
             chunked_by_open_range
               .reverse_each { |chunk|
-                unless chunk.first[:in_open_range] && chunk.any? { _1[:dates].end == Date.today }
+                unless chunk.first[:in_open_range] && chunk.any? { _1[:dates].end == last_possible_open_range_end }
                   # safe nav. in case of planned entry
                   next_chunk_start_date = chunk.first[:dates]&.begin
                   next
                 end
 
                 # Set last end date.
-                if chunk.last[:dates].end == Date.today && next_chunk_start_date
-                  chunk.last[:dates] = chunk.last[:dates].begin..next_chunk_start_date.prev_day
+                if chunk.last[:dates].end == last_possible_open_range_end && next_chunk_start_date
+                  new_dates = chunk.last[:dates].begin..next_chunk_start_date.prev_day
+                  # TODO this and the other commented line below fix the failing
+                  # test :"exception list can be an open range at the end"
+                  # but they cause failures in two other tests,
+                  # :"open range with dates in the middle" and :"open range with implied end"
+                  # new_to_old_dates_ratio = new_dates.count / chunk.last[:dates].count.to_f
+
+                  chunk.last[:dates] = new_dates
+                  # chunk.last[:amount] = (chunk.last[:amount] * new_to_old_dates_ratio).to_i_if_whole
                 end
                 next_chunk_start_date = chunk.first[:dates].begin
 
