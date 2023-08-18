@@ -86,6 +86,8 @@ module Reading
 
             relativize_amounts_from_progress!(spans)
 
+            remove_temporary_keys!(spans)
+
             spans
           end
 
@@ -228,6 +230,7 @@ module Reading
                 in_open_range: in_open_range,
                 # ... have their amounts adjusted to be relative to previous progress.
                 amount_from_progress: amount_from_progress,
+                amount_from_frequency: !!frequency,
               }
 
               if entry[:planned] || active[:planned]
@@ -322,7 +325,7 @@ module Reading
           # @param amount [Float, Integer, Item::TimeLength] amount in
           #   pages or time.
           # @param repetitions [Integer] e.g. "x4" in a History entry.
-          # @param frequency [Integer] e.g. "/week" in a History entry.
+          # @param frequency [String] e.g. "/week" in a History entry.
           # @return [Hash{Date => Float, Integer, Item::TimeLength}]
           def distribute_amount_across_date_range(date_or_range, amount, repetitions, frequency)
             unless amount
@@ -404,14 +407,13 @@ module Reading
                 # Set last end date.
                 if chunk.last[:dates].end == last_possible_open_range_end && next_chunk_start_date
                   new_dates = chunk.last[:dates].begin..next_chunk_start_date.prev_day
-                  # TODO this and the other commented line below fix the failing
-                  # test :"exception list can be an open range at the end"
-                  # but they cause failures in two other tests,
-                  # :"open range with dates in the middle" and :"open range with implied end"
-                  # new_to_old_dates_ratio = new_dates.count / chunk.last[:dates].count.to_f
+
+                  if chunk.last[:amount_from_frequency]
+                    new_to_old_dates_ratio = new_dates.count / chunk.last[:dates].count.to_f
+                    chunk.last[:amount] = (chunk.last[:amount] * new_to_old_dates_ratio).to_i_if_whole
+                  end
 
                   chunk.last[:dates] = new_dates
-                  # chunk.last[:amount] = (chunk.last[:amount] * new_to_old_dates_ratio).to_i_if_whole
                 end
                 next_chunk_start_date = chunk.first[:dates].begin
 
@@ -452,10 +454,6 @@ module Reading
 
                 span[:dates] = span[:dates].begin..last_end_date
               }
-
-            spans.each do |span|
-              span.delete(:in_open_range)
-            end
           end
 
           # Changes amounts taken from progress, from absolute to relative,
@@ -473,9 +471,18 @@ module Reading
 
               amount_acc += span[:amount]
             end
+          end
+
+          # Removes all keys that shouldn't be in the final item data.
+          # @param spans [Array<Hash>] spans after being merged from daily_spans.
+          # @return [Array<Hash>]
+          def remove_temporary_keys!(spans)
+            temporary_keys = [:in_open_range, :amount_from_progress, :amount_from_frequency]
 
             spans.each do |span|
-              span.delete(:amount_from_progress)
+              temporary_keys.each do |key|
+                span.delete(key)
+              end
             end
           end
         end
