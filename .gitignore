@@ -1,7 +1,1 @@
-/.bundle/
-/.yardoc
-/_yardoc/
-/coverage/
-/pkg/
-/spec/reports/
-/tmp/
+*.gem
