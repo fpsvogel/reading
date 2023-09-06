@@ -13,7 +13,6 @@
 #   reading '3|📕Trying|Little Library 1970147288'
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
-require 'debug'
 require_relative '../lib/reading'
 require_relative '../lib/reading/stats/terminal_result_formatters'
 require 'amazing_print'

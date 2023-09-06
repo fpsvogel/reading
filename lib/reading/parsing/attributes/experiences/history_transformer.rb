@@ -86,6 +86,8 @@ module Reading
 
             relativize_amounts_from_progress!(spans)
 
+            remove_last_end_date_of_today_if_open_range!(spans)
+
             remove_temporary_keys!(spans)
 
             spans
@@ -227,10 +229,11 @@ module Reading
                 # Temporary keys (not in the final item data) for marking
                 # spans to ...
                 # ... be distributed evenly across an open date range.
-                in_open_range: in_open_range,
+                in_open_range?: in_open_range,
                 # ... have their amounts adjusted to be relative to previous progress.
-                amount_from_progress: amount_from_progress,
-                amount_from_frequency: !!frequency,
+                amount_from_progress?: amount_from_progress,
+                amount_from_frequency?: !!frequency,
+                implied_date_range?: !date_range && !!frequency,
               }
 
               if entry[:planned] || active[:planned]
@@ -375,7 +378,7 @@ module Reading
           # Set each open date range's last end date (wherever it's today, i.e.
           # it wasn't defined) to the day before the next entry's start date.
           # At the same time, distribute each open range's spans evenly.
-          # Lastly, remove the :in_open_range key from spans.
+          # Lastly, remove the :in_open_range? key from spans.
           # @param spans [Array<Hash>] spans after being merged from daily_spans.
           # @param except_dates [Date] dates after "not" entries which were
           #   rejected from spans.
@@ -392,13 +395,13 @@ module Reading
             chunked_by_open_range = spans.chunk_while { |a, b|
               a[:dates] && b[:dates] && # in case of planned entry
               a[:dates].begin == b[:dates].begin &&
-                a[:in_open_range] == b[:in_open_range]
+                a[:in_open_range?] == b[:in_open_range?]
             }
 
             next_chunk_start_date = nil
             chunked_by_open_range
               .reverse_each { |chunk|
-                unless chunk.first[:in_open_range] && chunk.any? { _1[:dates].end == last_possible_open_range_end }
+                unless chunk.first[:in_open_range?] && chunk.any? { _1[:dates].end == last_possible_open_range_end }
                   # safe nav. in case of planned entry
                   next_chunk_start_date = chunk.first[:dates]&.begin
                   next
@@ -408,7 +411,7 @@ module Reading
                 if chunk.last[:dates].end == last_possible_open_range_end && next_chunk_start_date
                   new_dates = chunk.last[:dates].begin..next_chunk_start_date.prev_day
 
-                  if chunk.last[:amount_from_frequency]
+                  if chunk.last[:amount_from_frequency?]
                     new_to_old_dates_ratio = new_dates.count / chunk.last[:dates].count.to_f
                     chunk.last[:amount] = (chunk.last[:amount] * new_to_old_dates_ratio).to_i_if_whole
                   end
@@ -465,7 +468,7 @@ module Reading
           def relativize_amounts_from_progress!(spans)
             amount_acc = 0
             spans.each do |span|
-              if span[:amount_from_progress]
+              if span[:amount_from_progress?]
                 span[:amount] -= amount_acc
               end
 
@@ -473,11 +476,29 @@ module Reading
             end
           end
 
+          # Removes the end date from the last span if it's today, and if it was
+          # written as an open range.
+          # @param spans [Array<Hash>] spans after being merged from daily_spans.
+          # @return [Array<Hash>]
+          def remove_last_end_date_of_today_if_open_range!(spans)
+            if spans.last[:dates] &&
+              spans.last[:dates].end == Date.today &&
+              (spans.last[:in_open_range?] || spans.last[:implied_date_range?])
+
+              spans.last[:dates] = spans.last[:dates].begin..
+            end
+          end
+
           # Removes all keys that shouldn't be in the final item data.
           # @param spans [Array<Hash>] spans after being merged from daily_spans.
           # @return [Array<Hash>]
           def remove_temporary_keys!(spans)
-            temporary_keys = [:in_open_range, :amount_from_progress, :amount_from_frequency]
+            temporary_keys = %i[
+              in_open_range?
+              amount_from_progress?
+              amount_from_frequency?
+              implied_date_range?
+            ]
 
             spans.each do |span|
               temporary_keys.each do |key|

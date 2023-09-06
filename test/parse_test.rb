@@ -980,7 +980,7 @@ class ParseTest < Minitest::Test
   a_implied_range_end = item_hash(
     title: title_a,
     experiences: [{ spans: [
-      { dates: Date.new(2021, 12, 6)..Date.today,
+      { dates: Date.new(2021, 12, 6)..,
         amount: Reading.time('0:35') },
     ] }],
   )
@@ -991,7 +991,7 @@ class ParseTest < Minitest::Test
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 6),
         amount: Reading.time('0:35') },
-      { dates: Date.new(2021, 12, 7)..Date.today,
+      { dates: Date.new(2021, 12, 7)..,
         amount: Reading.time('0:45') },
     ] }],
   )
@@ -1081,7 +1081,7 @@ class ParseTest < Minitest::Test
     title: title_a,
     experiences: [{ spans: [
       a_frequency.deep_fetch(:experiences, 0, :spans, 0),
-      { dates: start_date..Date.today,
+      { dates: start_date..,
         amount: Reading::Item::TimeLength.new(minutes_240) },
     ] }],
   )
@@ -1525,7 +1525,7 @@ class ParseTest < Minitest::Test
             amount: Reading::Item::TimeLength.new(3200/7r),
           },
           {
-            dates: Date.new(2022,3,1)..Date.today,
+            dates: Date.new(2022,3,1)..,
             amount: Reading::Item::TimeLength.new(21500/7r),
           }],
       }],

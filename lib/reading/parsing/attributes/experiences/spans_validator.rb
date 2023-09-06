@@ -131,7 +131,7 @@ module Reading
                       end
                     end
                     .each_cons(2) do |a, b|
-                      if a.begin > b.begin || a.end > b.end
+                      if a.begin > b.begin || (a.end || Date.today) > (b.end || Date.today)
                         raise InvalidDateError, "Dates are not in order"
                       end
                       if a.cover?(b.begin + 1)
