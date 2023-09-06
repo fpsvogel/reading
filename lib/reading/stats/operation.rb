@@ -105,6 +105,9 @@ module Reading
             amounts_by_date.values.sum / amounts_by_date.count
           end
         },
+        list_item: proc { |items|
+          items.map { |item| author_and_title(item) }
+        },
         total_item: proc { |items|
           items.count
         },
@@ -119,7 +122,7 @@ module Reading
         },
         top_rating: proc { |items, number_arg|
           items
-            .max_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { _1.rating || 0}
             .map { |item| [author_and_title(item), item.rating] }
         },
         top_length: proc { |items, number_arg|
@@ -152,7 +155,7 @@ module Reading
         },
         bottom_rating: proc { |items, number_arg|
           items
-            .min_by(number_arg || DEFAULT_NUMBER_ARG, &:rating)
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { _1.rating || 0}
             .map { |item| [author_and_title(item), item.rating] }
         },
         bottom_length: proc { |items, number_arg|
@@ -190,6 +193,7 @@ module Reading
         average_length: %w[al],
         average_amount: %w[aia ai],
         :"average_daily-amount" => %w[ada ad],
+        list_item: %w[li list],
         total_item: %w[item count],
         total_amount: %w[amount],
         top_rating: %w[tr],

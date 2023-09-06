@@ -13,6 +13,7 @@
 #   reading '3|📕Trying|Little Library 1970147288'
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
+require 'debug'
 require_relative '../lib/reading'
 require_relative '../lib/reading/stats/terminal_result_formatters'
 require 'amazing_print'
@@ -37,17 +38,24 @@ GROUP_HEADING_FORMATTERS = [
 def print_grouped_results(grouped_results, group_heading_formatters)
   indent_level = GROUP_HEADING_FORMATTERS.count - group_heading_formatters.count
 
-  if grouped_results.nil? || grouped_results.empty?
+  if grouped_results.nil? || (grouped_results.respond_to?(:empty?) && grouped_results.empty?)
     puts "  " * indent_level + PASTEL.bright_black("none") + "\n"
-    return
-  elsif !grouped_results.is_a? Hash
-    puts "  " * indent_level + grouped_results.gsub("\n", "\n" + "  " * indent_level) + "\n"
     return
   end
 
-  grouped_results.each do |group_name, grouped|
-    puts "  " * indent_level + group_heading_formatters.first.call(group_name)
-    print_grouped_results(grouped, group_heading_formatters[1..])
+  if grouped_results.is_a?(Hash) ||
+    (grouped_results.is_a?(Array) && grouped_results.first.length == 2)
+
+    grouped_results.each do |group_name, grouped|
+      puts "  " * indent_level + group_heading_formatters.first.call(group_name)
+      print_grouped_results(grouped, group_heading_formatters[1..])
+    end
+  elsif grouped_results.is_a?(Array)
+    numbered_results = grouped_results.map.with_index { |v, i| "#{i + 1}. #{v}" }
+
+    puts "  " * indent_level + numbered_results.join("\n" + "  " * indent_level) + "\n"
+  else
+    puts "  " * indent_level + grouped_results.to_s + "\n"
   end
 end
 

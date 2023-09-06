@@ -173,8 +173,9 @@ The last word may be pluralized.
 - `average length`
 - `average amount`
 - `average daily-amount`
-- `total items`
-- `total amount`
+- `list items` (or just `list`)
+- `total items` (or just `items`, or `count`)
+- `total amount` (or just `amount`)
 - `top/bottom [N] ratings`
 - `top/bottom [N] lengths`
 - `top/bottom [N] amounts`
