@@ -91,7 +91,7 @@ module Reading
 
           private
 
-          ISBN_REGEX = /(\d{3}[-\s]?)?\d{10}/
+          ISBN_REGEX = /(\d{3}[-\s]?)?(\d{10}|\d{9}X)/
           ASIN_REGEX = /B0[A-Z\d]{8}/
         end
       end

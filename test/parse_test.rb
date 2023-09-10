@@ -139,6 +139,8 @@ class ParseTest < Minitest::Test
     "Goatsong|Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub",
   :"source with ISBN" =>
     "Goatsong|Little Library 0312038380",
+  :"source with ISBN-10 ending in X" =>
+    "Goatsong|Little Library 031203838X",
   :"sources with ISBN" =>
     "Goatsong|Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380",
   :"comma not required before and after URL source" =>
@@ -716,6 +718,11 @@ class ParseTest < Minitest::Test
                  isbn: isbn }],
   )
   @outputs[:features_sources][:"source with ISBN"] = [a_source_isbn]
+
+  a_source_isbn_x = a_source_isbn.deep_merge(
+    variants: [{ isbn: isbn.chop + "X" }],
+  )
+  @outputs[:features_sources][:"source with ISBN-10 ending in X"] = [a_source_isbn_x]
 
   a_multi_sources_isbn = a.deep_merge(
     variants: [{ sources: three_sources,
