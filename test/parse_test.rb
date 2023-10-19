@@ -276,6 +276,8 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|2021/12/6..6/1 0:30/month -- .. x2/month",
   :"frequency implied until present" =>
     "Fullstack Ruby|2021/12/6..6/1 0:30/month -- x2/month",
+  :"previous repetitions and frequency apply when amount and progress are omitted" =>
+    "Fullstack Ruby|2021/12/6..6/1 0:30 x2/month -- 7/1..12/25",
   :"exception list" =>
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
   :"exception list can be an open range at the end" =>
@@ -293,7 +295,8 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- (1/4..8 2:00/day)",
   :"overwriting can omit parentheses" =>
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 1/4..8 2:00/day",
-  :"overwriting to zero has the same effect as exception list" =>
+  # "x0" may produce different results than "not" because "x0" is carried over to the omitted days.
+  :"overwriting to zero does not have the same effect" =>
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0)",
   :"names" =>
     "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
@@ -1080,21 +1083,33 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_history][:"frequency x1 implied"] = [a_frequency]
 
-  start_date = end_date_june + 1
+  second_start_date = end_date_june + 1
   # 10 months because Date::today is stubbed in test_helper.rb
-  about_4_months = (Date.today - start_date + 1).to_i / days_per_month
+  about_4_months = (Date.today - second_start_date + 1).to_i / days_per_month
   minutes_240 = about_4_months * 30 * 2 # multiply by 2 because x2/month this time
   a_frequency_present = item_hash(
     title: title_a,
     experiences: [{ spans: [
       a_frequency.deep_fetch(:experiences, 0, :spans, 0),
-      { dates: start_date..,
+      { dates: second_start_date..,
         amount: Reading::Item::TimeLength.new(minutes_240) },
     ] }],
   )
   @outputs[:features_history][:"frequency until present"] = [a_frequency_present]
 
   @outputs[:features_history][:"frequency implied until present"] = [a_frequency_present]
+
+  a_frequency_defaulted = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      { dates: start_date..end_date_june,
+        amount: Reading::Item::TimeLength.new(minutes_175) * 2 },
+      { dates: Date.new(2022, 7, 1)..Date.new(2022, 12, 25),
+        amount: Reading::Item::TimeLength.new(minutes_175) * 2 },
+    ] }],
+  )
+  @outputs[:features_history][:"previous repetition and frequency apply when amount and progress are omitted"] =
+    [a_frequency_defaulted]
 
   a_except = item_hash(
     title: title_a,
@@ -1138,7 +1153,15 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_history][:"overwriting can omit parentheses"] = [a_overwriting]
 
-  @outputs[:features_history][:"overwriting to zero has the same effect as exception list"] = [a_except]
+  a_except_without_last_dates = item_hash(
+    title: title_a,
+    experiences: [{ spans: [
+      *a_except.deep_fetch(:experiences, 0, :spans).first(2),
+    ] }],
+  )
+
+  @outputs[:features_history][:"overwriting to zero does not have the same effect"] =
+    [a_except_without_last_dates]
 
   a_names = a_amounts.deep_merge(
     experiences: [{ spans: [

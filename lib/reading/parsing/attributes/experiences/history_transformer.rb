@@ -64,6 +64,8 @@ module Reading
               open_range: false,
               planned: false,
               amount: nil,
+              repetitions: nil,
+              frequency: nil,
               last_start_year: nil,
               last_start_month: nil,
             }
@@ -184,9 +186,11 @@ module Reading
             format = parsed_row[:sources]&.dig(variant_index)&.dig(:format) ||
               parsed_row[:head][head_index][:format]
 
-            amount =
-              Attributes::Shared.length(entry, format:, key_name: :amount, ignore_repetitions: true) ||
+            amount_from_entry =
+              Attributes::Shared.length(entry, format:, key_name: :amount, ignore_repetitions: true)
+            amount_from_length =
               Attributes::Shared.length(parsed_row[:length], format:, episodic: true)
+            amount = amount_from_entry || amount_from_length
             active[:amount] = amount if amount
 
             progress = Attributes::Shared.progress(entry)
@@ -205,13 +209,23 @@ module Reading
               amount_from_progress = true
             end
 
-            repetitions = entry[:repetitions]&.to_i || 1
+            repetitions = entry[:repetitions]&.to_i
             frequency = entry[:frequency]
+
+            # If the entry has no amount or progress, default to the previous
+            # repetitions and frequency.
+            unless amount_from_entry || progress
+              repetitions ||= active[:repetitions]
+              frequency ||= active[:frequency]
+            end
+
+            active[:repetitions] = repetitions if repetitions
+            active[:frequency] = frequency if frequency
 
             amounts_by_date = distribute_amount_across_date_range(
               date_range || Date.new(active[:year], active[:month], active[:day]),
               amount || active[:amount],
-              repetitions,
+              repetitions || 1,
               frequency,
             )
 
