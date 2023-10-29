@@ -169,6 +169,10 @@ class ParseTest < Minitest::Test
     "Sapiens|2020/09/01",
   :"start dates" =>
     "Sapiens|2020/09/01, 2021/07/15",
+  :"planned after a start date" =>
+    "Sapiens|2020/09/01, ??",
+  :"planned only" =>
+    "Sapiens|??",
   :"progress" =>
     "Sapiens|50% 2020/09/01",
   :"progress pages" =>
@@ -276,7 +280,7 @@ class ParseTest < Minitest::Test
     "Fullstack Ruby|2021/12/6..6/1 0:30/month -- .. x2/month",
   :"frequency implied until present" =>
     "Fullstack Ruby|2021/12/6..6/1 0:30/month -- x2/month",
-  :"previous repetitions and frequency apply when amount and progress are omitted" =>
+  :"previous repetition and frequency apply when amount and progress are omitted" =>
     "Fullstack Ruby|2021/12/6..6/1 0:30 x2/month -- 7/1..12/25",
   :"exception list" =>
     "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
@@ -799,6 +803,10 @@ class ParseTest < Minitest::Test
   }
   a_start_2 = item_hash(**a.deep_merge(start).deep_merge(start_2))
   @outputs[:features_start_dates][:"start dates"] = [a_start_2]
+
+  @outputs[:features_start_dates][:"planned after a start date"] = [a_start]
+
+  @outputs[:features_start_dates][:"planned only"] = [a]
 
   start_3 = {
     experiences: [{},

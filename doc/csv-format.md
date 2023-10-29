@@ -177,6 +177,13 @@ The examples above are done and in progress, respectively, but what about a *pla
 Utopia
 ```
 
+Or, if you want a clearer visual marker, you can add `??` which will be ignored:
+
+```
+\Title|Start dates|End dates
+Utopia|??
+```
+
 ### Genres column
 
 Genres are just a list, all in lowercase:

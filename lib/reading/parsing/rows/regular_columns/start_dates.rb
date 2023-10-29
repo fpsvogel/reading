@@ -16,7 +16,11 @@ module Reading
                 (\s+|\z)
               )?
               (
-                (?<date>\d{4}/\d\d?/\d\d?)
+                (
+                  (?<date>\d{4}/\d\d?/\d\d?)
+                  |
+                  (?<planned>\?\?)
+                )
                 (\s+|\z)
               )?
               (

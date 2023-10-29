@@ -29,7 +29,10 @@ module Reading
             start_dates = Array.new(size) { |i| parsed_row[:start_dates]&.dig(i) || {} }
             end_dates = Array.new(size) { |i| parsed_row[:end_dates]&.dig(i) || nil }
 
-            start_end_dates = start_dates.zip(end_dates).presence || [[{}, nil]]
+            start_end_dates = start_dates
+              .reject { _1[:planned] }
+              .zip(end_dates)
+              .presence || [[{}, nil]]
 
             experiences_with_dates = start_end_dates.map { |start_entry, end_entry|
               {
