@@ -15,7 +15,7 @@ module Reading
             #   experiences from the History column.
             # @raise [InvalidDateError] if any date is invalid.
             def validate(experiences, history_column: false)
-              if both_date_columns?
+              if both_date_columns? && !history_column
                 validate_number_of_start_dates_and_end_dates(experiences)
               end
 

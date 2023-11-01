@@ -388,7 +388,7 @@ class ParseTest < Minitest::Test
   EOM
   @inputs[:all_columns][:"realistic examples: History column"] = <<~EOM.freeze
     3|🎤Flightless Bird|Spotify, https://armchairexpertpod.com/flightless-bird|||podcast|0:50 each||2021/10/06..11 x23 -- ..12/14 x1/week -- 3/1.. x2/week
-    4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2021/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 1/1 #5 Mike McHargue - Science and the Bible
+    4|🎤Pete Enns & Jared Byas - The Bible for Normal People|https://peteenns.com/podcast|||religion,podcast|||2021/12/01 0:50 #2 Richard Rohr - A Contemplative Look at The Bible -- 12/9 1:30 #19 Megan DeFranza - The Bible and Intersex Believers -- 12/21 ⭐#160 The Risk of an "Errant" Bible -- 0:50 ⭐#164 Where Did Our Bible Come From? -- 1/1 #5 Mike McHargue - Science and the Bible -- ?? #105 Wil Gafney - Womanist Midrash
     4|🎤Escriba Café|https://www.escribacafe.com|||podcast|0:30 each||2021/04/16.. Amor -- Diabolus -- Máfia -- Piratas -- 2:00 Trilogia História do Brasil -- Rapa-Nui -- Espíritos -- Inferno -- ..4/30 Pompeia
     4|🔊Born a Crime|Lexpub B01DHWACVY|||memoir|8:44||2021/5/1 @0:47 -- 5/2 @1:10 -- 5/6..15 0:30/day -- 5/20 @6:50 -- 5/21..23 done
   EOM
@@ -1610,6 +1610,12 @@ class ParseTest < Minitest::Test
             dates: Date.new(2022,1,1)..Date.new(2022,1,1),
             amount: Reading.time('0:50'),
             name: "#5 Mike McHargue - Science and the Bible",
+          },
+          {
+            dates: nil,
+            amount: Reading.time('0:50'),
+            name: "#105 Wil Gafney - Womanist Midrash",
+            progress: 0,
           },
         ],
       }],
