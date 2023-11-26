@@ -31,17 +31,9 @@ class HashArrayDeepFetchTest < Minitest::Test
     end
   end
 
-  def test_deep_fetch_depth_limit
-    hash = { one: { two: { three: { four: "ok" } } } }
+  def test_very_deep_fetch
+    hash = { one: { two: { three: { four: { five: "ok" } } } } }
 
-    assert_equal "ok", hash.deep_fetch(:one, :two, :three, :four)
-  end
-
-  def test_deep_fetch_depth_exceeded
-    hash = { one: { two: { three: { four: { five: "too deep" } } } } }
-
-    assert_raises(Reading::Util::FetchDepthExceededError) do
-      hash.deep_fetch(:one, :two, :three, :four, :five, :six)
-    end
+    assert_equal "ok", hash.deep_fetch(:one, :two, :three, :four, :five)
   end
 end
