@@ -6,7 +6,7 @@ require 'reading'
 require 'reading/item'
 
 class FilterTest < Minitest::Test
-  describe "::by" do
+  describe "Reading::filter" do
     should "filter Items without changing the original array" do
       original_item_count = ITEMS.count
 
