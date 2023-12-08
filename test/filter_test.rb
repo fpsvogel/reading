@@ -1,16 +1,13 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative 'test_helpers/test_helper'
-require_relative 'test_helpers/describe_and_it_blocks'
 
 require 'reading'
 require 'reading/item'
 
 class FilterTest < Minitest::Test
-  extend DescribeAndItBlocks
-
   describe "::by" do
-    it "filters Items without changing the original array" do
+    should "filter Items without changing the original array" do
       original_item_count = ITEMS.count
 
       Reading.filter(items: ITEMS.values, minimum_rating: 4)
@@ -18,7 +15,7 @@ class FilterTest < Minitest::Test
       assert_equal original_item_count, ITEMS.count
     end
 
-    it "sorts Items by date" do
+    should "sort Items by date" do
       filtered = Reading.filter(items: ITEMS.values, minimum_rating: 1)
       sorted_first_two = ITEMS.slice(:ok_scifi_done, :bad_scifi_done).values
       sorted_items = sorted_first_two + ITEMS.except(:bad_scifi_done, :ok_scifi_done).values
@@ -27,7 +24,7 @@ class FilterTest < Minitest::Test
     end
 
     context "when the :items keyword argument is missing" do
-      it "raises an error" do
+      should "raise an error" do
         assert_raises ArgumentError do
           Reading.filter(minimum_rating: 4)
         end
@@ -35,7 +32,7 @@ class FilterTest < Minitest::Test
     end
 
     context "when no filter keyword argument is provided" do
-      it "raises an error" do
+      should "raise an error" do
         assert_raises ArgumentError do
           Reading.filter(items: ITEMS.values)
         end
@@ -43,7 +40,7 @@ class FilterTest < Minitest::Test
     end
 
     context "when an unrecognized filter keyword argument is provided" do
-      it "raises an error" do
+      should "raise an error" do
         assert_raises ArgumentError do
           Reading.filter(items: ITEMS.values, teh: "lulz")
         end
@@ -51,7 +48,7 @@ class FilterTest < Minitest::Test
     end
 
     context "when the :minimum_rating keyword argument is provided" do
-      it "filters Items by minimum rating" do
+      should "filter Items by minimum rating" do
         filtered = Reading.filter(items: ITEMS.values, minimum_rating: 4)
         remaining = ITEMS.except(:bad_scifi_done, :ok_scifi_done).values
 
@@ -60,7 +57,7 @@ class FilterTest < Minitest::Test
     end
 
     context "when the :excluded_genres keyword argument is provided" do
-      it "filters Items by excluded genres" do
+      should "filter Items by excluded genres" do
         filtered = Reading.filter(items: ITEMS.values, excluded_genres: ["fiction"])
         remaining = ITEMS.slice(:good_science_in_progress, :good_science_planned, :great_science_planned).values
 
@@ -69,14 +66,14 @@ class FilterTest < Minitest::Test
     end
 
     context "when the :status keyword argument is provided" do
-      it "filters Items by one status" do
+      should "filter Items by one status" do
         filtered = Reading.filter(items: ITEMS.values, status: :in_progress)
         remaining = ITEMS.slice(:good_science_in_progress).values
 
         assert_equal remaining, filtered
       end
 
-      it "filters Items by multiple statuses" do
+      should "filter Items by multiple statuses" do
         filtered = Reading.filter(items: ITEMS.values, no_sort: true, status: [:done, :in_progress])
         remaining = ITEMS.slice(:bad_scifi_done, :ok_scifi_done, :good_science_in_progress).values
 
@@ -85,7 +82,7 @@ class FilterTest < Minitest::Test
     end
 
     context "when multiple filter keyword arguments are provided" do
-      it "filters Items by multiple filters" do
+      should "filter Items by multiple filters" do
         filtered = Reading.filter(
           items: ITEMS.values,
           minimum_rating: 5,

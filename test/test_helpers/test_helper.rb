@@ -7,6 +7,8 @@ require 'minitest/autorun'
 require 'minitest/reporters'
 Minitest::Reporters.use! [Minitest::Reporters::ProgressReporter.new(detailed_skip: false)]
 
+require 'shoulda-context'
+require_relative 'describe_blocks'
 
 require 'pretty_diffs'
 

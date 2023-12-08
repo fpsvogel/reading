@@ -1,14 +1,11 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
 require_relative 'test_helpers/test_helper'
-require_relative 'test_helpers/describe_and_it_blocks'
 
 require 'reading/item'
 require 'reading'
 
 class ItemTest < Minitest::Test
-  extend DescribeAndItBlocks
-
   using Reading::Util::HashDeepMerge
   using Reading::Util::HashArrayDeepFetch
   using Reading::Util::HashToData
@@ -23,7 +20,7 @@ class ItemTest < Minitest::Test
 
   describe "#split" do
     context "with a planned Item" do
-      it "returns an empty array" do
+      should "return an empty array" do
         item = Reading::Item.new({ title: "Planning for Dummies", experiences: [] })
         any_date = Date.new(2022,1,1)
 
@@ -33,7 +30,7 @@ class ItemTest < Minitest::Test
 
     context "with the book example" do
       context "when the date is within an in-progress experience with only one span" do
-        it "returns the original Item" do
+        should "return the original Item" do
           item = book
           split_at = Date.new(2021,1,1)
 
@@ -42,7 +39,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is before all experiences" do
-        it "returns the original Item" do
+        should "return the original Item" do
           item = book
           split_at = Date.new(2018,2,1)
 
@@ -51,7 +48,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is after all experiences and they are all done" do
-        it "returns the original Item" do
+        should "return the original Item" do
           done_experiences = BOOK[:experiences][..1]
           item = book(:merge, experiences: done_experiences)
           split_at = Date.new(2019,7,1)
@@ -61,7 +58,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is between experiences" do
-        it "returns two Items with experiences before/after the given date" do
+        should "return two Items with experiences before/after the given date" do
           item = book
           split_at = Date.new(2018,6,1)
           split_item_a, split_item_b = item.split(split_at)
@@ -81,7 +78,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is within a done experience" do
-        it "returns two Items with experiences before/after the given date" do
+        should "return two Items with experiences before/after the given date" do
           item = book
           split_at = Date.new(2019,6,1)
           split_item_a, split_item_b = item.split(split_at)
@@ -123,7 +120,7 @@ class ItemTest < Minitest::Test
 
     context "with the podcast example" do
       context "when the date is within an in-progress span" do
-        it "returns the original Item" do
+        should "return the original Item" do
           last_span = PODCAST[:experiences].first[:spans].last
           in_progress_last_span = last_span.merge(dates: last_span[:dates].begin..)
           item = podcast(experiences: [
@@ -139,7 +136,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is before all spans" do
-        it "returns the original Item" do
+        should "return the original Item" do
           item = podcast
           split_at = Date.new(2021,10,1)
 
@@ -148,7 +145,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is after all spans and they are all done or planned" do
-        it "returns the original Item" do
+        should "return the original Item" do
           item = podcast
           split_at = Date.new(2022,2,1)
 
@@ -157,7 +154,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is between spans" do
-        it "returns two Items with experiences before/after the given date" do
+        should "return two Items with experiences before/after the given date" do
           item = podcast
           split_at = Date.new(2021,11,14)
           split_item_a, split_item_b = item.split(split_at)
@@ -186,7 +183,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the date is within a done span" do
-        it "returns two Items with experiences before/after the given date" do
+        should "return two Items with experiences before/after the given date" do
           item = podcast
           split_at = Date.new(2021,11,1)
           split_item_a, split_item_b = item.split(split_at)
@@ -229,7 +226,7 @@ class ItemTest < Minitest::Test
   end
 
   describe "any attribute from the item hash" do
-    it "can be accessed" do
+    should "be able to be accessed" do
       items = { BOOK => book, PODCAST => podcast }
 
       items.each do |hash, item|
@@ -257,7 +254,7 @@ class ItemTest < Minitest::Test
 
   describe "#status" do
     context "when there aren't any spans" do
-      it "is :planned" do
+      should "be :planned" do
         planned_book = book(:merge, experiences: [])
 
         assert_equal :planned, planned_book.status
@@ -267,7 +264,7 @@ class ItemTest < Minitest::Test
     context "when there are spans" do
       context "when the Item has a definite length" do
         context "when there's no end date in the last span" do
-          it "is :in_progress" do
+          should "be :in_progress" do
             in_progress_book = book
 
             assert_equal :in_progress, in_progress_book.status
@@ -275,7 +272,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when there is an end date in the last span" do
-          it "is :done" do
+          should "be :done" do
             done_date_range = Date.new(2020,12,23)..Date.new(2021,2,10)
             done_book = book(experiences: [{}, {}, { spans: [{}, { dates: done_date_range }] }])
 
@@ -286,14 +283,14 @@ class ItemTest < Minitest::Test
 
       context "when the Item has an indefinite length" do
         context "when the in-progress grace period is over" do
-          it "is :done" do
+          should "be :done" do
             assert_equal :done, podcast.status
           end
         end
 
         # Date::today is stubbed in test_helper.rb to 2022/10/1
         context "when the in-progress grace period is not yet over" do
-          it "is :in_progress" do
+          should "be :in_progress" do
             podcast_with_recent_listen = podcast(experiences: [
               { spans: [
                 *([{}] * PODCAST[:experiences].first[:spans].count),
@@ -311,7 +308,7 @@ class ItemTest < Minitest::Test
   describe "#view" do
     describe "custom view" do
       context "when the custom view is nil or false" do
-        it "isn't built" do
+        should "isn't built" do
           book_without_view = Reading::Item.new(BOOK, view: false)
 
           assert_nil book_without_view.view
@@ -319,7 +316,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the custom view is a custom class" do
-        it "is built via that class" do
+        should "be built via that class" do
           custom_view = Class.new do
             def initialize(item)
             end
@@ -338,7 +335,7 @@ class ItemTest < Minitest::Test
     describe "#name" do
       context "when a variant has an ISBN/ASIN or URL" do
         context "when the second variant has both, the first has neither" do
-          it "is from the second variant" do
+          should "be from the second variant" do
             book_without_first_isbn = book(variants: [{ isbn: nil }])
             second_name = "Tom Holt – The Walled Orchard 〜 in Holt's Classical Novels 〜 " \
               "The Walled Orchard Series, #2 〜 1991 〜 out of print"
@@ -348,7 +345,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when the first variant has a URL, the second has an ISBN" do
-          it "is from the first variant" do
+          should "be from the first variant" do
             book_with_first_url = book(variants: [{ isbn: nil, sources: [{ url: "https://example.com" }] }])
             first_name = "Tom Holt – The Walled Orchard 〜 in Holt's Classical Novels 〜 " \
               "2009 〜 both volumes in one"
@@ -360,7 +357,7 @@ class ItemTest < Minitest::Test
 
       context "when no variants have an ISBN/ASIN or URL" do
         context "when there is at least one variant" do
-          it "is from the first variant by default" do
+          should "be from the first variant by default" do
             book_without_isbns_or_urls = book(
               variants: [{ isbn: nil },
                          { isbn: nil, sources: [{}, { url: nil }] }],
@@ -373,7 +370,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when there are no variants" do
-          it "is the author and title only" do
+          should "be the author and title only" do
             book_without_variants = book(:merge, variants: [])
             basic_name = "Tom Holt – The Walled Orchard"
 
@@ -385,13 +382,13 @@ class ItemTest < Minitest::Test
 
     describe "#rating" do
       context "when below the star minimum" do
-        it "is nil" do
+        should "be nil" do
           assert_nil book.view.rating
         end
       end
 
       context "when equal to or above the star minimum" do
-        it "is a star" do
+        should "be a star" do
           book_5_star = book(rating: 5)
 
           assert_equal "⭐", book_5_star.view.rating
@@ -399,7 +396,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the star minimum is nil" do
-        it "is the item's rating" do
+        should "be the item's rating" do
           Reading::Config.build(item: { view: { minimum_rating_for_star: nil } })
 
           book_no_stars = book
@@ -413,13 +410,13 @@ class ItemTest < Minitest::Test
 
     describe "#type_emoji" do
       context "when the item has a format" do
-        it "is determined by the format" do
+        should "be determined by the format" do
           assert_equal "📕", book.view.type_emoji
         end
       end
 
       context "when the item doesn't have a format" do
-        it "is the default type emoji" do
+        should "be the default type emoji" do
           podcast = podcast(variants: [{ format: nil }])
           default_type = Reading::Config.hash.deep_fetch(:item, :view, :default_type)
           default_type_emoji = Reading::Config.hash.deep_fetch(:item, :view, :types, default_type, :emoji)
@@ -430,14 +427,14 @@ class ItemTest < Minitest::Test
     end # #view#type_emoji
 
     describe "#genres" do
-      it "is the item's genres" do
+      should "be the item's genres" do
         assert_equal book.genres, book.view.genres
       end
     end # #view#genres
 
     describe "#date_or_status" do
       context "when the item is done" do
-        it "is the last end date as a string" do
+        should "be the last end date as a string" do
           done_date_range = Date.new(2020,12,23)..Date.new(2021,2,10)
           done_book = book(experiences: [{}, {}, { spans: [{}, { dates: done_date_range }] }])
 
@@ -446,7 +443,7 @@ class ItemTest < Minitest::Test
       end
 
       context "when the item is in progress or planned" do
-        it "is nil" do
+        should "be nil" do
           in_progress_book = book
           planned_book = book(:merge, experiences: [])
 
@@ -459,7 +456,7 @@ class ItemTest < Minitest::Test
     describe "#isbn" do
       context "when a variant has an ISBN/ASIN or URL" do
         context "when the second variant has both, the first has neither" do
-          it "is from the second variant" do
+          should "be from the second variant" do
             book_without_first_isbn = book(variants: [{ isbn: nil }])
 
             assert_equal book_without_first_isbn.variants[1].isbn, book_without_first_isbn.view.isbn
@@ -467,7 +464,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when the first variant has a URL, the second has an ISBN" do
-          it "is from the first variant" do
+          should "be from the first variant" do
             book_with_first_url = book(variants: [{ isbn: nil, sources: [{ url: "https://example.com" }] }])
 
             assert_nil book_with_first_url.view.isbn
@@ -477,7 +474,7 @@ class ItemTest < Minitest::Test
 
       context "when no variants have an ISBN/ASIN or URL" do
         context "when there is at least one variant" do
-          it "is nil" do
+          should "be nil" do
             book_without_isbns_or_urls = book(
               variants: [{ isbn: nil },
                          { isbn: nil, sources: [{}, { url: nil }] }],
@@ -488,7 +485,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when there are no variants" do
-          it "is nil" do
+          should "be nil" do
             book_without_variants = book(:merge, variants: [])
 
             assert_nil book_without_variants.view.isbn
@@ -500,7 +497,7 @@ class ItemTest < Minitest::Test
     describe "#url" do
       context "when a variant has an ISBN/ASIN or URL" do
         context "when the second variant has both, the first has neither" do
-          it "is from the second variant's ISBN" do
+          should "be from the second variant's ISBN" do
             book_without_first_isbn = book(variants: [{ isbn: nil }])
             url_from_isbn = Reading::Config.hash
               .deep_fetch(:item, :view, :url_from_isbn)
@@ -511,7 +508,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when the first variant has a URL, the second has an ISBN" do
-          it "is from the first variant's first URL" do
+          should "be from the first variant's first URL" do
             book_with_first_url = book(variants: [{ isbn: nil, sources: [{ url: "https://example.com" }] }])
 
             assert_equal book_with_first_url.variants.first.sources.first.url, book_with_first_url.view.url
@@ -521,7 +518,7 @@ class ItemTest < Minitest::Test
 
       context "when no variants have an ISBN/ASIN or URL" do
         context "when there is at least one variant" do
-          it "is nil" do
+          should "be nil" do
             book_without_isbns_or_urls = book(
               variants: [{ isbn: nil },
                          { isbn: nil, sources: [{}, { url: nil }] }],
@@ -532,7 +529,7 @@ class ItemTest < Minitest::Test
         end
 
         context "when there are no variants" do
-          it "is nil" do
+          should "be nil" do
             book_without_variants = book(:merge, variants: [])
 
             assert_nil book_without_variants.view.url
@@ -542,25 +539,25 @@ class ItemTest < Minitest::Test
     end # #view#url
 
     describe "#experience_count" do
-      it "is the number of the item's experiences" do
+      should "be the number of the item's experiences" do
         assert_equal book.experiences.count, book.view.experience_count
       end
     end # #view#experience_count
 
     describe "#groups" do
-      it "is all the item's groups" do
+      should "be all the item's groups" do
         assert_equal ["classics book club", "with Hannah"], book.view.groups
       end
     end # #view#groups
 
     describe "#blurb" do
-      it "is the first blurb note" do
+      should "be the first blurb note" do
         assert_equal "My favorite historical fiction.", book.view.blurb
       end
     end # #view#blurb
 
     describe "#public_notes" do
-      it "is all the public, non-blurb notes" do
+      should "be all the public, non-blurb notes" do
         public_notes = ["Others by Holt that I should try: A Song for Nero, Alexander at the World's End."]
         assert_equal public_notes, book.view.public_notes
       end
