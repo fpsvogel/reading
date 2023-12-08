@@ -119,84 +119,95 @@ class ParseTest < Minitest::Test
     "DNF 50% 📕Tom Holt - Goatsong -- paperback -- The Walled Orchard, #1 -- 1990, 🔊Sapiens"
   }
 
-  # The Head column is enabled by default, so the strings for other single
-  # columns are preceded by the Head column.
+  # DEFAULT_TITLE (plus a column separator) are added to the beginning of each
+  # input string in the features included in INPUTS_WITH_DEFAULT_TITLE, except
+  # in input strings where a custom Head column is provided.
+  # This is to avoid having to include a Head column in every input string below,
+  # since the Head column is not optional.
+  DEFAULT_TITLE = "Default"
+  INPUTS_WITH_DEFAULT_TITLE = [
+    :features_sources,
+    :features_start_dates,
+    :features_history,
+    :"features_length, history"
+  ]
+
   @inputs[:features_sources] =
   {
   :"ISBN-10" =>
-    "Goatsong|0312038380",
+    "0312038380",
   :"ISBN-13" =>
-    "Goatsong|978-0312038380",
+    "978-0312038380",
   :"ASIN" =>
-    "Goatsong|B00GVG01HE",
+    "B00GVG01HE",
   :"source" =>
-    "Goatsong|Little Library",
+    "Little Library",
   :"URL source" =>
-    "Goatsong|https://www.edlin.org/holt",
+    "https://www.edlin.org/holt",
   :"URL source with a name from config" =>
-    "Goatsong|https://archive.org/details/walledorchard0000holt",
+    "https://archive.org/details/walledorchard0000holt",
   :"multiple sources must be separated with commas" =>
-    "Goatsong|Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub",
+    "Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub",
   :"source with ISBN" =>
-    "Goatsong|Little Library 0312038380",
+    "Little Library 0312038380",
   :"source with ISBN-10 ending in X" =>
-    "Goatsong|Little Library 031203838X",
+    "Little Library 031203838X",
   :"sources with ISBN" =>
-    "Goatsong|Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380",
+    "Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380",
   :"comma not required before and after URL source" =>
-    "Goatsong|Little Library https://www.edlin.org/holt https://tomholt.com Lexpub 0312038380",
+    "Little Library https://www.edlin.org/holt https://tomholt.com Lexpub 0312038380",
   :"simple variants" =>
-    "Goatsong|📕Little Library 📕Lexpub",
+    "📕Little Library 📕Lexpub",
   :"variant with extra info" =>
-    "Goatsong|📕Little Library -- paperback -- 1990 🔊Lexpub",
+    "📕Little Library -- paperback -- 1990 🔊Lexpub",
   :"optional long separator can be added between variants" =>
-    "Goatsong|📕Little Library -- paperback -- 1990 🔊Lexpub",
+    "📕Little Library -- paperback -- 1990 🔊Lexpub",
   :"variant with extra info and series" =>
-    "Goatsong|📕Little Library -- paperback -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
+    "📕Little Library -- paperback -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
   :"variant with extra info and series from Head also" =>
-    "Goatsong -- in Holt's Classical Novels -- unabridged|📕Little Library -- paperback -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
+    "#{DEFAULT_TITLE} -- in Holt's Classical Novels -- unabridged|📕Little Library -- paperback -- The Walled Orchard, #1 -- 1990 🔊Lexpub",
   :"length after sources ISBN and before extra info" =>
-    "Goatsong|📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
+    "📕Little Library 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"multiple sources allowed in variant" =>
-    "Goatsong|📕Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
+    "📕Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub 0312038380 247 -- paperback -- 1990 🔊Lexpub 7:03",
   :"optional commas can be added within and between variants" =>
-    "Goatsong|📕Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub, 0312038380, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
+    "📕Little Library, https://www.edlin.org/holt, https://tomholt.com, Lexpub, 0312038380, 247 -- paperback -- 1990, 🔊Lexpub 7:03",
   }
 
   @inputs[:features_start_dates] =
   {
   :"start date" =>
-    "Sapiens|2020/09/01",
+    "2020/09/01",
   :"start dates" =>
-    "Sapiens|2020/09/01, 2021/07/15",
+    "2020/09/01, 2021/07/15",
   :"planned after a start date" =>
-    "Sapiens|2020/09/01, ??",
+    "2020/09/01, ??",
   :"planned only" =>
-    "Sapiens|??",
+    "??",
   :"progress" =>
-    "Sapiens|50% 2020/09/01",
+    "50% 2020/09/01",
   :"progress pages" =>
-    "Sapiens|220p 2020/09/01",
+    "220p 2020/09/01",
   :"progress pages without p" =>
-    "Sapiens|220 2020/09/01",
+    "220 2020/09/01",
   :"progress time" =>
-    "Sapiens|2:30 2020/09/01",
+    "2:30 2020/09/01",
   :"dnf default zero" =>
-    "Sapiens|DNF 2020/09/01",
+    "DNF 2020/09/01",
   :"dnf with progress" =>
-    "Sapiens|DNF 50% 2020/09/01",
+    "DNF 50% 2020/09/01",
   :"dnf only" =>
-    "Sapiens|DNF 50%",
+    "DNF 50%",
   :"variant" =>
-    "Sapiens|2020/09/01 v2",
+    "2020/09/01 v2",
   :"variant only" =>
-    "Sapiens|v2",
+    "v2",
   :"group" =>
-    "Sapiens|2020/09/01 v2 🤝🏼 county book club",
+    "2020/09/01 v2 🤝🏼 county book club",
   :"group only" =>
-    "Sapiens|🤝🏼 county book club",
+    "🤝🏼 county book club",
   :"all features" =>
-    "Sapiens|DNF 50% 2020/09/01 v2, 2:30 2021/07/15",
+    "DNF 50% 2020/09/01 v2, 2:30 2021/07/15",
   }
 
   # The compact_planned part (unlike in other :features_x) is merely semantic;
@@ -240,52 +251,52 @@ class ParseTest < Minitest::Test
   @inputs[:features_history] =
   {
   :"dates" =>
-    "Fullstack Ruby|2021/12/6 0:30 -- 12/21 -- 3/1",
+    "2021/12/6 0:30 -- 12/21 -- 3/1",
   :"dates can omit unchanged month" =>
-    "Fullstack Ruby|2021/12/6 0:30 -- 21 -- 3/1",
+    "2021/12/6 0:30 -- 21 -- 3/1",
   :"date ranges" =>
-    "Fullstack Ruby|2021/12/6..8 0:30 -- 12/21 -- 3/1",
+    "2021/12/6..8 0:30 -- 12/21 -- 3/1",
   :"adjacent dates of same daily amount are merged into a range" => # of 12/6..10
-    "Fullstack Ruby|2021/12/6..8 1:30 -- 12/9 0:30 -- 12/10",
+    "2021/12/6..8 1:30 -- 12/9 0:30 -- 12/10",
   :"time amounts" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 -- 12/21 0:45 -- 3/1 0:45",
+    "2021/12/6..8 0:35 -- 12/21 0:45 -- 3/1 0:45",
   :"implied time amount" => # 3/1 has an implied amount of 0:45
-    "Fullstack Ruby|2021/12/6..8 0:35 -- 12/21 0:45 -- 3/1",
+    "2021/12/6..8 0:35 -- 12/21 0:45 -- 3/1",
   # Here 0:45 has an implied date of 12/9, and 0:30 also has an implied date of
   # 12/9 (the implied date doesn't increment except after a range), so the 0:30
   # overwrites the 0:45 on 12/9.
   :"implied dates" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 -- 0:45 -- 0:30",
+    "2021/12/6..8 0:35 -- 0:45 -- 0:30",
   :"implied date range starts" => # same as 12/6, 12/7..8, 12/9..10
-    "Fullstack Ruby|2021/12/6 0:35 -- ..12/8 0:45 -- ..12/10 0:25",
+    "2021/12/6 0:35 -- ..12/8 0:45 -- ..12/10 0:25",
   :"implied date range end" => # Date.today becomes the end date
-    "Fullstack Ruby|2021/12/6.. 0:35",
+    "2021/12/6.. 0:35",
   :"implied date range start and end" => # same as 12/6, 12/7..
-    "Fullstack Ruby|2021/12/6 0:35 -- .. 0:45",
+    "2021/12/6 0:35 -- .. 0:45",
   :"open range" =>
-    "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- ..12/13",
+    "2021/12/6.. 0:35 -- 0:25 -- ..12/13",
   :"open range with repeated name (re-listen)" =>
-    "Fullstack Ruby|2021/12/6.. 0:35 #1 -- 0:25 #2 -- ..12/13 #1",
+    "2021/12/6.. 0:35 #1 -- 0:25 #2 -- ..12/13 #1",
   :"open range with dates in the middle" =>
-    "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45 -- ..13",
+    "2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45 -- ..13",
   :"open range with implied end" => # implies ..12/8 0:25
-    "Fullstack Ruby|2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45",
+    "2021/12/6.. 0:35 -- 0:25 -- 12/9..10 0:45",
   :"repetition" =>
-    "Fullstack Ruby|2021/12/6 0:30 x4 -- 12/7 x2",
+    "2021/12/6 0:30 x4 -- 12/7 x2",
   :"frequency" =>
-    "Fullstack Ruby|2021/12/6..6/1 0:30 x1/month",
+    "2021/12/6..6/1 0:30 x1/month",
   :"frequency x1 implied" =>
-    "Fullstack Ruby|2021/12/6..6/1 0:30/month",
+    "2021/12/6..6/1 0:30/month",
   :"frequency until present" =>
-    "Fullstack Ruby|2021/12/6..6/1 0:30/month -- .. x2/month",
+    "2021/12/6..6/1 0:30/month -- .. x2/month",
   :"frequency implied until present" =>
-    "Fullstack Ruby|2021/12/6..6/1 0:30/month -- x2/month",
+    "2021/12/6..6/1 0:30/month -- x2/month",
   :"previous repetition and frequency apply when amount and progress are omitted" =>
-    "Fullstack Ruby|2021/12/6..6/1 0:30 x2/month -- 7/1..12/25",
+    "2021/12/6..6/1 0:30 x2/month -- 7/1..12/25",
   :"exception list" =>
-    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
+    "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
   :"exception list can be an open range at the end" =>
-    "Fullstack Ruby|2022/09/24.. 1:00/day -- not 9/25..26 -- 9/28.. 2:00/day -- not 9/30..",
+    "2022/09/24.. 1:00/day -- not 9/25..26 -- 9/28.. 2:00/day -- not 9/30..",
   # 13:00 here gives the same result as 1:00/day, though it's unexpected. We
   # would expect that over these 10 days (not counting the exception days),
   # 10:00 means 1:00/day. However, the amounts are distributed across the days
@@ -294,42 +305,42 @@ class ParseTest < Minitest::Test
   # would be worth the extra complexity to make exception lists recalculate
   # amount-per-day in cases of a fixed amount. So this is a feature, not a bug ;)
   :"exception list doesn't work as expected with fixed amount" =>
-    "Fullstack Ruby|2021/12/27..1/8 13:00 -- not 12/28..29, 1/1",
+    "2021/12/27..1/8 13:00 -- not 12/28..29, 1/1",
   :"overwriting" =>
-    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- (1/4..8 2:00/day)",
+    "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- (1/4..8 2:00/day)",
   :"overwriting can omit parentheses" =>
-    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 1/4..8 2:00/day",
+    "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 1/4..8 2:00/day",
   # "x0" may produce different results than "not" because "x0" is carried over to the omitted days.
   :"overwriting to zero does not have the same effect" =>
-    "Fullstack Ruby|2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0)",
+    "2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0)",
   :"names" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
+    "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
   :"repeated name means re-listen" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs -- 5/1 0:35 #1 Why Ruby2JS is a Game Changer",
+    "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs -- 5/1 0:35 #1 Why Ruby2JS is a Game Changer",
   :"favorites" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 ⭐#1 Why Ruby2JS is a Game Changer -- 12/21 0:45 ⭐#2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
+    "2021/12/6..8 0:35 ⭐#1 Why Ruby2JS is a Game Changer -- 12/21 0:45 ⭐#2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
   :"multiple experiences" =>
-    "Fullstack Ruby|2021/12/6 0:30 ---- 2022/4/1 0:30",
+    "2021/12/6 0:30 ---- 2022/4/1 0:30",
   :"variant" =>
-    "Fullstack Ruby|2021/12/6 0:30 ---- v2 2022/4/1 0:30",
+    "2021/12/6 0:30 ---- v2 2022/4/1 0:30",
   :"group" =>
-    "Fullstack Ruby|2021/12/6 0:30 ---- 🤝🏼with Sam 2022/4/1 0:30",
+    "2021/12/6 0:30 ---- 🤝🏼with Sam 2022/4/1 0:30",
   :"planned" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- ?? #3 String-Based Templates vs. DSLs",
+    "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- ?? #3 String-Based Templates vs. DSLs",
   :"planned in middle" =>
-    "Fullstack Ruby|2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- ?? 0:45 #2 Componentized View Architecture FTW! -- #3 String-Based Templates vs. DSLs -- 4/18 #4 Design Patterns on the Frontend",
+    "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- ?? 0:45 #2 Componentized View Architecture FTW! -- #3 String-Based Templates vs. DSLs -- 4/18 #4 Design Patterns on the Frontend",
   :"DNF" =>
-    "Fullstack Ruby|2021/12/6..8 DNF 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 DNF @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 DNF 0:45 #3 String-Based Templates vs. DSLs",
+    "2021/12/6..8 DNF 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 DNF @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 DNF 0:45 #3 String-Based Templates vs. DSLs",
   :"progress without DNF" =>
-    "Fullstack Ruby|2021/12/6..8 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 @0 0:45 #3 String-Based Templates vs. DSLs",
+    "2021/12/6..8 50% 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 @0:15 0:45 #2 Componentized View Architecture FTW! -- 3/1 @0 0:45 #3 String-Based Templates vs. DSLs",
   :"pages amount" =>
-    "Beowulf|2021/04/28 10p",
+    "2021/04/28 10p",
   :"pages amount without p" =>
-    "Beowulf|2021/04/28 10",
+    "2021/04/28 10",
   :"stopping points in place of amount" =>
-    "Beowulf|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p",
+    "2021/04/28 10p -- 4/30 @20p -- 5/1 @30p",
   :"stopping point with p on other side or omitted" =>
-    "Beowulf|2021/04/28 10p -- 4/30 @p20 -- 5/1 @30",
+    "2021/04/28 10p -- 4/30 @p20 -- 5/1 @30",
   }
 
 
@@ -337,13 +348,13 @@ class ParseTest < Minitest::Test
   @inputs[:"features_length, history"] =
   {
   :"length of each" =>
-    "Fullstack Ruby|0:30 each|2021/12/6 -- 12/21 0:45 -- 3/1",
+    "0:30 each|2021/12/6 -- 12/21 0:45 -- 3/1",
   :"repetitions in length" =>
-    "Fullstack Ruby|0:30 x3|2021/12/6 -- 12/21 -- 3/1",
+    "0:30 x3|2021/12/6 -- 12/21 -- 3/1",
   :"repetitions in length with 'each'" =>
-    "Fullstack Ruby|0:30 each x3|2021/12/6 -- 12/21 -- 3/1",
+    "0:30 each x3|2021/12/6 -- 12/21 -- 3/1",
   :"done shortcut with length" =>
-    "Beowulf|144|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p -- ..5/20 done",
+    "144|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p -- ..5/20 done",
   }
 
 
@@ -687,7 +698,7 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_sources] = {}
 
-  title = "Goatsong"
+  title = DEFAULT_TITLE
   a = item_hash(title:)
   isbn = "0312038380"
   a_isbn = a.deep_merge(variants: [{ isbn: isbn }])
@@ -792,7 +803,7 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_start_dates] = {}
 
-  a = item_hash(title: "Sapiens")
+  a = item_hash(title: DEFAULT_TITLE)
   start = { experiences: [{ spans: [{ dates: Date.new(2020, 9, 1).. }] }] }
   a_start = a.deep_merge(start)
   @outputs[:features_start_dates][:"start date"] = [a_start]
@@ -926,10 +937,8 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_history] = {}
 
-  title_a = "Fullstack Ruby"
-
   a_dates = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 6),
         amount: Reading.time('0:30') },
@@ -952,7 +961,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"date ranges"] = [a_ranges]
 
   a_adjacent = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 10),
         amount: Reading.time('2:30') },
@@ -972,7 +981,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"implied time amount"] = [a_amounts]
 
   a_implied_dates = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 8),
         amount: Reading.time('0:35') },
@@ -983,7 +992,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"implied dates"] = [a_implied_dates]
 
   a_implied_range_start = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 6),
         amount: Reading.time('0:35') },
@@ -996,7 +1005,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"implied date range starts"] = [a_implied_range_start]
 
   a_implied_range_end = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..,
         amount: Reading.time('0:35') },
@@ -1005,7 +1014,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"implied date range end"] = [a_implied_range_end]
 
   a_implied_range_start_and_end = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 6),
         amount: Reading.time('0:35') },
@@ -1017,7 +1026,7 @@ class ParseTest < Minitest::Test
     [a_implied_range_start_and_end]
 
   a_open_range = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 9),
         amount: Reading.time('0:35') },
@@ -1039,7 +1048,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"open range with repeated name (re-listen)"] = [a_open_range_with_names]
 
   a_open_range_dates_in_middle = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 7),
         amount: Reading.time('0:35') },
@@ -1055,7 +1064,7 @@ class ParseTest < Minitest::Test
     [a_open_range_dates_in_middle]
 
   a_open_range_implied_end = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans:
       a_open_range_dates_in_middle.deep_fetch(:experiences, 0, :spans).first(3)
     }],
@@ -1064,7 +1073,7 @@ class ParseTest < Minitest::Test
     [a_open_range_implied_end]
 
   a_repetition = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 6),
         amount: Reading.time('2:00') },
@@ -1081,7 +1090,7 @@ class ParseTest < Minitest::Test
   almost_6_months = (end_date_june - start_date + 1).to_i / days_per_month
   minutes_175 = almost_6_months * 30
   a_frequency = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: start_date..end_date_june,
         amount: Reading::Item::TimeLength.new(minutes_175) },
@@ -1096,7 +1105,7 @@ class ParseTest < Minitest::Test
   about_4_months = (Date.today - second_start_date + 1).to_i / days_per_month
   minutes_240 = about_4_months * 30 * 2 # multiply by 2 because x2/month this time
   a_frequency_present = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       a_frequency.deep_fetch(:experiences, 0, :spans, 0),
       { dates: second_start_date..,
@@ -1108,7 +1117,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"frequency implied until present"] = [a_frequency_present]
 
   a_frequency_defaulted = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: start_date..end_date_june,
         amount: Reading::Item::TimeLength.new(minutes_175) * 2 },
@@ -1120,7 +1129,7 @@ class ParseTest < Minitest::Test
     [a_frequency_defaulted]
 
   a_except = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 27)..Date.new(2021, 12, 27),
         amount: Reading.time('1:00') },
@@ -1133,7 +1142,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"exception list"] = [a_except]
 
   except_at_end = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2022, 9, 24)..Date.new(2022, 9, 24),
         amount: Reading.time('1:00') },
@@ -1148,7 +1157,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"exception list doesn't work as expected with fixed amount"] = [a_except]
 
   a_overwriting = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       *a_except.deep_fetch(:experiences, 0, :spans).first(2),
       { dates: Date.new(2022, 1, 2)..Date.new(2022, 1, 3),
@@ -1162,7 +1171,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"overwriting can omit parentheses"] = [a_overwriting]
 
   a_except_without_last_dates = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       *a_except.deep_fetch(:experiences, 0, :spans).first(2),
     ] }],
@@ -1181,7 +1190,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"names"] = [a_names]
 
   a_names_repeat = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       *a_names[:experiences].first[:spans],
       {
@@ -1202,7 +1211,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"favorites"] = [a_favorites]
 
   a_experiences = item_hash(
-    title: title_a,
+    title: DEFAULT_TITLE,
     experiences: [
       { spans: [
         { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 6),
@@ -1266,9 +1275,8 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_history][:"progress without DNF"] = [a_dnf]
 
-  title_b = "Beowulf"
   b_pages = item_hash(
-    title: title_b,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 4, 28)..Date.new(2021, 4, 28),
         amount: 10 }
@@ -1279,7 +1287,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"pages amount without p"] = [b_pages]
 
   b_stopping_points = item_hash(
-    title: title_b,
+    title: DEFAULT_TITLE,
     experiences: [{ spans: [
       b_pages.deep_fetch(:experiences, 0, :spans, 0),
       { dates: Date.new(2021, 4, 30)..Date.new(2021, 4, 30),
@@ -1318,7 +1326,7 @@ class ParseTest < Minitest::Test
   @outputs[:"features_length, history"][:"repetitions in length with 'each'"] = [a_length_repetitions]
 
   b_done = item_hash(
-    title: title_b,
+    title: DEFAULT_TITLE,
     variants: [{ length: 144 }],
     experiences: [{ spans: [
       *b_stopping_points.deep_fetch(:experiences, 0, :spans),
@@ -1826,6 +1834,11 @@ class ParseTest < Minitest::Test
       columns_sym = group_name[(group_name.to_s.index("_") + 1)..].to_sym
       columns = columns_sym.to_s.split(", ").map(&:to_sym)
       main_column_humanized = columns.first.to_s.tr("_", " ").capitalize
+
+      if INPUTS_WITH_DEFAULT_TITLE.include?(group_name)
+        has_custom_head = file_str.count("|") + 1 > columns.count
+        file_str = "#{DEFAULT_TITLE}|#{file_str}" unless has_custom_head
+      end
 
       define_method("test_#{columns_sym}_feature_#{name}") do
         set_config_columns(columns + [:head])
