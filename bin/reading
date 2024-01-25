@@ -62,9 +62,9 @@ end
 input = ARGV[0]
 unless input
   raise ArgumentError,
-    "Argument required, either a CSV file path or a CSV string. Examples:\n" \
-    "parsereading /home/felipe/reading.csv\n" \
-    "parsereading '3|📕Trying|Little Library 1970147288'"
+    "Argument required, either a CSV file path or a CSV string.\nExamples:\n" \
+    "reading /home/felipe/reading.csv\n" \
+    "reading '3|📕Trying|Little Library 1970147288'"
 end
 
 if ARGV[1]
