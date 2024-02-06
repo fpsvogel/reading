@@ -30,11 +30,11 @@ class ItemTest < Minitest::Test
 
     context "with the book example" do
       context "when the date is within an in-progress experience with only one span" do
-        should "return the original Item" do
+        should "still split the Item" do
           item = book
           split_at = Date.new(2021,1,1)
 
-          assert_equal [nil, item], item.split(split_at)
+          assert_equal [Reading::Item, Reading::Item], item.split(split_at).map(&:class)
         end
       end
 
@@ -120,7 +120,7 @@ class ItemTest < Minitest::Test
 
     context "with the podcast example" do
       context "when the date is within an in-progress span" do
-        should "return the original Item" do
+        should "still split the Item" do
           last_span = PODCAST[:experiences].first[:spans].last
           in_progress_last_span = last_span.merge(dates: last_span[:dates].begin..)
           item = podcast(experiences: [
@@ -131,7 +131,7 @@ class ItemTest < Minitest::Test
           ])
           split_at = last_span[:dates].begin
 
-          assert_equal [nil, item], item.split(split_at)
+          assert_equal [Reading::Item, Reading::Item], item.split(split_at).map(&:class)
         end
       end
 

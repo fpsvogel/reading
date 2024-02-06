@@ -1099,6 +1099,38 @@ class StatsTest < Minitest::Test
         { experiences: [] },
       ],
     },
+    :"date (with final endless date range)" => {
+      input: "total amount date=2022/9",
+      result: 150,
+      items: [
+        # before
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 50,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 1)..Date.new(2022, 8, 31) }] }] },
+        # before, during, and after
+        { title: "boop",
+          variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 300,
+                  progress: 1.0,
+                  dates: Date.new(2022, 8, 3).. }] }] },
+        # after
+        { variants: [{}],
+          experiences: [
+            { variant_index: 0,
+              spans: [
+                { amount: 1000,
+                  progress: 1.0,
+                  dates: Date.new(2022, 10, 1)..Date.new(2022, 10, 31) }] }] },
+        { experiences: [] },
+      ],
+    },
     :"date (or)" => {
       input: "total amount date=2022/10, 2022/8",
       result: 1250,

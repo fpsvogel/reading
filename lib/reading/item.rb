@@ -119,12 +119,11 @@ module Reading
       before_index = nil
       middle_indices = experiences.map.with_index { |experience, i|
         if experience.spans.first.dates &&
-          experience.spans.first.dates.begin < date &&
-          experience.last_end_date
+          experience.spans.first.dates.begin < date
 
           before_index = i
 
-          if experience.last_end_date >= date
+          if (experience.last_end_date || Date.today) >= date
             i
           else
             nil
@@ -133,15 +132,14 @@ module Reading
       }
       .compact
 
-      # There are no experiences with done spans that overlap the date.
+      # There are no experiences with spans that overlap the date.
       if middle_indices.none?
         # The Item is planned.
         return [] if experiences.none? { _1.spans.first.dates }
         # date is after all spans.
         return [self, nil] if experiences.all? { _1.last_end_date && date > _1.last_end_date }
-        # date is before all spans, or overlaps with an in-progress span.
-        return [nil, self] if experiences.all? { _1.spans.first.dates.begin >= date } ||
-          experiences.any? { _1.spans.first.dates.begin < date && _1.last_end_date.nil? }
+        # date is before all spans.
+        return [nil, self] if experiences.all? { _1.spans.first.dates.begin >= date }
 
         # Date is in between experiences.
         if before_index
@@ -173,7 +171,7 @@ module Reading
             if span.dates && span.dates.begin < date
               before_index = i
 
-              span.dates.end >= date
+              (span.dates.end || Date.today) >= date
             end
           }
 
@@ -183,15 +181,20 @@ module Reading
         else
           span_middle = experience_middle.spans[span_middle_index]
 
+          unless span_middle.dates.end
+            end_today_instead_of_endless = { dates: span_middle.dates.begin..Date.today }
+            span_middle = span_middle.to_h.merge(end_today_instead_of_endless).to_data
+          end
+
           dates_before = span_middle.dates.begin..date.prev_day
-          amount_before = span_middle.amount * (dates_before.count / span_middle.dates.count.to_f)
+          amount_before = (span_middle.amount || 0) * (dates_before.count / span_middle.dates.count.to_f)
           span_middle_before = span_middle.with(
             dates: dates_before,
             amount: amount_before,
           )
 
           dates_after = date..span_middle.dates.end
-          amount_after = span_middle.amount * (dates_after.count / span_middle.dates.count.to_f)
+          amount_after = (span_middle.amount || 0) * (dates_after.count / span_middle.dates.count.to_f)
           span_middle_after = span_middle.with(
             dates: dates_after,
             amount: amount_after,
