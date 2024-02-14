@@ -89,7 +89,7 @@ module Reading
             (lengths.sum / lengths.count.to_f).to_i_if_whole
           end
         },
-        :"average_amount" => proc { |items|
+        average_amount: proc { |items|
           total_amount = items.sum { |item|
             item.experiences.sum { |experience|
               experience.spans.sum(&:amount)
@@ -186,6 +186,9 @@ module Reading
               speed_hash[:amount] / speed_hash[:days].to_f
             }
         },
+        debug: proc { |items|
+          items
+        },
       }
 
       ALIASES = {
@@ -204,6 +207,7 @@ module Reading
         bottom_length: %w[bl],
         bottom_amount: %w[ba],
         bottom_speed: %w[bs],
+        debug: %w[d],
       }
 
       REGEXES = ACTIONS.map { |key, _action|

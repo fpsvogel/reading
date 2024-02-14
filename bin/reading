@@ -93,7 +93,13 @@ if input_is_csv_path
       result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
     )
 
-    print_grouped_results(results, GROUP_HEADING_FORMATTERS)
+    if results.is_a?(Array) && results.first.is_a?(Reading::Item) # `debug` operation
+      r = results
+      puts PASTEL.red.bold("Enter 'c' to leave the debugger.")
+      debugger
+    else
+      print_grouped_results(results, GROUP_HEADING_FORMATTERS)
+    end
   rescue Reading::Error => e
     puts e
   end

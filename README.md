@@ -180,6 +180,7 @@ The last word may be pluralized.
 - `top/bottom [N] lengths`
 - `top/bottom [N] amounts`
 - `top/bottom [N] speeds`
+- `debug` to view the results in a Ruby debugger
 
 <!-- omit in toc -->
 #### Stats groupings
