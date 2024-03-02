@@ -61,6 +61,11 @@ $ gem install reading
 
 ## Usage
 
+For examples of real-life usage, see [the LoadReadingList plugin](https://github.com/fpsvogel/fpsvogel.com/blob/main/plugins/builders/load_reading_list.rb) on my website, which gets my `reading.csv` from Dropbox and parses it. The parsed items are used on two pages:
+
+- [fpsvogel.com/reading](https://fpsvogel.com/reading/): [source](https://github.com/fpsvogel/fpsvogel.com/blob/main/src/reading_list.md) plus [view component source](https://github.com/fpsvogel/fpsvogel.com/tree/main/src/_components).
+- [fpsvogel.com/reading-stats](https://fpsvogel.com/reading-stats/): [source](https://github.com/fpsvogel/fpsvogel.com/blob/main/src/reading_stats.md).
+
 ### Try out a CSV string
 
 To quickly see the parsed output from a CSV string, use the `reading` command:
