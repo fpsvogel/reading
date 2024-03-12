@@ -35,6 +35,7 @@ end
 
 task :publish => :build do
   system "gem push #{GEM_NAME}-#{Reading::VERSION}.gem"
+  system "rm *.gem"
 end
 
 task :clean do
