@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary       = "Parses a CSV reading log."
   spec.homepage      = "https://github.com/fpsvogel/reading"
   spec.license       = "MIT"
-  spec.required_ruby_version = '>= 3.0.0'
+  spec.required_ruby_version = "~> #{File.read('.ruby-version').strip}"
 
   spec.add_runtime_dependency 'pastel', '~> 0.8'
   spec.add_runtime_dependency 'amazing_print', '~> 1.4'
