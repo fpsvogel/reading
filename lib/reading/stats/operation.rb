@@ -50,14 +50,14 @@ module Reading
       # Items) of the given hash of grouped items.
       # @param grouped_items [Hash]
       # @yield [Array<Item>]
-      def self.apply_to_inner_items(grouped_items, &)
+      def self.apply_to_inner_items(grouped_items, &block)
         if grouped_items.values.first.is_a? Array
           grouped_items.transform_values! { |inner_items|
             yield inner_items
           }
         else # It's a Hash, so go one level deeper.
           grouped_items.each do |group_name, grouped|
-            apply_to_inner_items(grouped, &)
+            apply_to_inner_items(grouped, &block)
           end
         end
       end
