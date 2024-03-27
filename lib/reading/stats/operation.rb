@@ -127,7 +127,19 @@ module Reading
         },
         top_length: proc { |items, number_arg|
           items
-            .map { |item| [author_and_title(item), item.variants.map(&:length).max] }
+            .map { |item|
+              [
+                author_and_title(item),
+                # Longest length, or if undefined length then longest experience
+                # (code adapted from top_amount below).
+                item.variants.map(&:length).max ||
+                  item.experiences.map { |experience|
+                    experience.spans.sum { |span|
+                      (span.amount * span.progress).to_i_if_whole
+                    }
+                  }.max,
+              ]
+            }
             .reject { |_title, length| length.nil? }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
@@ -160,7 +172,19 @@ module Reading
         },
         bottom_length: proc { |items, number_arg|
           items
-            .map { |item| [author_and_title(item), item.variants.map(&:length).max] }
+            .map { |item|
+              [
+                author_and_title(item),
+                # Longest length, or if undefined length then longest experience
+                # (code adapted from bottom_amount below).
+                item.variants.map(&:length).max ||
+                  item.experiences.map { |experience|
+                    experience.spans.sum { |span|
+                      (span.amount * span.progress).to_i_if_whole
+                    }
+                  }.max,
+              ]
+            }
             .reject { |_title, length| length.nil? }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
         },
