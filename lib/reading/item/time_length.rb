@@ -71,6 +71,15 @@ module Reading
         self.class.new(@value.round)
       end
 
+      # TODO why do endless date ranges in the example below result in this error:
+      #   reading/lib/reading/item/time_length.rb:77:in `to_i': NaN (FloatDomainError)
+      #
+      # when History column in example below is replaced with:
+      #   2022/12/29..2023/7/31 x2/day -- not 3/3..6 -- 2023/8/1.. x4/day -- not 8/15..8/30 -- 11/3..4/29 x454 from ep. 747 -- not 2024/3/3..3/13
+      #
+      # example:
+      #   4|🎤Hoy Hablamos||||spanish|0:14 each||2022/12/29..2023/7/31 x2/day -- not 3/3..6 -- 2023/8/1.. x4/day -- not 8/15..8/30 -- 11/3..4/29 x454 from ep. 747 -- not 2024/3/3..3/13
+      #
       # Converts @value to an Integer if it's a whole number, and returns self.
       # @return [TimeLength]
       def to_i_if_whole!
