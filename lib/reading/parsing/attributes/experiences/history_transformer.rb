@@ -325,9 +325,11 @@ module Reading
               date_range = Date.new(active[:year], active[:month], active[:day])..
                 Date.new(end_year || active[:year], end_month || active[:month], end_day)
 
-              active[:day] = end_day + 1
-              active[:month] = end_month if end_month
-              active[:year] = end_year if end_year
+              date_after_end = date_range.end.next_day
+
+              active[:day] = date_after_end.day
+              active[:month] = date_after_end.month if end_month
+              active[:year] = date_after_end.year if end_year
             else # either starting or continuing (duplicating) an open range
               active[:open_range] ||= true
               date_range = Date.new(active[:year], active[:month], active[:day])..Date.today
