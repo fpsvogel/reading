@@ -214,9 +214,9 @@ module Reading
 
             # If the entry has no amount or progress, default to the previous
             # repetitions and frequency.
-            unless amount_from_entry || progress
-              repetitions ||= active[:repetitions]
-              frequency ||= active[:frequency]
+            unless amount_from_entry || progress || repetitions
+              repetitions = active[:repetitions]
+              frequency = active[:frequency]
             end
 
             active[:repetitions] = repetitions if repetitions

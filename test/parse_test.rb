@@ -293,6 +293,8 @@ class ParseTest < Minitest::Test
     "2021/12/6..6/1 0:30/month -- x2/month",
   :"previous repetition and frequency apply when amount and progress are omitted" =>
     "2021/12/6..6/1 0:30 x2/month -- 7/1..12/25",
+  :"previous frequency does not apply for a new repetition" =>
+    "2021/12/6..6/1 0:30 x2/month -- 7/1..12/25 x100",
   :"exception list" =>
     "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
   :"exception list can be an open range at the end" =>
@@ -310,9 +312,8 @@ class ParseTest < Minitest::Test
     "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- (1/4..8 2:00/day)",
   :"overwriting can omit parentheses" =>
     "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 1/4..8 2:00/day",
-  # "x0" may produce different results than "not" because "x0" is carried over to the omitted days.
-  :"overwriting to zero does not have the same effect" =>
-    "2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0)",
+  :"overwriting to zero has the same effect" =>
+    "2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0) -- 1/4..8 2:00/day",
   :"names" =>
     "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- 3/1 #3 String-Based Templates vs. DSLs",
   :"repeated name means re-listen" =>
@@ -1128,6 +1129,18 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"previous repetition and frequency apply when amount and progress are omitted"] =
     [a_frequency_defaulted]
 
+  a_frequency_reset = item_hash(
+    title: DEFAULT_TITLE,
+    experiences: [{ spans: [
+      { dates: start_date..end_date_june,
+        amount: Reading::Item::TimeLength.new(minutes_175) * 2 },
+      { dates: Date.new(2022, 7, 1)..Date.new(2022, 12, 25),
+        amount: Reading::Item::TimeLength.new(3000) },
+    ] }],
+  )
+  @outputs[:features_history][:"previous frequency does not apply for a new repetition"] =
+    [a_frequency_reset]
+
   a_except = item_hash(
     title: DEFAULT_TITLE,
     experiences: [{ spans: [
@@ -1170,15 +1183,7 @@ class ParseTest < Minitest::Test
 
   @outputs[:features_history][:"overwriting can omit parentheses"] = [a_overwriting]
 
-  a_except_without_last_dates = item_hash(
-    title: DEFAULT_TITLE,
-    experiences: [{ spans: [
-      *a_except.deep_fetch(:experiences, 0, :spans).first(2),
-    ] }],
-  )
-
-  @outputs[:features_history][:"overwriting to zero does not have the same effect"] =
-    [a_except_without_last_dates]
+  @outputs[:features_history][:"overwriting to zero has the same effect"] = [a_overwriting]
 
   a_names = a_amounts.deep_merge(
     experiences: [{ spans: [
