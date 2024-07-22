@@ -104,6 +104,8 @@ if input_is_csv_path
     puts e
   end
 else # CSV string arg
+  input = input.gsub("\\|", "|") # because some pipes are escaped when pasting into the terminal
+
   begin
     item_hashes = Reading.parse(lines: input, hash_output: true, item_view: false)
   rescue Reading::Error => e
