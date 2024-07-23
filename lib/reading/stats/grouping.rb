@@ -195,7 +195,10 @@ module Reading
           groups = Hash.new { |h, k| h[k] = [] }
 
           items.each do |item|
-            item.genres.each { |genre| groups[genre] << item }
+            if item.genres.any?
+              genre_combination = item.genres.join(", ")
+              groups[genre_combination] << item
+            end
           end
 
           groups.sort.to_h
