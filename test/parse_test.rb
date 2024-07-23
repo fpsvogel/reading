@@ -315,6 +315,8 @@ class ParseTest < Minitest::Test
     "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- (1/4..8 2:00/day)",
   :"overwriting can omit parentheses" =>
     "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 1/4..8 2:00/day",
+  :"overwriting can't omit previous month/year" =>
+    "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1 -- 2021/12/30..31 2:00/day",
   :"overwriting to zero has the same effect" =>
     "2021/12/27..1/8 1:00/day -- (2021/12/28..29 x0) -- (1/1 x0) -- 1/4..8 2:00/day",
   :"names" =>
@@ -1187,6 +1189,17 @@ class ParseTest < Minitest::Test
   @outputs[:features_history][:"overwriting"] = [a_overwriting]
 
   @outputs[:features_history][:"overwriting can omit parentheses"] = [a_overwriting]
+
+  a_explicit_month = item_hash(
+    title: DEFAULT_TITLE,
+    experiences: [{ spans: [
+      a_except.deep_fetch(:experiences, 0, :spans).first,
+      { dates: Date.new(2021, 12, 30)..Date.new(2021, 12, 31),
+        amount: Reading.time('4:00') },
+      a_except.deep_fetch(:experiences, 0, :spans).last
+    ] }],
+  )
+  @outputs[:features_history][:"overwriting can't omit previous month/year"] = [a_explicit_month]
 
   @outputs[:features_history][:"overwriting to zero has the same effect"] = [a_overwriting]
 
