@@ -119,7 +119,9 @@ module Reading
               .compact
               .max
 
-            year_ranges = (begin_date.year..end_date.year).flat_map { |year|
+            end_year = [Date.today.year, end_date.year].min
+
+            year_ranges = (begin_date.year..end_year).flat_map { |year|
               beginning_of_year = Date.new(year, 1, 1)
               end_of_year = Date.new(year + 1, 1, 1).prev_day
 

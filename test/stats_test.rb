@@ -1699,26 +1699,32 @@ class StatsTest < Minitest::Test
     year: {
       input: "average rating by year",
       result: {
-        2021 => 2,
-        2022 => 3,
-        2023 => nil,
-        2024 => 2,
+        2019 => 2,
+        2020 => 3,
+        2021 => nil,
+        2022 => 2,
+        # 2023 is omitted because it's in the future from the frozen test date.
       },
       items: [
         { rating: 2, variants: [{}], experiences: [
           { variant_index: 0,
             spans: [
               { amount: 10,
-                dates: Date.new(2021,10,10)..Date.new(2022,1,10) }] },
+                dates: Date.new(2019,10,10)..Date.new(2020,1,10) }] },
           { variant_index: 0,
             spans: [
               { amount: 10,
-                dates: Date.new(2024,4,10)..Date.new(2024,4,15) }] }] },
+                dates: Date.new(2022,4,10)..Date.new(2022,4,15) }] }] },
         { rating: 4, variants: [{}], experiences: [
           { variant_index: 0,
             spans: [
               { amount: 10,
-                dates: Date.new(2022,12,10)..Date.new(2022,12,15) }] }] },
+                dates: Date.new(2020,12,10)..Date.new(2020,12,15) }] }] },
+        { rating: 1, variants: [{}], experiences: [
+          { variant_index: 0,
+            spans: [
+              { amount: 10,
+                dates: Date.new(2023,1,1)..Date.new(2023,1,1) }] }] },
         { rating: 8, experiences: [] },
       ],
     },
