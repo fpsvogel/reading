@@ -198,7 +198,7 @@ module Reading
 
           items.each do |item|
             if item.genres.any?
-              genre_combination = item.genres.join(", ")
+              genre_combination = item.genres.sort.join(", ")
               groups[genre_combination] << item
             end
           end

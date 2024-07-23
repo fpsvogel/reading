@@ -1776,9 +1776,10 @@ class StatsTest < Minitest::Test
     },
     genre: {
       input: "average rating by genre",
-      result: { "cats" => 16, "fiction" => 3, "fiction, history" => 5, "memoir" => nil },
+      result: { "cats" => 16, "fiction" => 3, "fiction, history" => 8, "memoir" => nil },
       items: [
-        { rating: 5, genres: %w[fiction history] },
+        { rating: 9, genres: %w[fiction history] },
+        { rating: 7, genres: %w[history fiction] },
         { rating: 2, genres: %w[fiction] },
         { rating: 4, genres: %w[fiction] },
         { rating: 16, genres: %w[cats] },
