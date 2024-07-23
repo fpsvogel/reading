@@ -1,5 +1,5 @@
 require_relative 'spans_validator'
-
+require "debug"
 module Reading
   module Parsing
     module Attributes
@@ -186,14 +186,14 @@ module Reading
             format = parsed_row[:sources]&.dig(variant_index)&.dig(:format) ||
               parsed_row[:head][head_index][:format]
 
+            progress = Attributes::Shared.progress(entry)
+
             amount_from_entry =
               Attributes::Shared.length(entry, format:, key_name: :amount, ignore_repetitions: true)
             amount_from_length =
-              Attributes::Shared.length(parsed_row[:length], format:, episodic: true)
+              Attributes::Shared.length(parsed_row[:length], format:, episodic: progress.nil? || parsed_row.dig(:length, :repetitions).nil?)
             amount = amount_from_entry || amount_from_length
             active[:amount] = amount if amount
-
-            progress = Attributes::Shared.progress(entry)
 
             # If the entry has no amount and the item has no episodic length,
             # then use progress as amount instead. The typical scenario for this

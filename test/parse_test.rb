@@ -354,6 +354,8 @@ class ParseTest < Minitest::Test
     "0:30 x3|2021/12/6 -- 12/21 -- 3/1",
   :"repetitions in length with 'each'" =>
     "0:30 each x3|2021/12/6 -- 12/21 -- 3/1",
+  :"progress makes repetitions in length count as total" =>
+    "0:30 x3|2021/12/6 10% -- 12/21 30% -- 3/1 done",
   :"done shortcut with length" =>
     "144|2021/04/28 10p -- 4/30 @20p -- 5/1 @30p -- ..5/20 done",
   }
@@ -1329,6 +1331,17 @@ class ParseTest < Minitest::Test
   @outputs[:"features_length, history"][:"repetitions in length"] = [a_length_repetitions]
 
   @outputs[:"features_length, history"][:"repetitions in length with 'each'"] = [a_length_repetitions]
+
+  a_length_repetitions_as_total = a_dates.deep_merge(
+    variants: [{ length: Reading.time('1:30') }],
+    experiences: [{ spans: [
+      { amount: Reading.time('1:30'), progress: 0.1 },
+      { amount: Reading.time('1:30'), progress: 0.3 },
+      { amount: Reading.time('1:30'), progress: 1.0 },
+    ] }],
+  )
+
+  @outputs[:"features_length, history"][:"progress makes repetitions in length count as total"] = [a_length_repetitions_as_total]
 
   b_done = item_hash(
     title: DEFAULT_TITLE,
