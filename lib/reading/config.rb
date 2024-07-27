@@ -178,8 +178,8 @@ module Reading
                     spans:
                       [{
                         dates: nil,
-                        progress: 1.0,
                         amount: 0,
+                        progress: 1.0,
                         name: nil,
                         favorite?: false,
                       }],
