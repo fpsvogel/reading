@@ -193,6 +193,15 @@ module Reading
             groups
           end
         },
+        eachgenre: proc { |items|
+          groups = Hash.new { |h, k| h[k] = [] }
+
+          items.each do |item|
+            item.genres.each { |genre| groups[genre] << item }
+          end
+
+          groups.sort.to_h
+        },
         genre: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
 

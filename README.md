@@ -194,7 +194,8 @@ These too may be pluralized.
 
 - `by month`
 - `by year`
-- `by genre`
+- `by eachgenre` (single genres)
+- `by genre` (combinations of genres)
 - `by rating`
 - `by format`
 - `by source`
