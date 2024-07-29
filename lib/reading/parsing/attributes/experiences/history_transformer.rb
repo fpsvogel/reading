@@ -16,13 +16,14 @@ module Reading
           # many days, for example.
           AVERAGE_DAYS_IN_A_MONTH = 30.437r
 
-          private attr_reader :parsed_row, :head_index
+          private attr_reader :parsed_row, :head_index, :next_open_range_id
 
           # @param parsed_row [Hash] a parsed row (the intermediate hash).
           # @param head_index [Integer] current item's position in the Head column.
           def initialize(parsed_row, head_index)
             @parsed_row = parsed_row
             @head_index = head_index
+            @next_open_range_id = 0
           end
 
           # Extracts experiences from the parsed row.
@@ -61,7 +62,7 @@ module Reading
               month: nil,
               day: nil,
               after_single_date: false,
-              open_range: false,
+              open_range_id: nil,
               planned: false,
               amount: nil,
               repetitions: nil,
@@ -84,7 +85,7 @@ module Reading
 
             spans = merge_daily_spans(daily_spans)
 
-            fix_open_ranges!(spans, except_dates)
+            spans = fix_open_ranges(spans, except_dates)
 
             relativize_amounts_from_progress!(spans)
 
@@ -157,7 +158,7 @@ module Reading
             active[:month] = start_month if start_month
             active[:last_start_month] = active[:month]
             if start_day
-              active[:open_range] = false
+              active[:open_range_id] = nil
               active[:day] = start_day
             end
 
@@ -171,8 +172,8 @@ module Reading
               active[:planned] = false
             end
 
-            duplicate_open_range = !start_day && active[:open_range]
-            date_range = date_range(entry, active, duplicate_open_range:)
+            duplicate_open_range_id = active[:open_range_id] if !start_day
+            date_range = date_range(entry, active, duplicate_open_range: !!duplicate_open_range_id)
 
             # A startless date range (i.e. with an implied start date) appearing
             # immediately after a single date has its start date bumped forward
@@ -229,7 +230,7 @@ module Reading
               frequency,
             )
 
-            in_open_range = active[:open_range] || duplicate_open_range
+            open_range_id = active[:open_range_id] || duplicate_open_range_id
 
             daily_spans_from_entry = amounts_by_date.map { |date, daily_amount|
               span_without_dates = {
@@ -243,7 +244,7 @@ module Reading
                 # Temporary keys (not in the final item data) for marking
                 # spans to ...
                 # ... be distributed evenly across an open date range.
-                in_open_range?: in_open_range,
+                open_range_id:,
                 # ... have their amounts adjusted to be relative to previous progress.
                 amount_from_progress?: amount_from_progress,
                 amount_from_frequency?: !!frequency,
@@ -258,7 +259,7 @@ module Reading
 
               # For entries in an open range, add a random number to the key to
               # avoid overwriting entries with the same name, or lacking a name.
-              if in_open_range
+              if open_range_id
                 key << rand
               end
 
@@ -311,7 +312,7 @@ module Reading
             return nil unless entry[:range] || duplicate_open_range
 
             if entry[:end_day]
-              active[:open_range] = false
+              active[:open_range_id] = nil
 
               end_year = entry[:end_year]&.to_i
               end_month = entry[:end_month]&.to_i
@@ -331,7 +332,11 @@ module Reading
               active[:month] = date_after_end.month if end_month
               active[:year] = date_after_end.year if end_year
             else # either starting or continuing (duplicating) an open range
-              active[:open_range] ||= true
+              unless active[:open_range_id]
+                active[:open_range_id] = next_open_range_id
+                @next_open_range_id += 1
+              end
+
               date_range = Date.new(active[:year], active[:month], active[:day])..Date.today
             end
 
@@ -394,50 +399,64 @@ module Reading
           # Set each open date range's last end date (wherever it's today, i.e.
           # it wasn't defined) to the day before the next entry's start date.
           # At the same time, distribute each open range's spans evenly.
-          # Lastly, remove the :in_open_range? key from spans.
+          # Lastly, remove the :open_range_id key from spans.
           # @param spans [Array<Hash>] spans after being merged from daily_spans.
           # @param except_dates [Date] dates after "not" entries which were
           #   rejected from spans.
           # @return [Array<Hash>]
-          def fix_open_ranges!(spans, except_dates)
-            # The last date which could've been applied to open ranges is today
-            # except in cases where the last History entry is a "not" entry
-            # (e.g. "not 4/21..").
-            last_possible_open_range_end = Date.today
-            while except_dates.include?(last_possible_open_range_end)
-              last_possible_open_range_end = last_possible_open_range_end.prev_day
-            end
-
+          def fix_open_ranges(spans, except_dates)
             chunked_by_open_range = spans.chunk_while { |a, b|
               a[:dates] && b[:dates] && # in case of planned entry
-              a[:dates].begin == b[:dates].begin &&
-                a[:in_open_range?] == b[:in_open_range?]
+                a[:open_range_id] == b[:open_range_id]
             }
 
-            next_chunk_start_date = nil
+            next_start_date = nil
             chunked_by_open_range
-              .reverse_each { |chunk|
-                unless chunk.first[:in_open_range?] && chunk.any? { _1[:dates].end == last_possible_open_range_end }
+              .to_a.reverse.map { |chunk|
+                unless chunk.first[:open_range_id]
                   # safe nav. in case of planned entry
-                  next_chunk_start_date = chunk.first[:dates]&.begin
-                  next
+                  next_start_date = chunk.first[:dates]&.begin
+                  next chunk
                 end
 
-                # Set last end date.
-                if chunk.last[:dates].end == last_possible_open_range_end && next_chunk_start_date
-                  new_dates = chunk.last[:dates].begin..next_chunk_start_date.prev_day
+                # Filter out spans that begin after the next chunk's start date.
+                if next_start_date
+                  chunk.reject! do |span|
+                    span[:dates].begin >= next_start_date
+                  end
+                end
 
-                  if chunk.last[:amount_from_frequency?]
-                    new_to_old_dates_ratio = new_dates.count / chunk.last[:dates].count.to_f
-                    chunk.last[:amount] = (chunk.last[:amount] * new_to_old_dates_ratio).to_i_if_whole
+                # For the remaining spans (which begin before the next chunk's
+                # start date), bound each end date to that date.
+                chunk.reverse_each do |span|
+                  if !next_start_date
+                    next_start_date = span[:dates].begin
+                    next
                   end
 
-                  chunk.last[:dates] = new_dates
+                  if span[:dates].end >= next_start_date
+                    new_dates = span[:dates].begin..next_start_date.prev_day
+
+                    if span[:amount_from_frequency?]
+                      new_to_old_dates_ratio = new_dates.count / span[:dates].count.to_f
+                      span[:amount] = (span[:amount] * new_to_old_dates_ratio).to_i_if_whole
+                    end
+
+                    span[:dates] = new_dates
+                  end
+
+                  next_start_date = span[:dates].begin if span[:dates].begin < next_start_date
                 end
-                next_chunk_start_date = chunk.first[:dates].begin
+
+                if !next_start_date || chunk.first[:dates].begin < next_start_date
+                  next_start_date = chunk.first[:dates].begin
+                end
+
+                next chunk if chunk.map { |span| span[:open_range_id] }.uniq.count == 1 &&
+                  chunk.map { |span| span[:dates].begin }.uniq.count > 1
 
                 # Distribute spans across the open date range.
-                total_amount = chunk.sum { |c| c[:amount] }
+                total_amount = chunk.sum { |span| span[:amount] }
                 dates = chunk.last[:dates]
                 amount_per_day = total_amount / dates.count.to_f
 
@@ -445,6 +464,7 @@ module Reading
                 last_end_date = chunk.last[:dates].end
 
                 span = nil
+                chunk_dup = chunk.dup
                 amount_acc = 0
                 span_needing_end = nil
                 dates.each do |date|
@@ -454,8 +474,8 @@ module Reading
                   end
 
                   while amount_acc < amount_per_day
-                    break if chunk.empty?
-                    span = chunk.shift
+                    break if chunk_dup.empty?
+                    span = chunk_dup.shift
                     amount_acc += span[:amount]
 
                     if amount_acc < amount_per_day
@@ -472,7 +492,11 @@ module Reading
                 end
 
                 span[:dates] = span[:dates].begin..last_end_date
+
+                chunk
               }
+              .reverse
+              .flatten
           end
 
           # Changes amounts taken from progress, from absolute to relative,
@@ -499,7 +523,7 @@ module Reading
           def remove_last_end_date_of_today_if_open_range!(spans)
             if spans.last[:dates] &&
               spans.last[:dates].end == Date.today &&
-              (spans.last[:in_open_range?] || spans.last[:implied_date_range?])
+              (spans.last[:open_range_id] || spans.last[:implied_date_range?])
 
               spans.last[:dates] = spans.last[:dates].begin..
             end
@@ -510,7 +534,7 @@ module Reading
           # @return [Array<Hash>]
           def remove_temporary_keys!(spans)
             temporary_keys = %i[
-              in_open_range?
+              open_range_id
               amount_from_progress?
               amount_from_frequency?
               implied_date_range?

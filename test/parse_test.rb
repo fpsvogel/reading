@@ -272,7 +272,9 @@ class ParseTest < Minitest::Test
     "2021/12/6..8 0:35 -- 0:45 -- 0:30",
   :"implied date range starts" => # same as 12/6, 12/7..8, 12/9..10
     "2021/12/6 0:35 -- ..12/8 0:45 -- ..12/10 0:25",
-  :"implied date range end" => # Date.today becomes the end date
+  :"implied date range end" =>
+    "2021/12/6 0:35 -- 12/7.. 0:45 -- 12/9..10 0:25",
+  :"implied date range end today" => # Date.today becomes the end date
     "2021/12/6.. 0:35",
   :"implied date range start and end" => # same as 12/6, 12/7..
     "2021/12/6 0:35 -- .. 0:45",
@@ -300,6 +302,12 @@ class ParseTest < Minitest::Test
     "2021/12/6..6/1 0:30 x2/month -- 7/1..12/25 x100",
   :"exception list" =>
     "2021/12/27..1/8 1:00/day -- not 12/28..29, 1/1, ",
+  :"exception list after open range" =>
+    "2022/9/21.. 1p/day -- not 9/23..24",
+  :"open range interrupted by exception" =>
+    "2020/1/1.. 1:00 x1/day -- not 1/3..1/4 -- 1/7..1/12 x2/day -- not 1/9..1/10",
+  :"open range interrupted by exception, alias" =>
+    "2020/1/1..1/6 1:00 x1/day -- not 1/3..1/4 -- ..1/12 x2/day -- not 1/9..1/10",
   :"exception list can be an open range at the end" =>
     "2022/09/24.. 1:00/day -- not 9/25..26 -- 9/28.. 2:00/day -- not 9/30..",
   # 13:00 here gives the same result as 1:00/day, though it's unexpected. We
@@ -1012,14 +1020,16 @@ class ParseTest < Minitest::Test
   )
   @outputs[:features_history][:"implied date range starts"] = [a_implied_range_start]
 
-  a_implied_range_end = item_hash(
+  @outputs[:features_history][:"implied date range end"] = [a_implied_range_start]
+
+  a_implied_range_end_today = item_hash(
     title: DEFAULT_TITLE,
     experiences: [{ spans: [
       { dates: Date.new(2021, 12, 6)..,
         amount: Reading.time('0:35') },
     ] }],
   )
-  @outputs[:features_history][:"implied date range end"] = [a_implied_range_end]
+  @outputs[:features_history][:"implied date range end today"] = [a_implied_range_end_today]
 
   a_implied_range_start_and_end = item_hash(
     title: DEFAULT_TITLE,
@@ -1160,6 +1170,36 @@ class ParseTest < Minitest::Test
     ] }],
   )
   @outputs[:features_history][:"exception list"] = [a_except]
+
+  except_after_open_range = item_hash(
+    title: DEFAULT_TITLE,
+    experiences: [{ spans: [
+      { dates: Date.new(2022, 9, 21)..Date.new(2022, 9, 22),
+        amount: 2 },
+      { dates: Date.new(2022, 9, 25)..,
+        amount: 7 },
+    ] }],
+  )
+
+  @outputs[:features_history][:"exception list after open range"] = [except_after_open_range]
+
+  open_range_interrupted = item_hash(
+    title: DEFAULT_TITLE,
+    experiences: [{ spans: [
+      { dates: Date.new(2020, 1, 1)..Date.new(2020, 1, 2),
+        amount: Reading.time('2:00') },
+      { dates: Date.new(2020, 1, 5)..Date.new(2020, 1, 6),
+        amount: Reading.time('2:00') },
+      { dates: Date.new(2020, 1, 7)..Date.new(2020, 1, 8),
+        amount: Reading.time('4:00') },
+      { dates: Date.new(2020, 1, 11)..Date.new(2020, 1, 12),
+        amount: Reading.time('4:00') },
+    ] }],
+  )
+
+  @outputs[:features_history][:"open range interrupted by exception"] = [open_range_interrupted]
+
+  @outputs[:features_history][:"open range interrupted by exception, alias"] = [open_range_interrupted]
 
   except_at_end = item_hash(
     title: DEFAULT_TITLE,
