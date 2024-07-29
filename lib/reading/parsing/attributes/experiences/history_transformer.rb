@@ -1,5 +1,16 @@
 require_relative 'spans_validator'
-require "debug"
+
+# TODO Refactor! This entire file has become 🤢🤮 with the accumulation of new
+# features in the History column.
+#
+# Goals of the refactor:
+#   - if possible, avoid daily_spans; build spans with date ranges directly.
+#   - validate spans at every step; that way the origin of bugs will be easier
+#     to find, e.g. for the bug fixed in 6310639, spans became invalid in
+#     #fix_open_ranges! and led to an error elsewhere that didn't give a trace
+#     back to the origin.
+#   - to facilitate the points above, create a class ExperienceBuilder to
+#     contain much of the logic that is currently in this file.
 module Reading
   module Parsing
     module Attributes
