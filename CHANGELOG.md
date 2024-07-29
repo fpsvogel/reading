@@ -1,3 +1,9 @@
+## [0.9.1] - 2024-07-29
+
+- Bug fixes, mostly in the History column.
+- Change the `by genre` grouping to operate based on combinations of genres, e.g. `history, science`. The original grouping of single genres is preserved in the new grouping `by eachgenre`.
+- Update to Ruby 3.3.
+
 ## [0.9.0] - 2023-07-15
 
 - Added statistics-querying functionality (`Reading::stats`).
