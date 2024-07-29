@@ -18,7 +18,7 @@ module Reading
       def self.parse(string)
         return nil unless string.match? /\A\d+:\d\d\z/
 
-        hours, minutes = string.split(':').map(&:to_i)
+        hours, minutes = string.split(":").map(&:to_i)
         new((hours * 60) + minutes)
       end
 
@@ -51,7 +51,7 @@ module Reading
       # A string in "h:mm" format.
       # @return [String]
       def to_s
-        "#{hours}:#{minutes.round.to_s.rjust(2, '0')} or #{(value / 60.0 * Config.hash.fetch(:pages_per_hour)).round} pages"
+        "#{hours}:#{minutes.round.to_s.rjust(2, "0")} or #{(value / 60.0 * Config.hash.fetch(:pages_per_hour)).round} pages"
       end
 
       # To pages.

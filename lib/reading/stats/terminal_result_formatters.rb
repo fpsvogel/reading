@@ -1,4 +1,4 @@
-require 'pastel'
+require "pastel"
 
 module Reading
   module Stats
@@ -6,7 +6,7 @@ module Reading
       TERMINAL = {
         average_length: ->(result) { length_to_s(result) },
         average_amount: ->(result) { length_to_s(result) },
-        :'average_daily-amount' => ->(result) { "#{length_to_s(result)} per day" },
+        :"average_daily-amount" => ->(result) { "#{length_to_s(result)} per day" },
         total_item: ->(result) {
           if result.zero?
             PASTEL.bright_black("none")
@@ -56,10 +56,10 @@ module Reading
 
         result
           .map.with_index { |(title, length), index|
-            pad = ' ' * (offset - (index + 1).digits.count)
+            pad = " " * (offset - (index + 1).digits.count)
 
             title_line = "#{index + 1}. #{pad}#{title}"
-            indent = "    #{' ' * offset}"
+            indent = "    #{" " * offset}"
 
             "#{title_line}\n#{indent}#{length_to_s(length)}"
           }
@@ -76,10 +76,10 @@ module Reading
           .map.with_index { |(title, hash), index|
             amount = length_to_s(hash[:amount], color: false)
             days = "#{hash[:days]} #{hash[:days] == 1 ? "day" : "days"}"
-            pad = ' ' * (offset - (index + 1).digits.count)
+            pad = " " * (offset - (index + 1).digits.count)
 
             title_line = "#{index + 1}. #{pad}#{title}"
-            indent = "    #{' ' * offset}"
+            indent = "    #{" " * offset}"
             colored_speed = color("#{amount} in #{days}")
 
             "#{title_line}\n#{indent}#{colored_speed}"

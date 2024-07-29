@@ -82,7 +82,7 @@ module Reading
             end
           }
 
-          positive_operator = operator == :'!=' ? :== : operator
+          positive_operator = operator == :"!=" ? :== : operator
 
           matches = items.select { |item|
             ratings.any? { |rating|
@@ -95,7 +95,7 @@ module Reading
           # Instead of using item.rating.send(operator, format) above, invert
           # the matches here to ensure multiple values after a negative operator
           # have an "and" relation: "not(x and y)", rather than "not(x or y)".
-          if operator == :'!='
+          if operator == :"!="
             matches = items - matches
           end
 
@@ -110,7 +110,7 @@ module Reading
           filtered_items = items.map { |item|
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
-            if operator == :'!='
+            if operator == :"!="
               item_done_progresses = item.experiences.map { |experience|
                 experience.spans.last.progress if experience.status == :done
               }
@@ -138,7 +138,7 @@ module Reading
           filtered_items = items.map { |item|
             # Treat empty variants as if they were a variant with a nil format.
             if item.variants.empty?
-              if operator == :'!='
+              if operator == :"!="
                 next item unless formats.include?(nil)
               else
                 next item if formats.include?(nil)
@@ -147,7 +147,7 @@ module Reading
 
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
-            if operator == :'!='
+            if operator == :"!="
               item_formats = item.variants.map(&:format)
 
               next if (item_formats - formats).empty?
@@ -169,14 +169,14 @@ module Reading
         author: proc { |values, operator, items|
           authors = values
             .map { _1.downcase if _1 }
-            .map { _1.gsub(/[^a-zA-Z ]/, '').gsub(/\s/, '') if _1 }
+            .map { _1.gsub(/[^a-zA-Z ]/, "").gsub(/\s/, "") if _1 }
 
           matches = items.select { |item|
             author = item
               &.author
               &.downcase
-              &.gsub(/[^a-zA-Z ]/, '')
-              &.gsub(/\s/, '')
+              &.gsub(/[^a-zA-Z ]/, "")
+              &.gsub(/\s/, "")
 
             if %i[include? exclude?].include? operator
               authors.any? {
@@ -200,7 +200,7 @@ module Reading
         title: proc { |values, operator, items|
           titles = values
             .map(&:downcase)
-            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '').gsub(/\s/, '') }
+            .map { _1.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, "").gsub(/\s/, "") }
 
           matches = items.select { |item|
             next unless item.title
@@ -208,8 +208,8 @@ module Reading
             title = item
               .title
               .downcase
-              .gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
-              .gsub(/\s/, '')
+              .gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, "")
+              .gsub(/\s/, "")
 
             if %i[include? exclude?].include? operator
               titles.any? { title.include? _1 }
@@ -228,8 +228,8 @@ module Reading
           format_name = ->(str) {
             str
               &.downcase
-              &.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, '')
-              &.gsub(/\s/, '')
+              &.gsub(/[^a-zA-Z0-9 ]|\ba\b|\bthe\b/, "")
+              &.gsub(/\s/, "")
           }
 
           series_names = values.map { format_name.call(_1) }
@@ -251,7 +251,7 @@ module Reading
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
             if %i[!= exclude?].include? operator
-              next if operator == :'!=' && (item_series_names - series_names).empty?
+              next if operator == :"!=" && (item_series_names - series_names).empty?
               next if operator == :exclude? &&
                 item_series_names.all? { |item_series_name|
                   series_names.any? { |series_name|
@@ -280,7 +280,7 @@ module Reading
 
                 series_names.any? {
                   if _1.nil?
-                    nil_operator = { include?: :==, exclude?: :'!=' }[operator]
+                    nil_operator = { include?: :==, exclude?: :"!=" }[operator]
                   end
 
                   item_series_name.send(nil_operator || operator, _1)
@@ -322,7 +322,7 @@ module Reading
                   (url.nil? ? url_nil_match : sources.include?(url))
               }
 
-              next if operator == :'!=' && remainder_names_and_urls.empty?
+              next if operator == :"!=" && remainder_names_and_urls.empty?
               next if operator == :exclude? &&
                 item_source_names_and_urls.all? { |item_source_name_and_url|
                   sources.any? { |source|
@@ -347,7 +347,7 @@ module Reading
               variant.sources.any? { |source|
                 sources.any?  {
                   if _1.nil?
-                    nil_operator = { include?: :==, exclude?: :'!=' }[operator]
+                    nil_operator = { include?: :==, exclude?: :"!=" }[operator]
                   end
 
                   source.name&.downcase&.send(nil_operator || operator, _1) ||
@@ -362,7 +362,7 @@ module Reading
 
           filtered_items
         },
-        :'end-date' => proc { |values, operator, items|
+        :"end-date" => proc { |values, operator, items|
           end_date_ranges = values.map { |value|
             match = value.match(DATES_REGEX) ||
               (raise InputError,
@@ -396,7 +396,7 @@ module Reading
           filtered_items = items.map { |item|
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
-            if operator == :'!='
+            if operator == :"!="
               item_end_dates = item.experiences.map(&:last_end_date)
 
               next if item_end_dates.all? { |item_end_date|
@@ -468,7 +468,7 @@ module Reading
                 without_before_or_after
               }
               .compact
-            when :'!='
+            when :"!="
               split_item = item
 
               date_ranges.each do |date_range|
@@ -506,7 +506,7 @@ module Reading
               (raise InputError, "Experience count must be an integer")
           }
 
-          positive_operator = operator == :'!=' ? :== : operator
+          positive_operator = operator == :"!=" ? :== : operator
 
           matches = items.select { |item|
             experience_counts.any? { |experience_count|
@@ -514,19 +514,19 @@ module Reading
             }
           }
 
-          if operator == :'!='
+          if operator == :"!="
             matches = items - matches
           end
 
           matches
         },
         status: proc { |values, operator, items|
-          statuses = values.map { _1.squeeze(' ').gsub(' ', '_').to_sym }
+          statuses = values.map { _1.squeeze(" ").gsub(" ", "_").to_sym }
 
           filtered_items = items.map { |item|
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
-            if operator == :'!='
+            if operator == :"!="
               item_statuses = item.experiences.map(&:status).presence || [:planned]
 
               next unless (item_statuses - statuses).any?
@@ -550,7 +550,7 @@ module Reading
           filtered_items
         },
         genre: proc { |values, operator, items|
-          genres = values.map { _1 ? _1.split('+').map(&:strip) : [_1] }
+          genres = values.map { _1 ? _1.split("+").map(&:strip) : [_1] }
 
           matches = items.select { |item|
             genres.any? { |and_genres|
@@ -560,7 +560,7 @@ module Reading
             }
           }
 
-          if operator == :'!='
+          if operator == :"!="
             matches = items - matches
           end
 
@@ -578,7 +578,7 @@ module Reading
           filtered_items = items.map { |item|
             # Treat empty variants as if they were a variant with a nil length.
             if item.variants.empty?
-              if operator == :'!='
+              if operator == :"!="
                 next item unless lengths.include?(nil)
               else
                 next item if lengths.include?(nil)
@@ -587,7 +587,7 @@ module Reading
 
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
-            if operator == :'!='
+            if operator == :"!="
               item_lengths = item.variants.map(&:length)
 
               next if (item_lengths - lengths).empty?
@@ -609,13 +609,13 @@ module Reading
         note: proc { |values, operator, items|
           notes = values
             .map { _1.downcase if _1 }
-            .map { _1.gsub(/[^a-zA-Z0-9 ]/, '') if _1 }
+            .map { _1.gsub(/[^a-zA-Z0-9 ]/, "") if _1 }
 
           matches = items.select { |item|
             item.notes.any? { |original_note|
               note = original_note
                 .downcase
-                .gsub(/[^a-zA-Z0-9 ]/, '')
+                .gsub(/[^a-zA-Z0-9 ]/, "")
 
               if %i[include? exclude?].include? operator
                 notes.any? { _1.nil? ? note == _1 : note.include?(_1) }
@@ -639,7 +639,7 @@ module Reading
         progress: true,
         experience: true,
         date: true,
-        :'end-date' => true,
+        :"end-date" => true,
         length: true,
       }
 
@@ -652,7 +652,7 @@ module Reading
       PROHIBIT_NONE_VALUE = {
         done: true,
         title: true,
-        :'end-date' => true,
+        :"end-date" => true,
         date: true,
         experience: true,
         status: true,
@@ -661,7 +661,7 @@ module Reading
       PROHIBIT_MULTIPLE_VALUES_AFTER_NOT = {
         done: true,
         title: true,
-        :'end-date' => true,
+        :"end-date" => true,
         date: true,
         experience: true,
         status: true,
@@ -699,20 +699,20 @@ module Reading
 
         unless allowed_operators.include? operator_str
           raise InputError, "Operator \"#{operator_str}\" not allowed in the " \
-            "\"#{key}\" filter, only #{allowed_operators.join(', ')} allowed"
+            "\"#{key}\" filter, only #{allowed_operators.join(", ")} allowed"
         end
 
         operator = operator_str.to_sym
-        operator = :== if operator == :'='
+        operator = :== if operator == :"="
         operator = :include? if operator == :~
-        operator = :exclude? if operator == :'!~'
+        operator = :exclude? if operator == :"!~"
 
         values = predicate
-          .split(',')
+          .split(",")
           .map(&:strip)
-          .map { _1.downcase == 'none' ? nil : _1 }
+          .map { _1.downcase == "none" ? nil : _1 }
 
-        # if values.count > 1 && operator == :'!=' && PROHIBIT_MULTIPLE_VALUES_AFTER_NOT[key]
+        # if values.count > 1 && operator == :"!=" && PROHIBIT_MULTIPLE_VALUES_AFTER_NOT[key]
         # end
 
         if values.count > 1 && %i[> < >= <=].include?(operator)

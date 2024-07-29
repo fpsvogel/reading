@@ -47,7 +47,7 @@ module Reading
         item.variants.map { |variant|
           isbn = variant.isbn
           if isbn
-            url = Config.hash.deep_fetch(:item, :view, :url_from_isbn).sub('%{isbn}', isbn)
+            url = Config.hash.deep_fetch(:item, :view, :url_from_isbn).sub("%{isbn}", isbn)
           else
             url = variant.sources.map { |source| source.url }.compact.first
           end
@@ -108,7 +108,7 @@ module Reading
         if item.done?
           item.last_end_date&.strftime("%Y-%m-%d")
         else
-          item.status.to_s.gsub('_', ' ')
+          item.status.to_s.gsub("_", " ")
         end
       end
     end

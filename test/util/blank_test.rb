@@ -1,4 +1,4 @@
-require_relative '../test_helpers/test_helper'
+require_relative "../test_helpers/test_helper"
 
 # Same as the ActiveSupport blank test, but excludes UTF-16 encoding.
 # https://github.com/rails/rails/blob/main/activesupport/test/core_ext/object/blank_test.rb

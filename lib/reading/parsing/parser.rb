@@ -1,8 +1,8 @@
-require_relative 'rows/blank'
-require_relative 'rows/regular'
-require_relative 'rows/compact_planned'
-require_relative 'rows/custom_config'
-require_relative 'rows/comment'
+require_relative "rows/blank"
+require_relative "rows/regular"
+require_relative "rows/compact_planned"
+require_relative "rows/custom_config"
+require_relative "rows/comment"
 
 module Reading
   module Parsing
@@ -145,7 +145,7 @@ module Reading
         # Parse each format-plus-string into an array of segments.
         heads = format_strings.map { |string|
           format_emoji = string[Config.hash.deep_fetch(:regex, :formats)]
-          string.sub!(format_emoji, '')
+          string.sub!(format_emoji, "")
           format = Config.hash.fetch(:formats).key(format_emoji)
 
           parse_segments(column_class, string)

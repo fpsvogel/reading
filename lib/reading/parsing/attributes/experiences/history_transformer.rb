@@ -1,4 +1,4 @@
-require_relative 'spans_validator'
+require_relative "spans_validator"
 
 # TODO Refactor! This entire file has become 🤢🤮 with the accumulation of new
 # features in the History column.

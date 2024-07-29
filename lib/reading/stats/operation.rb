@@ -235,7 +235,7 @@ module Reading
       }
 
       REGEXES = ACTIONS.map { |key, _action|
-        first_word, second_word = key.to_s.split('_')
+        first_word, second_word = key.to_s.split("_")
         aliases = ALIASES.fetch(key)
 
         regex =
@@ -260,7 +260,7 @@ module Reading
             (
               \A
               \s*
-              (#{aliases.join('|')})
+              (#{aliases.join("|")})
               s?
               \s*
               (?<number_arg>

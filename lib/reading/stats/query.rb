@@ -1,7 +1,7 @@
-require 'pastel'
-require_relative 'operation'
-require_relative 'filter'
-require_relative 'grouping'
+require "pastel"
+require_relative "operation"
+require_relative "filter"
+require_relative "grouping"
 
 module Reading
   module Stats

@@ -1,9 +1,9 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require_relative 'test_helpers/test_helper'
+require_relative "test_helpers/test_helper"
 
-require 'reading'
-require 'reading/item'
+require "reading"
+require "reading/item"
 
 class FilterTest < Minitest::Test
   describe "Reading::filter" do

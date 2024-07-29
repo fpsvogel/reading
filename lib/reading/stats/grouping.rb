@@ -16,10 +16,10 @@ module Reading
 
         if match
           group_names = match[:groups]
-            .split(',')
+            .split(",")
             .tap { _1.last.sub!(/(\w)\s+\w+/, '\1') }
             .map(&:strip)
-            .map { _1.delete_suffix('s') }
+            .map { _1.delete_suffix("s") }
             .map(&:to_sym)
 
           if group_names.uniq.count < group_names.count

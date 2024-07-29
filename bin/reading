@@ -13,12 +13,12 @@
 #   reading '3|📕Trying|Little Library 1970147288'
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
-require_relative '../lib/reading'
-require_relative '../lib/reading/stats/terminal_result_formatters'
-require 'debug'
-require 'amazing_print'
-require 'readline'
-require 'pastel'
+require_relative "../lib/reading"
+require_relative "../lib/reading/stats/terminal_result_formatters"
+require "debug"
+require "amazing_print"
+require "readline"
+require "pastel"
 
 EXIT_COMMANDS = %w[exit e quit q]
 PASTEL = Pastel.new
@@ -72,7 +72,7 @@ if ARGV[1]
   Reading::Config.build(enabled_columns:)
 end
 
-input_is_csv_path = input.end_with?('.csv')
+input_is_csv_path = input.end_with?(".csv")
 
 if input_is_csv_path
   error_handler = ->(e) { puts "Skipped a row due to a parsing error: #{e}" }

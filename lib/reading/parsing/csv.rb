@@ -1,7 +1,7 @@
-require 'pastel'
-require_relative '../item'
-require_relative 'parser'
-require_relative 'transformer'
+require "pastel"
+require_relative "../item"
+require_relative "parser"
+require_relative "transformer"
 
 module Reading
   module Parsing

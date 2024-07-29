@@ -1,9 +1,9 @@
 $LOAD_PATH.unshift File.expand_path("../lib", __dir__)
 
-require_relative 'test_helpers/test_helper'
+require_relative "test_helpers/test_helper"
 
-require 'reading/item'
-require 'reading'
+require "reading/item"
+require "reading"
 
 class ItemTest < Minitest::Test
   using Reading::Util::HashDeepMerge
@@ -438,7 +438,7 @@ class ItemTest < Minitest::Test
           done_date_range = Date.new(2020,12,23)..Date.new(2021,2,10)
           done_book = book(experiences: [{}, {}, { spans: [{}, { dates: done_date_range }] }])
 
-          assert_equal '2021-02-10', done_book.view.date_or_status
+          assert_equal "2021-02-10", done_book.view.date_or_status
         end
       end
 
@@ -447,8 +447,8 @@ class ItemTest < Minitest::Test
           in_progress_book = book
           planned_book = book(:merge, experiences: [])
 
-          assert_equal 'in progress', in_progress_book.view.date_or_status
-          assert_equal 'planned', planned_book.view.date_or_status
+          assert_equal "in progress", in_progress_book.view.date_or_status
+          assert_equal "planned", planned_book.view.date_or_status
         end
       end
     end # #view#date_or_status
@@ -501,7 +501,7 @@ class ItemTest < Minitest::Test
             book_without_first_isbn = book(variants: [{ isbn: nil }])
             url_from_isbn = Reading::Config.hash
               .deep_fetch(:item, :view, :url_from_isbn)
-              .sub('%{isbn}', book_without_first_isbn.variants[1].isbn)
+              .sub("%{isbn}", book_without_first_isbn.variants[1].isbn)
 
             assert_equal url_from_isbn, book_without_first_isbn.view.url
           end
@@ -696,77 +696,77 @@ class ItemTest < Minitest::Test
             [{
               dates: Date.new(2021,10,6)..Date.new(2021,10,10),
               progress: 1.0,
-              amount: Reading.time('8:00'),
+              amount: Reading.time("8:00"),
               name: nil,
               favorite?: false,
             },
             {
               dates: Date.new(2021,10,11)..Date.new(2021,10,17),
               progress: 1.0,
-              amount: Reading.time('1:00'),
+              amount: Reading.time("1:00"),
               name: nil,
               favorite?: false,
             },
             {
               dates: Date.new(2021,10,18)..Date.new(2021,10,24),
               progress: 1.0,
-              amount: Reading.time('3:00'),
+              amount: Reading.time("3:00"),
               name: nil,
               favorite?: false,
             },
             {
               dates: nil,
               progress: nil,
-              amount: Reading.time('1:00'),
+              amount: Reading.time("1:00"),
               name: "The Amish",
               favorite?: false,
             },
             {
               dates: Date.new(2021,10,25)..Date.new(2021,11,12),
               progress: 1.0,
-              amount: Reading.time('2:00'),
+              amount: Reading.time("2:00"),
               name: nil,
               favorite?: false,
             },
             {
               dates: Date.new(2021,11,14)..Date.new(2021,11,14),
               progress: 1.0,
-              amount: Reading.time('0:50'),
+              amount: Reading.time("0:50"),
               name: "#30 Leaf Blowers",
               favorite?: true,
             },
             {
               dates: Date.new(2021,11,15)..Date.new(2021,11,15),
-              progress: Reading.time('0:15'),
-              amount: Reading.time('1:00'),
+              progress: Reading.time("0:15"),
+              amount: Reading.time("1:00"),
               name: "Baseball",
               favorite?: false,
             },
             {
               dates: Date.new(2021,11,15)..Date.new(2021,11,15),
               progress: 1.0,
-              amount: Reading.time('3:00'),
+              amount: Reading.time("3:00"),
               name: nil,
               favorite?: false,
             },
             {
               dates: nil,
               progress: nil,
-              amount: Reading.time('1:00'),
+              amount: Reading.time("1:00"),
               name: "#32 Soft Drinks",
               favorite?: false,
             },
             {
               dates: nil,
               progress: nil,
-              amount: Reading.time('1:00'),
+              amount: Reading.time("1:00"),
               name: "Christmas",
               favorite?: false,
             },
             {
               dates: Date.new(2022,1,1)..Date.new(2022,1,1),
               progress: 1.0,
-              amount: Reading.time('1:00'),
+              amount: Reading.time("1:00"),
               name: "New Year's",
               favorite?: false,
             }],
