@@ -1,3 +1,7 @@
+## [0.9.2] - WIP
+
+- Renamed the `done` filter to `progress`, and it now includes items with statuses other than `:done`.
+
 ## [0.9.1] - 2024-07-29
 
 - Bug fixes, mostly in the History column.

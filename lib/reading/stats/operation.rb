@@ -115,7 +115,7 @@ module Reading
           items.sum { |item|
             item.experiences.sum { |experience|
               experience.spans.sum { |span|
-                (span.amount * span.progress).to_i_if_whole
+                (span.amount * (span.progress || 0.0)).to_i_if_whole
               }
             }
           }
@@ -135,7 +135,7 @@ module Reading
                 item.variants.map(&:length).max ||
                   item.experiences.map { |experience|
                     experience.spans.sum { |span|
-                      (span.amount * span.progress).to_i_if_whole
+                      (span.amount * (span.progress || 0.0)).to_i_if_whole
                     }
                   }.max,
               ]
@@ -148,7 +148,7 @@ module Reading
             .map { |item|
               amount = item.experiences.sum { |experience|
                 experience.spans.sum { |span|
-                  (span.amount * span.progress).to_i_if_whole
+                  (span.amount * (span.progress || 0.0)).to_i_if_whole
                 }
               }
 
@@ -180,7 +180,7 @@ module Reading
                 item.variants.map(&:length).max ||
                   item.experiences.map { |experience|
                     experience.spans.sum { |span|
-                      (span.amount * span.progress).to_i_if_whole
+                      (span.amount * (span.progress || 0.0)).to_i_if_whole
                     }
                   }.max,
               ]
@@ -193,7 +193,7 @@ module Reading
             .map { |item|
               amount = item.experiences.sum { |experience|
                 experience.spans.sum { |span|
-                  (span.amount * span.progress).to_i_if_whole
+                  (span.amount * (span.progress || 0.0)).to_i_if_whole
                 }
               }
 

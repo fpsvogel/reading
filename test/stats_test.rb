@@ -343,135 +343,133 @@ class StatsTest < Minitest::Test
         { rating: nil, variants: [{ length: 200 }] },
       ],
     },
-    :"done" => {
-      input: "average rating done=20%",
+    :"progress" => {
+      input: "average rating progress=0",
       result: 2,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: 0.4, dates: long_ago }] }] },
         { rating: 8,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 16, experiences: [{ spans: [] }] },
         { rating: 32, experiences: [] },
       ],
     },
-    # Test cases for "done=none" and "done!=none" are omitted because the done
-    # done filter always excludes items that are not done.
-    :"done (or)" => {
-      input: "average rating done=20%,100%",
+    :"progress (or)" => {
+      input: "average rating progress=0,100%",
       result: 5,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: 0.4, dates: long_ago }] }] },
         { rating: 8,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 16, experiences: [] },
       ],
     },
-    :"done (not)" => {
-      input: "average rating done!=20%,40%",
+    :"progress (not)" => {
+      input: "average rating progress!=0,40%",
       result: 8,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
-          experiences: [{ spans: [{ progress: 0.40, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: 0.4, dates: long_ago }] }] },
         { rating: 8,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 16, experiences: [] },
       ],
     },
-    :"done filters out non-matching experiences" => {
-      input: "total amount done=20%",
-      result: 20,
+    :"progress filters out non-matching experiences" => {
+      input: "total amount progress=40%",
+      result: 40,
       items: [
         { experiences: [
             { variant_index: 0,
-              spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
+              spans: [{ progress: nil, amount: 100, dates: long_ago }] },
             { variant_index: 0,
-              spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }],
+              spans: [{ progress: 0.4, amount: 100, dates: Date.today.. }] }],
           variants: [{}] },
         { experiences: [{ spans: [] }] },
         { experiences: [] },
       ],
     },
-    :"done filters out empty experiences" => {
-      input: "average rating done=20%",
+    :"progress filters out empty experiences" => {
+      input: "average rating progress=0",
       result: 2,
       items: [
         { rating: 2,
           experiences: [{ spans: [
-            { progress: 0.20, dates: long_ago }] }] },
+            { progress: nil, dates: long_ago }] }] },
         { rating: 4, experiences: [{ spans: [] }] },
         { rating: 8, experiences: [] },
       ],
     },
-    :"done filters out non-matching experiences (not)" => {
-      input: "total amount done!=40%",
+    :"progress filters out non-matching experiences (not)" => {
+      input: "total amount progress!=40%",
       result: 20,
       items: [
         { experiences: [
             { variant_index: 0,
-              spans: [{ progress: 0.20, amount: 100, dates: long_ago }] },
+              spans: [{ progress: 0.2, amount: 100, dates: long_ago }] },
             { variant_index: 0,
-              spans: [{ progress: 0.40, amount: 100, dates: Date.today.. }] }],
+              spans: [{ progress: 0.4, amount: 100, dates: Date.today.. }] }],
           variants: [{}] },
         { experiences: [] },
       ],
     },
-    :"done filters out empty experiences (not)" => {
-      input: "average rating done!=40%",
+    :"progress filters out empty experiences (not)" => {
+      input: "average rating progress!=40%",
       result: 2,
       items: [
         { rating: 2,
           experiences: [{ spans: [
-            { progress: 0.20, dates: long_ago }] }] },
+            { progress: nil, dates: long_ago }] }] },
         { rating: 4, experiences: [] },
       ],
     },
-    :"done (greater than)" => {
-      input: "average rating done>20%",
+    :"progress (greater than)" => {
+      input: "average rating progress>0",
       result: 4,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 8, experiences: [] },
       ],
     },
-    :"done (greater than or equal to)" => {
-      input: "average rating done>=20%",
+    :"progress (greater than or equal to)" => {
+      input: "average rating progress>=0",
       result: 3,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 8, experiences: [] },
       ],
     },
-    :"done (less than)" => {
-      input: "average rating done<100%",
+    :"progress (less than)" => {
+      input: "average rating progress<100%",
       result: 2,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 8, experiences: [] },
       ],
     },
-    :"done (less than or equal to)" => {
-      input: "average rating done<=100%",
+    :"progress (less than or equal to)" => {
+      input: "average rating progress<=100%",
       result: 3,
       items: [
         { rating: 2,
-          experiences: [{ spans: [{ progress: 0.20, dates: long_ago }] }] },
+          experiences: [{ spans: [{ progress: nil, dates: long_ago }] }] },
         { rating: 4,
           experiences: [{ spans: [{ progress: 1.0, dates: long_ago }] }] },
         { rating: 8, experiences: [] },

@@ -101,9 +101,12 @@ module Reading
 
           matches
         },
-        done: proc { |values, operator, items|
-          done_progresses = values.map { |value|
-            (value.match(/\A(\d+)?%/).captures.first.to_f.clamp(0.0, 100.0) / 100) ||
+        progress: proc { |values, operator, items|
+          progresses = values.map { |value|
+            value = "0%" if value == "0"
+            match = value.match(/\A(\d+)?%/)
+
+            (match && match.captures.first.to_f.clamp(0.0, 100.0) / 100) ||
               (raise InputError, "Progress must be a percentage")
           }
 
@@ -111,18 +114,20 @@ module Reading
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
             if operator == :"!="
-              item_done_progresses = item.experiences.map { |experience|
-                experience.spans.last.progress if experience.status == :done
+              item_progresses = item.experiences.map { |experience|
+                experience.spans.last.progress || 0.0
               }
 
-              next if (item_done_progresses - done_progresses).empty?
+              next if (item_progresses - progresses).empty?
             end
 
             # Filter out non-matching experiences.
+            # TODO: Make this more accurate by calculating the average progress
+            # across spans? Currently it checks just the last span's progress.
             filtered_experiences = item.experiences.select { |experience|
-              done_progresses.any? { |done_progress|
-                experience.status == :done &&
-                  experience.spans.last.progress.send(operator, done_progress)
+              progresses.any? { |progress|
+                experience.spans.any? &&
+                  (experience.spans.last.progress || 0.0).send(operator, progress)
               }
             }
 
@@ -635,7 +640,6 @@ module Reading
 
       NUMERIC_OPERATORS = {
         rating: true,
-        done: true,
         progress: true,
         experience: true,
         date: true,
@@ -650,7 +654,7 @@ module Reading
       }
 
       PROHIBIT_NONE_VALUE = {
-        done: true,
+        progress: true,
         title: true,
         :"end-date" => true,
         date: true,
@@ -659,7 +663,7 @@ module Reading
       }
 
       PROHIBIT_MULTIPLE_VALUES_AFTER_NOT = {
-        done: true,
+        progress: true,
         title: true,
         :"end-date" => true,
         date: true,

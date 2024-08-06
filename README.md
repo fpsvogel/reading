@@ -216,7 +216,7 @@ These may be pluralized, and may be followed by any of the operators listed for 
 - `note` (`=`, `!=`, `~`, `!~`)
 - `status` (`=`, `!=`)
 - `length` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
-- `done` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `progress` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
 - `experiences` (i.e. number of reads) (`=`, `>`, `>=`, `<`, `<=`, `!=`)
 - `date` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
 - `end-date` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
