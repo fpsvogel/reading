@@ -212,7 +212,7 @@ These may be pluralized, and may be followed by any of the operators listed for 
 - `source` (`=`, `!=`, `~`, `!~`)
 - `title` (`=`, `!=`, `~`, `!~`)
 - `author` (`=`, `!=`, `~`, `!~`)
-- `series =`, `!=`, `~`, `!~
+- `series` (`=`, `!=`, `~`, `!~`)
 - `note` (`=`, `!=`, `~`, `!~`)
 - `status` (`=`, `!=`)
 - `length` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
