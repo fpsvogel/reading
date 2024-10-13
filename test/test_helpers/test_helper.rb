@@ -1,4 +1,3 @@
-require "rubygems"
 require "bundler/setup"
 
 require "debug"
@@ -11,7 +10,6 @@ require "shoulda-context"
 require_relative "describe_blocks"
 
 require "pretty_diffs"
-
 module Minitest
   class Test
     include PrettyDiffs

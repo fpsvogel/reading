@@ -1,5 +1,3 @@
-$LOAD_PATH.unshift File.expand_path("../lib", __dir__)
-
 require_relative "test_helpers/test_helper"
 
 require "reading/item"
