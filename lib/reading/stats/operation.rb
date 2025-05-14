@@ -128,17 +128,16 @@ module Reading
         top_length: proc { |items, number_arg|
           items
             .map { |item|
-              [
-                author_and_title(item),
-                # Longest length, or if undefined length then longest experience
-                # (code adapted from top_amount below).
-                item.variants.map(&:length).max ||
-                  item.experiences.map { |experience|
-                    experience.spans.sum { |span|
-                      (span.amount * (span.progress || 0.0)).to_i_if_whole
-                    }
-                  }.max,
-              ]
+              # Longest length, or if undefined length then longest experience
+              # (code adapted from top_amount below).
+              length = item.variants.map(&:length).max ||
+                item.experiences.map { |experience|
+                  experience.spans.sum { |span|
+                    (span.amount * (span.progress || 0.0)).to_i_if_whole
+                  }
+                }.max
+
+              [author_and_title(item), length]
             }
             .reject { |_title, length| length.nil? }
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
@@ -159,10 +158,28 @@ module Reading
         },
         top_speed: proc { |items, number_arg|
           items
-            .map { |item| calculate_speed(item) }
+            .map { |item|
+              speed = calculate_speed(item)
+              [author_and_title(item), speed] if speed
+            }
             .compact
             .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, speed_hash|
               speed_hash[:amount] / speed_hash[:days].to_f
+            }
+        },
+        top_experiences: proc { |items, number_arg|
+          experience_count = items
+            .map { |item|
+              experience_count = item
+                .experiences
+                .count { |experience|
+                  experience.spans.all? { _1.progress.to_d == "1.0".to_d }
+                }
+
+              [author_and_title(item), experience_count]
+            }
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, experience_count|
+              experience_count
             }
         },
         bottom_rating: proc { |items, number_arg|
@@ -173,17 +190,16 @@ module Reading
         bottom_length: proc { |items, number_arg|
           items
             .map { |item|
-              [
-                author_and_title(item),
-                # Longest length, or if undefined length then longest experience
-                # (code adapted from bottom_amount below).
-                item.variants.map(&:length).max ||
-                  item.experiences.map { |experience|
-                    experience.spans.sum { |span|
-                      (span.amount * (span.progress || 0.0)).to_i_if_whole
-                    }
-                  }.max,
-              ]
+              # Longest length, or if undefined length then longest experience
+              # (code adapted from bottom_amount below).
+              length = item.variants.map(&:length).max ||
+                item.experiences.map { |experience|
+                  experience.spans.sum { |span|
+                    (span.amount * (span.progress || 0.0)).to_i_if_whole
+                  }
+                }.max
+
+              [author_and_title(item), length]
             }
             .reject { |_title, length| length.nil? }
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
@@ -204,7 +220,10 @@ module Reading
         },
         bottom_speed: proc { |items, number_arg|
           items
-            .map { |item| calculate_speed(item) }
+            .map { |item|
+              speed = calculate_speed(item)
+              [author_and_title(item), speed] if speed
+            }
             .compact
             .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, speed_hash|
               speed_hash[:amount] / speed_hash[:days].to_f
@@ -227,6 +246,7 @@ module Reading
         top_length: %w[tl],
         top_amount: %w[ta],
         top_speed: %w[ts],
+        top_experiences: %w[te],
         bottom_rating: %w[br],
         bottom_length: %w[bl],
         bottom_amount: %w[ba],
@@ -328,10 +348,7 @@ module Reading
 
         return nil unless speeds.any?
 
-        speed = speeds
-          .max_by { |hash| hash[:amount] / hash[:days].to_f }
-
-        [author_and_title(item), speed]
+        speeds.max_by { |hash| hash[:amount] / hash[:days].to_f }
       end
 
       # A shorter version of Item::View#name.
