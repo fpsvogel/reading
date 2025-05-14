@@ -3,6 +3,16 @@ require "pastel"
 module Reading
   module Stats
     module ResultFormatters
+      TRUNCATED_TITLES = {
+        top_length: ->(result) { with_truncated_title(result) },
+        top_amount: ->(result) { with_truncated_title(result) },
+        top_speed: ->(result) { with_truncated_title(result) },
+        top_experiences: ->(result) { with_truncated_title(result) },
+        bottom_length: ->(result) { with_truncated_title(result) },
+        botom_amount: ->(result) { with_truncated_title(result) },
+        bottom_speed: ->(result) { with_truncated_title(result) },
+      }
+
       TERMINAL = {
         average_length: ->(result) { length_to_s(result) },
         average_amount: ->(result) { length_to_s(result) },
@@ -15,12 +25,15 @@ module Reading
           end
         },
         total_amount: ->(result) { length_to_s(result) },
-        top_length: ->(result) { top_or_bottom_lengths(result) },
-        top_amount: ->(result) { top_or_bottom_lengths(result) },
-        top_speed: ->(result) { top_or_bottom_speeds(result) },
-        bottom_length: ->(result) { top_or_bottom_lengths(result) },
-        botom_amount: ->(result) { top_or_bottom_lengths(result) },
-        bottom_speed: ->(result) { top_or_bottom_speeds(result) },
+        top_rating: ->(result) { top_or_bottom_numbers_string(result, noun: "star") },
+        top_length: ->(result) { top_or_bottom_lengths_string(result) },
+        top_amount: ->(result) { top_or_bottom_lengths_string(result) },
+        top_speed: ->(result) { top_or_bottom_speeds_string(result) },
+        top_experiences: ->(result) { top_or_bottom_numbers_string(result, noun: "experience") },
+        bottom_rating: ->(result) { top_or_bottom_numbers_string(result, noun: "star") },
+        bottom_length: ->(result) { top_or_bottom_lengths_string(result) },
+        botom_amount: ->(result) { top_or_bottom_lengths_string(result) },
+        bottom_speed: ->(result) { top_or_bottom_speeds_string(result) },
       }
 
       private
@@ -51,7 +64,7 @@ module Reading
       # Formats a list of top/bottom length results as a string.
       # @param result [Array]
       # @return [String]
-      private_class_method def self.top_or_bottom_lengths(result)
+      private_class_method def self.top_or_bottom_lengths_string(result)
         offset = result.count.digits.count
 
         result
@@ -69,7 +82,7 @@ module Reading
       # Formats a list of top/bottom speed results as a string.
       # @param result [Array]
       # @return [String]
-      private_class_method def self.top_or_bottom_speeds(result)
+      private_class_method def self.top_or_bottom_speeds_string(result)
         offset = result.count.digits.count
 
         result
@@ -85,6 +98,40 @@ module Reading
             "#{title_line}\n#{indent}#{colored_speed}"
           }
           .join("\n")
+      end
+
+      # Formats a list of top/bottom number results as a string.
+      private_class_method def self.top_or_bottom_numbers_string(result, noun:)
+        offset = result.count.digits.count
+
+        result
+          .map.with_index { |(title, number), index|
+            pad = " " * (offset - (index + 1).digits.count)
+
+            title_line = "#{index + 1}. #{pad}#{title}"
+            indent = "    #{" " * offset}"
+            number_string = color("#{number} #{number == 1 ? noun : "#{noun}s"}")
+
+            "#{title_line}\n#{indent}#{number_string}"
+          }
+          .join("\n")
+      end
+
+      # Truncates the title of each result to a specified length.
+      # @param result [Array]
+      # @param length [Integer] the maximum length of the title.
+      # @return [Array]
+      private_class_method def self.with_truncated_title(result, length: 45)
+        result.map do |title, value|
+          truncated_title =
+            if title.length + 1 > length
+              "#{title[0...length]}…"
+            else
+              title
+            end
+
+          [truncated_title, value]
+        end
       end
     end
   end

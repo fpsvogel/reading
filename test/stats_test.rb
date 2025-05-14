@@ -1,7 +1,7 @@
 require_relative "test_helpers/test_helper"
 
 require "reading"
-require "reading/stats/terminal_result_formatters"
+require "reading/stats/result_formatters"
 require "pastel"
 
 class StatsTest < Minitest::Test

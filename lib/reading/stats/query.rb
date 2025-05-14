@@ -2,6 +2,7 @@ require "pastel"
 require_relative "operation"
 require_relative "filter"
 require_relative "grouping"
+require_relative "result_formatters"
 
 module Reading
   module Stats
@@ -13,9 +14,8 @@ module Reading
       # @param items [Array<Item>] the Items to be queried.
       # @param result_formatters [Boolean, Hash{Symbol => Proc}] to alter the
       #   appearance of results; keys should be from among the keys of
-      #   Operation::ACTIONS. Pre-made formatters for terminal output are in
-      #   terminal_result_formatters.rb.
-      def initialize(input:, items:, result_formatters: {})
+      #   Operation::ACTIONS. Pre-made formatters are in result_formatters.rb.
+      def initialize(input:, items:, result_formatters: Reading::Stats::ResultFormatters::TRUNCATED_TITLES)
         @input = input
         @items = items
         @result_formatters = result_formatters
