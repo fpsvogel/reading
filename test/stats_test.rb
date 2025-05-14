@@ -1905,6 +1905,15 @@ class StatsTest < Minitest::Test
       ],
       config: { pages_per_hour: 100 },
     },
+    :"top ratings" => {
+      input: "top 2 rating",
+      result: "1. The Best\n     #{PASTEL.bright_blue("5 stars")}\n" \
+        "2. Second Fiddle\n     #{PASTEL.bright_blue("4 stars")}",
+      items: [
+        { title: "Second Fiddle", rating: 4 },
+        { title: "The Best", rating: 5 },
+      ],
+    },
     :"top lengths" => {
       input: "top 2 length",
       result: "1. Encyclopedic\n     #{PASTEL.bright_blue("1000 pages")}\n" \
@@ -1926,6 +1935,24 @@ class StatsTest < Minitest::Test
         { title: "Jog", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,5), amount: Reading.time("6:00") },
         ] }] },
+      ],
+    },
+    :"top experiences" => {
+      input: "top 2 experience",
+      result: "1. Desert Island Book\n     #{PASTEL.bright_blue("3 experiences")}\n" \
+        "2. Rereadable\n     #{PASTEL.bright_blue("2 experiences")}",
+      items: [
+        { title: "Rereadable", experiences: [{ spans: [] }, { spans: [] }] },
+        { title: "Desert Island Book", experiences: [{ spans: [] }, { spans: [] }, { spans: [] }] },
+      ],
+    },
+    :"bottom ratings" => {
+      input: "bottom 2 rating",
+      result: "1. The Worst\n     #{PASTEL.bright_blue("1 star")}\n" \
+        "2. Barely Acceptable\n     #{PASTEL.bright_blue("2 stars")}",
+      items: [
+        { title: "Barely Acceptable", rating: 2 },
+        { title: "The Worst", rating: 1 },
       ],
     },
     :"bottom lengths" => {

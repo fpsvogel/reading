@@ -167,7 +167,7 @@ module Reading
               speed_hash[:amount] / speed_hash[:days].to_f
             }
         },
-        top_experiences: proc { |items, number_arg|
+        top_experience: proc { |items, number_arg|
           experience_count = items
             .map { |item|
               experience_count = item
@@ -246,7 +246,7 @@ module Reading
         top_length: %w[tl],
         top_amount: %w[ta],
         top_speed: %w[ts],
-        top_experiences: %w[te],
+        top_experience: %w[te],
         bottom_rating: %w[br],
         bottom_length: %w[bl],
         bottom_amount: %w[ba],
