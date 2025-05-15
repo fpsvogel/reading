@@ -185,6 +185,8 @@ The last word may be pluralized.
 - `top/bottom [N] lengths`
 - `top/bottom [N] amounts`
 - `top/bottom [N] speeds`
+- `top [N] experiences` (items' re-read count)
+- `top [N] notes` (notes' word count)
 - `debug` to view the results in a Ruby debugger
 
 <!-- omit in toc -->
@@ -225,7 +227,7 @@ These may be pluralized, and may be followed by any of the operators listed for 
 
 After Reading parses your CSV reading log, it's up to you to display that parsed information on a web page. I've set up my personal site so that it parses my reading log during site generation, and it's even automatically generated every week. That means my site's "Reading" page automatically syncs to my reading log on a weekly basis.
 
-I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-bridgetown), which may give you ideas even if you don't use [Bridgetown](https://www.bridgetownrb.com/) to build your site… but you should use Bridgetown, it's great 😉
+I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-ruby-bridgetown), which may give you ideas even if you don't use [Bridgetown](https://www.bridgetownrb.com/) to build your site… but you should use Bridgetown, it's great 😉
 
 ## Contributing
 
