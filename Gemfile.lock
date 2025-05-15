@@ -3,6 +3,7 @@ PATH
   specs:
     reading (0.9.1)
       amazing_print (~> 1.4)
+      bigdecimal (~> 3.0)
       pastel (~> 0.8)
 
 GEM
@@ -17,6 +18,7 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
+    bigdecimal (3.1.9)
     builder (3.3.0)
     childprocess (5.0.0)
     coercible (1.0.0)

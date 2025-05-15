@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "pastel", "~> 0.8"
   spec.add_runtime_dependency "amazing_print", "~> 1.4"
+  spec.add_runtime_dependency "bigdecimal", "~> 3.0"
 
   spec.add_development_dependency "debug", "~> 1.7"
   spec.add_development_dependency "minitest", "~> 5.18"

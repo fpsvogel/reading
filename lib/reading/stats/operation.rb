@@ -1,3 +1,5 @@
+require "bigdecimal/util"
+
 module Reading
   module Stats
     # The beginning of a query which specifies what it does, e.g.
@@ -122,8 +124,10 @@ module Reading
         },
         top_rating: proc { |items, number_arg|
           items
-            .max_by(number_arg || DEFAULT_NUMBER_ARG) { _1.rating || 0}
             .map { |item| [author_and_title(item), item.rating] }
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, rating|
+              rating || 0
+            }
         },
         top_length: proc { |items, number_arg|
           items
@@ -140,7 +144,9 @@ module Reading
               [author_and_title(item), length]
             }
             .reject { |_title, length| length.nil? }
-            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length|
+              length
+            }
         },
         top_amount: proc { |items, number_arg|
           items
@@ -154,7 +160,9 @@ module Reading
               [author_and_title(item), amount]
             }
             .reject { |_title, amount| amount.zero? }
-            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount| amount }
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount|
+              amount
+            }
         },
         top_speed: proc { |items, number_arg|
           items
@@ -168,7 +176,7 @@ module Reading
             }
         },
         top_experience: proc { |items, number_arg|
-          experience_count = items
+          items
             .map { |item|
               experience_count = item
                 .experiences
@@ -176,16 +184,36 @@ module Reading
                   experience.spans.all? { _1.progress.to_d == "1.0".to_d }
                 }
 
-              [author_and_title(item), experience_count]
+              [author_and_title(item), [experience_count, item.rating || 0]]
             }
-            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, experience_count|
-              experience_count
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, experience_count_and_rating|
+              experience_count_and_rating
+            }
+            .map { |title, (experience_count, _rating)|
+              [title, experience_count]
+            }
+        },
+        top_note: proc { |items, number_arg|
+          items
+            .map { |item|
+              notes_word_count = item
+                .notes
+                .sum { |note|
+                  note.content.scan(/[\w[:punct:]]+/).count
+                }
+
+              [author_and_title(item), notes_word_count]
+            }
+            .max_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, notes_word_count|
+              notes_word_count
             }
         },
         bottom_rating: proc { |items, number_arg|
           items
-            .min_by(number_arg || DEFAULT_NUMBER_ARG) { _1.rating || 0}
             .map { |item| [author_and_title(item), item.rating] }
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, rating|
+              rating || 0
+            }
         },
         bottom_length: proc { |items, number_arg|
           items
@@ -202,7 +230,9 @@ module Reading
               [author_and_title(item), length]
             }
             .reject { |_title, length| length.nil? }
-            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length| length }
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, length|
+              length
+            }
         },
         bottom_amount: proc { |items, number_arg|
           items
@@ -216,7 +246,9 @@ module Reading
               [author_and_title(item), amount]
             }
             .reject { |_title, amount| amount.zero? }
-            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount| amount }
+            .min_by(number_arg || DEFAULT_NUMBER_ARG) { |_title, amount|
+              amount
+            }
         },
         bottom_speed: proc { |items, number_arg|
           items
@@ -247,6 +279,7 @@ module Reading
         top_amount: %w[ta],
         top_speed: %w[ts],
         top_experience: %w[te],
+        top_note: %w[tn],
         bottom_rating: %w[br],
         bottom_length: %w[bl],
         bottom_amount: %w[ba],

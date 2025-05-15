@@ -193,6 +193,53 @@ class StatsTest < Minitest::Test
         ] }] },
       ],
     },
+    :"top experiences" => {
+      input: "top 3 experience",
+      result: [["Reread", 2], ["Read Once and Loved", 1], ["Incomplete Reread and Liked", 1]],
+      items: [
+        { title: "Read Once and Loved", rating: 5, experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200, progress: 1.0 },
+          { dates: Date.new(2023,5,5)..Date.new(2023,5,15), amount: 200, progress: 1.0 },
+        ] }] },
+        { title: "Read Once and Meh", rating: 3, experiences: [{ spans: [
+          { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200, progress: 1.0 },
+          { dates: Date.new(2023,5,5)..Date.new(2023,5,15), amount: 200, progress: 1.0 },
+        ] }] },
+        { title: "Reread", experiences: [
+          { spans: [
+            { dates: Date.new(2023,5,1)..Date.new(2023,5,10), amount: 200, progress: 1.0 },
+          ] },
+          { spans: [
+            { dates: Date.new(2023,8,1)..Date.new(2023,8,7), amount: 200, progress: 1.0 },
+          ] }] },
+        { title: "Incomplete Reread and Liked", rating: 4, experiences: [
+          { spans: [
+            { dates: Date.new(2023,5,1)..Date.new(2023,5,10), amount: 200, progress: 1.0 },
+          ] },
+          { spans: [
+            { dates: Date.new(2023,8,1)..Date.new(2023,8,7), amount: 200, progress: 0.5 },
+          ] }] },
+      ],
+    },
+    :"top notes" => {
+      input: "top 2 note",
+      result: [["One Long Note", 20], ["Two Medium Notes", 12]],
+      items: [
+        { title: "No Notes", notes: [] },
+        { title: "Two Medium Notes", notes: [
+          {blurb?: false, private?: false, content: "I love this book! It is my favorite" },
+          {blurb?: false, private?: true, content: "No really, it is" },
+        ] },
+        { title: "Three Tiny Notes", notes: [
+          {blurb?: false, private?: false, content: "Good book" },
+          {blurb?: false, private?: false, content: "Very good" },
+          {blurb?: false, private?: false, content: "Yup" },
+        ] },
+        { title: "One Long Note", notes: [
+          {blurb?: false, private?: false, content: "I can't think of anything to say about this book—other than that it changed the trajectory of my now-transformed life." },
+        ] },
+      ],
+    },
     :"bottom ratings" => {
       input: "bottom 2 rating",
       result: [["Trash", 2], ["Mehhh", 3]],
@@ -1946,6 +1993,15 @@ class StatsTest < Minitest::Test
         { title: "Desert Island Book", experiences: [{ spans: [] }, { spans: [] }, { spans: [] }] },
       ],
     },
+    :"top notes" => {
+      input: "top 2 note",
+      result: "1. Heavily Annotated\n     #{PASTEL.bright_blue("3 words")}\n" \
+        "2. Somewhat Notable\n     #{PASTEL.bright_blue("1 word")}",
+      items: [
+        { title: "Somewhat Notable", notes: [{ content: "good" }] },
+        { title: "Heavily Annotated", notes: [{ content: "much good wow"}] },
+      ],
+    },
     :"bottom ratings" => {
       input: "bottom 2 rating",
       result: "1. The Worst\n     #{PASTEL.bright_blue("1 star")}\n" \
@@ -2088,7 +2144,7 @@ class StatsTest < Minitest::Test
       assert_equal exp, act
 
       # b. With spaces
-      spaced = input
+      input
         .gsub(/(!=|=|!~|~|>=|>|<=|<)/, ' \1 ')
         .gsub(",", ", ")
         .gsub("+", " + ")
