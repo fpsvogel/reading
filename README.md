@@ -11,7 +11,7 @@ Reading is a Ruby gem that parses a CSV reading log. My personal site's [Reading
   - [Try out a CSV string](#try-out-a-csv-string)
   - [Parse in Ruby](#parse-in-ruby)
   - [Parse with custom config](#parse-with-custom-config)
-  - [Filtering the output](#filtering-the-output)
+  - [Filter the output](#filter-the-output)
   - [Get statistics on your reading](#get-statistics-on-your-reading)
 - [How to add a reading page to your site](#how-to-add-a-reading-page-to-your-site)
 - [Contributing](#contributing)
@@ -19,13 +19,13 @@ Reading is a Ruby gem that parses a CSV reading log. My personal site's [Reading
 
 ## Why?
 
-Because I love reading, and keeping a plain-text reading log helps me remember, reflect on, and plan my reading (and listening, and watching).
+Because I love reading, and keeping a plain-text reading log helps me remember, reflect on, and plan my reading.
 
 My CSV reading log serves the same role as Goodreads used to, but it lets me do a few things that Goodreads doesn't:
 
 - Own my data.
-- Add items of any format: podcasts, documentaries, etc.
-- Edit and search in a plain text file, which I prefer over navigating a site or app. I can even pull up my reading log on my phone via a Dropbox-syncing text editor app—[Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox) is the one I use.
+- Add items of any format: books, podcasts, documentaries, etc.
+- Edit and search in a plain text file, which I prefer over navigating a site or app. I keep my reading log in Dropbox so that it's accessible from any device.
 
 This gem solves the biggest problem I had with a plain-text reading log: **how to share my favorite reads with friends?** The gem's parser transforms my `reading.csv` into data that I can selectively display on [my Reading List page](https://fpsvogel.com/reading/).
 
@@ -120,7 +120,7 @@ file_path = "/home/user/reading.csv"
 items = Reading.parse(path: file_path, config: custom_config)
 ```
 
-### Filtering the output
+### Filter the output
 
 Once you've parsed your reading log, you can easily filter the output like this:
 
@@ -128,7 +128,7 @@ Once you've parsed your reading log, you can easily filter the output like this:
 # ...
 # (Already parsed a reading log into `items` as above.)
 filtered_items = Reading.filter(
-  items: items,
+  items:,
   minimum_rating: 4,
   status: [:done, :in_progress],
   excluded_genres: ["cats", "memoir"],
@@ -165,7 +165,7 @@ You can also get statistics via Ruby code rather than on the command line:
 # (Already parsed a reading log into `items` as above.)
 results = Reading.stats(
   input: "total amount by month"
-  items: items,
+  items:,
 )
 ```
 
@@ -225,9 +225,9 @@ These may be pluralized, and may be followed by any of the operators listed for 
 
 ## How to add a reading page to your site
 
-After Reading parses your CSV reading log, it's up to you to display that parsed information on a web page. I've set up my personal site so that it parses my reading log during site generation, and it's even automatically generated every week. That means my site's "Reading" page automatically syncs to my reading log on a weekly basis.
+After Reading parses your CSV reading log, it's up to you to display that parsed information on a web page.
 
-I explain how I did this in my tutorial ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-ruby-bridgetown), which may give you ideas even if you don't use [Bridgetown](https://www.bridgetownrb.com/) to build your site… but you should use Bridgetown, it's great 😉
+I've set up my personal site so that it parses my reading log during site generation, which is triggered every week. That means my site's "Reading" page automatically syncs to my reading log on a weekly basis. For details, see my blog post ["Build a blog with Bridgetown"](https://fpsvogel.com/posts/2021/build-a-blog-with-ruby-bridgetown).
 
 ## Contributing
 
