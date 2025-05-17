@@ -72,7 +72,7 @@ if ARGV[1]
   Reading::Config.build(enabled_columns:)
 end
 
-input_is_csv_path = input.end_with?(".csv")
+input_is_csv_path = input.end_with?(".csv") || input.end_with?(".txt")
 
 if input_is_csv_path
   error_handler = ->(e) { puts "Skipped a row due to a parsing error: #{e}" }
