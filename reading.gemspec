@@ -12,15 +12,16 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = "~> #{File.read(".ruby-version").strip}"
 
   spec.add_runtime_dependency "pastel", "~> 0.8"
-  spec.add_runtime_dependency "amazing_print", "~> 1.4"
+  spec.add_runtime_dependency "amazing_print", "~> 1.0"
   spec.add_runtime_dependency "bigdecimal", "~> 3.0"
 
-  spec.add_development_dependency "debug", "~> 1.7"
-  spec.add_development_dependency "minitest", "~> 5.18"
-  spec.add_development_dependency "minitest-reporters", "~> 1.6"
+  spec.add_development_dependency "debug", "~> 1.0"
+  spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_development_dependency "minitest-reporters", "~> 1.0"
   spec.add_development_dependency "shoulda-context", "~> 2.0"
   spec.add_development_dependency "pretty-diffs", "~> 1.0"
-  spec.add_development_dependency "rubycritic", "~> 4.7"
+  spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency "rubycritic", "~> 4.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
