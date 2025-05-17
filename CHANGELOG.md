@@ -1,12 +1,13 @@
-## [0.9.2] - WIP
+## [1.0.0] - 2025-05-17
 
+- Added stats operations: `top experiences` (reread count) and `top notes` (notes word count).
 - Renamed the `done` filter to `progress`, and it now includes items with statuses other than `:done`.
+- Added minimum Ruby version requirement (>= 3.2).
 
 ## [0.9.1] - 2024-07-29
 
-- Bug fixes, mostly in the History column.
-- Change the `by genre` grouping to operate based on combinations of genres, e.g. `history, science`. The original grouping of single genres is preserved in the new grouping `by eachgenre`.
-- Update to Ruby 3.3.
+- Bug fixes in the History column.
+- Improved the `by genre` grouping to operate based on combinations of genres, e.g. `history, science`. The original grouping of single genres is preserved in the new grouping `by eachgenre`.
 
 ## [0.9.0] - 2023-07-15
 
