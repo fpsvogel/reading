@@ -1,3 +1,7 @@
+## [1.0.1] - 2025-05-23
+
+- Added a default config to transform "¦" (broken pipe) to "|" (pipe) in all columns. Since the default column separator is the pipe, it can't be used in e.g. notes that include a code snippet. So the broken pipe can be used instead, and it will be parsed as a pipe.
+
 ## [1.0.0] - 2025-05-17
 
 - Added stats operations: `top experiences` (reread count) and `top notes` (notes word count).

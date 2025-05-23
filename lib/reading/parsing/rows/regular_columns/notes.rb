@@ -10,20 +10,9 @@ module Reading
           end
 
           def self.regexes(segment_index)
-            [
-              # blurb note
-              %r{\A
-                💬\s*(?<note_blurb>.+)
-              \z}x,
-              # private note
-              %r{\A
-                🔒\s*(?<note_private>.+)
-              \z}x,
-              # regular note
-              %r{\A
-                (?<note_regular>.+)
-              \z}x,
-            ]
+            [%r{\A
+              (?:(?<blurb>💬)|(?<private>🔒))?(?<content>.+)
+            \z}x]
           end
         end
       end

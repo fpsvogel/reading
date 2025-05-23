@@ -252,6 +252,7 @@ module Reading
       def parse_segment_with_regex(segment, regex)
         segment
           .tr(Config.hash.fetch(:ignored_characters), "")
+          .tr(*Config.hash.fetch(:transformed_characters))
           .strip
           .match(regex)
           &.named_captures

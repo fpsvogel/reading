@@ -65,6 +65,7 @@ module Reading
         comment_character:        "\\",
         column_separator:         "|",
         ignored_characters:       "✅❌💲❓⏳",
+        transformed_characters:   ["¦", "|"],
         skip_compact_planned:     false,
         pages_per_hour:           35,
         length_group_boundaries:  [200, 400, 600, 1000, 2000],

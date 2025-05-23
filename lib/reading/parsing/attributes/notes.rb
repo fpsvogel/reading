@@ -10,9 +10,9 @@ module Reading
         def transform_from_parsed(parsed_row, _head_index)
           parsed_row[:notes]&.map { |note|
             {
-              blurb?: note.has_key?(:note_blurb),
-              private?: note.has_key?(:note_private),
-              content: note[:note_regular] || note[:note_blurb] || note[:note_private],
+              blurb?: note.has_key?(:blurb),
+              private?: note.has_key?(:private),
+              content: note[:content],
             }
           }
         end
