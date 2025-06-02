@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby ">= 3.2"
+ruby File.read(".ruby-version").strip
 
 # Specify your gem's dependencies in reading.gemspec
 gemspec
