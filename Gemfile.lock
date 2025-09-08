@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    reading (1.0.1)
+    reading (1.0.2)
       amazing_print (~> 1.0)
       bigdecimal (~> 3.0)
       pastel (~> 0.8)
@@ -165,7 +165,7 @@ DEPENDENCIES
   shoulda-context (~> 2.0)
 
 RUBY VERSION
-   ruby 3.4.4p34
+   ruby 3.4.5p51
 
 BUNDLED WITH
    2.6.7
