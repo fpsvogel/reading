@@ -187,7 +187,7 @@ module Reading
             end
 
             groups.transform_keys! { |month_range|
-              [month_range.begin.year, month_range.begin.month]
+              "#{month_range.begin.year}/#{month_range.begin.month.to_s.rjust(2, "0")}"
             }
 
             groups
