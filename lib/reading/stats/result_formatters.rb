@@ -67,17 +67,8 @@ module Reading
       # @param result [Array]
       # @return [String]
       private_class_method def self.top_or_bottom_lengths_string(result)
-        offset = result.count.digits.count
-
         result
-          .map.with_index { |(title, length), index|
-            pad = " " * (offset - (index + 1).digits.count)
-
-            title_line = "#{index + 1}. #{pad}#{title}"
-            indent = "    #{" " * offset}"
-
-            "#{title_line}\n#{indent}#{length_to_s(length)}"
-          }
+          .map { |title, length| "#{title}\n  #{length_to_s(length)}" }
           .join("\n")
       end
 
@@ -85,36 +76,24 @@ module Reading
       # @param result [Array]
       # @return [String]
       private_class_method def self.top_or_bottom_speeds_string(result)
-        offset = result.count.digits.count
-
         result
-          .map.with_index { |(title, hash), index|
+          .map { |title, hash|
             amount = length_to_s(hash[:amount], color: false)
             days = "#{hash[:days]} #{hash[:days] == 1 ? "day" : "days"}"
-            pad = " " * (offset - (index + 1).digits.count)
-
-            title_line = "#{index + 1}. #{pad}#{title}"
-            indent = "    #{" " * offset}"
             colored_speed = color("#{amount} in #{days}")
 
-            "#{title_line}\n#{indent}#{colored_speed}"
+            "#{title}\n  #{colored_speed}"
           }
           .join("\n")
       end
 
       # Formats a list of top/bottom number results as a string.
       private_class_method def self.top_or_bottom_numbers_string(result, noun:)
-        offset = result.count.digits.count
-
         result
-          .map.with_index { |(title, number), index|
-            pad = " " * (offset - (index + 1).digits.count)
-
-            title_line = "#{index + 1}. #{pad}#{title}"
-            indent = "    #{" " * offset}"
+          .map { |title, number|
             number_string = color("#{number} #{number == 1 ? noun : "#{noun}s"}")
 
-            "#{title_line}\n#{indent}#{number_string}"
+            "#{title}\n  #{number_string}"
           }
           .join("\n")
       end

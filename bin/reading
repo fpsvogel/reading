@@ -51,9 +51,7 @@ def print_grouped_results(grouped_results, group_heading_formatters)
       print_grouped_results(grouped, group_heading_formatters[1..])
     end
   elsif grouped_results.is_a?(Array)
-    numbered_results = grouped_results.map.with_index { |v, i| "#{i + 1}. #{v}" }
-
-    puts "  " * indent_level + numbered_results.join("\n" + "  " * indent_level) + "\n"
+    puts "  " * indent_level + grouped_results.join("\n" + "  " * indent_level) + "\n"
   else
     puts "  " * indent_level + grouped_results.to_s + "\n"
   end
