@@ -372,7 +372,7 @@ module Reading
             match = value.match(DATES_REGEX) ||
               (raise InputError,
                 "End date must be in yyyy/[mm] format, or a date range " \
-                "(yyyy/[mm]-[yyyy]/[mm])")
+                "(yyyy/[mm]-yyyy/[mm])")
 
             start_date = Date.new(
               match[:start_year].to_i,

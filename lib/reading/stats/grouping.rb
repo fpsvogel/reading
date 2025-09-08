@@ -10,8 +10,6 @@ module Reading
       # @param items [Array<Item>] the Items on which to run the operation.
       # @return [Hash] the return value of the group action(s).
       def self.group(input, items)
-        grouped_items = {}
-
         match = input.match(REGEX)
 
         if match
@@ -80,7 +78,7 @@ module Reading
             end
           end
 
-          groups.sort_by { |_format, items| items.count }.reverse.to_h
+          groups.sort_by { |key, _items| key }.to_h
         },
         source: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
@@ -103,7 +101,7 @@ module Reading
               end
           end
 
-          groups.sort_by { |_format, items| items.count }.reverse.to_h
+          groups.sort_by { |key, _items| key }.to_h
         },
         year: proc { |items|
           begin_date = items
@@ -200,7 +198,7 @@ module Reading
             item.genres.each { |genre| groups[genre] << item }
           end
 
-          groups.sort_by { |_format, items| items.count }.reverse.to_h
+          groups.sort_by { |key, _items| key }.to_h
         },
         genre: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
@@ -212,7 +210,7 @@ module Reading
             end
           end
 
-          groups.sort_by { |_format, items| items.count }.reverse.to_h
+          groups.sort_by { |key, _items| key }.to_h
         },
         length: proc { |items|
           boundaries = Config.hash.fetch(:length_group_boundaries)
