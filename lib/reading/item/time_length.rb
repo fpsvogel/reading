@@ -74,7 +74,9 @@ module Reading
       # Converts @value to an Integer if it's a whole number, and returns self.
       # @return [TimeLength]
       def to_i_if_whole!
-        if @value.to_i == @value
+        if @value.is_a?(Float) && @value.nan?
+          @value = 0
+        elsif @value.to_i == @value
           @value = @value.to_i
         end
 
@@ -85,9 +87,13 @@ module Reading
       # refinement Numeric#to_i_if_whole.
       # @return [TimeLength]
       def to_i_if_whole
-        return self if @value.is_a?(Integer) || @value.to_i != @value
+        if @value.is_a?(Float) && @value.nan?
+          return self.class.new(0)
+        else
+          return self if @value.is_a?(Integer) || @value.to_i != @value
 
-        self.class.new(@value.to_i)
+          self.class.new(@value.to_i)
+        end
       end
 
       # @param other [TimeLength, Numeric]

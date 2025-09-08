@@ -4,7 +4,11 @@ module Reading
     module NumericToIIfWhole
       refine Numeric do
         def to_i_if_whole
-          to_i == self ? to_i : self
+          if is_a?(Float) && nan?
+            0
+          else
+            to_i == self ? to_i : self
+          end
         end
       end
     end
