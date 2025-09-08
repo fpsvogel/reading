@@ -80,7 +80,7 @@ module Reading
             end
           end
 
-          groups.sort.to_h
+          groups.sort_by { |_format, items| items.count }.reverse.to_h
         },
         source: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
@@ -103,7 +103,7 @@ module Reading
               end
           end
 
-          groups.sort.to_h
+          groups.sort_by { |_format, items| items.count }.reverse.to_h
         },
         year: proc { |items|
           begin_date = items
@@ -200,7 +200,7 @@ module Reading
             item.genres.each { |genre| groups[genre] << item }
           end
 
-          groups.sort.to_h
+          groups.sort_by { |_format, items| items.count }.reverse.to_h
         },
         genre: proc { |items|
           groups = Hash.new { |h, k| h[k] = [] }
@@ -212,7 +212,7 @@ module Reading
             end
           end
 
-          groups.sort.to_h
+          groups.sort_by { |_format, items| items.count }.reverse.to_h
         },
         length: proc { |items|
           boundaries = Config.hash.fetch(:length_group_boundaries)
