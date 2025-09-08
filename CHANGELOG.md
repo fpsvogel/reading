@@ -1,3 +1,7 @@
+## [1.1.0] - WIP
+
+-
+
 ## [1.0.2] - 2025-06-02
 
 - Fixed the minimum Ruby version requirement (>= 3.2). Ruby 3.4.4 was unintentionally being required.

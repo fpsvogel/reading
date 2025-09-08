@@ -1,14 +1,14 @@
 require_relative "lib/reading/version"
 
 Gem::Specification.new do |spec|
-  spec.name          = "reading"
-  spec.version       = Reading::VERSION
-  spec.authors       = ["Felipe Vogel"]
-  spec.email         = ["fps.vogel@gmail.com"]
+  spec.name = "reading"
+  spec.version = Reading::VERSION
+  spec.authors = ["Felipe Vogel"]
+  spec.email = ["fps.vogel@gmail.com"]
 
-  spec.summary       = "Parses a CSV reading log."
-  spec.homepage      = "https://github.com/fpsvogel/reading"
-  spec.license       = "MIT"
+  spec.summary = "Parses a CSV reading log."
+  spec.homepage = "https://github.com/fpsvogel/reading"
+  spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"
 
   spec.add_runtime_dependency "pastel", "~> 0.8"
