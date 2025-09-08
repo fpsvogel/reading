@@ -15,17 +15,17 @@ module Reading
       }
 
       TERMINAL = {
-        average_length: ->(result) { length_to_s(result) },
-        average_amount: ->(result) { length_to_s(result) },
-        :"average_daily-amount" => ->(result) { "#{length_to_s(result)} per day" },
+        average_length: ->(result) { color length_to_s(result) },
+        average_amount: ->(result) { color length_to_s(result) },
+        :"average_daily-amount" => ->(result) { color "#{length_to_s(result)} per day" },
         total_item: ->(result) {
           if result.zero?
             PASTEL.bright_black("none")
           else
-            color("#{result} #{result == 1 ? "item" : "items"}")
+            color "#{result} #{result == 1 ? "item" : "items"}"
           end
         },
-        total_amount: ->(result) { length_to_s(result) },
+        total_amount: ->(result) { color length_to_s(result) },
         top_rating: ->(result) { top_or_bottom_numbers_string(result, noun: "star") },
         top_length: ->(result) { top_or_bottom_lengths_string(result) },
         top_amount: ->(result) { top_or_bottom_lengths_string(result) },
@@ -53,14 +53,14 @@ module Reading
       # @param length [Numeric, Reading::Item::TimeLength]
       # @param color [Boolean] whether a terminal color should be applied.
       # @return [String]
-      private_class_method def self.length_to_s(length, color: true)
-        if length.is_a?(Numeric)
-          length_string = "#{length.round} pages"
+      private_class_method def self.length_to_s(length)
+        if length.nil? || length.zero?
+          "nothing"
+        elsif length.is_a?(Numeric)
+          "#{length.round} pages"
         else
-          length_string = length.to_s
+          length.to_s
         end
-
-        color ? color(length_string) : length_string
       end
 
       # Formats a list of top/bottom length results as a string.
@@ -68,7 +68,7 @@ module Reading
       # @return [String]
       private_class_method def self.top_or_bottom_lengths_string(result)
         result
-          .map { |title, length| "#{title}\n  #{length_to_s(length)}" }
+          .map { |title, length| "#{title}\n  #{color length_to_s(length)}" }
           .join("\n")
       end
 
@@ -78,9 +78,9 @@ module Reading
       private_class_method def self.top_or_bottom_speeds_string(result)
         result
           .map { |title, hash|
-            amount = length_to_s(hash[:amount], color: false)
+            amount = length_to_s(hash[:amount])
             days = "#{hash[:days]} #{hash[:days] == 1 ? "day" : "days"}"
-            colored_speed = color("#{amount} in #{days}")
+            colored_speed = color "#{amount} in #{days}"
 
             "#{title}\n  #{colored_speed}"
           }
@@ -91,7 +91,7 @@ module Reading
       private_class_method def self.top_or_bottom_numbers_string(result, noun:)
         result
           .map { |title, number|
-            number_string = color("#{number} #{number == 1 ? noun : "#{noun}s"}")
+            number_string = color "#{number} #{number == 1 ? noun : "#{noun}s"}"
 
             "#{title}\n  #{number_string}"
           }
