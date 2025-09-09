@@ -1951,8 +1951,8 @@ class StatsTest < Minitest::Test
     },
     :"top ratings" => {
       input: "top 2 rating",
-      result: "1. The Best\n     #{"5 stars"}\n" \
-        "2. Second Fiddle\n     #{"4 stars"}",
+      result: "The Best\n  #{"5 stars"}\n" \
+        "Second Fiddle\n  #{"4 stars"}",
       items: [
         { title: "Second Fiddle", rating: 4 },
         { title: "The Best", rating: 5 },
@@ -1960,8 +1960,8 @@ class StatsTest < Minitest::Test
     },
     :"top lengths" => {
       input: "top 2 length",
-      result: "1. Encyclopedic\n     #{"1000 pages"}\n" \
-        "2. Short\n     #{"100 pages"}",
+      result: "Encyclopedic\n  #{"1000 pages"}\n" \
+        "Short\n  #{"100 pages"}",
       items: [
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
@@ -1970,8 +1970,8 @@ class StatsTest < Minitest::Test
     :"top speeds" => {
       input: "top 2 speed",
       # assuming 35 pages per hour (the config default)
-      result: "1. Sprint\n     #{"200 pages in 1 day"}\n" \
-        "2. Jog\n     #{"6:00 or 210 pages in 5 days"}",
+      result: "Sprint\n  #{"200 pages in 1 day"}\n" \
+        "Jog\n  #{"6:00 or 210 pages in 5 days"}",
       items: [
         { title: "Sprint", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
@@ -1983,8 +1983,8 @@ class StatsTest < Minitest::Test
     },
     :"top experiences" => {
       input: "top 2 experience",
-      result: "1. Desert Island Book\n     #{"3 experiences"}\n" \
-        "2. Rereadable\n     #{"2 experiences"}",
+      result: "Desert Island Book\n  #{"3 experiences"}\n" \
+        "Rereadable\n  #{"2 experiences"}",
       items: [
         { title: "Rereadable", experiences: [{ spans: [] }, { spans: [] }] },
         { title: "Desert Island Book", experiences: [{ spans: [] }, { spans: [] }, { spans: [] }] },
@@ -1992,8 +1992,8 @@ class StatsTest < Minitest::Test
     },
     :"top notes" => {
       input: "top 2 note",
-      result: "1. Heavily Annotated\n     #{"3 words"}\n" \
-        "2. Somewhat Notable\n     #{"1 word"}",
+      result: "Heavily Annotated\n  #{"3 words"}\n" \
+        "Somewhat Notable\n  #{"1 word"}",
       items: [
         { title: "Somewhat Notable", notes: [{ content: "good" }] },
         { title: "Heavily Annotated", notes: [{ content: "much good wow"}] },
@@ -2001,8 +2001,8 @@ class StatsTest < Minitest::Test
     },
     :"bottom ratings" => {
       input: "bottom 2 rating",
-      result: "1. The Worst\n     #{"1 star"}\n" \
-        "2. Barely Acceptable\n     #{"2 stars"}",
+      result: "The Worst\n  #{"1 star"}\n" \
+        "Barely Acceptable\n  #{"2 stars"}",
       items: [
         { title: "Barely Acceptable", rating: 2 },
         { title: "The Worst", rating: 1 },
@@ -2011,8 +2011,8 @@ class StatsTest < Minitest::Test
     :"bottom lengths" => {
       input: "bottom 2 length",
       # assuming 35 pages per hour (the config default)
-      result: "1. Short\n     #{"100 pages"}\n" \
-        "2. Longish\n     #{"10:00 or 350 pages"}",
+      result: "Short\n  #{"100 pages"}\n" \
+        "Longish\n  #{"10:00 or 350 pages"}",
       items: [
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
@@ -2020,8 +2020,8 @@ class StatsTest < Minitest::Test
     },
     :"bottom speeds" => {
       input: "bottom 2 speed",
-      result: "1. Walk\n     #{"400 pages in 14 days"}\n" \
-        "2. DNF\n     #{"30 pages in 1 day"}",
+      result: "Walk\n  #{"400 pages in 14 days"}\n" \
+        "DNF\n  #{"30 pages in 1 day"}",
       items: [
         { title: "Walk", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
