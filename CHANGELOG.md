@@ -1,6 +1,7 @@
-## [1.1.0] - WIP
+## [1.1.0] - 2025-09-09
 
--
+- Changed from an interactive CLI to executing a single query passed in as a command-line argument. This removes the friction between the terminal and app environment, e.g. previous queries can be repeated simply by repeating the last command in the terminal.
+- Bug fixes in CLI output.
 
 ## [1.0.2] - 2025-06-02
 
