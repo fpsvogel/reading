@@ -2,14 +2,11 @@ require_relative "test_helpers/test_helper"
 
 require "reading"
 require "reading/stats/result_formatters"
-require "pastel"
 
 class StatsTest < Minitest::Test
   using Reading::Util::HashArrayDeepFetch
 
   self.class.attr_reader :queries
-
-  PASTEL = Pastel.new
 
   # ==== QUERIES FOR TESTS
 
@@ -1892,7 +1889,7 @@ class StatsTest < Minitest::Test
   @queries[:terminal_result_formatters] = {
     :"average length (pages)" => {
       input: "average length",
-      result: PASTEL.bright_blue("200 pages"),
+      result: "200 pages",
       items: [
         { variants: [{ length: 200 }], experiences: [{ variant_index: 0 }] },
       ],
@@ -1900,14 +1897,14 @@ class StatsTest < Minitest::Test
     :"average length (time)" => {
       input: "average length",
       # assuming 35 pages per hour (the config default)
-      result: PASTEL.bright_blue("5:00 or 175 pages"),
+      result: "5:00 or 175 pages",
       items: [
         { variants: [{ length: Reading.time("5:00") }], experiences: [{ variant_index: 0 }] },
       ],
     },
     :"average length (time, with custom pages per hour)" => {
       input: "average length",
-      result: PASTEL.bright_blue("5:00 or 500 pages"),
+      result: "5:00 or 500 pages",
       items: [
         { variants: [{ length: Reading.time("5:00") }],
                         experiences: [{ variant_index: 0 }] },
@@ -1916,14 +1913,14 @@ class StatsTest < Minitest::Test
     },
     :"total items (singular)" => {
       input: "total item",
-      result: PASTEL.bright_blue("1 item"),
+      result: "1 item",
       items: [
         {},
       ],
     },
     :"total items (plural)" => {
       input: "total item",
-      result: PASTEL.bright_blue("2 items"),
+      result: "2 items",
       items: [
         {},
         {},
@@ -1931,21 +1928,21 @@ class StatsTest < Minitest::Test
     },
     :"total amount" => {
       input: "total amount",
-      result: PASTEL.bright_blue("2 pages"),
+      result: "2 pages",
       items: [
         { experiences: [{ spans: [{ amount: 2, progress: 1.0 }] }] },
       ],
     },
     :"total amount (zero)" => {
       input: "total amount",
-      result: PASTEL.bright_blue("0 pages"),
+      result: "none",
       items: [
         { experiences: [] },
       ],
     },
     :"total amount (time, with custom pages per hour)" => {
       input: "total amount",
-      result: PASTEL.bright_blue("5:00 or 500 pages"),
+      result: "5:00 or 500 pages",
       items: [
         { experiences: [{ spans: [
           { amount: Reading.time("5:00"), progress: 1.0 }] }] },
@@ -1954,8 +1951,8 @@ class StatsTest < Minitest::Test
     },
     :"top ratings" => {
       input: "top 2 rating",
-      result: "1. The Best\n     #{PASTEL.bright_blue("5 stars")}\n" \
-        "2. Second Fiddle\n     #{PASTEL.bright_blue("4 stars")}",
+      result: "1. The Best\n     #{"5 stars"}\n" \
+        "2. Second Fiddle\n     #{"4 stars"}",
       items: [
         { title: "Second Fiddle", rating: 4 },
         { title: "The Best", rating: 5 },
@@ -1963,8 +1960,8 @@ class StatsTest < Minitest::Test
     },
     :"top lengths" => {
       input: "top 2 length",
-      result: "1. Encyclopedic\n     #{PASTEL.bright_blue("1000 pages")}\n" \
-        "2. Short\n     #{PASTEL.bright_blue("100 pages")}",
+      result: "1. Encyclopedic\n     #{"1000 pages"}\n" \
+        "2. Short\n     #{"100 pages"}",
       items: [
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Encyclopedic", variants: [{ length: 1000 }] },
@@ -1973,8 +1970,8 @@ class StatsTest < Minitest::Test
     :"top speeds" => {
       input: "top 2 speed",
       # assuming 35 pages per hour (the config default)
-      result: "1. Sprint\n     #{PASTEL.bright_blue("200 pages in 1 day")}\n" \
-        "2. Jog\n     #{PASTEL.bright_blue("6:00 or 210 pages in 5 days")}",
+      result: "1. Sprint\n     #{"200 pages in 1 day"}\n" \
+        "2. Jog\n     #{"6:00 or 210 pages in 5 days"}",
       items: [
         { title: "Sprint", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,1), amount: 200 },
@@ -1986,8 +1983,8 @@ class StatsTest < Minitest::Test
     },
     :"top experiences" => {
       input: "top 2 experience",
-      result: "1. Desert Island Book\n     #{PASTEL.bright_blue("3 experiences")}\n" \
-        "2. Rereadable\n     #{PASTEL.bright_blue("2 experiences")}",
+      result: "1. Desert Island Book\n     #{"3 experiences"}\n" \
+        "2. Rereadable\n     #{"2 experiences"}",
       items: [
         { title: "Rereadable", experiences: [{ spans: [] }, { spans: [] }] },
         { title: "Desert Island Book", experiences: [{ spans: [] }, { spans: [] }, { spans: [] }] },
@@ -1995,8 +1992,8 @@ class StatsTest < Minitest::Test
     },
     :"top notes" => {
       input: "top 2 note",
-      result: "1. Heavily Annotated\n     #{PASTEL.bright_blue("3 words")}\n" \
-        "2. Somewhat Notable\n     #{PASTEL.bright_blue("1 word")}",
+      result: "1. Heavily Annotated\n     #{"3 words"}\n" \
+        "2. Somewhat Notable\n     #{"1 word"}",
       items: [
         { title: "Somewhat Notable", notes: [{ content: "good" }] },
         { title: "Heavily Annotated", notes: [{ content: "much good wow"}] },
@@ -2004,8 +2001,8 @@ class StatsTest < Minitest::Test
     },
     :"bottom ratings" => {
       input: "bottom 2 rating",
-      result: "1. The Worst\n     #{PASTEL.bright_blue("1 star")}\n" \
-        "2. Barely Acceptable\n     #{PASTEL.bright_blue("2 stars")}",
+      result: "1. The Worst\n     #{"1 star"}\n" \
+        "2. Barely Acceptable\n     #{"2 stars"}",
       items: [
         { title: "Barely Acceptable", rating: 2 },
         { title: "The Worst", rating: 1 },
@@ -2014,8 +2011,8 @@ class StatsTest < Minitest::Test
     :"bottom lengths" => {
       input: "bottom 2 length",
       # assuming 35 pages per hour (the config default)
-      result: "1. Short\n     #{PASTEL.bright_blue("100 pages")}\n" \
-        "2. Longish\n     #{PASTEL.bright_blue("10:00 or 350 pages")}",
+      result: "1. Short\n     #{"100 pages"}\n" \
+        "2. Longish\n     #{"10:00 or 350 pages"}",
       items: [
         { title: "Short", variants: [{ length: 100 }] },
         { title: "Longish", variants: [{ length: Reading.time("10:00") }] },
@@ -2023,8 +2020,8 @@ class StatsTest < Minitest::Test
     },
     :"bottom speeds" => {
       input: "bottom 2 speed",
-      result: "1. Walk\n     #{PASTEL.bright_blue("400 pages in 14 days")}\n" \
-        "2. DNF\n     #{PASTEL.bright_blue("30 pages in 1 day")}",
+      result: "1. Walk\n     #{"400 pages in 14 days"}\n" \
+        "2. DNF\n     #{"30 pages in 1 day"}",
       items: [
         { title: "Walk", experiences: [{ spans: [
           { dates: Date.new(2023,5,1)..Date.new(2023,5,3), amount: 200 },
