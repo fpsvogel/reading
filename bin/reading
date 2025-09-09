@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 
-# Starts the reading statistics interactive CLI, if a CSV file path arg is given.
-# If a CSV string is given instead, then parsing output (item hashes) is displayed.
+# Runs a reading statistics query, if a file path arg (CSV or TXT)is given.
+# If a non-path string is given, then displays parsed output (item Hashes).
 #
 # Usage:
 # Run on the command line:
-#   reading "<CSV file path or string>" "<optional comma-separated names of enabled columns>"
+#   reading "<file path or entry string>" "<query, if file path>" "<optional comma-separated names of enabled columns>"
 #
 # Examples:
-#   reading /home/felipe/reading.csv
-#   reading /home/felipe/reading.csv 'head, sources'
+#   reading /home/felipe/reading.csv 'amount by year'
+#   reading /home/felipe/reading.csv 'amount by year' 'head, sources'
 #   reading '3|📕Trying|Little Library 1970147288'
 #   reading '📕Trying|Little Library 1970147288' 'head, sources'
 
@@ -17,10 +17,8 @@ require_relative "../lib/reading"
 require_relative "../lib/reading/stats/result_formatters"
 require "debug"
 require "amazing_print"
-require "readline"
 require "pastel"
 
-EXIT_COMMANDS = %w[exit e quit q]
 PASTEL = Pastel.new
 GROUP_HEADING_FORMATTERS = [
   -> { PASTEL.magenta.bold.underline(_1) },
@@ -46,68 +44,92 @@ def print_grouped_results(grouped_results, group_heading_formatters)
 
     grouped_results.each do |group_name, grouped|
       group_name  = group_name.nil? ? "(none)" : group_name
-      puts "\n" + group_heading_formatters.first.call(group_name.to_s)
+      puts group_heading_formatters.first.call(group_name.to_s)
       print_grouped_results(grouped, group_heading_formatters[1..])
     end
   elsif grouped_results.is_a?(Array)
-    puts grouped_results.join("\n") + "\n"
+    puts grouped_results.join("\n") + "\n\n"
   else
-    puts grouped_results.to_s + "\n"
+    puts grouped_results.to_s + "\n\n"
   end
 end
 
-input = ARGV[0]
-unless input
-  raise ArgumentError,
-    "Argument required, either a CSV file path or a CSV string.\nExamples:\n" \
-    "reading /home/felipe/reading.csv\n" \
-    "reading '3|📕Trying|Little Library 1970147288'"
+# Builds a Reading::Config from a comma-separated string of column names.
+# @param enabled_columns_str [String, nil]
+def build_config(enabled_columns_str:)
+  if enabled_columns_str
+    enabled_columns = enabled_columns_str.split(",").map(&:strip).map(&:to_sym)
+    Reading::Config.build(enabled_columns:)
+  end
 end
 
-if ARGV[1]
-  enabled_columns = ARGV[1].split(",").map(&:strip).map(&:to_sym)
-  Reading::Config.build(enabled_columns:)
-end
+# Runs a stats query on a file at the given path, and prints the results.
+# @param file_path [String] path to a CSV or TXT file.
+# @param query [String] the stats query to run.
+# @param enabled_columns_str [String, nil] comma-separated string of enabled column names.
+def run_query(file_path:, query:, enabled_columns_str:)
+  return if query.blank?
 
-input_is_csv_path = input.end_with?(".csv") || input.end_with?(".txt")
-
-if input_is_csv_path
+  build_config(enabled_columns_str: ARGV[2])
   error_handler = ->(e) { puts "Skipped a row due to a parsing error: #{e}" }
 
-  items = Reading.parse(path: input, item_view: false, error_handler:)
+  items = Reading.parse(path: file_path, item_view: false, error_handler:)
+  results = Reading.stats(
+    input: query,
+    items:,
+    result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
+  )
 
-  loop do
-    raw_input = Readline.readline(PASTEL.bright_cyan("> "), true)
-
-    exit if EXIT_COMMANDS.include?(raw_input)
-
-    input = raw_input.presence
-    next if raw_input.blank?
-
-    results = Reading.stats(
-      input:,
-      items:,
-      result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
-    )
-
-    if results.is_a?(Array) && results.first.is_a?(Reading::Item) # `debug` operation
-      r = results
-      puts PASTEL.red.bold("Enter 'c' to leave the debugger.")
-      debugger
-    else
-      print_grouped_results(results, GROUP_HEADING_FORMATTERS)
-    end
-  rescue Reading::Error => e
-    puts e
+  if results.is_a?(Array) && results.first.is_a?(Reading::Item) # `debug` operation
+    r = results
+    puts PASTEL.red.bold("Enter 'c' to leave the debugger.")
+    debugger
+  else
+    print_grouped_results(results, GROUP_HEADING_FORMATTERS)
   end
-else # CSV string arg
-  input = input.gsub("\\|", "|") # because some pipes are escaped when pasting into the terminal
+rescue Reading::Error => e
+  puts e
+end
+
+# Parses a string of one or more reading log entries, and prints the resulting item Hashes.
+# @param entry [String] one or more reading log entries, separated by newlines.
+# @param enabled_columns_str [String, nil] comma-separated string of enabled column names.
+def print_parsed(entry:, enabled_columns_str:)
+  build_config(enabled_columns_str:)
+  entry = entry.gsub("\\|", "|") # because some pipes are escaped when pasting into the terminal
 
   begin
-    item_hashes = Reading.parse(lines: input, hash_output: true, item_view: false)
+    item_hashes = Reading.parse(lines: entry, hash_output: true, item_view: false)
   rescue Reading::Error => e
     puts "Skipped a row due to a parsing error: #{e}"
   end
 
   ap item_hashes
+end
+
+#################################################
+# Script execution starts here.
+#################################################
+
+input = ARGV[0]
+unless input
+  raise ArgumentError,
+    "First argument required, either a CSV/TXT file path or a reading log entry string.\nExamples:\n" \
+    "  reading /home/felipe/reading.csv\n" \
+    "  reading '3|📕Trying|Little Library 1970147288'"
+end
+
+input_is_file_path = input.end_with?(".csv") || input.end_with?(".txt")
+
+if input_is_file_path
+  query = ARGV[1]
+  unless query
+    raise ArgumentError,
+      "Second argument required, the stats query to run.\nExample:\n" \
+      "  reading /home/felipe/reading.csv 'amount by year'" \
+  end
+
+  run_query(file_path: input, query:, enabled_columns_str: ARGV[2])
+else
+  print_parsed(entry: input, enabled_columns_str: ARGV[1])
 end
