@@ -1,3 +1,7 @@
+## [1.1.1] - 2025-09-09
+
+- Fixed a bug related to stats of items with progress marked in pages or time.
+
 ## [1.1.0] - 2025-09-09
 
 - Changed from an interactive CLI to executing a single query passed in as a command-line argument. This removes the friction between the terminal and app environment, e.g. previous queries can be repeated simply by repeating the last command in the terminal.
