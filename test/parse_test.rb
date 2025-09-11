@@ -682,13 +682,13 @@ class ParseTest < Minitest::Test
   a_progress_half = a_format.deep_merge(progress_half)
   @outputs[:features_head][:"progress"] = [a_progress_half]
 
-  progress_pages = { experiences: [{ spans: [{ progress: 220 }] }] }
+  progress_pages = { experiences: [{ spans: [{ amount: 220, progress: 1.0 }] }] }
   a_progress_pages = a_format.deep_merge(progress_pages)
   @outputs[:features_head][:"progress pages"] = [a_progress_pages]
 
   @outputs[:features_head][:"progress pages without p"] = [a_progress_pages]
 
-  progress_time = { experiences: [{ spans: [{ progress: Reading.time("2:30") }] }] }
+  progress_time = { experiences: [{ spans: [{ amount: Reading.time("2:30"), progress: 1.0 }] }] }
   a_progress_time = a_format.deep_merge(progress_time)
   @outputs[:features_head][:"progress time"] = [a_progress_time]
 
@@ -841,24 +841,23 @@ class ParseTest < Minitest::Test
   a_start_3 = item_hash(**a.deep_merge(start).deep_merge(start_2).deep_merge(start_3))
   @outputs[:features_start_dates][:"start dates in any order"] = [a_start_3]
 
-  progress = ->(amount) { { experiences: [{ spans: [{ progress: amount }] }] } }
-  a_progress_half = a_start.deep_merge(progress.call(0.5))
+  a_progress_half = a_start.deep_merge(experiences: [{ spans: [{ progress: 0.5 }] }])
   @outputs[:features_start_dates][:"progress"] = [a_progress_half]
 
-  a_progress_pages = a_start.deep_merge(progress.call(220))
+  a_progress_pages = a_start.deep_merge(experiences: [{ spans: [{ amount: 220, progress: 1.0 }] }])
   @outputs[:features_start_dates][:"progress pages"] = [a_progress_pages]
 
   @outputs[:features_start_dates][:"progress pages without p"] = [a_progress_pages]
 
-  a_progress_time = a_start.deep_merge(progress.call(Reading.time("2:30")))
+  a_progress_time = a_start.deep_merge(experiences: [{ spans: [{ amount: Reading.time("2:30"), progress: 1.0 }] }])
   @outputs[:features_start_dates][:"progress time"] = [a_progress_time]
 
-  a_progress_zero = a_start.deep_merge(progress.call(0))
+  a_progress_zero = a_start.deep_merge(experiences: [{ spans: [{ progress: 0.0 }] }])
   @outputs[:features_start_dates][:"dnf default zero"] = [a_progress_zero]
 
   @outputs[:features_start_dates][:"dnf with progress"] = [a_progress_half]
 
-  a_dnf_only = a.deep_merge(progress.call(0.5))
+  a_dnf_only = a.deep_merge(experiences: [{ spans: [{ progress: 0.5 }] }])
   @outputs[:features_start_dates][:"dnf only"] = [a_dnf_only]
 
   variant_2 = { experiences: [{ variant_index: 1 }] }
@@ -879,7 +878,7 @@ class ParseTest < Minitest::Test
   a_start_twice_progress = a_start_twice.deep_merge(
     experiences: [{ spans: [{ progress: 0.5 }],
                     variant_index: 1 },
-                  { spans: [{ progress: Reading.time("2:30") }] }],
+                  { spans: [{ amount: Reading.time("2:30"), progress: 1.0 }] }],
   )
   @outputs[:features_start_dates][:"all features"] = [a_start_twice_progress]
 
@@ -1328,8 +1327,8 @@ class ParseTest < Minitest::Test
   a_dnf = a_names.deep_merge(
     experiences: [{ spans: [
       { progress: 0.5 },
-      { progress: Reading.time("0:15") },
-      { progress: 0 },
+      { progress: 0.3333333333333333 },
+      { progress: 0.0 },
     ] }],
   )
   @outputs[:features_history][:"DNF"] = [a_dnf]

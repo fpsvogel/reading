@@ -2,7 +2,7 @@ module Reading
   class Item
     # The length of an item when it is a time, as opposed to pages. (Pages are
     # represented simply with an Integer or Float.)
-    class Item::TimeLength
+    class TimeLength
       include Comparable
 
       attr_reader :value # in total minutes
@@ -12,17 +12,17 @@ module Reading
         @value = value
       end
 
-      # Builds an Item::TimeLength from a string.
+      # Builds a TimeLength from a string.
       # @param string [String] a time duration in "h:mm" format.
       # @return [TimeLength, nil]
       def self.parse(string)
-        return nil unless string.match? /\A\d+:\d\d\z/
+        return nil unless string.match?(/\A\d+:\d\d\z/)
 
         hours, minutes = string.split(":").map(&:to_i)
         new((hours * 60) + minutes)
       end
 
-      # Builds an Item::TimeLength based on a page count.
+      # Builds a TimeLength based on a page count.
       # @param pages [Integer, Float]
       # @return [TimeLength]
       def self.from_pages(pages)
@@ -99,24 +99,24 @@ module Reading
       # @param other [TimeLength, Numeric]
       # @return [TimeLength]
       def +(other)
-        if other.is_a? Item::TimeLength
+        if other.is_a? TimeLength
           self.class.new(value + other.value)
         elsif other.is_a? Numeric
           self.class.new(value + self.class.pages_to_minutes(other))
         else
-          raise TypeError, "#{other.class} can't be added to Item::TimeLength."
+          raise TypeError, "#{other.class} can't be added to TimeLength."
         end
       end
 
       # @param other [TimeLength, Numeric]
       # @return [TimeLength]
       def -(other)
-        if other.is_a? Item::TimeLength
+        if other.is_a? TimeLength
           self.class.new(value - other.value)
         elsif other.is_a? Numeric
           self.class.new(value - self.class.pages_to_minutes(other))
         else
-          raise TypeError, "#{other.class} can't be subtracted from Item::TimeLength."
+          raise TypeError, "#{other.class} can't be subtracted from TimeLength."
         end
       end
 
@@ -140,6 +140,17 @@ module Reading
         end
       end
 
+      # For relativizing progress to a percentage of amount.
+      # @param other [TimeLength, Numeric]
+      # @return [TimeLength]
+      def percentage_of(other)
+        if other.is_a? TimeLength
+          value.to_f / other.value
+        else
+          raise TypeError, "TimeLength can't be percent-divided by #{other.class}."
+        end
+      end
+
       # See https://web.archive.org/web/20221206095821/https://www.mutuallyhuman.com/blog/class-coercion-in-ruby/
       # @param other [Numeric]
       def coerce(other)
@@ -159,7 +170,7 @@ module Reading
           other = self.class.from_pages(other)
         end
 
-        unless other.is_a? Item::TimeLength
+        unless other.is_a? TimeLength
           raise TypeError, "TimeLength can't be compared to #{other.class} #{other}."
         end
 

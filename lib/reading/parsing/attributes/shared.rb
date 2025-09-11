@@ -16,7 +16,7 @@ module Reading
           hash[:progress_percent]&.to_f&./(100) ||
             hash[:progress_pages]&.to_i ||
             hash[:progress_time]&.then { Item::TimeLength.parse(_1) } ||
-            (0 if hash[:progress_dnf]) ||
+            (0.0 if hash[:progress_dnf]) ||
             (1.0 if hash[:progress_done]) ||
             (0.0 if no_end_date) ||
             nil

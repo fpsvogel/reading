@@ -90,14 +90,28 @@ module Reading
               Attributes::Shared.length(parsed_row[:length], format:)
             no_end_date = !dates.end if dates &&
               Config.hash.fetch(:enabled_columns).include?(:end_dates)
+            progress = Attributes::Shared.progress(start_entry, no_end_date:) ||
+              Attributes::Shared.progress(parsed_row[:head][head_index]) ||
+              (1.0 if end_entry)
+            amount =
+              if dates && length
+                length
+              elsif !progress.is_a?(Float)
+                progress
+              end
+
+            # Change progress from absolute to relative (percentage) if amount is given.
+            if amount && progress && !progress.is_a?(Float)
+              amount_time = amount.is_a?(Item::TimeLength) ? amount : Item::TimeLength.from_pages(amount)
+              progress_time = progress.is_a?(Item::TimeLength) ? progress : Item::TimeLength.from_pages(progress)
+              progress = progress_time.percentage_of(amount_time)
+            end
 
             [
               {
-                dates: dates,
-                amount: (length if dates),
-                progress: Attributes::Shared.progress(start_entry, no_end_date:) ||
-                  Attributes::Shared.progress(parsed_row[:head][head_index]) ||
-                  (1.0 if end_entry),
+                dates:,
+                amount:,
+                progress:,
                 name: span_template.fetch(:name),
                 favorite?: span_template.fetch(:favorite?),
               }.map { |k, v| [k, v || span_template.fetch(k)] }.to_h

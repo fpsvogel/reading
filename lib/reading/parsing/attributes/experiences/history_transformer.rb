@@ -212,13 +212,20 @@ module Reading
             # is when tracking fixed-length items such as books. See
             # https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#history-pages-and-stopping-points-books
             if !amount && progress
-              if progress.is_a? Float
+              if progress.is_a?(Float)
                 total_length = Attributes::Shared.length(parsed_row[:length], format:)
-                amount = total_length * progress
+                amount = total_length * progress if total_length
               else
                 amount = progress
               end
               amount_from_progress = true
+            end
+
+            # Change progress from absolute to relative (percentage) if amount is given.
+            if amount && progress && !progress.is_a?(Float)
+              amount_time = amount.is_a?(Item::TimeLength) ? amount : Item::TimeLength.from_pages(amount)
+              progress_time = progress.is_a?(Item::TimeLength) ? progress : Item::TimeLength.from_pages(progress)
+              progress = progress_time.percentage_of(amount_time)
             end
 
             repetitions = entry[:repetitions]&.to_i
