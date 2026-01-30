@@ -1,3 +1,7 @@
+## [1.1.2] - WIP
+
+- Changed Ruby version to >= 3.4.
+
 ## [1.1.1] - 2025-09-09
 
 - Fixed a bug related to stats of items with progress marked in pages or time.
