@@ -267,7 +267,7 @@ class ParseTest < Minitest::Test
   # 12/9 (the implied date doesn't increment except after a range), so the 0:30
   # overwrites the 0:45 on 12/9.
   :"implied dates" =>
-    "2021/12/6..8 0:35 -- 0:45 -- 0:30",
+    "2021/12/30..31 0:35 -- 0:45 -- 0:30",
   :"implied date range starts" => # same as 12/6, 12/7..8, 12/9..10
     "2021/12/6 0:35 -- ..12/8 0:45 -- ..12/10 0:25",
   :"implied date range end" =>
@@ -996,9 +996,9 @@ class ParseTest < Minitest::Test
   a_implied_dates = item_hash(
     title: DEFAULT_TITLE,
     experiences: [{ spans: [
-      { dates: Date.new(2021, 12, 6)..Date.new(2021, 12, 8),
+      { dates: Date.new(2021, 12, 30)..Date.new(2021, 12, 31),
         amount: Reading.time("0:35") },
-      { dates: Date.new(2021, 12, 9)..Date.new(2021, 12, 9),
+      { dates: Date.new(2022, 1, 1)..Date.new(2022, 1, 1),
         amount: Reading.time("0:30") },
     ] }],
   )

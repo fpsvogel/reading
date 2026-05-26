@@ -347,8 +347,8 @@ module Reading
               date_after_end = date_range.end.next_day
 
               active[:day] = date_after_end.day
-              active[:month] = date_after_end.month if end_month
-              active[:year] = date_after_end.year if end_year
+              active[:month] = date_after_end.month
+              active[:year] = date_after_end.year
             else # either starting or continuing (duplicating) an open range
               unless active[:open_range_id]
                 active[:open_range_id] = next_open_range_id

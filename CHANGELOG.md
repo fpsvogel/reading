@@ -1,6 +1,7 @@
 ## [1.1.2] - WIP
 
 - Changed Ruby version to >= 3.4.
+- Fixed a bug in the History column where the implied date after a date range wasn't properly incremented.
 
 ## [1.1.1] - 2025-09-09
 
