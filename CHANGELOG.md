@@ -1,3 +1,7 @@
+## [1.2.0] - WIP
+
+- Added an alias (`TODO`) to the planned date indicator (`??`).
+
 ## [1.1.2] - 2026/05/26
 
 - Changed Ruby version to >= 3.4.

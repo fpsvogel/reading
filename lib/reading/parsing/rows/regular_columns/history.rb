@@ -58,7 +58,7 @@ module Reading
                 # planned or dates
                 (
                   (
-                    (?<planned>\?\?)
+                    (?<planned>\?\?|TODO)
                     |
                     (#{START_END_DATES_REGEX})
                   )

@@ -19,7 +19,7 @@ module Reading
                 (
                   (?<date>\d{4}/\d\d?/\d\d?)
                   |
-                  (?<planned>\?\?)
+                  (?<planned>\?\?|TODO)
                 )
                 (\s+|\z)
               )?

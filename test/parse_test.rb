@@ -185,6 +185,8 @@ class ParseTest < Minitest::Test
     "2020/09/01, ??",
   :"planned only" =>
     "??",
+  :"planned alias" =>
+    "TODO",
   :"progress" =>
     "50% 2020/09/01",
   :"progress pages" =>
@@ -339,6 +341,8 @@ class ParseTest < Minitest::Test
     "2021/12/6 0:30 ---- 🤝🏼with Sam 2022/4/1 0:30",
   :"planned" =>
     "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- ?? #3 String-Based Templates vs. DSLs",
+  :"planned alias" =>
+    "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- 12/21 0:45 #2 Componentized View Architecture FTW! -- TODO #3 String-Based Templates vs. DSLs",
   :"planned in middle" =>
     "2021/12/6..8 0:35 #1 Why Ruby2JS is a Game Changer -- ?? 0:45 #2 Componentized View Architecture FTW! -- #3 String-Based Templates vs. DSLs -- 4/18 #4 Design Patterns on the Frontend",
   :"DNF" =>
@@ -832,6 +836,7 @@ class ParseTest < Minitest::Test
   @outputs[:features_start_dates][:"planned after a start date"] = [a_start]
 
   @outputs[:features_start_dates][:"planned only"] = [a]
+  @outputs[:features_start_dates][:"planned alias"] = [a]
 
   start_3 = {
     experiences: [{},
@@ -1309,6 +1314,7 @@ class ParseTest < Minitest::Test
     ] }],
   )
   @outputs[:features_history][:"planned"] = [a_planned]
+  @outputs[:features_history][:"planned alias"] = [a_planned]
 
   a_planned_mid = a_names.deep_merge(
     experiences: [{ spans: [
