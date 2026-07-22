@@ -1,4 +1,4 @@
-## [1.2.0] - WIP
+## [1.2.0] - 2026/07/22
 
 - Added an alias (`TODO`) to the planned date indicator (`??`).
 - Added support for the `:game` format (🎲).
