@@ -1,6 +1,7 @@
 ## [1.2.0] - WIP
 
 - Added an alias (`TODO`) to the planned date indicator (`??`).
+- Added support for the `:game` format (🎲).
 
 ## [1.1.2] - 2026/05/26
 

@@ -105,6 +105,7 @@ module Reading
             course:    "🏫",
             piece:     "✏️",
             website:   "🌐",
+            game:      "🎲",
           },
         source_names_from_urls:
           {
@@ -135,6 +136,7 @@ module Reading
                     piece: { emoji: "✏️" },
                     video: { emoji: "🎞️" },
                     audio: { emoji: "🎤" },
+                    game: { emoji: "🎲" },
                   },
                 default_type: :book,
               },
