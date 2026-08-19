@@ -199,7 +199,7 @@ module Reading
               notes_word_count = item
                 .notes
                 .sum { |note|
-                  note.content.scan(/[\w[:punct:]]+/).count
+                  (note.content || "").scan(/[\w[:punct:]]+/).count
                 }
 
               [author_and_title(item), notes_word_count]

@@ -1,3 +1,8 @@
+## [1.3.0] - WIP
+
+- Added note dates.
+- Added note rating changes, so that a note like "Downgraded rating from 4 to 3" is reflected in the parsed data.
+
 ## [1.2.0] - 2026/07/22
 
 - Added an alias (`TODO`) to the planned date indicator (`??`).
