@@ -130,7 +130,8 @@ class ParseTest < Minitest::Test
     :features_sources,
     :features_start_dates,
     :features_history,
-    :"features_length, history"
+    :"features_length, history",
+    :features_notes,
   ]
 
   @inputs[:features_sources] =
@@ -376,6 +377,26 @@ class ParseTest < Minitest::Test
   }
 
 
+
+  @inputs[:"features_notes"] =
+  {
+  :"blurb" =>
+    "💬meh",
+  :"private" =>
+    "🔒meh",
+  :"date" =>
+    "2026/08/19: meh",
+  :"rating change" =>
+    "Downgraded rating from 4 to 3 because meh",
+  :"rating change, alt" =>
+    "rating changed from 4 to 3: meh",
+  :"rating change, minimal" =>
+    "4 to 3",
+  :"rating change with date" =>
+    "2026/08/19: rating updated from 4 to 3 - meh",
+  }
+
+
   ## INPUT: ALL COLUMNS
   # For interactions between columns that are not caught in the single-column
   # tests above. Also for realistic examples from the reading.csv template:
@@ -396,7 +417,7 @@ class ParseTest < Minitest::Test
     \\Rating|Format, Author, Title|Sources, ISBN/ASIN|Start dates, Progress|End dates|Genres|Length|Notes|History
     \\------ IN PROGRESS
     |🔊Sapiens: A Brief History of Humankind|Hoopla B00ICN066A|2021/09/20||history|15:17|Easy to criticize, but I like the emphasis on human happiness. -- Ch. 5: "We did not domesticate wheat. It domesticated us." -- Discussion of that point: https://www.reddit.com/r/AskHistorians/comments/2ttpn2
-    5|📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01|2019/06/13|history, fiction|247
+    5|📕Tom Holt - Goatsong|Lexpub 0312038380|2019/05/28, 2020/05/01|2019/06/13|history, fiction|247|Changed rating from 4 to 5.
   EOM
   @inputs[:all_columns][:"realistic examples: done"] = <<~EOM.freeze
     \\------ DONE
@@ -1415,6 +1436,47 @@ class ParseTest < Minitest::Test
 
 
 
+  @outputs[:features_notes] = {}
+
+  a_blurb = item_hash(
+    title: DEFAULT_TITLE,
+    notes: [{ blurb?: true, content: "meh" }],
+  )
+  @outputs[:features_notes][:"blurb"] = [a_blurb]
+
+  a_private = item_hash(
+    title: DEFAULT_TITLE,
+    notes: [{ private?: true, content: "meh" }],
+  )
+  @outputs[:features_notes][:"private"] = [a_private]
+
+  a_date = item_hash(
+    title: DEFAULT_TITLE,
+    notes: [{ date: Date.new(2026, 8, 19), content: "meh" }],
+  )
+  @outputs[:features_notes][:"date"] = [a_date]
+
+  a_rating_change = item_hash(
+    title: DEFAULT_TITLE,
+    notes: [{ rating_change: [4, 3], content: "meh" }],
+  )
+  @outputs[:features_notes][:"rating change"] = [a_rating_change]
+  @outputs[:features_notes][:"rating change, alt"] = [a_rating_change]
+
+  a_rating_change_minimal = item_hash(
+    title: DEFAULT_TITLE,
+    notes: [{ rating_change: [4, 3] }],
+  )
+  @outputs[:features_notes][:"rating change, minimal"] = [a_rating_change_minimal]
+
+  a_rating_change_with_date = item_hash(
+    title: DEFAULT_TITLE,
+    notes: [{ date: Date.new(2026, 8, 19), rating_change: [4, 3], content: "meh" }],
+  )
+  @outputs[:features_notes][:"rating change with date"] = [a_rating_change_with_date]
+
+
+
   @outputs[:all_columns] = {}
 
   a = item_hash(title: "Sapiens")
@@ -1484,6 +1546,9 @@ class ParseTest < Minitest::Test
                               amount: 247,
                               progress: 0.0 }] }],
     genres: %w[history fiction],
+    notes: [
+      { date: Date.new(2020, 5, 1), rating_change: [4, 5] },
+    ]
   )
   @outputs[:all_columns][:"realistic examples: in progress books"] = [sapiens, goatsong]
 

@@ -11,8 +11,24 @@ module Reading
 
           def self.regexes(segment_index)
             [%r{\A
-              (?:(?<blurb>💬)|(?<private>🔒))?(?<content>.+)
-            \z}x]
+              (?:(?<blurb>💬)|(?<private>🔒))?
+              (?<date>\d{4}/\d\d?/\d\d?)?:?\s*
+              (?:
+                (?:
+                  (?:downgraded|upgraded|updated|changed)?\s*rating
+                  |
+                  rating\s*(?:downgraded|upgraded|updated|changed)?
+                )?
+                (?:\s+from\s+)?
+                (?:
+                  (?<rating_from>\d)
+                  \s+to\s+
+                  (?<rating_to>\d)
+                )
+                (?:\s+because\s+|\s*[[:punct:]]\s*)?
+              )?
+              (?<content>.+)?
+            \z}xi]
           end
         end
       end

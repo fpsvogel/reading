@@ -12,9 +12,41 @@ module Reading
             {
               blurb?: note.has_key?(:blurb),
               private?: note.has_key?(:private),
+              date: date(note[:date]),
+              rating_change: rating_change(note[:rating_from], note[:rating_to]),
               content: note[:content],
             }
-          }
+          }.then { distribute_dates_to_rating_changes!(it, parsed_row) }
+        end
+
+        private
+
+        def date(date_string)
+          return nil unless date_string
+
+          Date.parse(date_string)
+        rescue Date::Error
+          raise InvalidDateError, "Unparsable date \"#{date_string}\""
+        end
+
+        def rating_change(rating_from, rating_to)
+          return [] unless rating_from && rating_to
+
+          [Integer(rating_from), Integer(rating_to)]
+        end
+
+        # Rating change notes without dates are automatically given the end or
+        # start dates of the item's experiences in reverse order.
+        def distribute_dates_to_rating_changes!(transformed_notes, parsed_row)
+          return unless transformed_notes
+          experiences = Experiences.new.transform_from_parsed(parsed_row, 0)
+
+          transformed_notes.reverse_each do |note|
+            return if experiences.empty?
+            next if note[:rating_change].empty? || note[:date]
+            last_experience = experiences.pop
+            note[:date] = last_experience[:spans].last[:dates]&.end || last_experience[:spans].first[:dates]&.begin
+          end
         end
       end
     end

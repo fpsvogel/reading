@@ -193,6 +193,8 @@ module Reading
                   [{
                     blurb?: false,
                     private?: false,
+                    date: nil,
+                    rating_change: [],
                     content: nil,
                   }],
               },
