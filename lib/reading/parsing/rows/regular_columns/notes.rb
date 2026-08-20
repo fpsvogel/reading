@@ -23,7 +23,7 @@ module Reading
 
           def self.regexes(segment_index)
             [%r{\A
-              (?:(?<blurb>💬)|(?<private>🔒))?
+              (?:(?<blurb>💬)|(?<private>🔒))?\s*
               (?<date>\d{4}/\d\d?/\d\d?)?:?\s*
               (?:
                 (?:

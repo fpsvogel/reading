@@ -107,17 +107,17 @@ Only the title is always required. The format and author are optional.
 
 These are the formats and their corresponding emojis, defined in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb):
 
-Emoji|Format
------|------
-📕  |`print`
-⚡  |`ebook`
-🔊  |`audiobook`
-📄  |`pdf`
-🎤  |`audio`
-🎞️  |`video`
-🏫  |`course`
-✏️  |`piece`
-🌐  |`website`
+| Emoji | Format      |
+| ----- | ----------- |
+| 📕     | `print`     |
+| ⚡     | `ebook`     |
+| 🔊     | `audiobook` |
+| 📄     | `pdf`       |
+| 🎤     | `audio`     |
+| 🎞️     | `video`     |
+| 🏫     | `course`    |
+| ✏️     | `piece`     |
+| 🌐     | `website`   |
 
 You can define your own formats via a custom config by following a process similar to the example in the ["Parse with custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#parse-with-custom-config) section of the README. To see what the custom formats should look like when you pass them in as custom config, see `Config#default_config[:formats]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
 
@@ -486,14 +486,18 @@ Hamlet|🔊📕|2022/12/1 v2 🤝🏼Sadvent book club
 
 ### Notes column: special notes
 
-There are two special kinds of notes, each marked by a special emoji: a *blurb* (`💬`) and a *private note* (`🔒`):
+There are three special kinds of notes. Two are marked by an emoji: a *blurb* (`💬`) and a *private note* (`🔒`):
 
 ```
 \Title|Notes
 Hamlet|💬A profound meditation on the human experience. -- 🔒Eh, I don't get it.
 ```
 
-They aren't inherently different from regular notes, but they can come in handy if you're publicly showing your parsed reading log, and you want to specially display a blurb and hide private notes.
+They aren't inherently different from regular notes, but they can come in handy if you're publicly showing your parsed reading log, and you want to specially display a blurb and hide private notes (via the item presenter `Item::View`).
+
+The third kind of special note is a rating change. Starting a note with `Rating changed from X to Y` (where X and Y are numbers) makes it a rating change, which can be used in the filters for items and statistics.
+
+Also, a date in `yy/mm/dd` format can be placed at the start of the note, or after the private/blurb emoji if one is present, or before the rating change phrase if that's present.
 
 ### History column
 
