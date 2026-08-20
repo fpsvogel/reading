@@ -210,6 +210,7 @@ These may be pluralized, and may be followed by any of the operators listed for 
 
 - `genre` (`=`, `!=`)
 - `rating` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
+- `previous-rating` (`=`, `>`, `>=`, `<`, `<=`, `!=`)
 - `format` (`=`, `!=`)
 - `source` (`=`, `!=`, `~`, `!~`)
 - `title` (`=`, `!=`, `~`, `!~`)
