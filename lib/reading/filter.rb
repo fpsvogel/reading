@@ -60,9 +60,21 @@ module Reading
         return items unless minimum_rating
 
         items.select! do |item|
-          if item.rating
-            item.rating >= minimum_rating
-          end
+          item.rating && item.rating >= minimum_rating
+        end
+      end
+
+      # Mutates the given array of Items to select only Items that were at some
+      # point greater than or equal to (but are now less than) the given minimum.
+      # @param items [Array<Item>]
+      # @param minimum_rating [Integer]
+      def by_minimum_previous_rating!(items, minimum_previous_rating)
+        return items unless minimum_previous_rating
+
+        items.select! do |item|
+          max_previous_rating = item.notes.map { it.rating_change.first }.compact.max
+          max_previous_rating && max_previous_rating >= minimum_previous_rating &&
+            item.rating && item.rating < minimum_previous_rating
         end
       end
 
