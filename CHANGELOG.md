@@ -1,15 +1,15 @@
-## [1.3.0] - WIP
+## [1.3.0] - 2026-08-19
 
 - Added note dates.
 - Added note rating changes, so that a note like "Downgraded rating from 4 to 3" is reflected in the parsed data.
 - Added filters related to rating changes.
 
-## [1.2.0] - 2026/07/22
+## [1.2.0] - 2026-07-22
 
 - Added an alias (`TODO`) to the planned date indicator (`??`).
 - Added support for the `:game` format (🎲).
 
-## [1.1.2] - 2026/05/26
+## [1.1.2] - 2026-05-26
 
 - Changed Ruby version to >= 3.4.
 - Fixed a bug in the History column where the implied date after a date range wasn't properly incremented.
