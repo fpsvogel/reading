@@ -54,6 +54,15 @@ class FilterTest < Minitest::Test
       end
     end
 
+    context "when the :minimum_previous_rating keyword argument is provided" do
+      should "filter Items by minimum previous rating" do
+        filtered = Reading.filter(items: ITEMS.values, minimum_previous_rating: 4)
+        remaining = ITEMS.slice(:ok_scifi_done).values
+
+        assert_equal remaining, filtered
+      end
+    end
+
     context "when the :excluded_genres keyword argument is provided" do
       should "filter Items by excluded genres" do
         filtered = Reading.filter(items: ITEMS.values, excluded_genres: ["fiction"])
@@ -133,6 +142,14 @@ class FilterTest < Minitest::Test
             group: nil,
             variant_index: 0,
           }],
+        notes:
+          [{
+            blurb?: false,
+            private?: false,
+            date: nil,
+            rating_change: [4, 3],
+            content: nil,
+          }],
       }
     ),
     good_science_in_progress: Reading::Item.new(
@@ -152,7 +169,15 @@ class FilterTest < Minitest::Test
             group: nil,
             variant_index: 0,
           }],
-      }
+        notes:
+          [{
+            blurb?: false,
+            private?: false,
+            date: nil,
+            rating_change: [5, 4],
+            content: nil,
+          }],
+}
     ),
     great_fiction_planned: Reading::Item.new(
       {

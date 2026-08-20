@@ -2,6 +2,7 @@
 
 - Added note dates.
 - Added note rating changes, so that a note like "Downgraded rating from 4 to 3" is reflected in the parsed data.
+- Added filters related to rating changes.
 
 ## [1.2.0] - 2026/07/22
 
