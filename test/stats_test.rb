@@ -385,6 +385,78 @@ class StatsTest < Minitest::Test
         { rating: nil, variants: [{ length: 200 }] },
       ],
     },
+    :"previous-rating" => {
+      input: "average length previous-rating=4",
+      result: 30,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [4, 3] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [5, 4] }] },
+        { variants: [{ length: 100 }] },
+      ],
+    },
+    :"previous-rating (or)" => {
+      input: "average length previous-rating=3,4",
+      result: 45,
+      items: [
+        { rating: 3, variants: [{ length: 30 }], notes: [{ rating_change: [2, 3] }] },
+        { rating: 4, variants: [{ length: 40 }], notes: [{ rating_change: [3, 4] }] },
+        { rating: 5, variants: [{ length: 50 }], notes: [{ rating_change: [4, 5] }] },
+      ],
+    },
+    :"previous-rating (not)" => {
+      input: "average length previous-rating!=3,4",
+      result: 100,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [3, 4] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [4, 5] }] },
+        { variants: [{ length: 100 }], notes: [{ rating_change: [2, 3] }] },
+      ],
+    },
+    :"previous-rating (greater than)" => {
+      input: "average length previous-rating>3",
+      result: 70,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [3, 4] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [4, 5] }] },
+        { variants: [{ length: 100 }], notes: [{ rating_change: [5, 4] }] },
+      ],
+    },
+    :"previous-rating (greater than or equal to)" => {
+      input: "average length previous-rating>=3",
+      result: 170/3.0,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [3, 4] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [4, 5] }] },
+        { variants: [{ length: 100 }], notes: [{ rating_change: [5, 4] }] },
+      ],
+    },
+    :"previous-rating (less than)" => {
+      input: "average length previous-rating<4",
+      result: 30,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [3, 4] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [4, 5] }] },
+        { variants: [{ length: 100 }], notes: [{ rating_change: [5, 4] }] },
+      ],
+    },
+    :"previous-rating (less than or equal to)" => {
+      input: "average length previous-rating<=4",
+      result: 35,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [3, 4] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [4, 5] }] },
+        { variants: [{ length: 100 }], notes: [{ rating_change: [5, 4] }] },
+      ],
+    },
+    :"previous-rating (greater than 3, less than 5)" => {
+      input: "average length previous-rating>3 previous-rating<5",
+      result: 40,
+      items: [
+        { variants: [{ length: 30 }], notes: [{ rating_change: [3, 2] }] },
+        { variants: [{ length: 40 }], notes: [{ rating_change: [4, 3] }] },
+        { variants: [{ length: 100 }], notes: [{ rating_change: [5, 4] }] },
+      ],
+    },
     :"progress" => {
       input: "average rating progress=0",
       result: 2,

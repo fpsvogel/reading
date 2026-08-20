@@ -101,6 +101,36 @@ module Reading
 
           matches
         },
+        :"previous-rating" => proc { |values, operator, items|
+          previous_ratings = values.map { |value|
+            if value
+              Integer(value, exception: false) ||
+                Float(value, exception: false) ||
+                (raise InputError, "Previous rating must be a number")
+            end
+          }
+
+          positive_operator = operator == :"!=" ? :== : operator
+
+          matches = items.select { |item|
+            actual_previous_ratings = item.notes.map { it.rating_change.first }.compact
+
+            previous_ratings.any? { |previous_rating|
+              if !actual_previous_ratings.empty? || %i[== !=].include?(operator)
+                actual_previous_ratings.any? { it.send(positive_operator, previous_rating) }
+              end
+            }
+          }
+
+          # Instead of using it.send(operator, format) above, invert the matches
+          # here to ensure multiple values after a negative operator have an
+          # "and" relation: "not(x and y)", rather than "not(x or y)".
+          if operator == :"!="
+            matches = items - matches
+          end
+
+          matches
+        },
         progress: proc { |values, operator, items|
           progresses = values.map { |value|
             value = "0%" if value == "0"
@@ -640,6 +670,7 @@ module Reading
 
       NUMERIC_OPERATORS = {
         rating: true,
+        :"previous-rating" => true,
         progress: true,
         experience: true,
         date: true,
@@ -654,6 +685,7 @@ module Reading
       }
 
       PROHIBIT_NONE_VALUE = {
+        :"previous-rating" => true,
         progress: true,
         title: true,
         :"end-date" => true,
