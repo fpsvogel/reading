@@ -5,6 +5,18 @@ module Reading
         # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column
         # and https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column-special-notes
         class Notes < Column
+          RATING_CHANGED_WORDS = %w[
+            changed
+            updated
+            revised
+            downgraded
+            demoted
+            lowered
+            upgraded
+            promoted
+            raised
+          ]
+
           def self.segment_separator
             /\s*--\s*/
           end
@@ -15,9 +27,9 @@ module Reading
               (?<date>\d{4}/\d\d?/\d\d?)?:?\s*
               (?:
                 (?:
-                  (?:downgraded|upgraded|updated|changed)?\s*rating
+                  (?:#{RATING_CHANGED_WORDS.join("|")})?\s*rating
                   |
-                  rating\s*(?:downgraded|upgraded|updated|changed)?
+                  rating\s*(?:#{RATING_CHANGED_WORDS.join("|")})?
                 )?
                 (?:\s+from\s+)?
                 (?:
