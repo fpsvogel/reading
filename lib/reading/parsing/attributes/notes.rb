@@ -17,6 +17,7 @@ module Reading
               content: note[:content],
             }
           }.then { distribute_dates_to_rating_changes!(it, parsed_row) }
+          .then { capitalize_content_of_rating_changes!(it, parsed_row) }
         end
 
         private
@@ -46,6 +47,15 @@ module Reading
             next if note[:rating_change].empty? || note[:date]
             last_experience = experiences.pop
             note[:date] = last_experience[:spans].last[:dates]&.end || last_experience[:spans].first[:dates]&.begin
+          end
+        end
+
+        def capitalize_content_of_rating_changes!(transformed_notes, parsed_row)
+          return unless transformed_notes
+
+          transformed_notes.each do |note|
+            next if note[:rating_change].empty? || note[:content].nil?
+            note[:content].capitalize!
           end
         end
       end

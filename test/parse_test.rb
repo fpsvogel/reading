@@ -1458,7 +1458,7 @@ class ParseTest < Minitest::Test
 
   a_rating_change = item_hash(
     title: DEFAULT_TITLE,
-    notes: [{ rating_change: [4, 3], content: "meh" }],
+    notes: [{ rating_change: [4, 3], content: "Meh" }],
   )
   @outputs[:features_notes][:"rating change"] = [a_rating_change]
   @outputs[:features_notes][:"rating change, alt"] = [a_rating_change]
@@ -1471,7 +1471,7 @@ class ParseTest < Minitest::Test
 
   a_rating_change_with_date = item_hash(
     title: DEFAULT_TITLE,
-    notes: [{ date: Date.new(2026, 8, 19), rating_change: [4, 3], content: "meh" }],
+    notes: [{ date: Date.new(2026, 8, 19), rating_change: [4, 3], content: "Meh" }],
   )
   @outputs[:features_notes][:"rating change with date"] = [a_rating_change_with_date]
 

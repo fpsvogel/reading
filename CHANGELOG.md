@@ -1,3 +1,7 @@
+## [1.3.1] – WIP
+
+- Capitalize content of rating change notes.
+
 ## [1.3.0] - 2026-08-19
 
 - Added note dates.
