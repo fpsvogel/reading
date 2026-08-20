@@ -161,7 +161,7 @@ item = {
 CSV column: **Notes**:
 
 - [for `content`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column)
-- [for `blurb?` and `private?`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column-special-notes)
+- [for the rest](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column-special-notes)
 
 ```ruby
 item = {
@@ -170,6 +170,8 @@ item = {
       {
         blurb?: true,
         private?: false,
+        date: nil,
+        rating_change: [],
         content: "A profound meditation on the human experience.",
       },
     ],
@@ -282,7 +284,7 @@ That would be parsed to:
 # The item in the output is actually converted so that its Hashes
 # become Items, but Hashes are easier to show in a code snippet.
 parsed_items = [{
-  rating: 4,
+  rating: 5,
   author: "J. R. R. Tolkien",
   title: "The Fellowship of the Ring",
   genres: ["fiction"],
@@ -352,12 +354,23 @@ parsed_items = [{
     [{
       blurb?: true,
       private?: false,
+      date: nil,
+      rating_change: [],
       content: "A bit slow, but it really grows on you.",
     },
     {
       blurb?: false,
       private?: false,
+      date: nil,
+      rating_change: [],
       content: "The descriptions of the Shire and the appearance of Tom Bombadil are my favorite parts.",
+    },
+    {
+      blurb?: false,
+      private?: false,
+      date: Date.new(2020,12,23),
+      rating_change: [4, 5],
+      content: nil,
     }],
 }]
 ```
