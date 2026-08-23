@@ -1,4 +1,4 @@
-## [1.3.1] – WIP
+## [1.3.1] – 2026-08-23
 
 - Fixes to rating change notes:
   - Content of the note is capitalized.
