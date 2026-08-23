@@ -72,7 +72,7 @@ module Reading
         return items unless minimum_previous_rating
 
         items.select! do |item|
-          max_previous_rating = item.notes.map { it.rating_change.first }.compact.max
+          max_previous_rating = item.notes.reject(&:private?).map { it.rating_change.first }.compact.max
           max_previous_rating && max_previous_rating >= minimum_previous_rating &&
             item.rating && item.rating < minimum_previous_rating
         end

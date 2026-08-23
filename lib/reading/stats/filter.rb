@@ -113,7 +113,7 @@ module Reading
           positive_operator = operator == :"!=" ? :== : operator
 
           matches = items.select { |item|
-            actual_previous_ratings = item.notes.map { it.rating_change.first }.compact
+            actual_previous_ratings = item.notes.reject(&:private?).map { it.rating_change.first }.compact
 
             previous_ratings.any? { |previous_rating|
               if !actual_previous_ratings.empty? || %i[== !=].include?(operator)

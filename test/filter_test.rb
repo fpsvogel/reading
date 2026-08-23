@@ -123,6 +123,14 @@ class FilterTest < Minitest::Test
             group: nil,
             variant_index: 0,
           }],
+        notes:
+          [{
+            blurb?: false,
+            private?: true,
+            date: nil,
+            rating_change: [4, 1],
+            content: nil,
+          }],
       }
     ),
     ok_scifi_done: Reading::Item.new(

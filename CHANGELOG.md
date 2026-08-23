@@ -1,6 +1,8 @@
 ## [1.3.1] – WIP
 
-- Capitalize content of rating change notes.
+- Fixes to rating change notes:
+  - Content of the note is capitalized.
+  - Private notes are ignored.
 
 ## [1.3.0] - 2026-08-19
 
