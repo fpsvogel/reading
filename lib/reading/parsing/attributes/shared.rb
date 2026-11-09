@@ -4,7 +4,7 @@ module Reading
       # Sub-attributes that are shared across multiple attributes.
       module Shared
         using Util::HashArrayDeepFetch
-        using Util::NumericToIIfWhole
+        using Util::NumericToIntIfWhole
 
         # Extracts the :progress sub-attribute (percent, pages, or time) from
         # the given hash.
@@ -64,7 +64,7 @@ module Reading
 
           speed = Config.hash.deep_fetch(:speed, :format)[format] || 1.0
 
-          (length / speed).to_i_if_whole
+          (length / speed).to_int_if_whole
         end
       end
     end

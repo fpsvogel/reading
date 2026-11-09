@@ -56,8 +56,8 @@ module Reading
 
       # To pages.
       # @return [Integer]
-      def to_i
-        ((value / 60.0) * Config.hash.fetch(:pages_per_hour)).to_i
+      def to_int
+        ((value / 60.0) * Config.hash.fetch(:pages_per_hour)).to_int
       end
 
       # @return [Boolean]
@@ -73,26 +73,26 @@ module Reading
 
       # Converts @value to an Integer if it's a whole number, and returns self.
       # @return [TimeLength]
-      def to_i_if_whole!
+      def to_int_if_whole!
         if @value.is_a?(Float) && @value.nan?
           @value = 0
-        elsif @value.to_i == @value
-          @value = @value.to_i
+        elsif @value.to_int == @value
+          @value = @value.to_int
         end
 
         self
       end
 
-      # A non-mutating version of #to_i_if_whole! for compatibility with the
-      # refinement Numeric#to_i_if_whole.
+      # A non-mutating version of #to_int_if_whole! for compatibility with the
+      # refinement Numeric#to_int_if_whole.
       # @return [TimeLength]
-      def to_i_if_whole
+      def to_int_if_whole
         if @value.is_a?(Float) && @value.nan?
           return self.class.new(0)
         else
-          return self if @value.is_a?(Integer) || @value.to_i != @value
+          return self if @value.is_a?(Integer) || @value.to_int != @value
 
-          self.class.new(@value.to_i)
+          self.class.new(@value.to_int)
         end
       end
 
@@ -124,7 +124,7 @@ module Reading
       # @return [TimeLength]
       def *(other)
         if other.is_a? Numeric
-          self.class.new(value * other).to_i_if_whole!
+          self.class.new(value * other).to_int_if_whole!
         else
           raise TypeError, "TimeLength can't be multiplied by #{other.class}."
         end
@@ -134,7 +134,7 @@ module Reading
       # @return [TimeLength]
       def /(other)
         if other.is_a? Numeric
-          self.class.new(value / other).to_i_if_whole!
+          self.class.new(value / other).to_int_if_whole!
         else
           raise TypeError, "TimeLength can't be divided by #{other.class}."
         end

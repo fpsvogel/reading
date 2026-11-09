@@ -5,7 +5,7 @@ module Reading
     # The beginning of a query which specifies what it does, e.g.
     # "average rating" or "total amount".
     class Operation
-      using Util::NumericToIIfWhole
+      using Util::NumericToIntIfWhole
 
       # Determines which operation is contained in the given input, and then
       # runs it to get the result. For the operations and their actions, see
@@ -78,7 +78,7 @@ module Reading
           ratings = items.map(&:rating).compact
 
           if ratings.any?
-            (ratings.sum.to_f / ratings.count).to_i_if_whole
+            (ratings.sum.to_f / ratings.count).to_int_if_whole
           end
         },
         average_length: proc { |items|
@@ -88,7 +88,7 @@ module Reading
           .compact
 
           if lengths.any?
-            (lengths.sum / lengths.count.to_f).to_i_if_whole
+            (lengths.sum / lengths.count.to_f).to_int_if_whole
           end
         },
         average_amount: proc { |items|
@@ -98,7 +98,7 @@ module Reading
             }
           }
 
-          (total_amount / items.count.to_f).to_i_if_whole
+          (total_amount / items.count.to_f).to_int_if_whole
         },
         :"average_daily-amount" => proc { |items|
           amounts_by_date = calculate_amounts_by_date(items)
@@ -117,7 +117,7 @@ module Reading
           items.sum { |item|
             item.experiences.sum { |experience|
               experience.spans.sum { |span|
-                (span.amount * (span.progress || 0.0)).to_i_if_whole
+                (span.amount * (span.progress || 0.0)).to_int_if_whole
               }
             }
           }
@@ -137,7 +137,7 @@ module Reading
               length = item.variants.map(&:length).max ||
                 item.experiences.map { |experience|
                   experience.spans.sum { |span|
-                    (span.amount * (span.progress || 0.0)).to_i_if_whole
+                    (span.amount * (span.progress || 0.0)).to_int_if_whole
                   }
                 }.max
 
@@ -153,7 +153,7 @@ module Reading
             .map { |item|
               amount = item.experiences.sum { |experience|
                 experience.spans.sum { |span|
-                  (span.amount * (span.progress || 0.0)).to_i_if_whole
+                  (span.amount * (span.progress || 0.0)).to_int_if_whole
                 }
               }
 
@@ -223,7 +223,7 @@ module Reading
               length = item.variants.map(&:length).max ||
                 item.experiences.map { |experience|
                   experience.spans.sum { |span|
-                    (span.amount * (span.progress || 0.0)).to_i_if_whole
+                    (span.amount * (span.progress || 0.0)).to_int_if_whole
                   }
                 }.max
 
@@ -239,7 +239,7 @@ module Reading
             .map { |item|
               amount = item.experiences.sum { |experience|
                 experience.spans.sum { |span|
-                  (span.amount * (span.progress || 0.0)).to_i_if_whole
+                  (span.amount * (span.progress || 0.0)).to_int_if_whole
                 }
               }
 
@@ -371,7 +371,7 @@ module Reading
 
             span.amount * progress
           }
-          .to_i_if_whole
+          .to_int_if_whole
 
           days = spans_with_finite_dates.sum { |span| span.dates.count }.to_i
 
