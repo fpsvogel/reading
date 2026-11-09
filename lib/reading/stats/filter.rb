@@ -140,24 +140,31 @@ module Reading
               (raise InputError, "Progress must be a percentage")
           }
 
+          calculate_progress = lambda { |item, experience|
+            amount = experience.spans.sum { |span| span.amount * (span.progress || 0.0) }.to_i
+            length = item.variants[experience.variant_index].length
+            return nil unless length
+            amount.to_f / length.to_i
+          }
+
           filtered_items = items.map { |item|
             # Ensure multiple values after a negative operator have an "and"
             # relation: "not(x and y)", rather than "not(x or y)".
             if operator == :"!="
               item_progresses = item.experiences.map { |experience|
-                experience.spans.last.progress || 0.0
-              }
+                calculate_progress.call(item, experience)
+              }.compact
 
               next if (item_progresses - progresses).empty?
             end
 
             # Filter out non-matching experiences.
-            # TODO: Make this more accurate by calculating the average progress
-            # across spans? Currently it checks just the last span's progress.
             filtered_experiences = item.experiences.select { |experience|
               progresses.any? { |progress|
-                experience.spans.any? &&
-                  (experience.spans.last.progress || 0.0).send(operator, progress)
+                next if experience.spans.empty?
+                item_progress = calculate_progress.call(item, experience)
+                next unless item_progress
+                item_progress.send(operator, progress)
               }
             }
 
