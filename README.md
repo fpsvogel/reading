@@ -163,10 +163,7 @@ You can also get statistics via Ruby code rather than on the command line:
 ```ruby
 # ...
 # (Already parsed a reading log into `items` as above.)
-results = Reading.stats(
-  input: "total amount by month"
-  items:,
-)
+results = Reading.stats("total amount by month", items:)
 ```
 
 <!-- omit in toc -->

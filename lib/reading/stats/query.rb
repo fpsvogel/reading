@@ -15,7 +15,7 @@ module Reading
       # @param result_formatters [Boolean, Hash{Symbol => Proc}] to alter the
       #   appearance of results; keys should be from among the keys of
       #   Operation::ACTIONS. Pre-made formatters are in result_formatters.rb.
-      def initialize(input:, items:, result_formatters: Reading::Stats::ResultFormatters::TRUNCATED_TITLES)
+      def initialize(input, items:, result_formatters: Reading::Stats::ResultFormatters::TRUNCATED_TITLES)
         @input = input
         @items = items
         @result_formatters = result_formatters

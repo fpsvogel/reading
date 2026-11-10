@@ -2,6 +2,7 @@
 
 - Added a stat operation: `average progress`.
 - Improved calculations for the `progress` stats filter.
+- Breaking change: first keyword arg in stats API changed to a positional argument, from `Reading.stats(input: "count", items:)` to `Reading.stats("count", items:)`.
 
 ## [1.3.1] – 2026-08-23
 

@@ -65,7 +65,7 @@ def run_query(file_path:, query:, enabled_columns_str:)
 
   items = Reading.parse(path: file_path, item_view: false, error_handler:)
   results = Reading.stats(
-    input: query,
+    query,
     items:,
     result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
   )

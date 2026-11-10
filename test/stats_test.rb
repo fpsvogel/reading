@@ -2172,7 +2172,7 @@ class StatsTest < Minitest::Test
       input = hash.fetch(:input)
 
       exp = hash.fetch(:result)
-      act = Reading.stats(input:, items:)
+      act = Reading.stats(input, items:)
 
       if exp.nil?
         assert_nil act, "Unexpected result #{act} from stats query \"#{name}\""
@@ -2183,7 +2183,7 @@ class StatsTest < Minitest::Test
 
       # Alternate input styles
       # a. Plural second word
-      act = Reading.stats(input: "#{input}s", items:)
+      act = Reading.stats("#{input}s", items:)
       exp.nil? ? assert_nil(act) : assert_equal(exp, act)
 
       # b. Aliases
@@ -2192,13 +2192,13 @@ class StatsTest < Minitest::Test
       op_aliases = Reading::Stats::Operation.const_get(:ALIASES).fetch(op_key)
 
       op_aliases.each do |op_alias|
-        act = Reading.stats(input: "#{op_alias}#{" " + number_arg.to_s if number_arg}", items:)
+        act = Reading.stats("#{op_alias}#{" " + number_arg.to_s if number_arg}", items:)
         exp.nil? ? assert_nil(act) : assert_equal(exp, act)
       end
 
       # c. Plural aliases
       op_aliases.each do |op_alias|
-        act = Reading.stats(input: "#{op_alias}s#{" " + number_arg.to_s if number_arg}", items:)
+        act = Reading.stats("#{op_alias}s#{" " + number_arg.to_s if number_arg}", items:)
         exp.nil? ? assert_nil(act) : assert_equal(exp, act)
       end
     end
@@ -2217,7 +2217,7 @@ class StatsTest < Minitest::Test
       input = hash.fetch(:input)
 
       exp = hash.fetch(:result)
-      act = Reading.stats(input:, items:)
+      act = Reading.stats(input, items:)
 
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
@@ -2225,7 +2225,7 @@ class StatsTest < Minitest::Test
       # Alternate input styles:
       # a. Plural
       plural_input = input.gsub(/(\w\s*)(!=|=|!~|~|>=|>|<=|<)/, '\1s\2')
-      act = Reading.stats(input: plural_input, items:)
+      act = Reading.stats(plural_input, items:)
       assert_equal exp, act
 
       # b. With spaces
@@ -2249,13 +2249,13 @@ class StatsTest < Minitest::Test
       input = hash.fetch(:input)
 
       exp = hash.fetch(:result)
-      act = Reading.stats(input:, items:)
+      act = Reading.stats(input, items:)
 
       assert_equal exp, act,
         "Unexpected result #{act} from stats query \"#{name}\""
 
       # Alternate input style: plural
-      act = Reading.stats(input: hash[:plural_input] || "#{input}s", items:)
+      act = Reading.stats(hash[:plural_input] || "#{input}s", items:)
       assert_equal(exp, act)
     end
   end
@@ -2274,7 +2274,7 @@ class StatsTest < Minitest::Test
 
       exp = hash.fetch(:result)
       act = Reading.stats(
-        input: hash.fetch(:input),
+        hash.fetch(:input),
         items:,
         result_formatters: Reading::Stats::ResultFormatters::TERMINAL,
       )
@@ -2291,10 +2291,10 @@ class StatsTest < Minitest::Test
     hash.each do |name, input|
       define_method("test_error_#{name}") do
         if name.start_with? "OK: " # Should not raise an error.
-          Reading.stats(input:, items: [])
+          Reading.stats(input, items: [])
         else
           assert_raises error, "Failed to raise #{error} for: #{name}" do
-            Reading.stats(input:, items: [])
+            Reading.stats(input, items: [])
           end
         end
       end
