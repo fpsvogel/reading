@@ -56,9 +56,12 @@ module Reading
 
       # To pages.
       # @return [Integer]
+      # to_int instead of to_i to avoid the latter's silent casting of nil to 0.
       def to_int
         ((value / 60.0) * Config.hash.fetch(:pages_per_hour)).to_int
       end
+      # But I don't want to force consumers to use the more obscure to_int.
+      alias_method :to_i, :to_int
 
       # @return [Boolean]
       def zero?
