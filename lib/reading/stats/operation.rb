@@ -107,6 +107,22 @@ module Reading
             amounts_by_date.values.sum / amounts_by_date.count
           end
         },
+        average_progress: proc { |items|
+          experiences_with_progress = 0
+          total_progress = items.sum { |item|
+            item.experiences.sum { |experience|
+              amount = experience.spans.sum { |span|
+                span.amount * (span.progress || 0.0)
+              }.to_int
+              length = item.variants[experience.variant_index].length
+              next 0 unless length
+              experiences_with_progress += 1
+              amount.to_f / length.to_int
+            }
+          }
+
+          total_progress / experiences_with_progress
+        },
         list_item: proc { |items|
           items.map { |item| author_and_title(item) }
         },
@@ -269,8 +285,9 @@ module Reading
       ALIASES = {
         average_rating: %w[ar],
         average_length: %w[al],
-        average_amount: %w[aia ai],
+        average_amount: %w[aa],
         :"average_daily-amount" => %w[ada ad],
+        average_progress: %w[ap],
         list_item: %w[li list],
         total_item: %w[item count],
         total_amount: %w[amount],

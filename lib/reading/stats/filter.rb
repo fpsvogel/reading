@@ -140,8 +140,11 @@ module Reading
               (raise InputError, "Progress must be a percentage")
           }
 
+          # Also implemented in Stats::Operation::ACTIONS[:average_progress]
           calculate_progress = lambda { |item, experience|
-            amount = experience.spans.sum { |span| span.amount * (span.progress || 0.0) }.to_int
+            amount = experience.spans.sum { |span|
+              span.amount * (span.progress || 0.0)
+            }.to_int
             length = item.variants[experience.variant_index].length
             return nil unless length
             amount.to_f / length.to_int

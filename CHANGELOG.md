@@ -1,5 +1,6 @@
 ## [1.4.0] – TBA
 
+- Added a stat operation: `average progress`.
 - Improved calculations for the `progress` stats filter.
 
 ## [1.3.1] – 2026-08-23

@@ -106,6 +106,25 @@ class StatsTest < Minitest::Test
         { experiences: [] },
       ],
     },
+    :"average progress" => {
+      input: "average progress",
+      # assuming 35 pages per hour (the config default)
+      result: 0.425, # sum of percentages / number of experiences
+      items: [
+        # 20%, 100%
+        { experiences: [{ spans: [{ amount: 35, progress: 0.2 }], variant_index: 0 },
+                        { spans: [{ amount: 35, progress: 1.0 }, { amount: Reading.time("1:00"), progress: 1.0 }], variant_index: 1 }],
+          variants: [{ length: 35 }, { length: 70 }] },
+        # 50%, 0%
+        { experiences: [{ spans: [{ amount: 35, progress: 1.0 }], variant_index: 0 },
+                        { spans: [{ amount: 35, progress: nil }], variant_index: 0 }],
+          variants: [{ length: 70 }] },
+        # N/A (undefined length)
+        { experiences: [{ spans: [{ amount: 35, progress: 1.0 }], variant_index: 0 }],
+          variants: [{ length: nil }] },
+        { experiences: [] },
+      ],
+    },
     :"total items" => {
       input: "total item",
       result: 2,

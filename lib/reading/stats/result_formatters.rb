@@ -18,6 +18,7 @@ module Reading
         average_length: ->(result) { length_to_s(result) },
         average_amount: ->(result) { length_to_s(result) },
         :"average_daily-amount" => ->(result) { "#{length_to_s(result)} per day" },
+        average_progress: ->(result) { "#{(result * 100).round(1)}%" },
         total_item: ->(result) {
           if result.zero?
             "none"
