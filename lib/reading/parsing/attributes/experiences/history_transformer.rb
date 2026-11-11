@@ -210,7 +210,7 @@ module Reading
             # If the entry has no amount and the item has no episodic length,
             # then use progress as amount instead. The typical scenario for this
             # is when tracking fixed-length items such as books. See
-            # https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#history-pages-and-stopping-points-books
+            # https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#history-pages-and-stopping-points-books
             if !amount && progress
               if progress.is_a?(Float)
                 total_length = Attributes::Shared.length(parsed_row[:length], format:)

@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.email = ["fps.vogel@gmail.com"]
 
   spec.summary = "Parses a CSV reading log."
-  spec.homepage = "https://github.com/fpsvogel/reading"
+  spec.homepage = "https://codeberg.org/fpsvogel/reading"
   spec.license = "MIT"
   spec.required_ruby_version = ">= #{File.read(".ruby-version")[/\d+\.\d+/]}" # e.g. "3.4" from "3.4.8"
 
@@ -26,8 +26,8 @@ Gem::Specification.new do |spec|
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
   spec.metadata["homepage_uri"] = spec.homepage
-  spec.metadata["source_code_uri"] = "https://github.com/fpsvogel/reading"
-  spec.metadata["changelog_uri"] = "https://github.com/fpsvogel/reading/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"] = "https://codeberg.org/fpsvogel/reading"
+  spec.metadata["changelog_uri"] = "https://codeberg.org/fpsvogel/reading/src/branch/main/CHANGELOG.md"
 
   # # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   # spec.files = Dir.chdir(File.expand_path(__dir__)) do

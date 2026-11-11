@@ -2,8 +2,8 @@ module Reading
   module Parsing
     module Rows
       module Regular
-        # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title
-        # and https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-dnf
+        # See https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-title
+        # and https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-dnf
         # and the sections following.
         class Head < Column
           def self.split_by_format?

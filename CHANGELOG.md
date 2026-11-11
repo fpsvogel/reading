@@ -70,7 +70,7 @@
 ## [0.7.0] - 2023-04-05
 
 - Added parsing of the History column.
-- Changed the parsing API. See the ["Usage" section of the README](https://github.com/fpsvogel/reading#parse-in-ruby).
+- Changed the parsing API. See the ["Usage" section of the README](https://codeberg.org/fpsvogel/reading#parse-in-ruby).
 
 ## [0.6.1] - 2023-01-01
 

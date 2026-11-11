@@ -400,7 +400,7 @@ class ParseTest < Minitest::Test
   ## INPUT: ALL COLUMNS
   # For interactions between columns that are not caught in the single-column
   # tests above. Also for realistic examples from the reading.csv template:
-  # https://github.com/fpsvogel/reading/blob/main/doc/reading.csv
+  # https://codeberg.org/fpsvogel/reading/src/branch/main/doc/reading.csv
   @inputs[:all_columns] =
   {
     :"empty Sources column doesn't prevent variant from elsewhere" =>

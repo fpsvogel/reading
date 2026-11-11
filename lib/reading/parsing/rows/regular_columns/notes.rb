@@ -2,8 +2,8 @@ module Reading
   module Parsing
     module Rows
       module Regular
-        # See https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column
-        # and https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column-special-notes
+        # See https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#notes-column
+        # and https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#notes-column-special-notes
         class Notes < Column
           RATING_CHANGED_WORDS = %w[
             changed

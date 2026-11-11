@@ -1,9 +1,9 @@
 <!-- omit in toc -->
 # CSV Format Guide
 
-Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv) and refer to the sections below as needed. Then see [next steps](#next-steps) below.
+Welcome! This is a guide to setting up your own CSV reading log to be parsed by the Reading gem. If you want the quickest start possible, download and edit [the reading.csv template](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/reading.csv) and refer to the sections below as needed. Then see [next steps](#next-steps) below.
 
-This guide is written to show you what your reading log CSV file should look like in order for it to be parsable. What the data looks like *after* it's parsed is covered separately in the [parsed output guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md).
+This guide is written to show you what your reading log CSV file should look like in order for it to be parsable. What the data looks like *after* it's parsed is covered separately in the [parsed output guide](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/parsed-output.md).
 
 ### Table of contents
 - [Preliminaries: how to edit a CSV file pleasantly](#preliminaries-how-to-edit-a-csv-file-pleasantly)
@@ -44,7 +44,7 @@ This guide is written to show you what your reading log CSV file should look lik
 ## Preliminaries: how to edit a CSV file pleasantly
 
 - I highly recommend the [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) for VS Code. It's perfect for editing CSV files with long columns, as your reading log is likely to have.
-- A row template shortcut makes entering a row less cumbersome. I use [a Ruby script](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb) for which I've set up a keyboard shortcut. [Here's an AutoHotkey script](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk) that does the same thing.
+- A row template shortcut makes entering a row less cumbersome. I use [a Ruby script](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/ruby_reading_csv_row_shortcut.rb) for which I've set up a keyboard shortcut. [Here's an AutoHotkey script](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/autohotkey-reading-row-shortcut.ahk) that does the same thing.
 - To edit your reading log on mobile devices, you can save the CSV file in the cloud and use a cloud-syncing text editor mobile app. I use the Android app [Simple Text](https://play.google.com/store/apps/details?id=simple.text.dropbox), which syncs to Dropbox.
 
 ## A minimal reading log
@@ -65,9 +65,9 @@ Tom Holt - Goatsong|2019/06/18, 2020/5/8
 - The author is optional, too. The only thing every row must have is the title.
 - To sum up these two rows: you haven't read *Sapiens* yet, and you've read *Goatsong* twice. Nice!
 
-If this minimal kind of reading log is what you want, see example in the ["Parse with custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#parse-with-custom-config) section of the README.
+If this minimal kind of reading log is what you want, see example in the ["Parse with custom config"](https://codeberg.org/fpsvogel/reading/src/branch/main/README.md#parse-with-custom-config) section of the README.
 
-By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns (as they appear in [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv)), so that you can get an idea of what a full item looks like. Here's a screenshot from VS Code using the above-mentioned Rainbow CSV extension:
+By default, all columns are enabled. We'll learn about each column in turn, but first here are those same two items but now with all columns (as they appear in [the reading.csv template](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/reading.csv)), so that you can get an idea of what a full item looks like. Here's a screenshot from VS Code using the above-mentioned Rainbow CSV extension:
 
 ![example reading log in Rainbow CSV](/doc/rainbow-csv-example.png)
 
@@ -105,7 +105,7 @@ Carl Sagan - Cosmos
 
 Only the title is always required. The format and author are optional.
 
-These are the formats and their corresponding emojis, defined in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb):
+These are the formats and their corresponding emojis, defined in [config.rb](https://codeberg.org/fpsvogel/reading/src/branch/main/lib/reading/config.rb):
 
 | Emoji | Format      |
 | ----- | ----------- |
@@ -119,7 +119,7 @@ These are the formats and their corresponding emojis, defined in [config.rb](htt
 | ✏️     | `piece`     |
 | 🌐     | `website`   |
 
-You can define your own formats via a custom config by following a process similar to the example in the ["Parse with custom config"](https://github.com/fpsvogel/reading/blob/main/README.md#parse-with-custom-config) section of the README. To see what the custom formats should look like when you pass them in as custom config, see `Config#default_config[:formats]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+You can define your own formats via a custom config by following a process similar to the example in the ["Parse with custom config"](https://codeberg.org/fpsvogel/reading/src/branch/main/README.md#parse-with-custom-config) section of the README. To see what the custom formats should look like when you pass them in as custom config, see `Config#default_config[:formats]` in [config.rb](https://codeberg.org/fpsvogel/reading/src/branch/main/lib/reading/config.rb).
 
 ### Sources column
 
@@ -286,11 +286,11 @@ In these cases, I like putting each planned item on its own line with Sources an
 
 This will be parsed as normal Head, Sources, and Length columns. If you want more columns than that, then just change it to a non-compact item by removing the comment character and adding in the missing columns.
 
-One reason I like this form is that my shortcut scripts for creating a new row ([Ruby](https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb), [AutoHotkey](https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk)) recognize a compact planned item and incorporates it into the new row, and having Sources and Length columns ready to go means less work changing the planned item into a regular row.
+One reason I like this form is that my shortcut scripts for creating a new row ([Ruby](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/ruby_reading_csv_row_shortcut.rb), [AutoHotkey](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/autohotkey-reading-row-shortcut.ahk)) recognize a compact planned item and incorporates it into the new row, and having Sources and Length columns ready to go means less work changing the planned item into a regular row.
 
 ### Compact planned items: ignored emojis
 
-Especially in a row of compact planned items, it can be useful to sprinkle emojis to mark items in various ways, such as "I'll need to buy this" (`💲`) or "I have this on hold" (`⏳`)—but the emojis and their meanings are up to you. The point here is that certain emojis are ignored by the parser. For the default list, see `Config#default_config[:ignored_characters]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb).
+Especially in a row of compact planned items, it can be useful to sprinkle emojis to mark items in various ways, such as "I'll need to buy this" (`💲`) or "I have this on hold" (`⏳`)—but the emojis and their meanings are up to you. The point here is that certain emojis are ignored by the parser. For the default list, see `Config#default_config[:ignored_characters]` in [config.rb](https://codeberg.org/fpsvogel/reading/src/branch/main/lib/reading/config.rb).
 
 ## Advanced
 
@@ -622,6 +622,6 @@ So the history column is not limited to one particular format. I myself find it 
 
 ## Next steps
 
-- Start your own reading log by downloading and editing [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv).
-- See how to use the gem to parse your reading log in [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage).
-- To better understand the parsed output from the gem, see [the Parsed Output Guide](https://github.com/fpsvogel/reading/blob/main/doc/parsed-output.md).
+- Start your own reading log by downloading and editing [the reading.csv template](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/reading.csv).
+- See how to use the gem to parse your reading log in [the "Usage" section in the README](https://codeberg.org/fpsvogel/reading/src/branch/main/README.md#usage).
+- To better understand the parsed output from the gem, see [the Parsed Output Guide](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/parsed-output.md).

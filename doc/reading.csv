@@ -2,7 +2,7 @@
 \ This file can be parsed by the Reading gem, so that you can show some of your reading on a webpage.
 \ Example: fpsvogel.com/reading
 \ For guidance on each of the columns below, see the CSV format guide:
-\ https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md
+\ https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md
 \
 \ Any line in this file starting with a backslash (\) is a comment and will be ignored by the Reading parser.
 \ Feel free to delete these explanatory comments.
@@ -15,8 +15,8 @@
 \
 \ Also, entering a row is much less cumbersome if you set up keyboard shortcuts for a row template and for today's date.
 \ You can use one of these two scripts:
-\   https://github.com/fpsvogel/reading/blob/main/doc/ruby_reading_csv_row_shortcut.rb
-\   https://github.com/fpsvogel/reading/blob/main/doc/autohotkey-reading-row-shortcut.ahk
+\   https://codeberg.org/fpsvogel/reading/src/branch/main/doc/ruby_reading_csv_row_shortcut.rb
+\   https://codeberg.org/fpsvogel/reading/src/branch/main/doc/autohotkey-reading-row-shortcut.ahk
 \
 \
 \Rating|Title|Sources|Start dates|End dates|Genres|Length|Notes|History

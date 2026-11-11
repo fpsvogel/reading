@@ -1,7 +1,7 @@
 <!-- omit in toc -->
 # Parsed Output Guide
 
-Hello! This is a guide to the output of the Reading gem after it parses a CSV reading log. To learn what the CSV file should look like in the first place, see the [CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md), relevant sections of which are linked below for convenience.
+Hello! This is a guide to the output of the Reading gem after it parses a CSV reading log. To learn what the CSV file should look like in the first place, see the [CSV Format Guide](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md), relevant sections of which are linked below for convenience.
 
 ### Table of contents
 - [Viewing output from CSV strings with the `reading` command](#viewing-output-from-csv-strings-with-the-reading-command)
@@ -35,7 +35,7 @@ $ reading '📕Trying|Little Library 1970147288' 'head, sources'
 
 ## Output from a minimal CSV reading log
 
-*In the CSV Format Guide: ["A minimal reading log"](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#a-minimal-reading-log)*
+*In the CSV Format Guide: ["A minimal reading log"](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#a-minimal-reading-log)*
 
 Here is a minimal CSV reading log:
 
@@ -45,7 +45,7 @@ Sapiens: A Brief History of Humankind
 Tom Holt - Goatsong|2019/06/18, 2020/5/8
 ```
 
-When that's parsed, an array of [Items](https://github.com/fpsvogel/reading/blob/main/lib/reading/item.rb) is outputted analogous to the Hashes below. The first item in this code snippet has comments pointing out all the columns from which each attribute can possibly come from. We'll look more closely at these column-to-attribute mappings in the sections below.
+When that's parsed, an array of [Items](https://codeberg.org/fpsvogel/reading/src/branch/main/lib/reading/item.rb) is outputted analogous to the Hashes below. The first item in this code snippet has comments pointing out all the columns from which each attribute can possibly come from. We'll look more closely at these column-to-attribute mappings in the sections below.
 
 ```ruby
 # Compare to Config#default_config[:item][:template] in config.rb.
@@ -108,7 +108,7 @@ Each subsection below contains:
 
 ### `rating` attribute
 
-CSV column: [**Rating**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#rating-column).
+CSV column: [**Rating**](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#rating-column).
 
 ```ruby
 item = {
@@ -119,9 +119,9 @@ item = {
 
 ### `author` attribute
 
-CSV column: [**Head**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title).
+CSV column: [**Head**](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-title).
 
-Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items).
+Also specified by [compact planned items](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#compact-planned-items).
 
 ```ruby
 item = {
@@ -132,9 +132,9 @@ item = {
 
 ### `title` attribute
 
-CSV column: [**Head**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title).
+CSV column: [**Head**](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-title).
 
-Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items).
+Also specified by [compact planned items](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#compact-planned-items).
 
 ```ruby
 item = {
@@ -145,9 +145,9 @@ item = {
 
 ### `genres` attribute
 
-CSV column: [**Genres**](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#genres-column).
+CSV column: [**Genres**](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#genres-column).
 
-Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-genres).
+Also specified by [compact planned items](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#compact-planned-items-genres).
 
 ```ruby
 item = {
@@ -160,8 +160,8 @@ item = {
 
 CSV column: **Notes**:
 
-- [for `content`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column)
-- [for the rest](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#notes-column-special-notes)
+- [for `content`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#notes-column)
+- [for the rest](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#notes-column-special-notes)
 
 ```ruby
 item = {
@@ -186,15 +186,15 @@ item = {
 CSV columns:
 
 - **Head**:
-  - [for `format`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-title)
-  - [for `series`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-series-and-volume)
-  - [for `extra_info`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-extra-info)
+  - [for `format`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-title)
+  - [for `series`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-series-and-volume)
+  - [for `extra_info`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-extra-info)
 - **Sources**:
-  - [for `isbn`, `sources`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column)
-  - [for `format`, `series`, `extra_info`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#sources-column-variants)
+  - [for `isbn`, `sources`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#sources-column)
+  - [for `format`, `series`, `extra_info`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#sources-column-variants)
 - [**Length**](#length-column)
 
-Also specified by [compact planned items](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#compact-planned-items-sources).
+Also specified by [compact planned items](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#compact-planned-items-sources).
 
 ```ruby
 item = {
@@ -232,11 +232,11 @@ item = {
 CSV columns:
 
 - **Start Dates** and **End Dates**:
-  - [for `dates`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-and-end-dates-columns)
-  - [for `variant_index`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-column-variants)
-  - [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-column-progress)
-  - [for `group`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#start-dates-column-group-experience)
-- **Head** [for `progress`](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#head-column-dnf)
+  - [for `dates`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#start-dates-and-end-dates-columns)
+  - [for `variant_index`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#start-dates-column-variants)
+  - [for `progress`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#start-dates-column-progress)
+  - [for `group`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#start-dates-column-group-experience)
+- **Head** [for `progress`](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#head-column-dnf)
 - [**History**](#history-column) for everything
 
 ```ruby
@@ -266,7 +266,7 @@ item = {
 
 Now that we've seen how the reading log CSV file should be formatted, let's take a look at what output the Reading gem gives after parsing it.
 
-In each of the two output examples below, I've copied the item template in `Config#default_config[:item][:template]` in [config.rb](https://github.com/fpsvogel/reading/blob/main/lib/reading/config.rb) and added to it the information that is parsed from the example. (In reality these "empty" parts are left out of the parsed data.)
+In each of the two output examples below, I've copied the item template in `Config#default_config[:item][:template]` in [config.rb](https://codeberg.org/fpsvogel/reading/src/branch/main/lib/reading/config.rb) and added to it the information that is parsed from the example. (In reality these "empty" parts are left out of the parsed data.)
 
 ### Example: book
 
@@ -381,7 +381,7 @@ In the example above, a confusing bit that we haven't talked about yet is `spans
 
 This example will shed light on these questions. Being a podcast, it doesn't have a total length, so it has no `length` in `variants`. Instead, it defines `amount` in its `spans`, and each span represents an episode. Different episodes can of course be listened to on different days, and an episode can be DNF'ed (abandoned) partway through, which is why each span has its own `dates` and `progress`.
 
-So it makes sense why a podcast would have all this span-based information, but why not leave this whole span business out of books, and just limit it to podcasts where it could be renamed to something more sensible like "episodes"? Because books can have spans, too, as in [the last examples of the History column in the CSV Format Guide](https://github.com/fpsvogel/reading/blob/main/doc/csv-format.md#history-pages-and-stopping-points-books). It also makes it easier on you, the user of Reading, if all items have the same structure regardless of format and mode of reading/listening/watching.
+So it makes sense why a podcast would have all this span-based information, but why not leave this whole span business out of books, and just limit it to podcasts where it could be renamed to something more sensible like "episodes"? Because books can have spans, too, as in [the last examples of the History column in the CSV Format Guide](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/csv-format.md#history-pages-and-stopping-points-books). It also makes it easier on you, the user of Reading, if all items have the same structure regardless of format and mode of reading/listening/watching.
 
 Without further ado, here's a podcast example, one that is more complex than usual just for illustration's sake:
 
@@ -485,5 +485,5 @@ parsed_items = [{
 
 ## Next steps
 
-- Start your own reading log by downloading and editing [the reading.csv template](https://github.com/fpsvogel/reading/blob/main/doc/reading.csv).
-- See how to use the gem to parse your reading log in [the "Usage" section in the README](https://github.com/fpsvogel/reading/blob/main/README.md#usage).
+- Start your own reading log by downloading and editing [the reading.csv template](https://codeberg.org/fpsvogel/reading/src/branch/main/doc/reading.csv).
+- See how to use the gem to parse your reading log in [the "Usage" section in the README](https://codeberg.org/fpsvogel/reading/src/branch/main/README.md#usage).

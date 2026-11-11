@@ -6,7 +6,7 @@ require_relative "reading/filter"
 require_relative "reading/stats/query"
 require_relative "reading/item/time_length.rb"
 
-# The gem's public API. See https://github.com/fpsvogel/reading#usage
+# The gem's public API. See https://codeberg.org/fpsvogel/reading#usage
 #
 # Architectural overview:
 #
