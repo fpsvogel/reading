@@ -56,12 +56,9 @@ module Reading
 
       # To pages.
       # @return [Integer]
-      # to_int instead of to_i to avoid the latter's silent casting of nil to 0.
-      def to_int
-        ((value / 60.0) * Config.hash.fetch(:pages_per_hour)).to_int
+      def to_i
+        ((value / 60.0) * Config.hash.fetch(:pages_per_hour)).to_i
       end
-      # But I don't want to force consumers to use the more obscure to_int.
-      alias_method :to_i, :to_int
 
       # @return [Boolean]
       def zero?
@@ -76,26 +73,26 @@ module Reading
 
       # Converts @value to an Integer if it's a whole number, and returns self.
       # @return [TimeLength]
-      def to_int_if_whole!
+      def to_i_if_whole!
         if @value.is_a?(Float) && @value.nan?
           @value = 0
-        elsif @value.to_int == @value
-          @value = @value.to_int
+        elsif @value.to_i == @value
+          @value = @value.to_i
         end
 
         self
       end
 
-      # A non-mutating version of #to_int_if_whole! for compatibility with the
-      # refinement Numeric#to_int_if_whole.
+      # A non-mutating version of #to_i_if_whole! for compatibility with the
+      # refinement Numeric#to_i_if_whole.
       # @return [TimeLength]
-      def to_int_if_whole
+      def to_i_if_whole
         if @value.is_a?(Float) && @value.nan?
           return self.class.new(0)
         else
-          return self if @value.is_a?(Integer) || @value.to_int != @value
+          return self if @value.is_a?(Integer) || @value.to_i != @value
 
-          self.class.new(@value.to_int)
+          self.class.new(@value.to_i)
         end
       end
 
@@ -127,7 +124,7 @@ module Reading
       # @return [TimeLength]
       def *(other)
         if other.is_a? Numeric
-          self.class.new(value * other).to_int_if_whole!
+          self.class.new(value * other).to_i_if_whole!
         else
           raise TypeError, "TimeLength can't be multiplied by #{other.class}."
         end
@@ -137,7 +134,7 @@ module Reading
       # @return [TimeLength]
       def /(other)
         if other.is_a? Numeric
-          self.class.new(value / other).to_int_if_whole!
+          self.class.new(value / other).to_i_if_whole!
         else
           raise TypeError, "TimeLength can't be divided by #{other.class}."
         end

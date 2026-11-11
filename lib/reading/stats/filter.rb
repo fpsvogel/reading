@@ -144,10 +144,10 @@ module Reading
           calculate_progress = lambda { |item, experience|
             amount = experience.spans.sum { |span|
               span.amount * (span.progress || 0.0)
-            }.to_int
+            }.to_i
             length = item.variants[experience.variant_index].length
             return nil unless length
-            amount.to_f / length.to_int
+            amount.to_f / length.to_i
           }
 
           filtered_items = items.map { |item|

@@ -20,7 +20,7 @@ module Reading
         # from History and not the Start Dates, End Dates, and Head columns).
         class HistoryTransformer
           using Util::HashArrayDeepFetch
-          using Util::NumericToIntIfWhole
+          using Util::NumericToIIfWhole
 
           # Rational numbers are used here and in #distribute_amount_across_date_range
           # below so as not to lose precision when dividing a small amount by
@@ -405,7 +405,7 @@ module Reading
                 "Backward date range in the History column: #{date_range}"
             end
 
-            amount_per_date = (total_amount / days.to_r).to_int_if_whole if total_amount
+            amount_per_date = (total_amount / days.to_r).to_i_if_whole if total_amount
 
             amounts_by_date = date_range.to_a.map { |date|
               [date, amount_per_date]
@@ -457,7 +457,7 @@ module Reading
 
                     if span[:amount_from_frequency?]
                       new_to_old_dates_ratio = new_dates.count / span[:dates].count.to_f
-                      span[:amount] = (span[:amount] * new_to_old_dates_ratio).to_int_if_whole
+                      span[:amount] = (span[:amount] * new_to_old_dates_ratio).to_i_if_whole
                     end
 
                     span[:dates] = new_dates

@@ -4,7 +4,7 @@ module Reading
       # Transformer for the :variant item attribute.
       class Variants < Attribute
         using Util::HashArrayDeepFetch
-        using Util::NumericToIntIfWhole
+        using Util::NumericToIIfWhole
 
         # @param parsed_row [Hash] a parsed row (the intermediate hash).
         # @param head_index [Integer] current item's position in the Head column.
