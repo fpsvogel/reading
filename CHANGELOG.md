@@ -1,4 +1,4 @@
-## [1.4.0] – TBA
+## [1.4.0] – 2026-11-11
 
 - Added a stat operation: `average progress`.
 - Improved calculations for the `progress` stats filter.
