@@ -15,7 +15,6 @@
 
 require_relative "../lib/reading"
 require_relative "../lib/reading/stats/result_formatters"
-require "debug"
 require "amazing_print"
 require "pastel"
 

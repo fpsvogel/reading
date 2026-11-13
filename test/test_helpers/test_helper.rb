@@ -1,7 +1,5 @@
 require "bundler/setup"
 
-require "debug"
-
 require "minitest/autorun"
 require "minitest/reporters"
 Minitest::Reporters.use! [Minitest::Reporters::ProgressReporter.new(detailed_skip: false)]
